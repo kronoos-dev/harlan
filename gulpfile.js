@@ -15,9 +15,11 @@ var fileinclude = require('gulp-file-include'),
         browserify = require('browserify'),
         stylish = require('jshint-stylish'),
         transform = require('vinyl-transform'),
-        gulp = require('gulp'),
+	gulp = require('gulp'),
         livereload = require('gulp-livereload'),
-        s3 = require("gulp-s3"),
+	s3 = require("gulp-s3"),
+	plumber = require('gulp-plumber'),
+	ghPages = require('gulp-gh-pages'),
         streamqueue = require('streamqueue');
 
 gulp.task('clean', function () {
@@ -60,7 +62,10 @@ gulp.task('build-external-scripts', function () {
             .pipe(jshint.reporter(stylish))
             .pipe(thotypous())
             .pipe(gulp.dest('Server/web/js'));
+});
 
+gulp.task('deploy', function() {
+	return gulp.src('./Server/web/**/*').pipe(ghPages());
 });
 
 gulp.task('jslint', function () {
@@ -87,6 +92,7 @@ gulp.task('build-scripts', function () {
         'bower_components/d3/d3.js',
         'bower_components/nvd3/build/nv.d3.js'
     ]), gulp.src('src/js/*.js')
+            .pipe(plumber())
             .pipe(browserified))
             .pipe(thotypous())
             .pipe(concat("app.min.js"))
@@ -129,6 +135,7 @@ gulp.task('build-styles', function () {
     ]), gulp.src([
         'src/scss/screen.scss'
     ])
+            .pipe(plumber())
             .pipe(compass({
                 css: 'temp/css',
                 sass: 'src/scss',
@@ -142,15 +149,6 @@ gulp.task('build-styles', function () {
             .pipe(livereload());
 });
 
-gulp.task('deploy', ['build'], function () {
-    return gulp.src("Server/web/**")
-            .pipe(s3({
-                "key": "AKIAJONZLKRD5BS2TK6Q",
-                "secret": "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",
-                "bucket": "harlan.bipbop.com.br",
-                "region": "sa-east-1"
-            }));
-});
 
 gulp.task('build', ['jslint', 'build-external-scripts', 'manifest', 'app-fonts', 'app-images', 'build-scripts', 'bower-swf', 'build-styles', 'app-images', 'app-html']);
 gulp.task('default', ['build', 'watch']);
