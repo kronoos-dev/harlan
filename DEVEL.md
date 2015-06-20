@@ -3,7 +3,7 @@
 
 ### Sumário
 
-Este documento é voltado para desenvolvedores que desejam carregar o Harlan dentro de seus sistemas ou otimizá-lo através da criação de módulos. Esse documento fornece um overview do que é necessário para se trabalhar dentro do sistema.
+Este documento é voltado para desenvolvedores que desejam carregar o Harlan dentro de seus sistemas ou otimizá-lo através da criação de módulos. Esse documento fornece um resumo do que é necessário para se trabalhar dentro deste sistema.
 
 ![](http://harlan.bipbop.com.br/images/bipbop-logo-460.png) 
 
@@ -11,7 +11,7 @@ Este documento é voltado para desenvolvedores que desejam carregar o Harlan den
 
 _Acompanhe, pesquise e descubra de maneira simplificada por todas as informações disponíveis na API BIPBOP._
 
-O Harlan é um sistema de governança cadastral aberto que permite empresas desenvolverem seus modelos de negócio e aplicativos dentro de uma plataforma única e de maneira muito simplificada utilizando as informações do [Marketplace](http://marketplace.bipbop.com.br/) e [BIPBOP](http://api.bipbop.com.br/) em uma interface construída com [NodeJS](https://nodejs.org/).
+O Harlan é um sistema de governança cadastral aberto que permite que empresas desenvolvam seus modelos de negócio e aplicativos dentro de uma plataforma única e de maneira simplificada, utilizando as informações do [Marketplace](http://marketplace.bipbop.com.br/) e [BIPBOP](http://api.bipbop.com.br/) em uma interface construída com [NodeJS](https://nodejs.org/).
 
 ![](https://nodejs.org/images/logos/nodejs-green.png)
 
@@ -64,13 +64,13 @@ O Harlan utiliza a tecnologia Gulp para a construção do projeto, o Gulp é uma
 
 ### Desmistificando o _src/js/controller.js_
 
-Todo o desenvolvimento do Harlan é orientado para que você consiga através de poucas linhas de JavaScript e CSS:
+Todo o desenvolvimento do Harlan é orientado para que você consiga fazer o seguinte através de poucas linhas de JavaScript e CSS:
 
 1. Sobreescrever funcionalidades existentes.
 2. Receber os eventos do sistema de modo simplificado.
 3. Alterar toda a interface do sistema ou pontos específicos.
 
-O controller é vísivel do user-space, que é onde os módulos externos a aplicação, sejam eles injetados no Harlan ou não, o enxergam com o nome _harlan_, por exemplo:
+O controller é visível do user-space, que é onde os módulos externos a aplicação, sejam eles injetados no Harlan ou não, ou enxergam com o nome _harlan_, por exemplo:
 
     /* file: src/external-js/mymodule.js */
     harlan.registerCall("mymodule::action", function (args) {});
@@ -93,7 +93,7 @@ Caso você esteja dentro do user-space da aplicação Harlan:
     
 #### Criando uma Call
 
-A call é uma função que você deseja exportar para o sistema, por exemplo, eu desejo exportar uma função que exibe um popup dando Hello World, abra o console JavaScript do Chrome e digite:
+A call é uma função que você deseja exportar para o sistema. Por exemplo, eu desejo exportar uma função que exibe um pop-up dando Hello World, abra o console JavaScript do Chrome e digite:
 
     /* Chrome JS Console - https://developer.chrome.com/devtools/docs/console */
     harlan.registerCall("mymodule::popup", function (args) {
@@ -110,11 +110,11 @@ A call é uma função que você deseja exportar para o sistema, por exemplo, eu
         form.addSubmit("exit", "Sair");
     });
 
-Agora na sequencia digite o seguinte:
+Agora na sequência digite o seguinte:
 
     harlan.call("mymodule::popup");
 
-Não custar dizer que o Harlan já vem com as seguintes bibliotecas pŕe-instaladas e que você pode usar em seus módulos:
+Não custa dizer que o Harlan já vem com as seguintes bibliotecas pŕe-instaladas e que você pode usar em seus módulos:
 
 1. jQuery 2.x para que você possa manipular o DOM de maneira mais fácil e intuitiva.
 2. [D3JS](http://d3js.org/) e [NV3D](http://nvd3.org/) para criação de gráficos ricos para o usuário.
@@ -132,7 +132,7 @@ O controller permite disparar e receber eventos, todos os eventos necessáriamen
         callback(); /* Você sempre deve chamar o callback após terminar suas operações */
     });
 
-Você também pode gerar seus próprios triggers, por exemplo:
+Você também pode gerar seus próprios triggers, como por exemplo:
 
     harlan.trigger("mymodule::finish", {key: "value"});
 
@@ -148,7 +148,7 @@ Apenas módulos internos podem executar instruções logo após a construção d
 
 ## Dúvidas?
 
-Recomendamos consultar o [StackOverflow](http://stackoverflow.com/) primeiro, as perguntas costumam serem respondidas lá, mas você pode também usar outros canais.
+Recomendamos consultar o [StackOverflow](http://stackoverflow.com/) primeiro, as perguntas costumam serem respondidas lá. Porém, você também pode usar outros canais se assim desejar.
 
 ### IRC
 
