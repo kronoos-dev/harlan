@@ -148,6 +148,8 @@ Apenas módulos internos podem executar instruções logo após a construção d
 
 ## Dúvidas?
 
+Recomendamos consultar o [StackOverflow](http://stackoverflow.com/) primeiro, as perguntas costumam serem respondidas lá, mas você pode também usar outros canais.
+
 ### IRC
 
 Para a discussão desse software acesse  #bipbop em irc.freenode.net.
