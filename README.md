@@ -13,15 +13,15 @@ Com o Harlan você gera qualquer relatório, fica sabendo quando as coisas mudam
 
 ### Cadastro na Nuvem
 
-Cada consulta salva é permanentemente atualizada, isto é, sempre que você consultar um registro salvo saberá o que mudou ao longo do tempo, quando mudou e poderá acessar comprovantes de cada uma dessas alterações. Além disso nossa ferramenta lhe avisará caso alguma coisa mudou.
+Cada consulta salva é permanentemente atualizada, isto é, sempre que você consultar um registro salvo saberá o que e quando mudou ao longo do tempo, e também poderá acessar comprovantes de cada uma dessas alterações. Além disso nossa ferramenta lhe avisará caso algo sofra uma mudança.
 
 ### Comente o que é importante
 
-Trabalhar em equipe é fundamental, por isso o Harlan conta com uma ferramenta que permite você adicionar notas nos resultados salvos para que outros membros da equipe saibam, ou você até mesmo lembre no futuro, do que é importante.
+Trabalhar em equipe é sempre fundamental. Por isso, o Harlan conta com uma ferramenta que permite você adicionar notas nos resultados salvos para que outros membros da equipe saibam do que é importante, ou até mesmo para você lembrar no futuro.
 
 ### Open Source e Comunitário
 
-O Harlan é uma ferramenta open-source distribuída sobre a licença MIT, o código fonte e maiores informações podem ser encontradas no nosso repositório de código [Bitbucket](https://bitbucket.org/bipbop/harlan). Ser uma ferramenta livre significa que se você é desenvolvedor pode criar módulos e APIs para o sistema para atender demandas específicas ganhando dinheiro com isso.
+O Harlan é uma ferramenta open-source distribuída sobre a licença MIT, o código fonte e maiores informações podem ser encontradas no nosso repositório de código [Bitbucket](https://bitbucket.org/bipbop/harlan). Ser uma ferramenta livre significa que se você é desenvolvedor pode criar módulos e APIs para o sistema para atender demandas específicas, ganhando dinheiro com isso.
 
 ----------
 
@@ -31,7 +31,7 @@ Encontrou algum problema no Harlan, alguma dúvida? Pergunte no [Stack Overflow]
 
 #### Suporte Corporativo
 
-Dúvidas sobre como implementar? A BIPBOP responde suas questões em até duas horas de maneira efetiva e garantida. Assine em [checkout](https://irql.bipbop.com.br/api/checkout.html).
+Dúvidas sobre implementação? A BIPBOP responderá suas questões em até duas horas de maneira efetiva e garantida. Assine em [checkout](https://irql.bipbop.com.br/api/checkout.html).
 
 ----------
 
