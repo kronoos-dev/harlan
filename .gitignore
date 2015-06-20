@@ -1,0 +1,10 @@
+.netbeans.xml
+art/
+.sass-cache/
+nbproject/
+tmp/
+temp/
+node_modules/
+public/
+Server/web/
+bower_components/
