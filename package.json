@@ -30,6 +30,7 @@
     "gulp-jshint": "~1.9.0",
     "gulp-livereload": "^3.8.0",
     "gulp-manifest": "0.0.6",
+    "gulp-messageformat": "0.0.6",
     "gulp-minify-css": "~0.3.11",
     "gulp-plumber": "^1.0.1",
     "gulp-rename": "^1.2.2",
@@ -49,6 +50,7 @@
     "diacritics": "~1.2.1",
     "domready": "~1.0.7",
     "markdown": "^0.5.0",
+    "messageformat": "^0.2.2",
     "phantomjs": "^1.9.17",
     "underscore": "^1.7.0"
   }

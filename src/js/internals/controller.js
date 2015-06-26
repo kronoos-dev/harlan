@@ -8,6 +8,7 @@ var ImportXMLDocument = require("./library/importXMLDocument");
 
 module.exports = function () {
 
+    this.i18n = require("./i18n/en.js");
     this.confs = require("./config.js");
 
     var bootstrapCalls = {};
@@ -159,6 +160,7 @@ module.exports = function () {
     require("./forms/receitaCertidao")(this);
     
     /* Modules */
+    require("./modules/i18n")(this);
     require("./modules/autocomplete")(this);
     require("./modules/openReceipt")(this);
     require("./modules/findDatabase")(this);
