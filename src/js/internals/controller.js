@@ -8,8 +8,16 @@ var ImportXMLDocument = require("./library/importXMLDocument");
 
 module.exports = function () {
 
-    this.i18n = require("./i18n/en.js");
     this.confs = require("./config.js");
+
+    this.i18n = (function (language) {
+        var validLanguages = {
+            "en": require("./i18n/en"),
+            "pt": require("./i18n/pt")
+        };
+        
+        return validLanguages[language] ? validLanguages[language] : validLanguages.en;
+    })((localStorage.language || localharnavigator.language || navigator.userLanguage).split("-")[0]);
 
     var bootstrapCalls = {};
     var calls = {};
@@ -51,7 +59,7 @@ module.exports = function () {
             }));
             return this.addCSSDocument;
         };
-        
+
         this.widgets = require("./widgets/widgets.js");
 
         return this;
@@ -155,10 +163,10 @@ module.exports = function () {
     /* Parsers */
     require("./parsers/placasWiki")(this);
     require("./parsers/juntaEmpresa")(this);
-    
+
     /* Forms */
     require("./forms/receitaCertidao")(this);
-    
+
     /* Modules */
     require("./modules/i18n")(this);
     require("./modules/autocomplete")(this);

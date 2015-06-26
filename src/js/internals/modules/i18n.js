@@ -15,8 +15,11 @@ module.exports = function (controller) {
             var components = jnode.attr(i18nAttr).split(".");
             
             var file = components.shift();
-            var key = components.join(".");
+            if (!controller.i18n[file]) {
+                return;
+            }
             
+            var key = components.join(".");
             var fncptr = controller.i18n[file][key];
             if (!fncptr) {
                 return;
