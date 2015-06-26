@@ -39,6 +39,7 @@ module.exports = function (controller) {
         i18nTag(domDocument, "value");
         i18nTag(domDocument, "title");
         i18nTag(domDocument, "placeholder");
+        i18nTag(domDocument, "content");
     });
 
     controller.registerBootstrap("i18n", function () {
