@@ -101,7 +101,6 @@ gulp.task('build-scripts', function () {
 
     return streamqueue({objectMode: true}, gulp.src([
         'bower_components/jquery/dist/jquery.min.js',
-        'bower_components/mustache/mustache.min.js',
         'bower_components/jquery.bipbop/dist/jquery.bipbop.js',
         'bower_components/toastr/toastr.js',
         'bower_components/zeroclipboard/dist/ZeroClipboard.min.js',
