@@ -10,8 +10,13 @@
     "type": "git",
     "url": "git@bitbucket.org:bipbop/harlan.git"
   },
-  "author": "",
-  "license": "copyright",
+  "author": {
+      "Lucas Fernando Amorim <lf.amorim@bipbop.com.br>",
+      "Leonardo Amaral <leonardo@bipbop.com.br>",
+      "Murilo Ijanc <murilo@bipbop.com.br>",
+      "Marcelo Aires Caetano <marcelo@bipbop.com.br>"
+  },
+  "license": "mit",
   "devDependencies": {
     "browserify": "~8.1.0",
     "compass": "~0.1.0",
