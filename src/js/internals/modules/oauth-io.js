@@ -1,7 +1,7 @@
 module.exports = function (controller) {
 
     controller.registerBootstrap("oauth", function () {
-        OAuth.initialize('zyAvYDHsaZ8nznkjKhOx7KgpH4A');
+        OAuth.initialize(controller.confs.oauthKey);
     });
 
     controller.registerCall("oauth::call", function (args) {

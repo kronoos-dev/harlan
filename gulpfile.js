@@ -35,6 +35,7 @@ gulp.task('bower-swf', function () {
 
 gulp.task('manifest', function () {
     return gulp.src([
+        'CNAME',
         'src/manifest.json',
         'src/robots.txt'
     ]).pipe(gulp.dest("Server/web"));
