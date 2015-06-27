@@ -10,14 +10,24 @@ module.exports = function () {
 
     this.confs = require("./config.js");
 
-    this.i18n = (function (language) {
+
+    var language = null;
+
+    this.i18n = (function (userLanguage) {
         var validLanguages = {
             "en": require("./i18n/en"),
             "pt": require("./i18n/pt")
         };
-        
-        return validLanguages[language] ? validLanguages[language] : validLanguages.en;
+
+        language = validLanguages[userLanguage] ? userLanguage : "en";
+        document.documentElement.setAttribute("lang", language);
+
+        return validLanguages[language];
     })((localStorage.language || localharnavigator.language || navigator.userLanguage).split("-")[0]);
+
+    this.language = function () {
+        return language;
+    };
 
     var bootstrapCalls = {};
     var calls = {};
