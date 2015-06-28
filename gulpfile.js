@@ -9,7 +9,6 @@ var fileinclude = require('gulp-file-include'),
         sass = require('gulp-sass'),
         htmlMinifier = require('gulp-html-minifier'),
         imageop = require('gulp-image-optimization'),
-        clean = require('gulp-clean'),
         jshint = require("gulp-jshint"),
         concat = require('gulp-concat'),
         browserify = require('browserify'),
@@ -17,15 +16,10 @@ var fileinclude = require('gulp-file-include'),
         transform = require('vinyl-transform'),
         gulp = require('gulp'),
         livereload = require('gulp-livereload'),
-        s3 = require("gulp-s3"),
         plumber = require('gulp-plumber'),
         ghPages = require('gulp-gh-pages'),
         streamqueue = require('streamqueue'),
         messageformat = require('gulp-messageformat');
-
-gulp.task('clean', function () {
-    return gulp.src('Server/web', {read: false}).pipe(clean({force: true}));
-});
 
 gulp.task('bower-swf', function () {
     return gulp.src([
