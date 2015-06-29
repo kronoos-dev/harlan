@@ -2,7 +2,7 @@ var assert = require("assert");
 
 module.exports = function (controller) {
 
-    var resultGenerator = function (inputContainer, inputContent, inputResult) {
+    var generateResult = function (inputContainer, inputContent, inputResult) {
         var container = inputContainer || $("<div />").addClass("container");
         var content = inputContent || $("<div />").addClass("content");
         var result = inputResult || $("<div />").addClass("result");
@@ -61,6 +61,10 @@ module.exports = function (controller) {
             return node;
         };
 
+        this.content = function () {
+            return content;
+        };
+
         this.generate = function () {
             return result;
         };
@@ -68,11 +72,11 @@ module.exports = function (controller) {
         return this;
     };
 
-    controller.registerCall("resultGenerator", function () {
-        return new resultGenerator();
+    controller.registerCall("generateResult", function () {
+        return new generateResult();
     });
 
-    controller.registerCall("resultGenerator::import", function (result) {
+    controller.registerCall("generateResult::import", function (result) {
         assert.ok(result.hasClass("result"));
 
         var container = result.find(".container").first();
@@ -81,7 +85,7 @@ module.exports = function (controller) {
         var content = container.find(".content");
         assert.ok(content.length > 0);
 
-        return new resultGenerator(container, content, result);
+        return new generateResult(container, content, result);
     });
 
 };

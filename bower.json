@@ -38,6 +38,8 @@
     "jquery.finger": "~0.1.2",
     "jquery.maskedinput": "~1.4.1",
     "d3": "~3.5.5",
-    "nvd3": "~1.7.1"
+    "nvd3": "~1.7.1",
+    "moment": "~2.10.3",
+    "numeral": "~1.5.3"
   }
 }

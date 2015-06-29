@@ -3,7 +3,7 @@ module.exports = function (controller) {
     var parserPlacas = function (document) {
         var jdocument = $(document);
 
-        var result = controller.call("resultGenerator");
+        var result = controller.call("generateResult");
 
         var init = "BPQL > body > ";
         var nodes = {

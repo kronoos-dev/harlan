@@ -1,4 +1,4 @@
-var animationEvent = require("../interface/transitionEvent")();
+var animationEvent = "animationend animationend webkitAnimationEnd oanimationend MSAnimationEnd";
 
 /**
  * Comentário para a posteridade
@@ -10,10 +10,10 @@ module.exports = function (controller) {
     var counter = 0;
     var animationElement = null;
     var animations = ["animated rotateIn", "animated rotateOut"];
-
-    var catchElement = function (searchElement) {
+    
+    controller.registerCall("loader::catchElement", function () {
         return $(".logo:visible span");
-    };
+    });
 
     var afterExecution = function () {
         animationElement.removeClass(animations[counter++ % animations.length]);
@@ -24,7 +24,7 @@ module.exports = function (controller) {
 
     controller.registerCall("loader::register", function () {
         loaderRegister++;
-        animationElement = catchElement();
+        animationElement = controller.call("loader::catchElement");
         if (!animationElement.length) {
             $(".q").addClass("loading");
             return;

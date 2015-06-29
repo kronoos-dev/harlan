@@ -130,7 +130,7 @@ module.exports = function (controller) {
     var parserConsultas = function (document) {
         var jdocument = $(document);
 
-        var result = controller.call("resultGenerator");
+        var result = controller.call("generateResult");
 
         setCompanyName(result, jdocument);
         setCompanyActivity(result, jdocument);

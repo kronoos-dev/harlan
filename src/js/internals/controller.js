@@ -1,3 +1,5 @@
+/* global module */
+
 var uniqid = require('uniqid');
 var async = require("async");
 var assert = require("assert");
@@ -8,22 +10,28 @@ var ImportXMLDocument = require("./library/importXMLDocument");
 
 module.exports = function () {
 
-    this.confs = require("./config.js");
-
+    this.confs = require("./config");
 
     var language = null;
 
-    this.i18n = (function (userLanguage) {
+    this.i18n = (function (locale) {
+        
+        userLanguage = locale.split("-")[0];
         var validLanguages = {
             "en": require("./i18n/en"),
             "pt": require("./i18n/pt")
         };
 
         language = validLanguages[userLanguage] ? userLanguage : "en";
+        
+        
         document.documentElement.setAttribute("lang", language);
+        
+        moment.locale(locale);
+        numeral.language(locale.toLowerCase());
 
         return validLanguages[language];
-    })((localStorage.language || localharnavigator.language || navigator.userLanguage).split("-")[0]);
+    })(localStorage.language || navigator.language || navigator.userLanguage || "en");
 
     this.language = function () {
         return language;
@@ -70,7 +78,8 @@ module.exports = function () {
             return this.addCSSDocument;
         };
 
-        this.widgets = require("./widgets/widgets.js");
+        this.instance = require("./interface/interface");
+        this.widgets = require("./widgets/widgets");
 
         return this;
     })();
@@ -136,7 +145,8 @@ module.exports = function () {
 
         /**
          * Store a value
-         * @param mixed value
+         * @param key
+         * @param value
          * @returns idx
          */
         this.set = function (key, value) {
@@ -144,13 +154,18 @@ module.exports = function () {
             return this;
         };
 
+        /**
+         * 
+         * @param {string} key
+         * @returns mixed
+         */
         this.get = function (key) {
             return elements[key];
         };
 
         /**
          * Recover a value
-         * @param int idx
+         * @param {int} idx
          * @returns mixed
          */
         this.unset = function (idx) {
@@ -207,7 +222,7 @@ module.exports = function () {
     require("./modules/push")(this);
     require("./modules/oauth-io")(this);
     require("./modules/urlParameter")(this);
-    require("./modules/resultGenerator")(this);
+    require("./modules/generateResult")(this);
     require("./modules/demonstrate")(this);
     require("./modules/forgotPassword")(this);
     require("./modules/iframeEmbed")(this);
