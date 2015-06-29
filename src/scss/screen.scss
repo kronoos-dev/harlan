@@ -12,6 +12,16 @@
 @import "mixins";
 @import "keyframes";
 
+input {
+    @include input-placeholder {
+        color: rgb(169, 169, 169);
+    }
+}
+
+::-ms-clear {
+    display: none;
+}
+
 body {
     font-family: $font-open-sans;
     font-size: 16px;    
@@ -142,6 +152,7 @@ label {
     }
 
     .icon {
+        animation: none;
         z-index: 3;
         font-size: 18px;
         position: absolute;
