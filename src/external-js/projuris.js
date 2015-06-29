@@ -55,7 +55,7 @@ harlan.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", harlan.ca
         
         result.addItem().append($("<input />").addClass("submit").attr({
             type: "submit",
-            value: "Comprar mais Créditos"
+            value: "Adquirir Créditos"
         })).click(function (e) {
             e.preventDefault();
             window.location.href = "http://www.projuris.com.br/";
