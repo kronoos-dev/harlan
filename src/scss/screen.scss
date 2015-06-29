@@ -376,6 +376,30 @@ label {
 
         }
 
+        &.table {
+
+            .field {
+                padding: 0 5px;
+                display: table-cell;
+                vertical-align: bottom;
+
+
+                &.empty {
+                    .value:before {
+                        content: "Vazio";
+                        color: lighten($color-font, 10%);
+                    }
+                }
+
+            }
+
+            .content {
+                display: table;
+                table-layout: fixed;
+                width: 100%;
+            }
+
+        }
 
     }
 
@@ -1129,6 +1153,7 @@ input.link {
     height: 100%;
     min-height: 45px;
     border: none;
+    cursor: pointer;
     @include box-shadow(0 0 8px 3px rgba(0,0,0,0.08));
     &:hover {
         background-color: darken($color, 5%);
