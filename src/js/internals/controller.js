@@ -1,4 +1,4 @@
-/* global module */
+/* global module, numeral */
 
 var uniqid = require('uniqid');
 var async = require("async");
@@ -15,7 +15,7 @@ module.exports = function () {
     var language = null;
 
     this.i18n = (function (locale) {
-        
+
         userLanguage = locale.split("-")[0];
         var validLanguages = {
             "en": require("./i18n/en"),
@@ -23,12 +23,16 @@ module.exports = function () {
         };
 
         language = validLanguages[userLanguage] ? userLanguage : "en";
-        
-        
+
+
         document.documentElement.setAttribute("lang", language);
-        
-        moment.locale(locale);
-        numeral.language(locale.toLowerCase());
+
+        try {
+            moment.locale(locale);
+            numeral.language(locale.toLowerCase());
+        } catch (e) {
+            console.log(e);
+        }
 
         return validLanguages[language];
     })(localStorage.language || navigator.language || navigator.userLanguage || "en");
