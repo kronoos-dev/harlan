@@ -3,12 +3,12 @@
 var REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
 var REGEX_SIGLA = /\'sigla\'\s*=\s*'([^']*)'/i;
 var REGEX_PARAMETER = /\'(numero_oab|processo|)\'\s*=\s*'([^']*)'/i;
-
+ 
 harlan.trigger("projuris::init");
 harlan.interface.instance.logo.empty().append($("<div />").addClass("logo-projuris"));
 harlan.interface.addCSSDocument("css/projuris.min.css");
 
-$(".scroll-down .actions, .header .alerts").hide();
+$(".scroll-down .actions").hide();
 $("#input-q").attr({
     placeholder: "Qual processo você esta procurando?",
     value: harlan.serverCommunication.apiKey,
@@ -21,7 +21,6 @@ harlan.registerCall("loader::catchElement", function () {
 
 $("title").text("Projuris | Processos Jurídicos Acompanhados no Sistema");
 $("link[rel='shortcut icon']").attr("href", "images/favicon-projuris.png");
-$(".scroll-down .actions, .header .alerts").hide();
 
 harlan.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", harlan.call("loader::ajax", {
     success: function (document) {
