@@ -48,7 +48,7 @@ harlan.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", harlan.ca
         result.addItem("Créditos Contratados", numeral(credits).format('0,')).addClass("center");
         result.addItem("Créditos Utlizados", numeral(usedCredits).format('0,')).addClass("center");
         
-        var radial = harlan.interface.widgets.radialProject(result.addItem("Créditos Gastos", "").addClass("center").find(".value"), perc);
+        var radial = harlan.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
         
         if (perc > 0.8) radial.addClass("warning animated flash");
         else if (perc > 0.6) radial.addClass("attention animated flash");
