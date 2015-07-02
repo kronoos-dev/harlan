@@ -49,19 +49,11 @@
 
             var radial = harlan.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
 
-            if (perc > 0.8)
+            if (perc > 0.8) {
                 radial.addClass("warning animated flash");
-            else if (perc > 0.6)
+            } else if (perc > 0.6) {
                 radial.addClass("attention animated flash");
-
-
-            result.addItem().append($("<input />").addClass("submit").attr({
-                type: "submit",
-                value: "Adquirir Créditos"
-            })).click(function (e) {
-                e.preventDefault();
-                window.location.href = "http://www.projuris.com.br/";
-            });
+            }
 
 
             var pushs = jdocument.find("BPQL > body push");

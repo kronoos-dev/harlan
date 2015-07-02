@@ -9,8 +9,8 @@
             result.addSeparator("Estatísticas para a Fonte " + name.toUpperCase(),
                     "Latência e disponibilidade",
                     "Informações do Teste de Integração");
-            result.addItem("Latência", numeral(parseInt(jnode.find("averageResponseTime").text(), 10) / 1000).format("0")).addClass("center");
-            result.addItem("Latência Máxima", numeral(parseInt(jnode.find("maxResponseTime").text(), 10) / 1000).format("0")).addClass("center");
+            result.addItem("Latência", numeral(parseInt(jnode.find("averageResponseTime").text(), 10) / 1000).format("0") + " segs").addClass("center");
+            result.addItem("Latência Máxima", numeral(parseInt(jnode.find("maxResponseTime").text(), 10) / 1000).format("0") + " segs").addClass("center");
 
         };
     };
