@@ -1,5 +1,6 @@
 module.exports = function (controller) {
-    controller.registerBootstrap("forgotPassword", function () {
+    controller.registerBootstrap("forgotPassword", function (callback) {
+        callback();
         $("#forgot-password").click(function () {
             var modal = controller.call("modal");
             modal.title("Recupere sua senha");

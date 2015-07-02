@@ -268,7 +268,8 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerBootstrap("databaseSearch", function () {
+    controller.registerBootstrap("databaseSearch", function (callback) {
+        callback();
 
         var inputDatabaseSearch = $("#input-q");
         var autocomplete = controller.call("autocomplete", inputDatabaseSearch);
@@ -297,5 +298,6 @@ module.exports = function (controller) {
             }, controller.confs.instantSearchDelay);
 
         });
+        
     });
 };

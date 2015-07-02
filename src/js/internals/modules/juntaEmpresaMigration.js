@@ -8,7 +8,9 @@ module.exports = function (controller) {
         controller.call("juntaEmpresaMigration");
     });
 
-    controller.registerCall("juntaEmpresaMigration", function () {
+    controller.registerCall("juntaEmpresaMigration", function (callback) {
+        callback();
+        
         var modal = controller.call("modal");
         modal.title("O Junta Empresa mudou!");
         modal.subtitle("Agora se chama Harlan é muito melhor!");

@@ -23,8 +23,8 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerBootstrap("inbox", function () {
-
+    controller.registerBootstrap("inbox", function (callback) {
+        callback();
         controller.call("inbox::check");
 
         setInterval(function () {

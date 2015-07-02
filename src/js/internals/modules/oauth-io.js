@@ -1,7 +1,8 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("oauth", function () {
+    controller.registerBootstrap("oauth", function (callback) {
         OAuth.initialize(controller.confs.oauthKey);
+        callback();
     });
 
     controller.registerCall("oauth::call", function (args) {

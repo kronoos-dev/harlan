@@ -1,6 +1,9 @@
+/* global module */
+
 module.exports = function (controller) {
 
-    controller.registerBootstrap("comment", function () {
+    controller.registerBootstrap("comment", function (callback) {
+        callback();
         $("#action-comments").click(function (e) {
             e.preventDefault();
             controller.call("comment");

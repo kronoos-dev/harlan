@@ -30,7 +30,8 @@ module.exports = function (controller) {
     /**
      * Registra o formulário
      */
-    controller.registerBootstrap("authentication::bootstrap", function (callback, results) {
+    controller.registerBootstrap("authentication::bootstrap", function (callback) {
+        callback();
 
         if (!authenticate()) {
             $(".login").removeClass("hide");
@@ -46,7 +47,6 @@ module.exports = function (controller) {
             controller.call("authentication::authenticate");
         });
 
-        callback(null, []);
     });
 
 
@@ -75,9 +75,11 @@ module.exports = function (controller) {
             return false;
         }
         controller.serverCommunication.apiKey = key;
-        controller.trigger("authentication::authenticated");
-        $(".login").addClass("hide");
-        $(".app").removeClass("hide");
+        controller.trigger("authentication::authenticated", null, function () {
+            $(".login").addClass("hide");
+            $(".app").removeClass("hide");
+        });
+        
         return true;
     };
     

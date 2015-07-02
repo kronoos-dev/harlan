@@ -14,7 +14,8 @@ module.exports = function (controller) {
     /**
      * Quando o projeto se torna whitelabel
      */
-    controller.registerBootstrap("iframeEmbed::whitelabel", function () {
+    controller.registerBootstrap("iframeEmbed::whitelabel", function (callback) {
+        callback();
         if (!controller.call("iframeEmbed") && controller.query.whitelabel) {
             $("#scroll-down").hide();
         }

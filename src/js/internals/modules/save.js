@@ -150,7 +150,8 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerBootstrap("save", function () {
+    controller.registerBootstrap("save", function (callback) {
+        callback();
         $("#action-save").click(function (e) {
             e.preventDefault();
             controller.call("save");

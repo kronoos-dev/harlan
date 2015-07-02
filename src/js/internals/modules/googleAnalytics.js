@@ -1,7 +1,7 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("googleAnalytics", function () {
-
+    controller.registerBootstrap("googleAnalytics", function (callback) {
+        callback();
         (function (h, a, r, l, n) {
             h.GoogleAnalyticsObject = r;
             if (!h[r]) {

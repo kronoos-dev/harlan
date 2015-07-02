@@ -1,6 +1,7 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("remove", function () {
+    controller.registerBootstrap("remove", function (callback) {
+        callback();
         $("#action-remove").click(function (e) {
             e.preventDefault();
             controller.call("remove");

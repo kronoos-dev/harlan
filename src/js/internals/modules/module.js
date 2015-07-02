@@ -1,30 +1,51 @@
+/* global module */
+
 var FIND_MODULE = "BPQL > body > module > node";
 
 module.exports = function (controller) {
 
     var installedModules = null;
 
-    var addScript = function (val) {
-        $("body").append($("<script />").attr({
-            src: val
-        }));
+    var addScript = function (src, callback) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.onload = callback;
+        script.src = src;
+        document.getElementsByTagName('head')[0].appendChild(script);
+        return script;
     };
 
     controller.registerTrigger("authentication::authenticated", function (args, callback) {
         controller.serverCommunication.call("SELECT FROM 'HARLANMODULES'.'JS'", {
             success: function (ret) {
+
                 installedModules = ret;
-                $(ret).find(FIND_MODULE).each(function (idx, node) {
-                    addScript($(node).text());
+
+                var modules = $(ret).find(FIND_MODULE);
+                var scripts = modules.length;
+
+                if (!scripts) {
+                    callback();
+                    return;
+                }
+
+                var onLoad = function () {
+                    if (!--scripts) {
+                        callback();
+                    }
+                };
+
+                modules.each(function (idx, node) {
+                    addScript($(node).text(), onLoad);
                 });
-            },
-            complete: function () {
-                callback();
+
             }
         });
     });
 
-    controller.registerBootstrap("module", function () {
+    controller.registerBootstrap("module", function (callback) {
+        callback();
         $("#action-show-modules").click(function (e) {
             e.preventDefault();
             controller.call("module");

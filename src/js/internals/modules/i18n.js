@@ -42,7 +42,8 @@ module.exports = function (controller) {
         i18nTag(domDocument, "content");
     });
 
-    controller.registerBootstrap("i18n", function () {
+    controller.registerBootstrap("i18n", function (callback) {
+        callback();
         controller.call("i18n", document);
     });
 };

@@ -38,7 +38,9 @@ module.exports = function (controller) {
         };
     });
 
-    controller.registerTrigger("database::success", function (args) {
+    controller.registerTrigger("database::success", function (args, callback) {
+        callback();
+
         var doc = args[0],
                 database = args[1],
                 table = args[2],

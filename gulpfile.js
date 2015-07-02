@@ -14,11 +14,15 @@ var fileinclude = require('gulp-file-include'),
         browserify = require('browserify'),
         stylish = require('jshint-stylish'),
         transform = require('vinyl-transform'),
+        source = require('vinyl-source-stream'),
         gulp = require('gulp'),
+        addSource = require("gulp-add-src"),
         livereload = require('gulp-livereload'),
         plumber = require('gulp-plumber'),
         ghPages = require('gulp-gh-pages'),
         streamqueue = require('streamqueue'),
+        buffer = require('vinyl-buffer'),
+        sourcemaps = require('gulp-sourcemaps'),
         messageformat = require('gulp-messageformat');
 
 gulp.task('bower-swf', function () {
@@ -109,34 +113,36 @@ gulp.task('jslint', function () {
             .pipe(jshint.reporter(stylish));
 });
 
-gulp.task('build-scripts', function () {
-    var browserified = transform(function (filename) {
-        var b = browserify(filename);
-        return b.bundle();
-    });
 
-    return streamqueue({objectMode: true}, gulp.src([
-        'bower_components/jquery/dist/jquery.min.js',
-        'bower_components/jquery.bipbop/dist/jquery.bipbop.js',
-        'bower_components/toastr/toastr.js',
-        'bower_components/zeroclipboard/dist/ZeroClipboard.min.js',
-        'bower_components/oauth.io/dist/oauth.js',
-        'bower_components/jquery.finger/dist/jquery.finger.js',
-        'bower_components/jquery.maskedinput/dist/jquery.maskedinput.js',
-        'bower_components/d3/d3.js',
-        'bower_components/mustache/mustache.js',
-        'bower_components/nvd3/build/nv.d3.js',
-        'bower_components/moment/min/moment-with-locales.js',
-        'bower_components/numeral/numeral.js',
-        'bower_components/numeral/languages.js'
-    ]), gulp.src('src/js/*.js')
-            .pipe(plumber())
-            .pipe(browserified))
+gulp.task('build-scripts', function () {
+    return browserify({
+        entries: "./src/js/app.js",
+        debug: true
+    })
+            .bundle()
+            .pipe(source("app.js"))
+            .pipe(buffer())
+            .pipe(addSource([
+                'bower_components/jquery/dist/jquery.min.js',
+                'bower_components/jquery.bipbop/dist/jquery.bipbop.js',
+                'bower_components/toastr/toastr.js',
+                'bower_components/zeroclipboard/dist/ZeroClipboard.min.js',
+                'bower_components/oauth.io/dist/oauth.js',
+                'bower_components/jquery.finger/dist/jquery.finger.js',
+                'bower_components/jquery.maskedinput/dist/jquery.maskedinput.js',
+                'bower_components/d3/d3.js',
+                'bower_components/mustache/mustache.js',
+                'bower_components/nvd3/build/nv.d3.js',
+                'bower_components/moment/min/moment-with-locales.js',
+                'bower_components/numeral/numeral.js',
+                'bower_components/numeral/languages.js'
+            ]))
+            .pipe(sourcemaps.init({loadMaps: true}))
             .pipe(thotypous())
             .pipe(concat("app.min.js"))
+            .pipe(sourcemaps.write('.'))
             .pipe(gulp.dest('Server/web/js'))
             .pipe(livereload());
-
 });
 
 gulp.task('app-images', function () {

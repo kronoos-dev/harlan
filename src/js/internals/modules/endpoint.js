@@ -1,6 +1,9 @@
+/* global module */
+
 module.exports = function (controller) {
 
-    controller.registerBootstrap("endpoint", function () {
+    controller.registerBootstrap("endpoint", function (callback) {
+        callback();
         $("#action-show-endpoint").click(function (e) {
             e.preventDefault();
             controller.call("endpoint");

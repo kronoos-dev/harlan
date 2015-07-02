@@ -1,3 +1,5 @@
+/* global BIPBOP_FREE */
+
 var emailRegex = require('email-regex');
 
 module.exports = function (controller) {
@@ -20,13 +22,13 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerTrigger("authentication::authenticated", function (args, runsAtEnd) {
+    controller.registerTrigger("authentication::authenticated", function (args, callback) {
+        callback();
         if (!localStorage.welcome) {
             controller.call(controller.serverCommunication.apiKey === BIPBOP_FREE ?
                     "welcomescreen::email" : "welcomescreen::wizard");
             localStorage.welcome = true;
         }
-        runsAtEnd();
     });
 
     var createModal = function (modal) {

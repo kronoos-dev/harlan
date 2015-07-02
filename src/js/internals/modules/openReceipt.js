@@ -19,7 +19,8 @@ module.exports = function (controller) {
 
     });
 
-    controller.registerBootstrap("openReceipt", function () {
+    controller.registerBootstrap("openReceipt", function (callback) {
+        callback();
         $("#action-open-receipt").click(function (e) {
             e.preventDefault();
             controller.call("openReceipt");

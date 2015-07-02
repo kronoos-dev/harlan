@@ -98,21 +98,32 @@ module.exports = function () {
 
     this.trigger = function (name, args, onComplete) {
 
+        var run = function () {
+            if (onComplete) {
+                onComplete();
+            }
+        };
+
         console.log(":: trigger ::", name);
         if (!(name in events)) {
             return this;
         }
 
-        var submits = events[name].length;
+        var submits = (events[name] || []).length;
+        if (submits === 0) {
+            run();
+            return this;
+        }
+
         var runsAtEnd = function () {
             if (!--submits) {
                 console.log(":: trigger :: end ::", name);
-                if (onComplete)
-                    onComplete();
+                run();
             }
         };
 
         console.log(":: trigger :: init ::", name);
+
         for (var triggerId in events[name]) {
             events[name][triggerId](args, runsAtEnd);
         }

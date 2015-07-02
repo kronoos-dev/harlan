@@ -1,6 +1,7 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("history", function () {
+    controller.registerBootstrap("history", function (callback) {
+        callback();
         $("#action-history").click(function (e) {
             e.preventDefault();
             controller.call("history");

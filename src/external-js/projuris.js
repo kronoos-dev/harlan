@@ -38,8 +38,6 @@
             var usedCredits = parseInt(jdocument.find("BPQL > body > total").text());
             var perc = (usedCredits / credits) * 100;
 
-            console.log("Ainda restam para o usuário: " + perc.toString());
-
             if (perc == Infinity || isNaN(perc)) {
                 perc = 0;
             }

@@ -4,6 +4,7 @@ var cnpjMask = /^(\d{2,3}\.\d{3}\.\d{3}\/\d{4}\-\d{2}|\d{14,15})$/;
 module.exports = function (controller) {
 
     controller.registerTrigger("mainSearch::submit", function (val, callback) {
+        callback();
         if (cnpjMask.test(val)) {
             controller.call("juntaEmpresa::ajax", val);
         }

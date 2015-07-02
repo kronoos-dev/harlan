@@ -110,7 +110,8 @@ module.exports = function (controller) {
         })));
     });
 
-    controller.registerBootstrap("push", function () {
+    controller.registerBootstrap("push", function (callback) {
+        callback();
         $("#action-refresh").click(function (e) {
             e.preventDefault();
             controller.call("push");

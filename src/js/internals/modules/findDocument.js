@@ -11,7 +11,9 @@ module.exports = function (controller) {
         };
     };
 
-    controller.registerTrigger("findDocument::show", function (args) {
+    controller.registerTrigger("findDocument::show", function (args, callback) {
+        callback();
+        
         var name = args[0],
                 description = args[1],
                 ids = args[2],
