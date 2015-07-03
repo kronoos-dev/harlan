@@ -78,7 +78,9 @@ gulp.task('build-external-scripts', ['i18n'], function () {
     return gulp.src('src/external-js/**/*.js')
             .pipe(jshint())
             .pipe(jshint.reporter(stylish))
+            .pipe(sourcemaps.init({loadMaps: true}))
             .pipe(thotypous())
+            .pipe(sourcemaps.write('.'))
             .pipe(gulp.dest('Server/web/js'))
             .pipe(livereload());
 });
