@@ -7,6 +7,7 @@
 @import "compass/css3/animation";
 @import "compass/css3/user-interface";
 @import "compass/typography/links/unstyled-link";
+@import "compass/reset/utilities";
 
 @import "variables";
 @import "mixins";
@@ -42,17 +43,13 @@ label {
 .app {
     width: 100%;
     position: absolute;
-    &.hide {
-        display: none;
-    }
+    @include classHideEnabled;
 }
 
 .app-screen {
     position: absolute;
     width: 100%;
-    &.hide {
-        display: none;
-    }
+    @include classHideEnabled;
 }
 
 .scroll-down {
@@ -185,6 +182,7 @@ label {
 
 .header {
 
+    box-sizing: border-box;
     width: 100%;
     background: #fff;
 
@@ -715,9 +713,7 @@ label {
             text-align: center;
             font-size: 16px;
         }
-        &.hide {
-            display: none !important;
-        }
+        @include classHideEnabled;
     }
 
     .result {
@@ -852,6 +848,13 @@ h2 {
     font-size: 21px;
 }
 
+.site {
+    @include classHideEnabled;
+}
+
+.about {
+    @include classHideEnabled;
+}
 
 .login {
     width: 100%;
@@ -859,9 +862,7 @@ h2 {
     text-align: center;
     padding: 2.5% 0;
 
-    &.hide {
-        display: none;
-    }
+    @include classHideEnabled;
 
     & > .container > .content {
         box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.03);
@@ -1176,4 +1177,5 @@ input.link {
     }
 }
 
+@import "site";
 @import "widgets";

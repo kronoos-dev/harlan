@@ -34,7 +34,7 @@ module.exports = function (controller) {
         callback();
 
         if (!authenticate()) {
-            $(".login").removeClass("hide");
+            $(".site").removeClass("hide");
         }
 
         $("#action-logout").click(function (e) {
@@ -61,8 +61,9 @@ module.exports = function (controller) {
      */
     controller.registerCall("authentication::logout", function () {
         controller.serverCommunication.apiKey = BIPBOP_FREE;
-        $(".login").removeClass("hide");
-        $(".app").addClass("hide");
+        $("body > hide").addClass("hide");
+        $(".site").removeClass("hide");
+        
         $("#input-username").val("");
         $("#input-password").val("");
         $("#input-save-password").removeAttr("checked");
@@ -76,7 +77,7 @@ module.exports = function (controller) {
         }
         controller.serverCommunication.apiKey = key;
         controller.trigger("authentication::authenticated", null, function () {
-            $(".login").addClass("hide");
+            $("body > *").addClass("hide");
             $(".app").removeClass("hide");
         });
         

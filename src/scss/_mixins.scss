@@ -50,3 +50,8 @@
     @content;
 }
 
+@mixin classHideEnabled {
+    &.hide {
+        display: none !important;
+    }
+}

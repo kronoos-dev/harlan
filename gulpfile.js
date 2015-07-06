@@ -204,7 +204,6 @@ gulp.task('build', [
     'build-external-styles',
     'manifest',
     'app-fonts',
-    'app-images',
     'build-scripts',
     'bower-swf',
     'build-styles',

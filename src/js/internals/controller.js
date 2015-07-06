@@ -242,6 +242,7 @@ module.exports = function () {
     require("./modules/forgotPassword")(this);
     require("./modules/iframeEmbed")(this);
     require("./modules/googleAnalytics")(this);
+    require("./modules/site")(this);
 
     return this;
 };
