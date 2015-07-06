@@ -3,17 +3,17 @@
         <div class="logo"><span></span><h1>Harlan</h1></div>
         <nav class="nav">
             <ul>
-                <li><a href="#" id="action-home">Home</a></li>
+                <li><a href="#" class="action-home">Home</a></li>
                 <li><a target="_blank" href="http://blog.bipbop.com.br/">Blog</a></li>
-                <li><a href="http://stackoverflow.com/search?q=%23harlan">Suporte</a></li>
-                <li><a href="#" id="action-about">Sobre</a></li>
-                <li><a href="#" id="action-login">Login</a></li>
+                <li><a href="mailto:suporte@bipbop.com.br">Suporte</a></li>
+                <li><a href="https://irql.bipbop.com.br/api">Web Service</a></li>
+                <li><a href="#" class="action-login">Login</a></li>
             </ul>
         </nav>
     </div>
     <div class="content">
         <div class="action">
-            <h2>O Harlan coloca seus cadastros na nuvem <input type="submit" class="submit" value="Conheça já." /></h2>
+            <h2>O Harlan coloca seus cadastros na nuvem <input type="submit" class="submit action-evaluate" value="Conheça já." /></h2>
         </div>
         <div class="action">
             <div class="carrousel">
@@ -49,7 +49,7 @@
                     <p>Suas informações estarão salvas e criptografadas na nuvem.</p>
                 </li>
             </ul>
-            <input class="submit" type="submit" value="Conheça já" />            
+            <input class="submit action-evaluate" type="submit" value="Conheça já" />            
         </div>
         <div class="action">
             <div class="plans">
@@ -61,7 +61,7 @@
                     <div>Licença MIT.</div>
                     <div>&nbsp;</div>
                     <div>&nbsp;</div>
-                    <div class="enter"><input type="submit" class="submit" value="Acessar"></div>
+                    <div class="enter"><input type="submit" class="submit action-evaluate" value="Acessar"></div>
                 </div>
                 <div class="plan">
                     <div class="head2">Para Empresas</div>
@@ -71,7 +71,7 @@
                     <div>Conecte-se com a API e Marketplace.</div>
                     <div>Utilização de módulos.</div>
                     <div>&nbsp;</div>
-                    <div class="enter"><input type="submit" class="submit" value="Comprar"></div>
+                    <div class="enter"><input type="submit" class="submit action-buy" value="Comprar"></div>
                 </div>
                 <div class="plan">
                     <div class="head2">Para o Varejo</div>
@@ -81,7 +81,7 @@
                     <div>Feito para SAP&trade; TOTVs&trade; e outros.</div>
                     <div>Módulos customizados.</div>
                     <div>Suporte 24/7.</div>
-                    <div class="enter"><input type="submit" class="submit" value="Comercial"></div>
+                    <div class="enter"><input type="submit" class="submit action-sales" value="Comercial"></div>
                 </div>
                 <p>Alguma questão? Envie um e-mail para <a href="mailto:suporte@bipbop.com.br">suporte@bipbop.com.br</a>.</p>
             </div>

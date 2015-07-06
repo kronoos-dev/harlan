@@ -1,6 +1,8 @@
 /*
  * Módulo de Autenticação do Harlan
  */
+/* global module, BIPBOP_FREE */
+
 module.exports = function (controller) {
 
     /**
@@ -61,7 +63,7 @@ module.exports = function (controller) {
      */
     controller.registerCall("authentication::logout", function () {
         controller.serverCommunication.apiKey = BIPBOP_FREE;
-        $("body > hide").addClass("hide");
+        $("body > *").addClass("hide");
         $(".site").removeClass("hide");
         
         $("#input-username").val("");

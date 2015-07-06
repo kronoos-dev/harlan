@@ -15,6 +15,7 @@
             </div>
         </form>
         <ul class="actions">
+            <li><a class="action-home" href="#" data-i18n="login.home">Home</a></li>
             <li><a id="forgot-password" href="#" data-i18n="login.forget-password">Esqueci minha Senha</a></li>
             <li><a id="demonstration" href="#" data-i18n="login.demonstrate">Demonstração</a></li>
         </ul>

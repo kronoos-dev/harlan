@@ -2,7 +2,39 @@
 
 module.exports = function (controller) {
 
-    controller.registerBootstrap("site::init", function () {
+    controller.registerBootstrap("site::buttons", function (callback) {
+        callback();
+        
+        var window = function (window) {
+            return function (e) {
+                e.preventDefault();
+                $("body > *").addClass("hide");
+                window.removeClass("hide");
+            };
+        };
+        
+        var newWindow = function (href) {
+            return function (e) {
+                e.preventDefault();
+                document.location.href = href;
+            };
+        };
+        
+        $(".action-home").click(window($(".site")));
+        $(".action-login").click(window($(".login")));
+        $(".action-about").click(window($(".about")));
+        $(".action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
+        $(".action-buy").click(newWindow("https://irql.bipbop.com.br/api/checkout.html"));
+        
+        $(".action-evaluate").click(function (e) {
+            e.preventDefault();
+            controller.call("authentication::force", BIPBOP_FREE);
+        });
+        
+    });
+
+    controller.registerBootstrap("site::carrousel", function (callback) {
+        callback();
         var carrousel = $(".site .carrousel");
         var list = carrousel.find("ul");
         var images = carrousel.find("img");
