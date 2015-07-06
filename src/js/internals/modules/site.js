@@ -22,7 +22,6 @@ module.exports = function (controller) {
         
         $(".action-home").click(window($(".site")));
         $(".action-login").click(window($(".login")));
-        $(".action-about").click(window($(".about")));
         $(".action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
         $(".action-buy").click(newWindow("https://irql.bipbop.com.br/api/checkout.html"));
         
