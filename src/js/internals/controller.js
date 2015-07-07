@@ -18,7 +18,6 @@ module.exports = function () {
 
         userLanguage = locale.split("-")[0];
         var validLanguages = {
-            "en": require("./i18n/en"),
             "pt": require("./i18n/pt")
         };
 

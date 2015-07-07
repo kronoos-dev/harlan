@@ -41,10 +41,12 @@
     "nvd3": "~1.7.1",
     "moment": "~2.10.3",
     "numeral": "~1.5.3",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "material-design-lite": "~1.0.0",
+    "material-design-icons": "~2.0.0"
   },
   "resolutions": {
     "jquery": "~2.1.4",
-    "d3" : "~3.5.5"
+    "d3": "~3.5.5"
   }
 }
