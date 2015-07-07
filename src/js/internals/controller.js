@@ -21,7 +21,7 @@ module.exports = function () {
             "pt": require("./i18n/pt")
         };
 
-        language = validLanguages[userLanguage] ? userLanguage : "en";
+        language = validLanguages[userLanguage] ? userLanguage : "pt";
 
 
         document.documentElement.setAttribute("lang", language);
@@ -34,7 +34,7 @@ module.exports = function () {
         }
 
         return validLanguages[language];
-    })(localStorage.language || navigator.language || navigator.userLanguage || "en");
+    })(localStorage.language || navigator.language || navigator.userLanguage || "pt");
 
     this.language = function () {
         return language;
