@@ -1,5 +1,7 @@
+/* global harlan, phantom */
+
 var webpage = require('webpage');
-var server = require('webserver')
+var server = require('webserver');
 var system = require('system');
 var waitfor = require('./waitfor.js');
 
