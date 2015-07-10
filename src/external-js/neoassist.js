@@ -120,7 +120,7 @@
     };
 
     harlan.importXMLDocument.register("NEOASSIST", "CONSULTA", function (document) {
-        var result = harlan.call("resultGenerator");
+        var result = harlan.call("generateResult");
         var jdocument = $(document);
 
         var generateAlert = function (element, percent, context) {
