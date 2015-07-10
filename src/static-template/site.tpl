@@ -6,7 +6,7 @@
                 <li><a href="#" class="action-home">Home</a></li>
                 <li><a target="_blank" href="http://blog.bipbop.com.br/">Blog</a></li>
                 <li><a href="mailto:suporte@bipbop.com.br">Suporte</a></li>
-                <li><a href="https://irql.bipbop.com.br/api">Web Service</a></li>
+                <li><a href="https://api.bipbop.com.br/">Web Service</a></li>
                 <li><a href="#" class="action-login">Login</a></li>
             </ul>
         </nav>
