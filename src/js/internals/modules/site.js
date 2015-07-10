@@ -23,7 +23,7 @@ module.exports = function (controller) {
         $(".action-home").click(window($(".site")));
         $(".action-login").click(window($(".login")));
         $(".action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
-        $(".action-buy").click(newWindow("https://irql.bipbop.com.br/api/checkout.html"));
+        $(".action-buy").click(newWindow("https://api.bipbop.com.br/checkout.html"));
         
         $(".action-evaluate").click(function (e) {
             e.preventDefault();
