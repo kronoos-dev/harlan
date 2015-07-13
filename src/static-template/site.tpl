@@ -5,7 +5,7 @@
             <ul>
                 <li><a href="#" class="action-home">Home</a></li>
                 <li><a target="_blank" href="http://blog.bipbop.com.br/">Blog</a></li>
-                <li><a href="mailto:suporte@bipbop.com.br">Suporte</a></li>
+                <li><a href="mailto:contato@bipbop.com.br">Suporte</a></li>
                 <li><a href="https://api.bipbop.com.br/">Web Service</a></li>
                 <li><a href="#" class="action-login">Login</a></li>
             </ul>
@@ -83,7 +83,7 @@
                     <div>Suporte 24/7.</div>
                     <div class="enter"><input type="submit" class="submit action-sales" value="Comercial"></div>
                 </div>
-                <p>Alguma questão? Envie um e-mail para <a href="mailto:suporte@bipbop.com.br">suporte@bipbop.com.br</a>.</p>
+                <p>Alguma questão? Envie um e-mail para <a href="mailto:contato@bipbop.com.br">contato@bipbop.com.br</a>.</p>
             </div>
             <footer>
                 <hr />
