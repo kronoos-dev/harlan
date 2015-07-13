@@ -139,7 +139,6 @@ gulp.task("build-scripts", function () {
                 "bower_components/numeral/numeral.js",
                 "bower_components/numeral/languages.js",
                 "bower_components/numeral/languages.js",
-                "bower_components/material-design-lite/material.js"
                 "bower_components/material-design-lite/material.js",
                 "bower_components/d3plus/d3plus.full.js"
             ]))
