@@ -125,10 +125,10 @@ gulp.task("build-scripts", function () {
             .pipe(source("app.js"))
             .pipe(buffer())
             .pipe(addSource([
-                "bower_components/jquery/dist/jquery.min.js",
+                "bower_components/jquery/dist/jquery.js",
                 "bower_components/jquery.bipbop/dist/jquery.bipbop.js",
                 "bower_components/toastr/toastr.js",
-                "bower_components/zeroclipboard/dist/ZeroClipboard.min.js",
+                "bower_components/zeroclipboard/dist/ZeroClipboard.js",
                 "bower_components/oauth.io/dist/oauth.js",
                 "bower_components/jquery.finger/dist/jquery.finger.js",
                 "bower_components/jquery.maskedinput/dist/jquery.maskedinput.js",
@@ -140,6 +140,8 @@ gulp.task("build-scripts", function () {
                 "bower_components/numeral/languages.js",
                 "bower_components/numeral/languages.js",
                 "bower_components/material-design-lite/material.js"
+                "bower_components/material-design-lite/material.js",
+                "bower_components/d3plus/d3plus.full.js"
             ]))
             .pipe(sourcemaps.init({loadMaps: true}))
             .pipe(thotypous())
