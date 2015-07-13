@@ -13,7 +13,7 @@
     </div>
     <div class="content">
         <div class="action">
-            <h2>O Harlan coloca seus cadastros na nuvem <input type="submit" class="submit action-evaluate" value="Conheça já." /></h2>
+            <h2>Acesso direto aos registros oficiais das empresas, informações financeiras, história e muito mais <input type="submit" class="submit action-evaluate" value="Conheça já." /></h2>
         </div>
         <div class="action">
             <div class="carrousel">
