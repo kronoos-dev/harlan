@@ -68,7 +68,7 @@
             }
 
             &:hover {
-                
+
                 ul {
                     position: fixed;
                     display: block;
@@ -76,7 +76,7 @@
                     top: 10%;
                     width: 100%;
                 }
-                
+
                 li {
                     margin-right: 0;
                     padding: 15px 0;
@@ -198,7 +198,7 @@
                 box-shadow: 1px 1px 0px #eee inset;
             }
         }
-        
+
         img {
             display: none;
             &:first-of-type {
@@ -316,5 +316,24 @@
     .icon-safe {
         @extend .icon-time;
         background-image: url(../images/site/lock.png);
+    }
+
+    .checklist {
+        max-width: 800px;
+        text-align: left;
+        margin: 60px auto;
+        li {
+            &:before {
+                content: "\f00c";
+                font-family: "FontAwesome";
+                font-size: 21px;
+                margin-right: 16px;
+                color: $color-action;
+            }
+            display: block;
+            line-height: 120%;
+            margin: 10px auto;
+            font-size: 16px;
+        }
     }
 }
