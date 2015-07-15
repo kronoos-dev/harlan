@@ -31,7 +31,7 @@
             <hr />
         </div>
         <div class="action">
-            <h3>Verifique seus clientes atuais e potenciais em <b>tempo real</b></h3>
+            <h3>Verifique seus clientes atuais e potenciais em <b>tempo real</b>.</h3>
             <ul class="checklist">
                 <li>Seja <b>alertado</b> quando houver uma alteração por e-mail (de endereço, sócios, capital, falência, etc).</li>
                 <li>Consulte a <b>mais atualizada</b> informação legal a respeito de todas as empresas do país.</li>
