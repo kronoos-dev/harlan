@@ -59,7 +59,7 @@
                 <li>
                     <i class="icon-safe"></i>
                     <h4>Ganhe Segurança</h4>
-                    <p>Suas informações estarão sempre a salvo criptografadas na nuvem.</p>
+                    <p>Suas informações sempre estarão a salvo criptografadas automáticamente na nuvem.</p>
                 </li>
             </ul>
             <input class="submit action-evaluate" type="submit" value="Conheça já" />            
