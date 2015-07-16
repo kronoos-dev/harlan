@@ -6,9 +6,10 @@
   "scripts": {
     "serve": "cd Server/web && python -m SimpleHTTPServer",
     "build": "gulp build",
-    "test": "npm run build",
+    "test": "gulp build-tests && mocha-phantomjs test/index.html",
+    "test-only" : "mocha-phantomjs test/index.html",
     "postinstall": "bundle install && bower install",
-    "clean" : "git clean -dfx"
+    "clean": "git clean -dfx"
   },
   "repository": {
     "type": "git",
@@ -51,6 +52,7 @@
     "jshint-stylish": "~1.0.0",
     "markdown": "^0.5.0",
     "messageformat": "^0.2.2",
+    "mocha-phantomjs": "git://github.com/bipbop/mocha-phantomjs.git#master",
     "phantomjs": "^1.9.17",
     "stream-browserify": "^2.0.0",
     "streamqueue": "^0.1.3",

@@ -1,4 +1,4 @@
-harlan = require("./internals/controller")();
+window.harlan = require("./internals/controller")();
 require('domready')(function() {
-    harlan.run();
+    window.harlan.run();
 });

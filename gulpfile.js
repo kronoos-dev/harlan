@@ -24,6 +24,25 @@ var fileinclude = require("gulp-file-include"),
         sourcemaps = require("gulp-sourcemaps"),
         messageformat = require("gulp-messageformat");
 
+var externalJsSources = [
+    "bower_components/jquery/dist/jquery.js",
+    "bower_components/jquery.bipbop/dist/jquery.bipbop.js",
+    "bower_components/toastr/toastr.js",
+    "bower_components/zeroclipboard/dist/ZeroClipboard.js",
+    "bower_components/oauth.io/dist/oauth.min.js",
+    "bower_components/jquery.finger/dist/jquery.finger.js",
+    "bower_components/jquery.maskedinput/dist/jquery.maskedinput.js",
+    "bower_components/d3/d3.js",
+    "bower_components/mustache/mustache.js",
+    "bower_components/nvd3/build/nv.d3.js",
+    "bower_components/moment/min/moment-with-locales.js",
+    "bower_components/numeral/numeral.js",
+    "bower_components/numeral/languages.js",
+    "bower_components/numeral/languages.js",
+    "bower_components/material-design-lite/material.js",
+    "bower_components/d3plus/d3plus.full.js"
+];
+
 gulp.task("bower-swf", function () {
     return gulp.src([
         "bower_components/zeroclipboard/dist/ZeroClipboard.swf"
@@ -111,9 +130,28 @@ gulp.task("deploy", function () {
 gulp.task("jslint", function () {
     return gulp.src(["src/js/**/*.js", "!src/js/internals/i18n/**/*"])
             .pipe(jshint())
-            .pipe(jshint.reporter(stylish));
+            .pipe(jshint.reporter(stylish))
+            .pipe(jshint.reporter('fail'));
 });
 
+gulp.task("build-tests", ["jslint"], function () {
+    return browserify({
+        entries: "./src/js/tests/index.js",
+        debug: true
+    })
+            .bundle()
+            .pipe(source("index.js"))
+            .pipe(buffer())
+            .pipe(addSource(externalJsSources.concat([
+                "bower_components/chai/chai.js",
+                "bower_components/mocha/mocha.js"
+            ])))
+            .pipe(sourcemaps.init({loadMaps: true}))
+            .pipe(concat("index.js"))
+            .pipe(sourcemaps.write("."))
+            .pipe(gulp.dest("test/spec"))
+            .pipe(livereload());
+});
 
 gulp.task("build-scripts", function () {
     return browserify({
@@ -123,24 +161,7 @@ gulp.task("build-scripts", function () {
             .bundle()
             .pipe(source("app.js"))
             .pipe(buffer())
-            .pipe(addSource([
-                "bower_components/jquery/dist/jquery.js",
-                "bower_components/jquery.bipbop/dist/jquery.bipbop.js",
-                "bower_components/toastr/toastr.js",
-                "bower_components/zeroclipboard/dist/ZeroClipboard.js",
-                "bower_components/oauth.io/dist/oauth.js",
-                "bower_components/jquery.finger/dist/jquery.finger.js",
-                "bower_components/jquery.maskedinput/dist/jquery.maskedinput.js",
-                "bower_components/d3/d3.js",
-                "bower_components/mustache/mustache.js",
-                "bower_components/nvd3/build/nv.d3.js",
-                "bower_components/moment/min/moment-with-locales.js",
-                "bower_components/numeral/numeral.js",
-                "bower_components/numeral/languages.js",
-                "bower_components/numeral/languages.js",
-                "bower_components/material-design-lite/material.js",
-                "bower_components/d3plus/d3plus.full.js"
-            ]))
+            .pipe(addSource(externalJsSources))
             .pipe(sourcemaps.init({loadMaps: true}))
             .pipe(thotypous())
             .pipe(concat("app.min.js"))
@@ -163,7 +184,8 @@ gulp.task("watch", function () {
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build-scripts"]);
     gulp.watch("src/scss/*", ["build-styles"]);
     gulp.watch("src/scss/*.scss", ["build-styles"]);
-    gulp.watch("src/js/**/*.js", ["jslint", "build-scripts"]);
+    gulp.watch(["src/js/*.js", "src/js/internals/**/*.js"], ["jslint", "build-scripts"]);
+    gulp.watch("src/js/tests/**/*.js", ["jslint", "build-tests"]);
     gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["app-html"]);
     gulp.watch("src/external-js/**/*.js", ["build-external-scripts"]);
     gulp.watch("src/external-styles/**/*", ["build-external-styles"]);
@@ -210,7 +232,8 @@ gulp.task("build", [
     "bower-swf",
     "build-styles",
     "app-images",
-    "app-html"
+    "app-html",
+    "build-tests"
 ]);
 
 gulp.task("default", ["build", "watch"]);

@@ -10,7 +10,7 @@ module.exports = function (controller) {
     /* Retorna o XHR da requisição AJAX */
     this.call = function (query, configuration) {
         controller.trigger("serverCommunication::call", [query, configuration]);
-        return $().bipbop(query, this.apiKey, $.extend({
+        return $.bipbop(query, this.apiKey, $.extend({
             dataType: "xml",
         }, configuration));
     };

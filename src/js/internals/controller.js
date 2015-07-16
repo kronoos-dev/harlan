@@ -190,14 +190,11 @@ module.exports = function () {
         return this;
     })();
 
-
-
     this.run = function () {
         async.auto(bootstrapCalls, function (err, results) {
             console.log(":: bootstrap ::", err, results);
         });
     };
-
 
     /* Parsers */
     require("./parsers/placasWiki")(this);
