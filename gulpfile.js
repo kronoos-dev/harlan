@@ -18,7 +18,6 @@ var fileinclude = require("gulp-file-include"),
         gulp = require("gulp"),
         addSource = require("gulp-add-src"),
         livereload = require("gulp-livereload"),
-        plumber = require("gulp-plumber"),
         ghPages = require("gulp-gh-pages"),
         streamqueue = require("streamqueue"),
         buffer = require("vinyl-buffer"),
@@ -188,7 +187,6 @@ gulp.task("build-styles", function () {
     ]), gulp.src([
         "src/scss/screen.scss"
     ])
-            .pipe(plumber())
             .pipe(compass({
                 css: "temp/css",
                 sass: "src/scss",

@@ -39,9 +39,7 @@ Dúvidas sobre implementação? A BIPBOP responderá suas questões em até duas
 
 Para realizar o deploy do Harlan será necessário que você tenha instalado um ambiente que conte com [NodeJS](https://github.com/joyent/node),  [Compass](https://github.com/Compass/compass) e [Bower](http://bower.io).
 
-    # npm install -g gulp
-    # npm install -g bower
-    $ bower install
+    # apt-get install nodejs bundler
     $ npm install
     $ gulp build
     $ cd Server/web

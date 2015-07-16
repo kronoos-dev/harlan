@@ -4,7 +4,11 @@
   "description": "Harlan é o sistema modular que permite você automatizar toda sua governança cadastral da nuvem.",
   "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "cd Server/web && python -m SimpleHTTPServer",
+    "build": "gulp build",
+    "test": "npm run build",
+    "postinstall": "bundle install && bower install",
+    "clean" : "git clean -dfx"
   },
   "repository": {
     "type": "git",
@@ -18,6 +22,7 @@
   "license": "mit",
   "devDependencies": {
     "async": "~0.9.0",
+    "bower": "^1.4.1",
     "browserify": "~8.1.0",
     "cheet.js": "~0.3.3",
     "compass": "~0.1.0",
@@ -39,7 +44,6 @@
     "gulp-manifest": "0.0.6",
     "gulp-messageformat": "0.0.6",
     "gulp-minify-css": "~0.3.11",
-    "gulp-plumber": "^1.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.1",
     "gulp-sourcemaps": "^1.5.2",
@@ -48,6 +52,7 @@
     "markdown": "^0.5.0",
     "messageformat": "^0.2.2",
     "phantomjs": "^1.9.17",
+    "stream-browserify": "^2.0.0",
     "streamqueue": "^0.1.3",
     "underscore": "^1.7.0",
     "uniqid": "^1.0.0",
