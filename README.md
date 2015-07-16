@@ -42,6 +42,5 @@ Para realizar o deploy do Harlan será necessário que você tenha instalado um 
 
     # apt-get install nodejs bundler
     $ npm install
-    $ gulp build
-    $ cd Server/web
-    $ python -m SimpleHTTPServer
+    $ npm build
+    $ npm serve
