@@ -4,15 +4,15 @@
  */
 module.exports = function (controller) {
 
+    $.bipbopDefaults.automaticLoader = false;
+
     /** @TODO Remover a constante da BIPBOP no futuro */
     this.apiKey = BIPBOP_FREE;
 
     /* Retorna o XHR da requisição AJAX */
     this.call = function (query, configuration) {
         controller.trigger("serverCommunication::call", [query, configuration]);
-        return $.bipbop(query, this.apiKey, $.extend({
-            dataType: "xml",
-        }, configuration));
+        return $.bipbop(query, this.apiKey, configuration);
     };
 
     /* ALIAS */

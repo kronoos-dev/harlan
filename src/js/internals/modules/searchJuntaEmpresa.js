@@ -17,19 +17,29 @@ module.exports = function (controller) {
                         documento: val
                     },
                     success: function (ret) {
-                        controller.call("juntaEmpresa::parse", ret);
+                        controller.call("juntaEmpresa::parse", [ret, val]);
                     }
                 })));
     });
 
-    controller.registerCall("juntaEmpresa::parse", function (ret) {
-        var section = controller.call("section");
-        var sectionDocumentGroup = section("Junta Empresa",
+    controller.registerCall("juntaEmpresa::parse", function (args) {
+        var ret = args[0], 
+            val = args[1],
+            section = controller.call("section"),
+            sectionDocumentGroup = section("Junta Empresa",
                 "Informações agregadas do CNPJ",
                 "1 registro encontrado");
+                
         $(".app-content").prepend(sectionDocumentGroup[0]);
-        sectionDocumentGroup[1].append(controller.call("xmlDocument")(ret,
-                "JUNTAEMPRESA", "CONSULTA"));
+
+        var juntaEmpresaHTML = controller.call("xmlDocument")(ret, "JUNTAEMPRESA", "CONSULTA");
+        juntaEmpresaHTML.find(".container").first().addClass("xml2html")
+                .data("document", $(ret))
+                .data("form", [{
+                        name: "documento",
+                        value: val
+                    }]);
+        sectionDocumentGroup[1].append(juntaEmpresaHTML);
     });
 
 };

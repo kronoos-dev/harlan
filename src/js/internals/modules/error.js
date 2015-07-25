@@ -19,7 +19,7 @@ module.exports = function (controller) {
         var error = dict.error;
         dict.error = function (jqXHR, textStatus, errorThrown) {
             try {
-                $().bipbopAssert($.parseXML(jqXHR.responseText), controller.call("error::toast"));
+                $.bipbopAssert($.parseXML(jqXHR.responseText), controller.call("error::toast"));
             } catch (err) {
                 toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }

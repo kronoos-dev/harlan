@@ -1,7 +1,7 @@
 /* global module, componentHandler */
 
 
-var menu = function () {
+var Menu = function () {
 
     this.add = function (title, icon) {
         var elementId = "action-" + title;
@@ -35,4 +35,4 @@ var menu = function () {
     return this;
 };
 
-module.exports = new menu();
+module.exports = new Menu();

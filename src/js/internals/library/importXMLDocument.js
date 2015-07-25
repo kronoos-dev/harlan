@@ -75,9 +75,6 @@ module.exports = function (controller) {
         var container = $("<div />").addClass("container").append(content);
 
         return $("<section />").addClass("result").append(container);
-
-
-
     };
 
     this.import = function (document, database, table) {

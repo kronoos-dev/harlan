@@ -239,6 +239,7 @@ module.exports = function () {
     require("./modules/iframeEmbed")(this);
     require("./modules/googleAnalytics")(this);
     require("./modules/site")(this);
+    require("./modules/visualModuleGenerator/index")(this);
 
     return this;
 };
