@@ -23,7 +23,8 @@ var fileinclude = require("gulp-file-include"),
         buffer = require("vinyl-buffer"),
         sourcemaps = require("gulp-sourcemaps"),
         messageformat = require("gulp-messageformat"),
-        autoprefixer = require("gulp-autoprefixer");
+        autoprefixer = require("gulp-autoprefixer"),
+        notify = require('gulp-notify');
 
 var externalJsSources = [
     "bower_components/jquery/dist/jquery.js",
@@ -175,7 +176,8 @@ gulp.task("build-scripts", ["jshint"], function () {
             .pipe(concat("app.min.js"))
             .pipe(sourcemaps.write("."))
             .pipe(gulp.dest("Server/web/js"))
-            .pipe(livereload());
+            .pipe(livereload())
+            .pipe(notify({ message: "JavaScript was constructed correctly and can now be used.", wait: true}));
 });
 
 gulp.task("app-images", function () {

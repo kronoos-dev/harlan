@@ -7,7 +7,7 @@
             </div>
             <form class="search" id="main-search">
                 <div class="q">
-                    <input type="text" name="q" id="input-q" data-irql-key="text" data-i18n-placeholder="index.report-input" placeholder="Qual o relatório de hoje?" />
+                    <input type="text" name="q" id="input-q" data-i18n-placeholder="index.report-input" placeholder="Qual o relatório de hoje?" />
                     <span class="icon"></span>
                 </div>
             </form>

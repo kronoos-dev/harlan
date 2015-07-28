@@ -5,11 +5,11 @@
     var REGEX_PARAMETER = /\'(numero_oab|processo|)\'\s*=\s*'([^']*)'/i;
 
     harlan.trigger("projuris::init");
-    harlan.interface.instance.logo.empty().append($("<div />").addClass("logo-projuris"));
+    harlan.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
     harlan.interface.addCSSDocument("css/projuris.min.css");
 
     $(".scroll-down .actions").hide();
-    $("#input-q").attr({
+    $("controller.interface.helpers").attr({
         placeholder: "Qual processo você esta procurando?",
         value: harlan.serverCommunication.apiKey,
         disabled: "disabled"

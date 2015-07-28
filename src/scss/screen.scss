@@ -44,6 +44,20 @@ label {
     outline: none;
 }
 
+.iframe {
+
+    @include classHideEnabled;
+
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    
+    iframe {
+        /* js calc */
+        height: calc(100% - 114px);
+    }
+}
+
 .app {
     width: 100%;
     position: absolute;
@@ -71,11 +85,12 @@ label {
 
 .alerts {
 
+    cursor: pointer;
+
     .fa-inbox {
         @include transition(color 200ms ease-in);
         position: relative;
         font-size: 24px;
-        cursor: pointer;
 
         &:hover {
             color: darken($color-font, 5%);
@@ -173,6 +188,12 @@ label {
         content: "\f00d";
     }
 
+    .icon.url {
+        cursor: pointer;
+        &:after {
+            content: "\f0c1";
+        }
+    }
 
     &.loading .icon {
         @include animation(spin 1s infinite);

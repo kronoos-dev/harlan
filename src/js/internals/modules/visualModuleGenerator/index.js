@@ -27,7 +27,7 @@ module.exports = function (controller) {
         var selector = "#" + ID;
         
         var ready = function () {
-            controller.interface.instance.activeWindow(selector);
+            controller.interface.helpers.activeWindow(selector);
         };
         
         if ($(selector).length) {
@@ -35,7 +35,7 @@ module.exports = function (controller) {
             return false;
         }
         
-        harlan.interface.instance.template.render("visualGenerator", {}, function (template) {
+        harlan.interface.helpers.template.render("visualGenerator", {}, function (template) {
             draw($(template), ready);
         });
         

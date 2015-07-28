@@ -46,6 +46,7 @@
     "gulp-manifest": "0.0.6",
     "gulp-messageformat": "0.0.6",
     "gulp-minify-css": "~0.3.11",
+    "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.1",
     "gulp-sourcemaps": "^1.5.2",

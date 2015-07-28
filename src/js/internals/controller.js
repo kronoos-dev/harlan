@@ -81,8 +81,8 @@ module.exports = function () {
             return this.addCSSDocument;
         };
 
-        this.instance = require("./interface/interface");
         this.widgets = require("./widgets/widgets");
+        this.helpers = require("./interface/interface");
 
         return this;
     })();
@@ -240,6 +240,7 @@ module.exports = function () {
     require("./modules/googleAnalytics")(this);
     require("./modules/site")(this);
     require("./modules/visualModuleGenerator/index")(this);
+    require("./modules/placasWiki")(this);
 
     return this;
 };

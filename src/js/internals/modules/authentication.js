@@ -36,7 +36,7 @@ module.exports = function (controller) {
         callback();
 
         if (!authenticate()) {
-            controller.interface.instance.activeWindow(".site");
+            controller.interface.helpers.activeWindow(".site");
         }
 
         $("#action-logout").click(function (e) {
@@ -63,7 +63,7 @@ module.exports = function (controller) {
      */
     controller.registerCall("authentication::logout", function () {
         controller.serverCommunication.apiKey = BIPBOP_FREE;
-        controller.interface.instance.activeWindow(".site");
+        controller.interface.helpers.activeWindow(".site");
         
         $("#input-username").val("");
         $("#input-password").val("");
@@ -78,7 +78,7 @@ module.exports = function (controller) {
         }
         controller.serverCommunication.apiKey = key;
         controller.trigger("authentication::authenticated", null, function () {
-            controller.interface.instance.activeWindow(".app");
+            controller.interface.helpers.activeWindow(".app");
         });
         
         return true;
