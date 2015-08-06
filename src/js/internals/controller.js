@@ -237,7 +237,7 @@ module.exports = function () {
     require("./modules/demonstrate")(this);
     require("./modules/forgotPassword")(this);
     require("./modules/iframeEmbed")(this);
-    require("./modules/googleAnalytics")(this);
+    require("./modules/analytics")(this);
     require("./modules/site")(this);
     require("./modules/visualModuleGenerator/index")(this);
     require("./modules/placasWiki")(this);

@@ -13,7 +13,7 @@ module.exports = function (controller) {
             autocomplete.item("Placas.Wiki",
                     "Consulta a Placa de Veículo",
                     "Para encontrar, comentar e avaliar motoristas", null, null, true).addClass("database").click(function () {
-                controller.call("iframeEmbed::open", ["https://www.placas.wiki.br?p=" + placa]);
+                controller.call("iframeEmbed::open", ["https://placas.wiki.br?p=" + placa]);
             });
 
         }

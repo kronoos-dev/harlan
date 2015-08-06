@@ -24,7 +24,8 @@ var fileinclude = require("gulp-file-include"),
         sourcemaps = require("gulp-sourcemaps"),
         messageformat = require("gulp-messageformat"),
         autoprefixer = require("gulp-autoprefixer"),
-        notify = require('gulp-notify');
+        notify = require('gulp-notify'),
+        hashsrc = require('gulp-hash-src');
 
 var externalJsSources = [
     "bower_components/jquery/dist/jquery.js",
@@ -69,6 +70,10 @@ gulp.task("app-html", function () {
             .pipe(fileinclude({
                 prefix: "@@",
                 basepath: "@file"
+            }))
+            .pipe(hashsrc({
+                build_dir: "./Server/web",
+                src_path: "./src"
             }))
             .pipe(htmlhint())
             .pipe(htmlhint.reporter())
@@ -177,13 +182,13 @@ gulp.task("build-scripts", ["jshint"], function () {
             .pipe(sourcemaps.write("."))
             .pipe(gulp.dest("Server/web/js"))
             .pipe(livereload())
-            .pipe(notify({ message: "JavaScript was constructed correctly and can now be used.", wait: true}));
+            .pipe(notify({message: "JavaScript was constructed correctly and can now be used.", wait: true}));
 });
 
 gulp.task("app-images", function () {
     return streamqueue({objectMode: true}, gulp.src([
-        "src/**/*.png", 
-        "src/**/*.jpg", 
+        "src/**/*.png",
+        "src/**/*.jpg",
         "src/**/*.gif",
         "src/**/*.jpeg"
     ]).pipe(imageop({

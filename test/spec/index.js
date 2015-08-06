@@ -112523,8 +112523,10 @@ module.exports = {
     oauthKey : "zyAvYDHsaZ8nznkjKhOx7KgpH4A",
     checkoutUrl: 'https://irql.bipbop.com.br/api/checkout.html',
     inboxTime: 50000,
+    mixPanel: "a0c187b3c161b6a6448b754e91431a6d",
     googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
 };
+
 },{"url":10}],20:[function(require,module,exports){
 /* global module, numeral */
 
@@ -112765,7 +112767,7 @@ module.exports = function () {
     require("./modules/demonstrate")(this);
     require("./modules/forgotPassword")(this);
     require("./modules/iframeEmbed")(this);
-    require("./modules/googleAnalytics")(this);
+    require("./modules/analytics")(this);
     require("./modules/site")(this);
     require("./modules/visualModuleGenerator/index")(this);
     require("./modules/placasWiki")(this);
@@ -112773,7 +112775,7 @@ module.exports = function () {
     return this;
 };
 
-},{"./config":19,"./forms/receitaCertidao":21,"./i18n/pt":22,"./interface/interface":24,"./library/importXMLDocument":28,"./library/serverCommunication":29,"./modules/authentication":30,"./modules/autocomplete":31,"./modules/clipboard":32,"./modules/comments":33,"./modules/databaseError":34,"./modules/databaseSearch":35,"./modules/demonstrate":36,"./modules/endpoint":37,"./modules/error":38,"./modules/findCompany":39,"./modules/findDatabase":40,"./modules/findDocument":41,"./modules/forgotPassword":42,"./modules/generateResult":43,"./modules/googleAnalytics":44,"./modules/history":45,"./modules/i18n":46,"./modules/iframeEmbed":47,"./modules/loader":48,"./modules/mainSearch":49,"./modules/messages":50,"./modules/modal":51,"./modules/module":52,"./modules/oauth-io":53,"./modules/openReceipt":54,"./modules/placasWiki":55,"./modules/push":56,"./modules/remove":57,"./modules/save":58,"./modules/searchJuntaEmpresa":59,"./modules/section":60,"./modules/selectedResults":61,"./modules/site":62,"./modules/urlParameter":63,"./modules/visualModuleGenerator/index":64,"./modules/welcomeScreen":65,"./modules/xmlDocument":66,"./parsers/juntaEmpresa":67,"./parsers/placasWiki":68,"./widgets/widgets":70,"assert":3,"async":2,"uniqid":18,"url":10}],21:[function(require,module,exports){
+},{"./config":19,"./forms/receitaCertidao":21,"./i18n/pt":22,"./interface/interface":24,"./library/importXMLDocument":28,"./library/serverCommunication":29,"./modules/analytics":30,"./modules/authentication":31,"./modules/autocomplete":32,"./modules/clipboard":33,"./modules/comments":34,"./modules/databaseError":35,"./modules/databaseSearch":36,"./modules/demonstrate":37,"./modules/endpoint":38,"./modules/error":39,"./modules/findCompany":40,"./modules/findDatabase":41,"./modules/findDocument":42,"./modules/forgotPassword":43,"./modules/generateResult":44,"./modules/history":45,"./modules/i18n":46,"./modules/iframeEmbed":47,"./modules/loader":48,"./modules/mainSearch":49,"./modules/messages":50,"./modules/modal":51,"./modules/module":52,"./modules/oauth-io":53,"./modules/openReceipt":54,"./modules/placasWiki":55,"./modules/push":56,"./modules/remove":57,"./modules/save":58,"./modules/searchJuntaEmpresa":59,"./modules/section":60,"./modules/selectedResults":61,"./modules/site":62,"./modules/urlParameter":63,"./modules/visualModuleGenerator/index":64,"./modules/welcomeScreen":65,"./modules/xmlDocument":66,"./parsers/juntaEmpresa":67,"./parsers/placasWiki":68,"./widgets/widgets":70,"assert":3,"async":2,"uniqid":18,"url":10}],21:[function(require,module,exports){
 /* global module */
 
 module.exports = function (controller) {
@@ -112989,6 +112991,89 @@ module.exports = function (controller) {
     return this;
 };
 },{}],30:[function(require,module,exports){
+module.exports = function (controller) {
+
+    controller.registerBootstrap("analytics::mixpanel", function (callback) {
+        (function (f, b) {
+            if (!b.__SV) {
+                var a, e, i, g;
+                window.mixpanel = b;
+                b._i = [];
+                b.init = function (a, e, d) {
+
+                    function f(b, h) {
+
+                        var a = h.split(".");
+
+                        if (a.length === 2) {
+                            b = b[a[0]];
+                            h = a[1];
+                        }
+
+                        b[h] = function () {
+                            b.push([h].concat(Array.prototype.slice.call(arguments, 0)));
+                        };
+                    }
+
+                    var c = b;
+                    if ("undefined" !== typeof d) {
+                        c = b[d] = [];
+                    } else {
+                        d = "mixpanel";
+                    }
+                    c.people = c.people || [];
+                    c.toString = function (b) {
+                        var a = "mixpanel";
+                        if ("mixpanel" !== d) {
+                            a += "." + d;
+                        }
+                        if (b) {
+                            a += " (stub)";
+                        }
+                        return a;
+                    };
+                    c.people.toString = function () {
+                        return c.toString(1) + ".people (stub)";
+                    };
+                    i = "disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.union people.track_charge people.clear_charges people.delete_user".split(" ");
+                    for (g = 0; g < i.length; g++)
+                        f(c, i[g]);
+                    b._i.push([a, e, d]);
+                };
+                b.__SV = 1.2;
+                a = f.createElement("script");
+                a.type = "text/javascript";
+                a.async = !0;
+                a.src = "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL ? MIXPANEL_CUSTOM_LIB_URL : "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";
+                e = f.getElementsByTagName("script")[0];
+                e.parentNode.insertBefore(a, e);
+            }
+        })(document, window.mixpanel || []);
+        mixpanel.init(controller.confs.mixPanel);
+    });
+
+    controller.registerBootstrap("analytics::google", function (callback) {
+        callback();
+        (function (h, a, r, l, n) {
+            h.GoogleAnalyticsObject = r;
+            if (!h[r]) {
+                h[r] = function () {
+                    (h[r].q = h[r].q || []).push(arguments);
+                };
+            }
+            h[r].l = +new Date();
+            l = a.createElement("script");
+            n = a.scripts[0];
+            l.src = "//www.google-analytics.com/analytics.js";
+            n.parentNode.insertBefore(l, n);
+        })(window, document, "googleAnalytics");
+
+        googleAnalytics("create", controller.confs.googleAnalyticsId, "auto");
+        googleAnalytics("send", "pageview");
+
+    });
+};
+},{}],31:[function(require,module,exports){
 /*
  * Módulo de Autenticação do Harlan
  */
@@ -113142,7 +113227,7 @@ module.exports = function (controller) {
     });
 
 };
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = function (controller) {
 
     var timeout = null;
@@ -113257,13 +113342,13 @@ module.exports = function (controller) {
     });
 
 };
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = function (controller) {
     ZeroClipboard.config({
         swfPath: controller.confs.zeroClipboard.swfPath
     });
 };
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /* global module */
 
 module.exports = function (controller) {
@@ -113364,7 +113449,7 @@ module.exports = function (controller) {
 
     });
 };
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /* global module */
 
 module.exports = function (controller) {
@@ -113404,7 +113489,7 @@ module.exports = function (controller) {
     });
 
 };
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports = function (controller) {
 
     controller.registerCall("databaseSearch::submit", function (args) {
@@ -113465,7 +113550,7 @@ module.exports = function (controller) {
     });
 
 };
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = function (controller) {
     controller.registerBootstrap("demonstrate", function (callback) {
         callback();
@@ -113474,7 +113559,7 @@ module.exports = function (controller) {
         });
     });
 };
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /* global module */
 
 module.exports = function (controller) {
@@ -113528,7 +113613,7 @@ module.exports = function (controller) {
         });
     });
 };
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = function (controller) {
 
     controller.registerCall("error::toast", function () {
@@ -113564,7 +113649,7 @@ module.exports = function (controller) {
 
 
 };
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = function (controller) {
 
     var xhr;
@@ -113611,7 +113696,7 @@ module.exports = function (controller) {
         });
     });
 };
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /**
  * Módulo responsável por listar as consultas do INFO.INFO na UX
  */
@@ -113915,7 +114000,7 @@ module.exports = function (controller) {
         
     });
 };
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = function (controller) {
 
     var xhr;
@@ -114066,7 +114151,7 @@ module.exports = function (controller) {
 
 
 };
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = function (controller) {
     controller.registerBootstrap("forgotPassword", function (callback) {
         callback();
@@ -114089,7 +114174,7 @@ module.exports = function (controller) {
         });
     });
 }; 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var assert = require("assert");
 
 module.exports = function (controller) {
@@ -114181,32 +114266,7 @@ module.exports = function (controller) {
     });
 
 };
-},{"assert":3}],44:[function(require,module,exports){
-module.exports = function (controller) {
-
-    controller.registerBootstrap("googleAnalytics", function (callback) {
-        callback();
-        (function (h, a, r, l, n) {
-            h.GoogleAnalyticsObject = r;
-            if (!h[r]) {
-                h[r] = function () {
-                    (h[r].q = h[r].q || []).push(arguments);
-                };
-            }
-            h[r].l = +new Date();
-            l = a.createElement("script");
-            n = a.scripts[0];
-            l.src = "//www.google-analytics.com/analytics.js";
-            n.parentNode.insertBefore(l, n);
-        })(window, document, "googleAnalytics");
-
-        googleAnalytics("create", controller.confs.googleAnalyticsId, "auto");
-        googleAnalytics("send", "pageview");
-
-
-    });
-};
-},{}],45:[function(require,module,exports){
+},{"assert":3}],45:[function(require,module,exports){
 module.exports = function (controller) {
 
     controller.registerBootstrap("history", function (callback) {
@@ -114963,12 +115023,12 @@ module.exports = function (controller) {
         var placa = args[0],
                 autocomplete = args[1];
 
-        if (/^[A-Z]{3}\-?[0-9]{4}$/.test(placa)) {
+        if (/^[A-Z]{3}\-?[0-9]{4}$/i.test(placa)) {
 
             autocomplete.item("Placas.Wiki",
                     "Consulta a Placa de Veículo",
                     "Para encontrar, comentar e avaliar motoristas", null, null, true).addClass("database").click(function () {
-                controller.call("iframeEmbed::open", ["https://www.placas.wiki.br?p=" + placa]);
+                controller.call("iframeEmbed::open", ["https://placas.wiki.br?p=" + placa]);
             });
 
         }
