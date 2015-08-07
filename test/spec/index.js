@@ -105597,7 +105597,7 @@ require('domready')(function () {
         mocha.run();
     }
 });
-},{"../internals/controller":20,"./config":71,"./controller":72,"domready":13}],2:[function(require,module,exports){
+},{"../internals/controller":20,"./config":70,"./controller":71,"domready":13}],2:[function(require,module,exports){
 (function (process){
 /*!
  * async
@@ -112538,13 +112538,15 @@ var url = require('url');
 var ServerCommunication = require("./library/serverCommunication");
 var ImportXMLDocument = require("./library/importXMLDocument");
 
-module.exports = function () {
+var Controller =  function () {
+    
+    var myself = this;
 
-    this.confs = require("./config");
+    myself.confs = require("./config");
 
     var language = null;
 
-    this.i18n = (function (locale) {
+    myself.i18n = (function (locale) {
 
         userLanguage = locale.split("-")[0];
         var validLanguages = {
@@ -112566,7 +112568,7 @@ module.exports = function () {
         return validLanguages[language];
     })(localStorage.language || navigator.language || navigator.userLanguage || "pt");
 
-    this.language = function () {
+    myself.language = function () {
         return language;
     };
 
@@ -112574,14 +112576,16 @@ module.exports = function () {
     var calls = {};
     var events = {};
 
-    this.query = url.parse(window.location.href, true).query;
+    myself.query = url.parse(window.location.href, true).query;
 
-    this.registerBootstrap = function (name, callback) {
+    myself.registerBootstrap = function (name, callback) {
         bootstrapCalls[name] = callback;
-        return this;
+        return myself;
     };
 
-    this.interface = (function () {
+    myself.interface = (function () {
+
+        var myself = this;
 
         var sheet = (function () {
             var style = document.createElement("style");
@@ -112590,7 +112594,7 @@ module.exports = function () {
             return style.sheet;
         })();
 
-        this.addCSSRule = function (selector, rules) {
+        myself.addCSSRule = function (selector, rules) {
             var index = sheet.cssRules.length;
             if ("insertRule" in sheet) {
                 sheet.insertRule(selector + "{" + rules + "}", index);
@@ -112598,26 +112602,26 @@ module.exports = function () {
             else if ("addRule" in sheet) {
                 sheet.addRule(selector, rules, index);
             }
-            return this.addCSSRule;
+            return myself.addCSSRule;
         };
 
-        this.addCSSDocument = function (href, media, type) {
+        myself.addCSSDocument = function (href, media, type) {
             $("head").append($("<link />").attr({
                 rel: "stylesheet",
                 type: type || "text/css",
                 href: href,
                 media: media || "screen"
             }));
-            return this.addCSSDocument;
+            return myself.addCSSDocument;
         };
 
-        this.widgets = require("./widgets/widgets");
-        this.helpers = require("./interface/interface");
+        myself.widgets = require("./widgets/widgets");
+        myself.helpers = require("./interface/interface");
 
-        return this;
+        return myself;
     })();
 
-    this.registerTrigger = function (name, callback) {
+    myself.registerTrigger = function (name, callback) {
         console.log(":: register trigger ::", name);
         if (!(name in events)) {
             events[name] = [];
@@ -112625,7 +112629,7 @@ module.exports = function () {
         events[name].push(callback);
     };
 
-    this.trigger = function (name, args, onComplete) {
+    myself.trigger = function (name, args, onComplete) {
 
         var run = function () {
             if (onComplete) {
@@ -112635,13 +112639,13 @@ module.exports = function () {
 
         console.log(":: trigger ::", name);
         if (!(name in events)) {
-            return this;
+            return myself;
         }
 
         var submits = (events[name] || []).length;
         if (submits === 0) {
             run();
-            return this;
+            return myself;
         }
 
         var runsAtEnd = function () {
@@ -112657,25 +112661,25 @@ module.exports = function () {
             events[name][triggerId](args, runsAtEnd);
         }
 
-        return this;
+        return myself;
     };
 
-    this.registerCall = function (name, callback) {
+    myself.registerCall = function (name, callback) {
         console.log(":: register :: ", name);
-        this.trigger("call::register::" + name);
+        myself.trigger("call::register::" + name);
         calls[name] = callback;
-        return this;
+        return myself;
     };
 
-    this.call = function (name, args, pageTitle, pageUrl) {
-        this.trigger("call::" + name);
+    myself.call = function (name, args, pageTitle, pageUrl) {
+        myself.trigger("call::" + name);
         console.log(":: call ::", name);
         assert.ok(name in calls);
         return calls[name](args);
     };
 
-    this.serverCommunication = new ServerCommunication(this);
-    this.importXMLDocument = new ImportXMLDocument(this);
+    myself.serverCommunication = new ServerCommunication(myself);
+    myself.importXMLDocument = new ImportXMLDocument(myself);
 
     /**
      * From day to night and night to day
@@ -112684,7 +112688,9 @@ module.exports = function () {
      * Just listen to your voice
      */
 
-    this.store = (function () {
+    myself.store = (function () {
+        var myself = this;
+        
         var elements = {};
 
         /**
@@ -112693,9 +112699,9 @@ module.exports = function () {
          * @param value
          * @returns idx
          */
-        this.set = function (key, value) {
+        myself.set = function (key, value) {
             elements[key] = value;
-            return this;
+            return myself;
         };
 
         /**
@@ -112703,7 +112709,7 @@ module.exports = function () {
          * @param {string} key
          * @returns mixed
          */
-        this.get = function (key) {
+        myself.get = function (key) {
             return elements[key];
         };
 
@@ -112712,70 +112718,73 @@ module.exports = function () {
          * @param {int} idx
          * @returns mixed
          */
-        this.unset = function (idx) {
+        myself.unset = function (idx) {
             delete elements[idx];
-            return this;
+            return myself;
         };
 
-        return this;
+        return myself;
     })();
 
-    this.run = function () {
+    myself.run = function () {
         async.auto(bootstrapCalls, function (err, results) {
             console.log(":: bootstrap ::", err, results);
         });
     };
 
     /* Parsers */
-    require("./parsers/placasWiki")(this);
-    require("./parsers/juntaEmpresa")(this);
+    require("./parsers/placasWiki")(myself);
+    require("./parsers/juntaEmpresa")(myself);
 
     /* Forms */
-    require("./forms/receitaCertidao")(this);
+    require("./forms/receitaCertidao")(myself);
 
     /* Modules */
-    require("./modules/i18n")(this);
-    require("./modules/autocomplete")(this);
-    require("./modules/openReceipt")(this);
-    require("./modules/findDatabase")(this);
-    require("./modules/loader")(this);
-    require("./modules/error")(this);
-    require("./modules/endpoint")(this);
-    require("./modules/clipboard")(this);
-    require("./modules/remove")(this);
-    require("./modules/databaseSearch")(this);
-    require("./modules/comments")(this);
-    require("./modules/modal")(this);
-    require("./modules/welcomeScreen")(this);
-    require("./modules/authentication")(this);
-    require("./modules/history")(this);
-    require("./modules/module")(this);
-    require("./modules/selectedResults")(this);
-    require("./modules/searchJuntaEmpresa")(this);
-    require("./modules/save")(this);
-    require("./modules/findCompany")(this);
-    require("./modules/findDocument")(this);
-    require("./modules/xmlDocument")(this);
-    require("./modules/section")(this);
-    require("./modules/databaseError")(this);
-    require("./modules/messages")(this);
-    require("./modules/mainSearch")(this);
-    require("./modules/push")(this);
-    require("./modules/oauth-io")(this);
-    require("./modules/urlParameter")(this);
-    require("./modules/generateResult")(this);
-    require("./modules/demonstrate")(this);
-    require("./modules/forgotPassword")(this);
-    require("./modules/iframeEmbed")(this);
-    require("./modules/analytics")(this);
-    require("./modules/site")(this);
-    require("./modules/visualModuleGenerator/index")(this);
-    require("./modules/placasWiki")(this);
+    require("./modules/i18n")(myself);
+    require("./modules/autocomplete")(myself);
+    require("./modules/openReceipt")(myself);
+    require("./modules/findDatabase")(myself);
+    require("./modules/loader")(myself);
+    require("./modules/error")(myself);
+    require("./modules/endpoint")(myself);
+    require("./modules/clipboard")(myself);
+    require("./modules/remove")(myself);
+    require("./modules/databaseSearch")(myself);
+    require("./modules/comments")(myself);
+    require("./modules/modal")(myself);
+    require("./modules/welcomeScreen")(myself);
+    require("./modules/authentication")(myself);
+    require("./modules/history")(myself);
+    require("./modules/module")(myself);
+    require("./modules/selectedResults")(myself);
+    require("./modules/searchJuntaEmpresa")(myself);
+    require("./modules/save")(myself);
+    require("./modules/findCompany")(myself);
+    require("./modules/findDocument")(myself);
+    require("./modules/xmlDocument")(myself);
+    require("./modules/section")(myself);
+    require("./modules/databaseError")(myself);
+    require("./modules/messages")(myself);
+    require("./modules/mainSearch")(myself);
+    require("./modules/push")(myself);
+    require("./modules/oauth-io")(myself);
+    require("./modules/urlParameter")(myself);
+    require("./modules/generateResult")(myself);
+    require("./modules/demonstrate")(myself);
+    require("./modules/forgotPassword")(myself);
+    require("./modules/iframeEmbed")(myself);
+    require("./modules/analytics")(myself);
+    require("./modules/site")(myself);
+    require("./modules/placasWiki")(myself);
 
     return this;
 };
 
-},{"./config":19,"./forms/receitaCertidao":21,"./i18n/pt":22,"./interface/interface":24,"./library/importXMLDocument":28,"./library/serverCommunication":29,"./modules/analytics":30,"./modules/authentication":31,"./modules/autocomplete":32,"./modules/clipboard":33,"./modules/comments":34,"./modules/databaseError":35,"./modules/databaseSearch":36,"./modules/demonstrate":37,"./modules/endpoint":38,"./modules/error":39,"./modules/findCompany":40,"./modules/findDatabase":41,"./modules/findDocument":42,"./modules/forgotPassword":43,"./modules/generateResult":44,"./modules/history":45,"./modules/i18n":46,"./modules/iframeEmbed":47,"./modules/loader":48,"./modules/mainSearch":49,"./modules/messages":50,"./modules/modal":51,"./modules/module":52,"./modules/oauth-io":53,"./modules/openReceipt":54,"./modules/placasWiki":55,"./modules/push":56,"./modules/remove":57,"./modules/save":58,"./modules/searchJuntaEmpresa":59,"./modules/section":60,"./modules/selectedResults":61,"./modules/site":62,"./modules/urlParameter":63,"./modules/visualModuleGenerator/index":64,"./modules/welcomeScreen":65,"./modules/xmlDocument":66,"./parsers/juntaEmpresa":67,"./parsers/placasWiki":68,"./widgets/widgets":70,"assert":3,"async":2,"uniqid":18,"url":10}],21:[function(require,module,exports){
+module.exports = function () {
+    return new Controller();
+};
+
+},{"./config":19,"./forms/receitaCertidao":21,"./i18n/pt":22,"./interface/interface":24,"./library/importXMLDocument":28,"./library/serverCommunication":29,"./modules/analytics":30,"./modules/authentication":31,"./modules/autocomplete":32,"./modules/clipboard":33,"./modules/comments":34,"./modules/databaseError":35,"./modules/databaseSearch":36,"./modules/demonstrate":37,"./modules/endpoint":38,"./modules/error":39,"./modules/findCompany":40,"./modules/findDatabase":41,"./modules/findDocument":42,"./modules/forgotPassword":43,"./modules/generateResult":44,"./modules/history":45,"./modules/i18n":46,"./modules/iframeEmbed":47,"./modules/loader":48,"./modules/mainSearch":49,"./modules/messages":50,"./modules/modal":51,"./modules/module":52,"./modules/oauth-io":53,"./modules/openReceipt":54,"./modules/placasWiki":55,"./modules/push":56,"./modules/remove":57,"./modules/save":58,"./modules/searchJuntaEmpresa":59,"./modules/section":60,"./modules/selectedResults":61,"./modules/site":62,"./modules/urlParameter":63,"./modules/welcomeScreen":64,"./modules/xmlDocument":65,"./parsers/juntaEmpresa":66,"./parsers/placasWiki":67,"./widgets/widgets":69,"assert":3,"async":2,"uniqid":18,"url":10}],21:[function(require,module,exports){
 /* global module */
 
 module.exports = function (controller) {
@@ -115621,52 +115630,6 @@ module.exports = function (controller) {
     
 };
 },{}],64:[function(require,module,exports){
-/* global module */
-
-module.exports = function (controller) {
-    
-    var ID = "visualGenerator";
-    
-    var draw = function (html, ready) {
-        controller.interface.addCSSDocument("css/visualGenerator.min.css");
-        var jDoc = $(html).attr({id : ID});
-        $("body").append(jDoc);
-        componentHandler.upgradeElement(jDoc.find(".mdl-button").get(0), "MaterialButton");
-        ready();
-    };
-    
-    controller.registerTrigger("findDatabase::instantSearch", function (args, callback) {
-        callback();
-        args[1].item("Criar Relatório", "Desenvolva seus próprios relatórios", "Use nossa interface para criar um relatório modelo.", null, null, true)
-                .addClass("saved")
-                .click(function (e) {
-                    e.preventDefault();
-                    controller.call("vsGenerator::draw");
-                });
-    });
-    
-    controller.registerCall("vsGenerator::draw", function () {
-        
-        var selector = "#" + ID;
-        
-        var ready = function () {
-            controller.interface.helpers.activeWindow(selector);
-        };
-        
-        if ($(selector).length) {
-            ready();
-            return false;
-        }
-        
-        harlan.interface.helpers.template.render("visualGenerator", {}, function (template) {
-            draw($(template), ready);
-        });
-        
-        return true;
-    });
-};
-
-},{}],65:[function(require,module,exports){
 /* global BIPBOP_FREE */
 
 var emailRegex = require('email-regex');
@@ -115838,7 +115801,7 @@ module.exports = function (controller) {
 
 };
 
-},{"email-regex":14}],66:[function(require,module,exports){
+},{"email-regex":14}],65:[function(require,module,exports){
 module.exports = function (controller) {
 
     var xmlDocument = function (document, database, table) {
@@ -115890,7 +115853,7 @@ module.exports = function (controller) {
         return xmlDocument;
     });
 };
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 var _ = require("underscore");
 
 module.exports = function (controller) {
@@ -116064,7 +116027,7 @@ module.exports = function (controller) {
 
 };
 
-},{"underscore":17}],68:[function(require,module,exports){
+},{"underscore":17}],67:[function(require,module,exports){
 module.exports = function (controller) {
 
     var parserPlacas = function (document) {
@@ -116098,7 +116061,7 @@ module.exports = function (controller) {
         controller.importXMLDocument.register("PLACA", "CONSULTA", parserPlacas);
     });
 };
-},{}],69:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports = function (parent, percent) {
     var radialProject = $("<div />").addClass("radialProject"),
             progress = $("<div />").addClass("progress"),
@@ -116122,7 +116085,7 @@ module.exports = function (parent, percent) {
     parent.append(radialProject);
     return radialProject;
 };
-},{}],70:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -116131,11 +116094,11 @@ module.exports = function (parent, percent) {
 module.exports = {
       radialProject : require("./radialProject")
 };
-},{"./radialProject":69}],71:[function(require,module,exports){
+},{"./radialProject":68}],70:[function(require,module,exports){
 module.exports = function () {
 
 };
-},{}],72:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /* global module, harlan, describe, itls */
 
 module.exports = function () {
