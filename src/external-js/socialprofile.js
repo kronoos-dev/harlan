@@ -1,10 +1,10 @@
 /* global harlan */
 
-var jform = harlan.store.get("neoassist")[0];
+var jform = harlan.store.get("socialdata")[0];
 jform.find("input[name='email']").attr("type", "email");
 jform.find("input[name='documento']").mask("999.999.999-99");
 
-harlan.store.set("neoassist::consulta", true);
+harlan.store.set("socialdata::consulta", true);
 
 var arrayUnique = function (nav_array) {
     /* http://stackoverflow.com/questions/13486479/how-to-get-an-array-of-unique-values-from-an-array-containing-duplicates-in-java */
@@ -118,7 +118,7 @@ var addMap = function (result, jdocument) {
     }).append($("<img />").attr("src", mapUrl)));
 };
 
-harlan.importXMLDocument.register("NEOASSIST", "CONSULTA", function (document) {
+harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (document) {
     var result = harlan.call("generateResult");
     var jdocument = $(document);
 
@@ -186,4 +186,4 @@ harlan.importXMLDocument.register("NEOASSIST", "CONSULTA", function (document) {
     return result.generate();
 });
 
-neoassist();
+socialdata();
