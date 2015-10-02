@@ -1,10 +1,10 @@
 /* global harlan */
 
-var jform = harlan.store.get("socialdata")[0];
+var jform = harlan.store.get("socialprofile")[0];
 jform.find("input[name='email']").attr("type", "email");
 jform.find("input[name='documento']").mask("999.999.999-99");
 
-harlan.store.set("socialdata::consulta", true);
+harlan.store.set("socialprofile::consulta", true);
 
 var arrayUnique = function (nav_array) {
     /* http://stackoverflow.com/questions/13486479/how-to-get-an-array-of-unique-values-from-an-array-containing-duplicates-in-java */
@@ -186,4 +186,4 @@ harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (documen
     return result.generate();
 });
 
-socialdata();
+socialprofile();
