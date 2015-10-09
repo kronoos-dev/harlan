@@ -1,3 +1,9 @@
+@import "../../bower_components/font-awesome/scss/font-awesome.scss";
+@import "../../bower_components/toastr/toastr.scss";
+@import "../../bower_components/animate.css/animate.css";
+@import "../../bower_components/nvd3/build/nv.d3.css";
+@import "../../bower_components/material-design-lite/material.css";
+
 @import "compass";
 @import "compass/reset";
 @import "compass/css3/border-radius";
@@ -536,7 +542,7 @@ label {
             display: block;
         }
 
-        input, select {
+        input, select, button {
             color: $color-font;
             font-family: $font-open-sans;
             margin: 3px 0;
@@ -833,7 +839,7 @@ p {
     }
 }
 
-input {
+input, button {
     color: #525252;
     margin: 10px auto;
     padding: 16px;

@@ -292,7 +292,8 @@ module.exports = function (controller) {
 
             searchId = setTimeout(function () {
                 $(".q").addClass("loading");
-                controller.trigger("findDatabase::instantSearch", [search, autocomplete], function () {
+                controller.trigger("findDatabase::instantSearch", [search, autocomplete], function (args, callback) {
+                    callback();
                     $(".q").removeClass("loading");
                 });
             }, controller.confs.instantSearchDelay);

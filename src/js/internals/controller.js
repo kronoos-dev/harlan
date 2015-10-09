@@ -8,8 +8,8 @@ var url = require('url');
 var ServerCommunication = require("./library/serverCommunication");
 var ImportXMLDocument = require("./library/importXMLDocument");
 
-var Controller =  function () {
-    
+var Controller = function () {
+
     var myself = this;
 
     myself.confs = require("./config");
@@ -45,6 +45,14 @@ var Controller =  function () {
     var bootstrapCalls = {};
     var calls = {};
     var events = {};
+
+    /**
+     * List all possible calls
+     * @returns {Array}
+     */
+    myself.listCalls = (function () {
+        return Object.keys(calls);
+    });
 
     myself.query = url.parse(window.location.href, true).query;
 
@@ -141,11 +149,13 @@ var Controller =  function () {
         return myself;
     };
 
-    myself.call = function (name, args, pageTitle, pageUrl) {
+    myself.call = function (name, args) {
         myself.trigger("call::" + name);
         console.log(":: call ::", name);
         assert.ok(name in calls);
-        return calls[name](args);
+        if (calls[name]) {
+            return calls[name](args);
+        }
     };
 
     myself.serverCommunication = new ServerCommunication(myself);
@@ -160,7 +170,7 @@ var Controller =  function () {
 
     myself.store = (function () {
         var myself = this;
-        
+
         var elements = {};
 
         /**
@@ -246,6 +256,7 @@ var Controller =  function () {
     require("./modules/analytics")(myself);
     require("./modules/site")(myself);
     require("./modules/placasWiki")(myself);
+    require("./modules/antecedentes")(myself);
 
     return this;
 };

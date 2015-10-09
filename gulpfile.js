@@ -41,7 +41,6 @@ var externalJsSources = [
     "bower_components/moment/min/moment-with-locales.js",
     "bower_components/numeral/numeral.js",
     "bower_components/numeral/languages.js",
-    "bower_components/numeral/languages.js",
     "bower_components/material-design-lite/material.js",
     "bower_components/d3plus/d3plus.full.js"
 ];
@@ -218,23 +217,14 @@ gulp.task("app-fonts", function () {
 });
 
 gulp.task("build-styles", function () {
-
-    return streamqueue({objectMode: true}, gulp.src([
-        "bower_components/font-awesome/scss/**/*.scss",
-        "bower_components/toastr/*.scss"
-    ]).pipe(sass()), gulp.src([
-        "bower_components/animate.css/animate.css",
-        "bower_components/nvd3/build/nv.d3.css",
-        "bower_components/material-design-lite/material.css"
-    ]), gulp.src([
+    return gulp.src([
         "src/scss/screen.scss"
-    ])
-            .pipe(compass({
-                css: "temp/css",
-                sass: "src/scss",
-                image: "Server/web/img",
-                sourcemap: false
-            })))
+    ]).pipe(compass({
+        css: "Server/web/css",
+        sass: "src/scss",
+        image: "Server/web/images",
+        sourcemap: true
+    }))
             .pipe(concat("app.css"))
             .pipe(minifyCSS())
             .pipe(rename({suffix: ".min"}))
