@@ -99,12 +99,12 @@ var Controller = function () {
         return myself;
     })();
 
-    myself.registerTrigger = function (name, callback) {
+    myself.registerTrigger = function (name, id, callback) {
         console.log(":: register trigger ::", name);
         if (!(name in events)) {
-            events[name] = [];
+            events[name] = {};
         }
-        events[name].push(callback);
+        events[name][id] = callback;
     };
 
     myself.trigger = function (name, args, onComplete) {
@@ -120,7 +120,7 @@ var Controller = function () {
             return myself;
         }
 
-        var submits = (events[name] || []).length;
+        var submits = events[name] ? Object.keys(events[name]).length : 0;
         if (submits === 0) {
             run();
             return myself;
@@ -135,8 +135,9 @@ var Controller = function () {
 
         console.log(":: trigger :: init ::", name);
 
-        for (var triggerId in events[name]) {
-            events[name][triggerId](args, runsAtEnd);
+        for (var triggerName in events[name]) {
+            console.log(name + " executing " + triggerName);
+            events[name][triggerName](args, runsAtEnd);
         }
 
         return myself;
@@ -256,7 +257,7 @@ var Controller = function () {
     require("./modules/analytics")(myself);
     require("./modules/site")(myself);
     require("./modules/placasWiki")(myself);
-    require("./modules/antecedentes")(myself);
+    require("./modules/proshield")(myself);
 
     return this;
 };

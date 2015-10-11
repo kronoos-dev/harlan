@@ -16,7 +16,7 @@ module.exports = function (controller) {
         return script;
     };
 
-    controller.registerTrigger("authentication::authenticated", function (args, callback) {
+    controller.registerTrigger("authentication::authenticated", "module::authenticated", function (args, callback) {
         controller.serverCommunication.call("SELECT FROM 'HARLANMODULES'.'JS'", {
             success: function (ret) {
 

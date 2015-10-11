@@ -2,7 +2,7 @@
 
 module.exports = function (controller) {
 
-    controller.registerTrigger("findDatabase::instantSearch", function (args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "placasWiki::instantSearch", function (args, callback) {
         callback();
         
         var placa = args[0],

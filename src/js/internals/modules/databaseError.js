@@ -6,7 +6,7 @@ module.exports = function (controller) {
         toastr[type || "error"](message || "Ocorreu um erro interno do servidor.", "Não foi possível processar sua requisição!");
     };
 
-    controller.registerTrigger("database::error", function (args, callback) {
+    controller.registerTrigger("database::error", "databaseError::error", function (args, callback) {
         var jqXHR = args[0], e = args[1];
 
         if (jqXHR && (jqXHR.status === 0 && e === 'abort')) {

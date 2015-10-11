@@ -3,9 +3,9 @@ var url = require("url");
 module.exports = {
     antecedentes: {
         hosts: [
-            "antecedentes.io",
-            "www.antecedentes.io",
-            "antecedentes.harlan.com.br"
+            "proshield.com.br",
+            "www.proshield.com.br",
+            "proshield.harlan.com.br"
         ]
     },
     instantSearchDelay: 500, /* ms */
@@ -17,6 +17,5 @@ module.exports = {
     oauthKey: "zyAvYDHsaZ8nznkjKhOx7KgpH4A",
     checkoutUrl: 'https://irql.bipbop.com.br/api/checkout.html',
     inboxTime: 50000,
-    mixPanel: "a0c187b3c161b6a6448b754e91431a6d",
-    googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
+    googleAnalyticsId: "UA-36688252-3" /* Universal Analytics */
 };

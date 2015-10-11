@@ -1,3 +1,5 @@
+var uniqid = require('uniqid');
+
 /**
  * Inicializa um modal
  */
@@ -8,7 +10,7 @@ module.exports = function (controller) {
         var modal = $("<div />");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
-        
+
         $("body").append(modalContainer);
 
         this.title = function (content) {
@@ -48,6 +50,21 @@ module.exports = function (controller) {
             var form = $("<form />");
             modal.append(form);
 
+            var createLabel = function (input, obj, labelText, placeholder) {
+                if ((obj && typeof obj !== "object") || labelText) {
+                    obj = {};
+                }
+
+                if (obj) {
+                    input.addClass("has-label").attr('id', (obj.id = uniqid()));
+                    obj.label = $("<label />")
+                            .addClass("input-label")
+                            .attr({'for': obj.id})
+                            .text(labelText || placeholder);
+                    form.append(obj.label);
+                }
+            };
+            
             var createList = function () {
                 var list = $("<ul />").addClass("list");
                 form.append(list);
@@ -73,19 +90,55 @@ module.exports = function (controller) {
                 return this;
             };
 
+            this.addSelect = function (id, name, list, obj, labelText) {
+                var select = $("<select />").attr({
+                    id: id,
+                    name: name
+                });
+
+                for (var i in list) {
+                    list[i] = select.append($("<option />").attr({
+                        value: i
+                    }).text(list[i]));
+                }
+
+                form.append(select);
+                createLabel(select, obj, labelText);
+
+                return select;
+            };
+
             this.createList = function () {
                 return new createList();
             };
 
-            this.addInput = function (name, type, placeholder) {
+
+
+            this.addInput = function (name, type, placeholder, obj, labelText) {
+                var id;
+
+
                 var input = $("<input />").attr({
                     name: name,
                     type: type,
-                    placeholder: placeholder
+                    placeholder: placeholder,
+                    autocomplete: false,
+                    autocapitalize: false
                 });
 
                 form.append(input);
+                createLabel(input, obj, labelText, placeholder);
+
                 return input;
+            };
+
+
+
+            this.cancelButton = function (text, onCancel) {
+                this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
+                    if (onCancel) onCancel();
+                    e.preventDefault();
+                });
             };
 
             this.addCheckbox = function (name, label, checked, value) {
@@ -113,7 +166,7 @@ module.exports = function (controller) {
                     value: value,
                     name: name
                 }).addClass("button");
-
+                
                 form.append(submit);
                 return submit;
             };

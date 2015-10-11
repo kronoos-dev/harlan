@@ -11,9 +11,9 @@ module.exports = function (controller) {
         };
     };
 
-    controller.registerTrigger("findDocument::show", function (args, callback) {
+    controller.registerTrigger("findDocument::show", "findDocument::show", function (args, callback) {
         callback();
-        
+
         var name = args[0],
                 description = args[1],
                 ids = args[2],
@@ -47,7 +47,7 @@ module.exports = function (controller) {
     });
 
     var items = [];
-    controller.registerTrigger("findDatabase::instantSearch", function (args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "findDocument::instantSearch", function (args, callback) {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }
@@ -142,7 +142,7 @@ module.exports = function (controller) {
 
             }, controller.confs.instantSearchDelay);
         });
-        
+
         return autocomplete;
     });
 

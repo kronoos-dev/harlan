@@ -22,7 +22,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerTrigger("authentication::authenticated", function (args, callback) {
+    controller.registerTrigger("authentication::authenticated", "welcomeScreen::authenticated", function (args, callback) {
         callback();
         if (!localStorage.welcome) {
             controller.call(controller.serverCommunication.apiKey === BIPBOP_FREE ?

@@ -4,5 +4,6 @@
  * and open the template in the editor.
  */
 module.exports = {
-      radialProject : require("./radialProject")
+      radialProject : require("./radialProject"),
+      jquery: require("./jquery")()
 };

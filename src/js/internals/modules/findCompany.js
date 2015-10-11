@@ -4,7 +4,7 @@ module.exports = function (controller) {
     var items = [];
 
 
-    controller.registerTrigger("findDatabase::instantSearch", function (args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "findCompany::instantSearch", function (args, callback) {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }

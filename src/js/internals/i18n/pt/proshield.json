@@ -1,0 +1,25 @@
+{
+    "pageTitle": "ProShield | Seu RH seguro",
+    "loginAbout": "Acompanhe, pesquisa e descubra antecedentes de candidatos e funcionários de sua empresa.",
+    "modalTitle": "Adicione um Funcionário",
+    "modalSubtitle": "Indentificação",
+    "modalMessage": "Com o ProShield você verifica contínuamente por antecedentes criminais, mandados de prisão, processos criminais e civís de seus funcionários e parceiros. Não perca nenhuma informação que pode fazer toda diferença para seu negócio.",
+    "cpfInput": "Digite o número do CPF",
+    "cepInput": "Digite o CEP da residência",
+    "birthdayInput": "Digite a data de Nascimento",
+    "queryPlaceholder": "Busque por um nome ou ocupação.",
+    "modalTitle": "Adicione um Funcionário",
+    "modalNameConfirmSubtitle": "Informar Filiação",
+    "modalNameConfirm": "Para garantir a segurança do sistema verifique se a grafia do nome no documento confere com a informada. Em seguida adicione o nome da mãe, do pai e confirme.",
+    "modalRGInformSubtitle": "Informar RG",
+    "modalRGInform": "Informe o número do RG e sua respectiva data de emissão para que o sistema possa verificar junto aos órgãos públicos por antecedentes criminais.",
+    "modalAddressConfirmSubtitle": "Confirmar CEP",
+    "modalAddressConfirm" : "Verifique junto ao comprovante de residência se cidade e estado conferem. Isso é importante para combater fraudes e endereços inválidos no sistema.",
+    "modalAddressInformSubtitle": "Informar Endereço",
+    "modalAddressInform" : "Insira corretamente o endereço, número, complemento e bairro que estão presentes no comprovante de residência para poder prosseguir com o cadastro",
+    "modalEmailInformSubtitle": "Informar E-mail",
+    "modalEmailInform" : "Adicione e-mail pessoal e corporativo, caso o mesmo não possua algum é possível deixar em branco. Essa informação é importante para o safe-keeping de sistema.",
+    "modalPhoneInformSubtitle": "Informar Telefone",
+    "modalPhoneInform" : "Adicione o telefone fixo, celular e corporativo, caso o mesmo não possua algum é possível deixar em branco. Essa informação é importante para o safe-keeping de sistema."
+    
+}

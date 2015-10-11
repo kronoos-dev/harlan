@@ -30,6 +30,7 @@
     "diacritics": "~1.2.1",
     "domready": "~1.0.7",
     "email-regex": "^1.0.0",
+    "glob": "^5.0.15",
     "gulp": "~3.8.10",
     "gulp-add-src": "^0.2.0",
     "gulp-autoprefixer": "^2.3.1",

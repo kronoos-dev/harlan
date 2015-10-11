@@ -11,7 +11,7 @@ module.exports = function () {
                 harlan.call("allahu::akbar");
             });
             it('register trigger', function (done) {
-                harlan.registerTrigger("allahu::akbar", function () {
+                harlan.registerTrigger("allahu::akbar", "allahu::akbar", function () {
                     done();
                 });
                 harlan.trigger("allahu::akbar");

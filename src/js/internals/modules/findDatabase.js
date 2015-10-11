@@ -176,7 +176,7 @@ module.exports = function (controller) {
                     }
                 };
             };
-            
+
             var jElement = $(element);
 
             controller.store.set(jElement.attr("callback"), [domTable, jElement]);
@@ -242,7 +242,7 @@ module.exports = function (controller) {
         });
     };
 
-    controller.registerTrigger("findDatabase::instantSearch", function (args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "findDatabase::instantSearch", function (args, callback) {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }
@@ -293,12 +293,14 @@ module.exports = function (controller) {
             searchId = setTimeout(function () {
                 $(".q").addClass("loading");
                 controller.trigger("findDatabase::instantSearch", [search, autocomplete], function (args, callback) {
-                    callback();
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                     $(".q").removeClass("loading");
                 });
             }, controller.confs.instantSearchDelay);
 
         });
-        
+
     });
 };

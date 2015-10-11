@@ -1,6 +1,8 @@
 "use strict";
 
 var fileinclude = require("gulp-file-include"),
+        path = require("path"),
+        glob = require("glob"),
         htmlhint = require("gulp-htmlhint"),
         compass = require("gulp-compass"),
         minifyCSS = require("gulp-minify-css"),
@@ -25,6 +27,7 @@ var fileinclude = require("gulp-file-include"),
         messageformat = require("gulp-messageformat"),
         autoprefixer = require("gulp-autoprefixer"),
         notify = require('gulp-notify'),
+        es = require('event-stream'),
         hashsrc = require('gulp-hash-src');
 
 var externalJsSources = [
@@ -103,15 +106,28 @@ gulp.task("i18n-pt", function () {
 
 gulp.task("i18n", ["i18n-pt", "i18n-en"]);
 
-gulp.task("build-external-scripts", ["i18n"], function () {
-    return gulp.src("src/external-js/**/*.js")
-            .pipe(jshint())
-            .pipe(jshint.reporter(stylish))
-            .pipe(sourcemaps.init({loadMaps: true}))
-            .pipe(thotypous())
-            .pipe(sourcemaps.write("."))
-            .pipe(gulp.dest("Server/web/js"))
-            .pipe(livereload());
+gulp.task("build-external-scripts", function (done) {
+    glob("src/external-js/**/*.js", function (err, files) {
+        if (err) {
+            done(err);
+        }
+
+        files.map(function (entry) {
+            entry = "./" + entry;
+            return browserify({
+                entries: entry,
+                debug: true
+            })
+                    .bundle()
+                    .pipe(source(path.basename(entry)))
+                    .pipe(buffer())
+                    .pipe(sourcemaps.init({loadMaps: true}))
+                    .pipe(thotypous())
+                    .pipe(sourcemaps.write("."))
+                    .pipe(gulp.dest("Server/web/js"))
+                    .pipe(livereload());
+        });
+    });
 });
 
 gulp.task("build-external-css", function () {
@@ -141,7 +157,7 @@ gulp.task("deploy", function () {
 });
 
 gulp.task("jshint", function () {
-    return gulp.src(["src/js/**/*.js", "!src/js/internals/i18n/**/*"])
+    return gulp.src(["src/js/**/*.js", "!src/js/internals/i18n/**/*", "src/external-js/**/*.js"])
             .pipe(jshint())
             .pipe(jshint.reporter(stylish))
             .pipe(jshint.reporter('fail'));
