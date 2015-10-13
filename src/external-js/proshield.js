@@ -93,7 +93,6 @@
 
     var changeScreen = function (errorCheck, nrm, form, onSuccess, continueText, returnText) {
         returnText = returnText || controller.i18n.system.return;
-        continueText = continueText || controller.i18n.system.continue;
 
         var buttonGenerator = function (name, fnc, nrm, beforeExec) {
             form.addSubmit(name, fnc).click(function (e) {
@@ -101,13 +100,15 @@
                 if (beforeExec && beforeExec()) {
                     return;
                 }
-                controller.call("proshield::add::screen::" + nrm.toString(), userScreenState);
+                controller.call(nrm > userScreenState.lastScreen ? userScreenState.onComplete :
+                        "proshield::user::screen::" + nrm.toString(), userScreenState);
             });
         };
 
+        continueText = continueText || (nrm + 1 > userScreenState.lastScreen ? controller.i18n.system.finish() : controller.i18n.system.continue());
         buttonGenerator("continue", continueText, nrm + 1, errorCheck);
 
-        if (nrm - 1 <= 0) {
+        if (nrm - 1 <= userScreenState.firstScreen) {
             form.cancelButton(null, emptyState);
         } else {
             buttonGenerator("return", returnText, nrm - 1);
@@ -149,7 +150,10 @@
                 elements: {},
                 data: {},
                 forms: {},
-                irql: {}
+                irql: {},
+                firstScreen: 1,
+                lastScreen: 8,
+                onComplete: "proshield::user::screen::add"
             }, state);
 
             userScreenState.modal.title(userScreenState.title || controller.i18n.proshield.modalTitle());
@@ -173,29 +177,67 @@
 
     };
 
-    controller.registerCall("proshield::add::screen::8", function (extend) {
-        console.log(userScreenState);
+    controller.registerCall("proshield::user::screen::add", function () {
+        controller.serverCommunication.call("INSERT INTO 'PROSHIELD'.'EMPLOYEE'", {
+            method: 'POST',
+            data: userScreenState.data,
+            success: function () {
+                toastr.success("Funcionário adicionado com sucesso a base de dados.");
+                emptyState();
+            },
+            error: function (xhr) {
+                var exceptions = $(xhr.responseText).find("exception");
+                if (!exceptions.length) {
+                    toastr.error("Ocorreu uma exceção e não foi possível prosseguir.", "Tente novamente em alguns instantes.");
+                    return;
+                }
+                toastr.error(exceptions.text());
+            }
+        });
     });
 
-    controller.registerCall("proshield::add::screen::7", function (extend) {
-        buildFormScreen("proshield::add::screen::7", controller.i18n.proshield.modalPhoneInformSubtitle(), controller.i18n.proshield.modalPhoneInform(), function () {
+    controller.registerCall("proshield::user::screen::8", function (extend) {
+        buildFormScreen("proshield::user::screen::8", controller.i18n.proshield.modalPhoneInformSubtitle(), controller.i18n.proshield.modalPhoneInform(), function () {
+            var form = userScreenState.modal.createForm();
+            var cargo = form.addInput("cargo", "text", "Cargo", true).addClass("optional").magicLabel().val(userScreenState.data.cargo),
+                    cargoDescricao = form.addInput("cargoDescricao", "text", "Descrição Cargo", true).addClass("optional").magicLabel().val(userScreenState.data.cargoDescricao),
+                    equipe = form.addInput("equipe", "text", "Equipe", true).addClass("optional").magicLabel().val(userScreenState.data.observacao),
+                    observacao = form.addInput("observacao", "text", "Observação", true).addClass("optional").magicLabel().val(userScreenState.data.observacao);
+
+            changeScreen(errorDecorator([], function () {
+                $.extend(userScreenState.data, {
+                    cargo: cargo.val(),
+                    cargoDescricao: cargoDescricao.val(),
+                    observacao: observacao.val(),
+                    equipe: equipe.val()
+                });
+            }), 8, form);
+
+            return form;
+        }, extend);
+    });
+
+    controller.registerCall("proshield::user::screen::7", function (extend) {
+        buildFormScreen("proshield::user::screen::7", controller.i18n.proshield.modalPhoneInformSubtitle(), controller.i18n.proshield.modalPhoneInform(), function () {
             var form = userScreenState.modal.createForm();
             var telefoneFixo = form.addInput("telefoneFixo", "text", "Telefone Fixo", true).addClass("optional").magicLabel().val(userScreenState.data.telefoneFixo),
                     telefoneCelular = form.addInput("telefoneCelular", "text", "Telefone Celular", true).addClass("optional").magicLabel().val(userScreenState.data.telefoneCelular),
                     telefoneCorporativo = form.addInput("telefoneCorporativo", "text", "Telefone Corporativo", true).addClass("optional").magicLabel().val(userScreenState.data.telefoneCorporativo);
 
             changeScreen(errorDecorator([], function () {
-                userScreenState.data.telefoneFixo = telefoneFixo.val();
-                userScreenState.data.telefoneCelular = telefoneCelular.val();
-                userScreenState.data.telefoneCorporativo = telefoneCorporativo.val();
+                $.extend(userScreenState.data, {
+                    telefoneFixo: telefoneFixo.val(),
+                    telefoneCelular: telefoneCelular.val(),
+                    telefoneCorporativo: telefoneCorporativo.val()
+                });
             }), 7, form);
 
             return form;
-        });
+        }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::6", function (extend) {
-        buildFormScreen("proshield::add::screen::6", controller.i18n.proshield.modalEmailInformSubtitle(), controller.i18n.proshield.modalEmailInform(), function () {
+    controller.registerCall("proshield::user::screen::6", function (extend) {
+        buildFormScreen("proshield::user::screen::6", controller.i18n.proshield.modalEmailInformSubtitle(), controller.i18n.proshield.modalEmailInform(), function () {
             var form = userScreenState.modal.createForm();
             var emailPessoal = form.addInput("email", "text", "E-mail Pessoal", true).addClass("optional").magicLabel().val(userScreenState.data.email),
                     emailCorporativo = form.addInput("emailCorporativo", "text", "E-mail Corporativo", true).addClass("optional").magicLabel().val(userScreenState.data.emailCorporativo);
@@ -203,15 +245,17 @@
                 checkEmail(false, emailPessoal),
                 checkEmail(false, emailCorporativo)
             ], function () {
-                userScreenState.data.emailPessoal = emailPessoal.val();
-                userScreenState.data.emailCorporativo = emailCorporativo.val();
+                $.extend(userScreenState.data, {
+                    emailPessoal: emailPessoal.val(),
+                    emailCorporativo: emailCorporativo.val()
+                });
             }), 6, form);
             return form;
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::5", function (extend) {
-        buildFormScreen("proshield::add::screen::5", controller.i18n.proshield.modalAddressInformSubtitle(), controller.i18n.proshield.modalAddressInform(), function () {
+    controller.registerCall("proshield::user::screen::5", function (extend) {
+        buildFormScreen("proshield::user::screen::5", controller.i18n.proshield.modalAddressInformSubtitle(), controller.i18n.proshield.modalAddressInform(), function () {
             var form = userScreenState.modal.createForm();
 
             var endereco = form.addInput("endereco", "text", "Endereço", true).attr("value", findAddress("logradouro")).magicLabel().val(userScreenState.data.endereco),
@@ -224,21 +268,21 @@
                 checkNonEmpty("número", numero),
                 checkNonEmpty("bairro", bairro)
             ], function () {
-                userScreenState.data.endereco = endereco.val();
-                userScreenState.data.numero = numero.val();
-                userScreenState.data.complemento = complemento.val();
-                userScreenState.data.bairro = bairro.val();
+                $.extend(userScreenState.data, {
+                    endereco: endereco.val(),
+                    numero: numero.val(),
+                    complemento: complemento.val(),
+                    bairro: bairro.val()
+                });
             }), 5, form);
 
             return form;
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::4", function (extend) {
-        buildFormScreen("proshield::add::screen::4", controller.i18n.proshield.modalAddressConfirmSubtitle(), controller.i18n.proshield.modalAddressConfirm(), function () {
+    controller.registerCall("proshield::user::screen::4", function (extend) {
+        buildFormScreen("proshield::user::screen::4", controller.i18n.proshield.modalAddressConfirmSubtitle(), controller.i18n.proshield.modalAddressConfirm(), function () {
             var form = userScreenState.modal.createForm();
-
-
 
             var cidade = form.addInput("cidade", "text", "Cidade", true).attr({"value": findAddress("cidade"), "readonly": "readonly"}),
                     uf = form.addInput("uf", "text", "Estado", true).attr({"value": findAddress("uf"), "readonly": "readonly"}),
@@ -249,17 +293,19 @@
             changeScreen(errorDecorator([
                 checkIsConfirmed("o comprovante de residência", checkbox[1])
             ], function () {
-                userScreenState.data.uf = uf.val();
-                userScreenState.data.cep = cep.val();
-                userScreenState.data.cidade = cidade.val();
+                $.extend(userScreenState.data, {
+                    uf: uf.val(),
+                    cep: cep.val(),
+                    cidade: cidade.val()
+                });
             }), 4, form);
 
             return form;
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::3", function (extend) {
-        buildFormScreen("proshield::add::screen::3", controller.i18n.proshield.modalRGInformSubtitle(), controller.i18n.proshield.modalRGInform(), function () {
+    controller.registerCall("proshield::user::screen::3", function (extend) {
+        buildFormScreen("proshield::user::screen::3", controller.i18n.proshield.modalRGInformSubtitle(), controller.i18n.proshield.modalRGInform(), function () {
             var form = userScreenState.modal.createForm();
 
             var rg = form.addInput("rg", "text", "Número do RG", true).magicLabel().val(userScreenState.data.rg),
@@ -284,17 +330,18 @@
                 checkNonEmpty("estado emissor", rgEstado),
                 checkBeforeDate("emissão", rgEmissao)
             ], function () {
-                userScreenState.data.rg = rg.val();
-                userScreenState.data.rgEstado = rgEstado.val();
-                userScreenState.data.rgEmissao = rgEmissao.val();
+                $.extend(userScreenState.data, {
+                    rg: rg.val(),
+                    rgEstado: rgEstado.val(),
+                    rgEmissao: rgEmissao.val()
+                });
             }), 3, form);
-
             return form;
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::2::valid", function (extend) {
-        buildFormScreen("proshield::add::screen::2", controller.i18n.proshield.modalNameConfirmSubtitle(), controller.i18n.proshield.modalNameConfirm(), function () {
+    controller.registerCall("proshield::user::screen::2::valid", function (extend) {
+        buildFormScreen("proshield::user::screen::2", controller.i18n.proshield.modalNameConfirmSubtitle(), controller.i18n.proshield.modalNameConfirm(), function () {
             var form = userScreenState.modal.createForm(),
                     irqlNome = $(userScreenState.irql.cepcpf).find("nome").text(),
                     nome, confirmName = null;
@@ -323,16 +370,18 @@
                 errors.push(checkIsConfirmed("o documento", confirmName[1]));
 
             changeScreen(errorDecorator(errors, function () {
-                userScreenState.data.nome = nome.val();
-                userScreenState.data.mae = mae.val();
-                userScreenState.data.pai = pai.val();
+                $.extend(userScreenState.data, {
+                    nome: nome.val(),
+                    mae: mae.val(),
+                    pai: pai.val()
+                });
             }), 2, form);
 
             return form;
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::2", function (extend) {
+    controller.registerCall("proshield::user::screen::2", function (extend) {
         controller.serverCommunication.call(null, {
             automaticLoader: true,
             data: $.extend({}, userScreenState.data, {
@@ -341,13 +390,13 @@
             }),
             success: function (irql) {
                 userScreenState.irql.cepcpf = irql;
-                controller.call("proshield::add::screen::2::valid", extend);
+                controller.call("proshield::user::screen::2::valid", extend);
             },
             error: function (xhr) {
                 var exceptions = $(xhr.responseText).find("exception");
                 if (!exceptions.length || exceptions.attr("code") === '99') {
                     /* Ambiente indisponível ;( */
-                    controller.call("proshield::add::screen::2::valid");
+                    controller.call("proshield::user::screen::2::valid");
                     return;
                 }
                 toastr.error(exceptions.text());
@@ -355,8 +404,8 @@
         }, extend);
     });
 
-    controller.registerCall("proshield::add::screen::1", function (extend) {
-        buildFormScreen("proshield::add::screen::1", controller.i18n.proshield.modalSubtitle(), controller.i18n.proshield.modalMessage(), function () {
+    controller.registerCall("proshield::user::screen::1", function (extend) {
+        buildFormScreen("proshield::user::screen::1", controller.i18n.proshield.modalSubtitle(), controller.i18n.proshield.modalMessage(), function () {
             var form = userScreenState.modal.createForm();
             var cpf = form.addInput("cpf", "text", controller.i18n.proshield.cpfInput(), true, "CPF").mask("999.999.999-99").magicLabel().val(userScreenState.data.cpf),
                     cep = form.addInput("cep", "text", controller.i18n.proshield.cepInput(), true, "CEP").mask("99.999-999").magicLabel().val(userScreenState.data.cep),
@@ -367,9 +416,11 @@
                 checkCEP(cep),
                 checkCPF(cpf)
             ], function () {
-                userScreenState.data.documento = cpf.val();
-                userScreenState.data.nascimento = nascimento.val();
-                userScreenState.data.cep = cep.val().replace(/[^0-9]/, "");
+                $.extend(userScreenState.data, {
+                    documento: cpf.val(),
+                    nascimento: nascimento.val(),
+                    cep: cep.val().replace(/[^0-9]/, "")
+                });
             }), 1, form);
 
             return form;
@@ -387,7 +438,7 @@
         var menu = controller.interface.helpers.menu.add("Novo Funcionário", "plus");
         menu.nodeLink.click(function (e) {
             e.preventDefault();
-            controller.call("proshield::add::screen::1");
+            controller.call("proshield::user::screen::1");
         });
 
         $(".logo h1").text("ProShield");
@@ -408,5 +459,4 @@
     });
 
     controller.call("proshield::stylish");
-
 })(harlan);

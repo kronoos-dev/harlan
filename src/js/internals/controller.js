@@ -7,38 +7,21 @@ var url = require('url');
 
 var ServerCommunication = require("./library/serverCommunication");
 var ImportXMLDocument = require("./library/importXMLDocument");
+var Interface = require("./library/interface.js");
+var I18n = require("./library/i18n.js");
+var Store = require("./library/store.js");
 
 var Controller = function () {
 
-    var myself = this;
-
-    myself.confs = require("./config");
+    this.confs = require("./config");
 
     var language = null;
 
-    myself.i18n = (function (locale) {
+    this.i18n = new I18n(localStorage.language || 
+            navigator.language || 
+            navigator.userLanguage || "pt", this);
 
-        userLanguage = locale.split("-")[0];
-        var validLanguages = {
-            "pt": require("./i18n/pt")
-        };
-
-        language = validLanguages[userLanguage] ? userLanguage : "pt";
-
-
-        document.documentElement.setAttribute("lang", language);
-
-        try {
-            moment.locale(locale);
-            numeral.language(locale.toLowerCase());
-        } catch (e) {
-            console.log(e);
-        }
-
-        return validLanguages[language];
-    })(localStorage.language || navigator.language || navigator.userLanguage || "pt");
-
-    myself.language = function () {
+    this.language = function () {
         return language;
     };
 
@@ -50,56 +33,20 @@ var Controller = function () {
      * List all possible calls
      * @returns {Array}
      */
-    myself.listCalls = (function () {
+    this.listCalls = function () {
         return Object.keys(calls);
-    });
-
-    myself.query = url.parse(window.location.href, true).query;
-
-    myself.registerBootstrap = function (name, callback) {
-        bootstrapCalls[name] = callback;
-        return myself;
     };
 
-    myself.interface = (function () {
+    this.query = url.parse(window.location.href, true).query;
 
-        var myself = this;
+    this.registerBootstrap = function (name, callback) {
+        bootstrapCalls[name] = callback;
+        return this;
+    };
 
-        var sheet = (function () {
-            var style = document.createElement("style");
-            style.appendChild(document.createTextNode(""));
-            document.head.appendChild(style);
-            return style.sheet;
-        })();
+    this.interface = new Interface(this);
 
-        myself.addCSSRule = function (selector, rules) {
-            var index = sheet.cssRules.length;
-            if ("insertRule" in sheet) {
-                sheet.insertRule(selector + "{" + rules + "}", index);
-            }
-            else if ("addRule" in sheet) {
-                sheet.addRule(selector, rules, index);
-            }
-            return myself.addCSSRule;
-        };
-
-        myself.addCSSDocument = function (href, media, type) {
-            $("head").append($("<link />").attr({
-                rel: "stylesheet",
-                type: type || "text/css",
-                href: href,
-                media: media || "screen"
-            }));
-            return myself.addCSSDocument;
-        };
-
-        myself.widgets = require("./widgets/widgets");
-        myself.helpers = require("./interface/interface");
-
-        return myself;
-    })();
-
-    myself.registerTrigger = function (name, id, callback) {
+    this.registerTrigger = function (name, id, callback) {
         console.log(":: register trigger ::", name);
         if (!(name in events)) {
             events[name] = {};
@@ -107,7 +54,7 @@ var Controller = function () {
         events[name][id] = callback;
     };
 
-    myself.trigger = function (name, args, onComplete) {
+    this.trigger = function (name, args, onComplete) {
 
         var run = function () {
             if (onComplete) {
@@ -117,13 +64,13 @@ var Controller = function () {
 
         console.log(":: trigger ::", name);
         if (!(name in events)) {
-            return myself;
+            return this;
         }
 
         var submits = events[name] ? Object.keys(events[name]).length : 0;
         if (submits === 0) {
             run();
-            return myself;
+            return this;
         }
 
         var runsAtEnd = function () {
@@ -140,18 +87,18 @@ var Controller = function () {
             events[name][triggerName](args, runsAtEnd);
         }
 
-        return myself;
+        return this;
     };
 
-    myself.registerCall = function (name, callback) {
+    this.registerCall = function (name, callback) {
         console.log(":: register :: ", name);
-        myself.trigger("call::register::" + name);
+        this.trigger("call::register::" + name);
         calls[name] = callback;
-        return myself;
+        return this;
     };
 
-    myself.call = function (name, args) {
-        myself.trigger("call::" + name);
+    this.call = function (name, args) {
+        this.trigger("call::" + name);
         console.log(":: call ::", name);
         assert.ok(name in calls);
         if (calls[name]) {
@@ -159,8 +106,8 @@ var Controller = function () {
         }
     };
 
-    myself.serverCommunication = new ServerCommunication(myself);
-    myself.importXMLDocument = new ImportXMLDocument(myself);
+    this.serverCommunication = new ServerCommunication(this);
+    this.importXMLDocument = new ImportXMLDocument(this);
 
     /**
      * From day to night and night to day
@@ -169,95 +116,59 @@ var Controller = function () {
      * Just listen to your voice
      */
 
-    myself.store = (function () {
-        var myself = this;
+    this.store = new Store(this);
 
-        var elements = {};
-
-        /**
-         * Store a value
-         * @param key
-         * @param value
-         * @returns idx
-         */
-        myself.set = function (key, value) {
-            elements[key] = value;
-            return myself;
-        };
-
-        /**
-         * 
-         * @param {string} key
-         * @returns mixed
-         */
-        myself.get = function (key) {
-            return elements[key];
-        };
-
-        /**
-         * Recover a value
-         * @param {int} idx
-         * @returns mixed
-         */
-        myself.unset = function (idx) {
-            delete elements[idx];
-            return myself;
-        };
-
-        return myself;
-    })();
-
-    myself.run = function () {
+    this.run = function () {
         async.auto(bootstrapCalls, function (err, results) {
             console.log(":: bootstrap ::", err, results);
         });
     };
 
     /* Parsers */
-    require("./parsers/placasWiki")(myself);
-    require("./parsers/juntaEmpresa")(myself);
+    require("./parsers/placasWiki")(this);
+    require("./parsers/juntaEmpresa")(this);
 
     /* Forms */
-    require("./forms/receitaCertidao")(myself);
+    require("./forms/receitaCertidao")(this);
 
     /* Modules */
-    require("./modules/i18n")(myself);
-    require("./modules/autocomplete")(myself);
-    require("./modules/openReceipt")(myself);
-    require("./modules/findDatabase")(myself);
-    require("./modules/loader")(myself);
-    require("./modules/error")(myself);
-    require("./modules/endpoint")(myself);
-    require("./modules/clipboard")(myself);
-    require("./modules/remove")(myself);
-    require("./modules/databaseSearch")(myself);
-    require("./modules/comments")(myself);
-    require("./modules/modal")(myself);
-    require("./modules/welcomeScreen")(myself);
-    require("./modules/authentication")(myself);
-    require("./modules/history")(myself);
-    require("./modules/module")(myself);
-    require("./modules/selectedResults")(myself);
-    require("./modules/searchJuntaEmpresa")(myself);
-    require("./modules/save")(myself);
-    require("./modules/findCompany")(myself);
-    require("./modules/findDocument")(myself);
-    require("./modules/xmlDocument")(myself);
-    require("./modules/section")(myself);
-    require("./modules/databaseError")(myself);
-    require("./modules/messages")(myself);
-    require("./modules/mainSearch")(myself);
-    require("./modules/push")(myself);
-    require("./modules/oauth-io")(myself);
-    require("./modules/urlParameter")(myself);
-    require("./modules/generateResult")(myself);
-    require("./modules/demonstrate")(myself);
-    require("./modules/forgotPassword")(myself);
-    require("./modules/iframeEmbed")(myself);
-    require("./modules/analytics")(myself);
-    require("./modules/site")(myself);
-    require("./modules/placasWiki")(myself);
-    require("./modules/proshield")(myself);
+    require("./modules/i18n")(this);
+    require("./modules/autocomplete")(this);
+    require("./modules/openReceipt")(this);
+    require("./modules/findDatabase")(this);
+    require("./modules/loader")(this);
+    require("./modules/error")(this);
+    require("./modules/endpoint")(this);
+    require("./modules/clipboard")(this);
+    require("./modules/remove")(this);
+    require("./modules/databaseSearch")(this);
+    require("./modules/comments")(this);
+    require("./modules/modal")(this);
+    require("./modules/welcomeScreen")(this);
+    require("./modules/authentication")(this);
+    require("./modules/history")(this);
+    require("./modules/module")(this);
+    require("./modules/selectedResults")(this);
+    require("./modules/searchJuntaEmpresa")(this);
+    require("./modules/save")(this);
+    require("./modules/findCompany")(this);
+    require("./modules/findDocument")(this);
+    require("./modules/xmlDocument")(this);
+    require("./modules/section")(this);
+    require("./modules/databaseError")(this);
+    require("./modules/messages")(this);
+    require("./modules/mainSearch")(this);
+    require("./modules/push")(this);
+    require("./modules/oauth-io")(this);
+    require("./modules/urlParameter")(this);
+    require("./modules/generateResult")(this);
+    require("./modules/demonstrate")(this);
+    require("./modules/forgotPassword")(this);
+    require("./modules/iframeEmbed")(this);
+    require("./modules/analytics")(this);
+    require("./modules/site")(this);
+    require("./modules/placasWiki")(this);
+    require("./modules/proshield")(this);
 
     return this;
 };
