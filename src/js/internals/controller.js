@@ -97,13 +97,12 @@ var Controller = function () {
         return this;
     };
 
-    this.call = function (name, args) {
-        this.trigger("call::" + name);
-        console.log(":: call ::", name);
-        assert.ok(name in calls);
-        if (calls[name]) {
-            return calls[name](args);
-        }
+    this.call = function () {
+        var parameters = Array.from(arguments);
+        this.trigger("call::" + parameters[0]);
+        console.log(":: call ::", parameters[0]);
+        assert.ok(parameters[0] in calls);
+        return calls[parameters[0]].apply(this, parameters.slice(1));
     };
 
     this.serverCommunication = new ServerCommunication(this);

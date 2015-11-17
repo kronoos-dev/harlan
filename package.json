@@ -27,6 +27,7 @@
     "browserify": "~8.1.0",
     "cheet.js": "~0.3.3",
     "compass": "~0.1.0",
+    "cpf_cnpj": "0.0.4",
     "diacritics": "~1.2.1",
     "domready": "~1.0.7",
     "email-regex": "^1.0.0",

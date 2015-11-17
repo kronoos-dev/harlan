@@ -36,7 +36,7 @@ module.exports = function (controller) {
 
     controller.registerBootstrap("site::carrousel", function (callback) {
         callback();
-        controller.registerCall("site::carrousel");
+        controller.call("site::carrousel");
     });
 
     controller.registerCall("site::carrousel", function () {

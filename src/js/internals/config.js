@@ -3,6 +3,7 @@ var url = require("url");
 module.exports = {
     antecedentes: {
         hosts: [
+            "proshield",
             "proshield.com.br",
             "www.proshield.com.br",
             "proshield.harlan.com.br"
