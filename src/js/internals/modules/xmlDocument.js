@@ -46,6 +46,6 @@ module.exports = function (controller) {
     };
 
     controller.registerCall("xmlDocument", function () {
-        return xmlDocument;
+        return xmlDocument.apply(this, Array.from(arguments));
     });
 };

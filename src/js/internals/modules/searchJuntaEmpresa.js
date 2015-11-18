@@ -32,7 +32,7 @@ module.exports = function (controller) {
                 
         $(".app-content").prepend(sectionDocumentGroup[0]);
 
-        var juntaEmpresaHTML = controller.call("xmlDocument")(ret, "JUNTAEMPRESA", "CONSULTA");
+        var juntaEmpresaHTML = controller.call("xmlDocument", ret, "JUNTAEMPRESA", "CONSULTA");
         juntaEmpresaHTML.find(".container").first().addClass("xml2html")
                 .data("document", $(ret))
                 .data("form", [{

@@ -66,6 +66,7 @@ module.exports = function (controller) {
 
         this.setIcon = function (i) {
             input.after($("<i />").addClass("fa input-icon").addClass(i));
+            return this;
         };
 
         this.input = function () {

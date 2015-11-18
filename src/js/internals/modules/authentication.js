@@ -53,18 +53,12 @@ module.exports = function (controller) {
 
 
     /**
-     * True se estiver rolando uma autenticação
-     * @type Boolean
-     */
-    var running = false;
-
-    /**
      * Chama pelo logout
      */
     controller.registerCall("authentication::logout", function () {
         controller.serverCommunication.apiKey = BIPBOP_FREE;
         controller.interface.helpers.activeWindow(".site");
-        
+
         $("#input-username").val("");
         $("#input-password").val("");
         $("#input-save-password").removeAttr("checked");
@@ -80,10 +74,10 @@ module.exports = function (controller) {
         controller.trigger("authentication::authenticated", null, function () {
             controller.interface.helpers.activeWindow(".app");
         });
-        
+
         return true;
     };
-    
+
     /**
      * Força uma autenticação
      */
@@ -95,9 +89,6 @@ module.exports = function (controller) {
      * Chama pela autenticação
      */
     controller.registerCall("authentication::authenticate", function () {
-        if (running) {
-            return;
-        }
 
         var inputUsername = $("#input-username");
         var inputPassword = $("#input-password");
@@ -114,40 +105,29 @@ module.exports = function (controller) {
             return;
         }
 
-        running = true;
-        controller.serverCommunication.call("SELECT FROM 'HarlanAuthentication'.'Authenticate'", {
-            dataType: "jsonp xml",
-            success: function (domDocument) {
-                if ($().bipbopAssert(domDocument, controller.call("error::toast"))) {
-                    onError();
-                    return;
-                }
+        controller.serverCommunication.call("SELECT FROM 'HarlanAuthentication'.'Authenticate'",
+                controller.call("loader::ajax", controller.call("error::ajax", {
+                    dataType: "jsonp xml",
+                    success: function (domDocument) {
+                        if ($().bipbopAssert(domDocument, controller.call("error::toast"))) {
+                            onError();
+                            return;
+                        }
 
-                var jDocument = $(domDocument);
-                var apiKey = jDocument.find("body apiKey").text();
-                authenticate(apiKey);
+                        var jDocument = $(domDocument);
+                        var apiKey = jDocument.find("body apiKey").text();
+                        authenticate(apiKey);
 
-                if (inputSavePassword.is(":checked")) {
-                    setSessionId(apiKey);
-                }
+                        if (inputSavePassword.is(":checked")) {
+                            setSessionId(apiKey);
+                        }
 
-            },
-            error: function () {
-                controller.call("error::toast")();
-            },
-            beforeSend: function () {
-                controller.call("loader::register");
-            },
-            complete: function () {
-                controller.call("loader::unregister");
-                running = false;
-            },
-            data: {
-                username: inputUsername.val(),
-                password: inputPassword.val()
-            }
-
-        });
+                    },
+                    data: {
+                        username: inputUsername.val(),
+                        password: inputPassword.val()
+                    }
+                })));
     });
 
 };

@@ -74,8 +74,8 @@ var section = function (name, description, subdescription, disableDefaultActions
 
 module.exports = function (controller) {
 
-    controller.registerCall("section", function () {
-        return section;
+    controller.registerCall("section", function (name, description, subdescription, disableDefaultActions) {
+        return section(name, description, subdescription, disableDefaultActions);
     });
 
 };

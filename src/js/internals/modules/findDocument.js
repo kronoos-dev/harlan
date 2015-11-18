@@ -4,7 +4,7 @@ module.exports = function (controller) {
 
     var onDocumentSuccess = function (sectionDocumentGroup, current_id, element) {
         return function (ret) {
-            var append = controller.call("xmlDocument")(ret);
+            var append = controller.call("xmlDocument", ret);
             append.data("on-remove", element);
             append.data("save-id", current_id);
             sectionDocumentGroup[1].append(append);
@@ -22,7 +22,7 @@ module.exports = function (controller) {
         controller.call("loader::register");
 
         var running = ids.length;
-        var sectionDocumentGroup = controller.call("section")(name, description,
+        var sectionDocumentGroup = controller.call("section", name, description,
                 (ids.length === 1 ?
                         "Um registro armazenado" :
                         ids.length.toString() + " registros armazenados"));

@@ -10,7 +10,7 @@ module.exports = function (controller) {
     var counter = 0;
     var animationElement = null;
     var animations = ["animated rotateIn", "animated rotateOut"];
-    
+
     controller.registerCall("loader::catchElement", function () {
         return $(".logo:visible span");
     });
@@ -24,6 +24,7 @@ module.exports = function (controller) {
 
     controller.registerCall("loader::register", function () {
         loaderRegister++;
+        
         animationElement = controller.call("loader::catchElement");
         if (!animationElement.length) {
             $(".q").addClass("loading");
@@ -37,7 +38,7 @@ module.exports = function (controller) {
         if (--loaderRegister > 0) {
             return;
         }
-        
+
         loaderRegister = 0;
         if (!animationElement.length) {
             $(".q").removeClass("loading");
@@ -53,17 +54,18 @@ module.exports = function (controller) {
         var beforeSend = dict.beforeSend;
         var complete = dict.complete;
 
-        dict.beforeSend = function (jqXHR, settings) {
+        dict.beforeSend = function () {
             controller.call("loader::register");
             if (beforeSend)
-                beforeSend(jqXHR, settings);
+                beforeSend.apply(this, Array.from(arguments));
         };
 
         dict.complete = function (jqXHR, textStatus) {
             controller.call("loader::unregister");
             if (complete)
-                complete(jqXHR, textStatus);
+                complete.apply(this, Array.from(arguments));
         };
+
         return dict;
     });
 };

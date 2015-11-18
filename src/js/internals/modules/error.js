@@ -17,7 +17,7 @@ module.exports = function (controller) {
 
     controller.registerCall("error::ajax", function (dict) {
         var error = dict.error;
-        dict.error = function (jqXHR, textStatus, errorThrown) {
+        dict.error = function (jqXHR) {
             try {
                 $.bipbopAssert($.parseXML(jqXHR.responseText), controller.call("error::toast"));
             } catch (err) {
@@ -25,7 +25,7 @@ module.exports = function (controller) {
             }
 
             if (error)
-                error(jqXHR, textStatus, errorThrown);
+                error.apply(this, Array.from(arguments));
         };
         return dict;
     });

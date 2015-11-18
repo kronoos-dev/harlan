@@ -7,7 +7,7 @@
     "cpfInput": "Digite o número do CPF",
     "cepInput": "Digite o CEP da residência",
     "birthdayInput": "Digite a data de Nascimento",
-    "queryPlaceholder": "Busque por um nome ou ocupação.",
+    "queryPlaceholder": "Busque por um funcionário registrado por nome ou ocupação, ou digite um CPF.",
     "modalTitle": "Adicione um Funcionário",
     "modalNameConfirmSubtitle": "Informar Filiação",
     "modalNameConfirm": "Para garantir a segurança do sistema verifique se a grafia do nome no documento confere com a informada. Em seguida adicione o nome da mãe, do pai e confirme.",

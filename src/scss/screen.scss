@@ -1238,5 +1238,9 @@ input.link {
     opacity: 1;
 }
 
+.bipbop-loader { 
+    z-index: 99999999999999999;
+}
+
 @import "site";
 @import "widgets";

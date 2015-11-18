@@ -1,5 +1,7 @@
 /* global toastr, addScreenState, require, userScreenState */
 
+var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
+
 (function (controller) {
     var CPF = require("cpf_cnpj").CPF;
     var emailRegex = require("email-regex");
@@ -7,6 +9,13 @@
 
     var emptyCall = function () {
         /* @void */
+    };
+    
+    var proshieldSection = function () {
+        var proshieldSection = controller.call("section", "Proshield", "Safekeeping para seu RH", "Matenha sua operação segura", false);
+        $("app-content").append(proshieldSection[0]);
+        return proshieldSection;
+        
     };
 
     var emptyTrigger = function (args, callback) {
@@ -94,8 +103,8 @@
     var changeScreen = function (errorCheck, nrm, form, onSuccess, continueText, returnText) {
         returnText = returnText || controller.i18n.system.return;
 
-        var buttonGenerator = function (name, fnc, nrm, beforeExec) {
-            form.addSubmit(name, fnc).click(function (e) {
+        var buttonGenerator = function (name, description, nrm, beforeExec) {
+            form.addSubmit(name, description).click(function (e) {
                 e.preventDefault();
                 if (beforeExec && beforeExec()) {
                     return;
@@ -107,6 +116,13 @@
 
         continueText = continueText || (nrm + 1 > userScreenState.lastScreen ? controller.i18n.system.finish() : controller.i18n.system.continue());
         buttonGenerator("continue", continueText, nrm + 1, errorCheck);
+
+        if (nrm < userScreenState.lastScreen && userScreenState.data.documento) {
+            form.addSubmit("finish", controller.i18n.system.finish()).click(function (e) {
+                e.preventDefault();
+                controller.call(userScreenState.onComplete);
+            });
+        }
 
         if (nrm - 1 <= userScreenState.firstScreen) {
             form.cancelButton(null, emptyState);
@@ -176,24 +192,10 @@
         }
 
     };
-
+    
     controller.registerCall("proshield::user::screen::add", function () {
-        controller.serverCommunication.call("INSERT INTO 'PROSHIELD'.'EMPLOYEE'", {
-            method: 'POST',
-            data: userScreenState.data,
-            success: function () {
-                toastr.success("Funcionário adicionado com sucesso a base de dados.");
-                emptyState();
-            },
-            error: function (xhr) {
-                var exceptions = $(xhr.responseText).find("exception");
-                if (!exceptions.length) {
-                    toastr.error("Ocorreu uma exceção e não foi possível prosseguir.", "Tente novamente em alguns instantes.");
-                    return;
-                }
-                toastr.error(exceptions.text());
-            }
-        });
+        var section = proshieldSection();
+        var result = controller.call("generateResult");
     });
 
     controller.registerCall("proshield::user::screen::8", function (extend) {
@@ -382,26 +384,26 @@
     });
 
     controller.registerCall("proshield::user::screen::2", function (extend) {
-        controller.serverCommunication.call(null, {
-            automaticLoader: true,
-            data: $.extend({}, userScreenState.data, {
-                "q[0]": "SELECT FROM 'RFB'.'CERTIDAO'",
-                "q[1]": "SELECT FROM 'BIPBOPJS'.'CEP'"
-            }),
-            success: function (irql) {
-                userScreenState.irql.cepcpf = irql;
-                controller.call("proshield::user::screen::2::valid", extend);
-            },
-            error: function (xhr) {
-                var exceptions = $(xhr.responseText).find("exception");
-                if (!exceptions.length || exceptions.attr("code") === '99') {
-                    /* Ambiente indisponível ;( */
-                    controller.call("proshield::user::screen::2::valid");
-                    return;
-                }
-                toastr.error(exceptions.text());
-            }
-        }, extend);
+        controller.serverCommunication.call(null,
+                controller.call("error::ajax", {
+                    data: $.extend({}, userScreenState.data, {
+                        "q[0]": "SELECT FROM 'RFB'.'CERTIDAO'",
+                        "q[1]": "SELECT FROM 'BIPBOPJS'.'CEP'"
+                    }),
+                    automaticLoader: true,
+                    success: function (irql) {
+                        userScreenState.irql.cepcpf = irql;
+                        controller.call("proshield::user::screen::2::valid", extend);
+                    },
+                    error: function (xhr) {
+                        var exceptions = $(xhr.responseText).find("exception");
+                        if (!exceptions.length || exceptions.attr("code") === '99') {
+                            /* Ambiente indisponível ;( */
+                            controller.call("proshield::user::screen::2::valid");
+                            return;
+                        }
+                    }
+                }));
     });
 
     controller.registerCall("proshield::user::screen::1", function (extend) {
@@ -427,36 +429,23 @@
         }, extend);
     });
 
-    controller.registerTrigger("findDatabase::instantSearch", "findDatabase::instantSearch", emptyTrigger);
-    controller.registerTrigger("findDatabase::instantSearch", "findCompany::instantSearch", emptyTrigger);
-    controller.registerTrigger("findDatabase::instantSearch", "findDocument::instantSearch", emptyTrigger);
-    controller.registerTrigger("findDatabase::instantSearch", "placasWiki::instantSearch", emptyTrigger);
+    controller.registerTrigger("findDatabase::instantSearch", "proshield::instantSearch", function (args, callback) {
+        callback();
+
+        var validCpf = CPF.isValid(args[0]);
+
+        if (validCpf || SEARCH_REGEX.test(args[0])) {
+            args[1].item("ProShield", "Consultar CPF").addClass("proshield").click(function (e) {
+                e.preventDefault();
+                controller.call("proshield::user::screen::1", validCpf ? args[0] : null);
+            });
+        }
+    });
 
     controller.registerCall("proshield::stylish", function () {
-        document.title = controller.i18n.proshield.pageTitle();
-
-        var menu = controller.interface.helpers.menu.add("Novo Funcionário", "plus");
-        menu.nodeLink.click(function (e) {
-            e.preventDefault();
-            controller.call("proshield::user::screen::1");
-        });
-
-        $(".logo h1").text("ProShield");
-        $("#login-about").text(controller.i18n.proshield.loginAbout);
-        $("#input-q").attr("placeholder", controller.i18n.proshield.queryPlaceholder);
-        $('#demonstration').parent().hide();
-        $("link[rel='shortcut icon']").attr("href", "/images/favicon-escudo.png");
-        $("#action-show-endpoint").parent().parent().hide();
-
         controller.interface.addCSSDocument("css/proshield.min.css");
-        controller.interface.helpers.template.render("proshield-site", {}, function (template) {
-            $(".site").empty();
-            $(".site").html(template);
-            controller.call("site::carrousel");
-            controller.call("site::buttons");
-        });
-
     });
+
 
     controller.call("proshield::stylish");
 })(harlan);
