@@ -329,6 +329,18 @@ label {
     }
 }
 
+@keyframes backgroundPosition {
+    0% {
+        background-position: 0% 50%; 
+    }
+    50% {
+        background-position: 100% 50%; 
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 .results {
 
 
@@ -341,6 +353,8 @@ label {
 
         header {
             background-color: rgba(255,255,255,0.6);
+            position: relative;
+
             .content {
                 padding: 20px 0;
             }
@@ -348,6 +362,50 @@ label {
                 font-weight: 700;
                 font-family: "Open Sans Condensed";
                 font-size: 19px;
+            }
+            &.external-source {
+                overflow: hidden;
+                .content { 
+                    padding-left: 50px;
+                    &:before {
+                        font-family: "FontAwesome";
+                        display: block;
+                        position: absolute;
+                        left: 0;
+                        top: 50%;
+                        margin-top: -15px;
+                        font-size: 30px;
+                    }
+                }
+
+                &.success {
+                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #87f78b 0%, #62f567 100%);
+                    .content:before {
+                        content: "\f046";
+                    }
+                }
+                &.error {
+                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f89592 0%, #f77e7a 100%);
+                    .content:before {
+                        content: "\f057";
+                    }
+                }
+                &.warning {
+                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f2f77a 0%, #f0f562 100%);
+                    .content:before {
+                        content: "\f071";
+                    }
+                }
+                &.loading {
+                    background: linear-gradient(90deg, #C7CEF3 0%, #d9d9f6 100%);
+                    background-size: 400% 400%;
+                    animation: url(../images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
+                    .content:before {
+                        animation: fa-spin 2s linear infinite;
+                        content: "\f013";
+
+                    }
+                }
             }
         }
 
@@ -847,11 +905,11 @@ input, button, select {
     font-weight: normal;
     box-sizing: border-box;
     display: block;
-    
+
     &.optional {
         border-bottom-color: lighten(#575974, 35%);
     }
-    
+
     &.error {
         background-color: rgba(255,0,0,0.02);
         border-bottom-color: red;

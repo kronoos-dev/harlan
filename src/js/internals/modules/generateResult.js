@@ -10,31 +10,38 @@ module.exports = function (controller) {
         if (!inputResult)
             result.append(container.append(content));
 
-        this.addSeparator = function (title, subtitle, description, inputContainer, inputContent) {
-            container = inputContainer || $("<div />").addClass("container");
-            content = inputContent || $("<div />").addClass("content");
+        this.addSeparator = function (title, subtitle, description, items) {
+            items = items || {};
+            items.container = $("<div />").addClass("container");
+            items.content = $("<div />").addClass("content");
+            items.headerContainer = $("<div />").addClass("container");
+            items.headerContent = $("<div />").addClass("content");
+            items.headerTitle = $("<h4 />").text(title);
+            items.headerSubtitle = $("<h5 />").text(subtitle);
+            items.menu = $("<ul >").addClass("actions");
+            items.resultsDisplay = $("<div />").addClass("results-display").text(description);
 
-            var headerContainer = $("<div />").addClass("container");
-            var headerContent = $("<div />").addClass("content");
-            var headerTitle = $("<h4 />").text(title);
-            var headerSubtitle = $("<h5 />").text(subtitle);
-            var resultsDisplay = $("<div />").addClass("results-display").text(description);
-            
-            headerContainer.append(headerContent);
-            headerContent.append(headerTitle);
-            headerContent.append(headerSubtitle);
-            headerContent.append(resultsDisplay);
+            items.headerContainer.append(items.headerContent);
+            items.headerContent.append(items.headerTitle);
+            items.headerContent.append(items.headerSubtitle);
+            items.headerContent.append(items.resultsDisplay);
+            items.headerContent.append(items.menu);
+
+            items.addItem = function (icon) {
+                return items.menu.append($('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon)));
+            };
+
 
             var header = $("<header />")
                     .addClass("separator")
-                    .append(headerContainer);
+                    .append(items.headerContainer);
 
             result.append(header);
             result.append(container.append(content));
-            
+
             return header;
         };
-        
+
         this.block = function () {
             var ret = $("<div />");
             content.append(ret);
@@ -51,7 +58,7 @@ module.exports = function (controller) {
             if (typeof value !== typeof undefined) {
                 node.append($("<div />").addClass("value").text(value));
             }
-            
+
             if (typeof name !== typeof undefined) {
                 node.append($("<div />").addClass("name").text(name));
             }

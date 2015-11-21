@@ -64,6 +64,7 @@ var Controller = function () {
 
         console.log(":: trigger ::", name);
         if (!(name in events)) {
+            run();
             return this;
         }
 

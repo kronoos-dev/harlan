@@ -1,6 +1,8 @@
 /* global toastr, addScreenState, require, userScreenState */
 
 var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
+var LockableStorage = require("lockable-storage");
+var uniqid = require('uniqid');
 
 (function (controller) {
     var CPF = require("cpf_cnpj").CPF;
@@ -10,12 +12,13 @@ var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
     var emptyCall = function () {
         /* @void */
     };
-    
+
     var proshieldSection = function () {
         var proshieldSection = controller.call("section", "Proshield", "Safekeeping para seu RH", "Matenha sua operação segura", false);
+        proshieldSection[0].addClass("proshield");
         $("app-content").append(proshieldSection[0]);
         return proshieldSection;
-        
+
     };
 
     var emptyTrigger = function (args, callback) {
@@ -162,6 +165,7 @@ var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
     var buildFormScreen = function (name, subtitle, paragraph, callback, state) {
         if (!userScreenState) {
             userScreenState = $.extend({
+                ID: uniqid(),
                 modal: controller.call("modal"),
                 elements: {},
                 data: {},
@@ -192,10 +196,26 @@ var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
         }
 
     };
-    
-    controller.registerCall("proshield::user::screen::add", function () {
-        var section = proshieldSection();
-        var result = controller.call("generateResult");
+
+    controller.registerCall("proshield::user::screen::add", function (extend) {
+        
+        var state = $.extend({}, userScreenState);
+        
+        state.section = proshieldSection();
+        state.result = controller.call("generateResult");
+        state.sync = function (callback) {
+            LockableStorage.lock("USER-SCREEN-STATE-" + state.ID, function () {
+                controller.call(callback, state);
+            });
+        };
+
+        state.section[1].append(controller.call("xmlDocument", userScreenState.irql.cepcpf));
+
+        controller.trigger("proshield::search", state, function () {
+            $(".app-content").append(state.section[0]);
+        });
+        
+        emptyState();
     });
 
     controller.registerCall("proshield::user::screen::8", function (extend) {
@@ -435,7 +455,7 @@ var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
         var validCpf = CPF.isValid(args[0]);
 
         if (validCpf || SEARCH_REGEX.test(args[0])) {
-            args[1].item("ProShield", "Consultar CPF").addClass("proshield").click(function (e) {
+            args[1].item("ProShield", "Segurança para RH e operações").addClass("proshield").click(function (e) {
                 e.preventDefault();
                 controller.call("proshield::user::screen::1", validCpf ? args[0] : null);
             });

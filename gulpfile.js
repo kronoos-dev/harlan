@@ -1,5 +1,4 @@
 "use strict";
-
 var fileinclude = require("gulp-file-include"),
         path = require("path"),
         glob = require("glob"),
@@ -28,7 +27,8 @@ var fileinclude = require("gulp-file-include"),
         autoprefixer = require("gulp-autoprefixer"),
         notify = require('gulp-notify'),
         es = require('event-stream'),
-        hashsrc = require('gulp-hash-src');
+        hashsrc = require('gulp-hash-src'),
+        merge = require("merge-stream");
 
 var externalJsSources = [
     "bower_components/jquery/dist/jquery.js",
@@ -47,13 +47,11 @@ var externalJsSources = [
     "bower_components/material-design-lite/material.js",
     "bower_components/d3plus/d3plus.full.js"
 ];
-
 gulp.task("bower-swf", function () {
     return gulp.src([
         "bower_components/zeroclipboard/dist/ZeroClipboard.swf"
     ]).pipe(gulp.dest("Server/web/assets"));
 });
-
 gulp.task("manifest", function () {
     return gulp.src([
         "CNAME",
@@ -61,12 +59,10 @@ gulp.task("manifest", function () {
         "src/robots.txt"
     ]).pipe(gulp.dest("Server/web"));
 });
-
 gulp.task("templates", function () {
     return gulp.src("src/templates/**/*.tpl")
             .pipe(gulp.dest("Server/web/templates"));
 });
-
 gulp.task("app-html", function () {
     return gulp.src("src/**/*.html")
             .pipe(fileinclude({
@@ -86,7 +82,6 @@ gulp.task("app-html", function () {
             .pipe(gulp.dest("Server/web"))
             .pipe(livereload());
 });
-
 var i18n = function (locale) {
     return gulp.src("src/js/internals/i18n/" + locale + "/**/*.json")
             .pipe(messageformat({
@@ -95,39 +90,32 @@ var i18n = function (locale) {
             }))
             .pipe(gulp.dest("src/js/internals/i18n"));
 };
-
 gulp.task("i18n-en", function () {
     i18n("en");
 });
-
 gulp.task("i18n-pt", function () {
     i18n("pt");
 });
-
 gulp.task("i18n", ["i18n-pt", "i18n-en"]);
-
-gulp.task("build-external-scripts", function (done) {
-    glob("src/external-js/**/*.js", function (err, files) {
-        if (err) {
-            done(err);
-        }
-
-        files.map(function (entry) {
-            entry = "./" + entry;
-            return browserify({
-                entries: entry,
-                debug: true
-            })
-                    .bundle()
-                    .pipe(source(path.basename(entry)))
-                    .pipe(buffer())
-                    .pipe(sourcemaps.init({loadMaps: true}))
-                    .pipe(thotypous())
-                    .pipe(sourcemaps.write("."))
-                    .pipe(gulp.dest("Server/web/js"))
-                    .pipe(livereload());
-        });
-    });
+gulp.task("build-external-scripts", function () {
+    var files = glob.sync("src/external-js/**/*.js");
+    
+    return merge(files.map(function (entry) {
+        entry = "./" + entry;
+        return browserify({
+            entries: entry,
+            debug: true
+        })
+                .bundle()
+                .pipe(source(path.basename(entry)))
+                .pipe(buffer())
+                .pipe(sourcemaps.init({loadMaps: true}))  
+                .pipe(thotypous())
+                .pipe(sourcemaps.write("."))
+                .pipe(gulp.dest("Server/web/js"))
+                .pipe(livereload());
+    }));
+    
 });
 
 gulp.task("build-external-css", function () {
@@ -148,21 +136,16 @@ gulp.task("build-external-scss", function () {
             .pipe(gulp.dest("Server/web/css"))
             .pipe(livereload());
 });
-
 gulp.task("build-external-styles", ["build-external-scss", "build-external-css"]);
-
-
 gulp.task("deploy", function () {
     return gulp.src("./Server/web/**/*").pipe(ghPages());
 });
-
 gulp.task("jshint", function () {
     return gulp.src(["src/js/**/*.js", "!src/js/internals/i18n/**/*", "src/external-js/**/*.js"])
             .pipe(jshint())
             .pipe(jshint.reporter(stylish))
             .pipe(jshint.reporter('fail'));
 });
-
 gulp.task("build-tests", ["jshint"], function () {
     return browserify({
         entries: "./src/js/tests/index.js",
@@ -181,7 +164,6 @@ gulp.task("build-tests", ["jshint"], function () {
             .pipe(gulp.dest("test/spec"))
             .pipe(livereload());
 });
-
 gulp.task("build-scripts", ["jshint"], function () {
     return browserify({
         entries: "./src/js/app.js",
@@ -199,7 +181,6 @@ gulp.task("build-scripts", ["jshint"], function () {
             .pipe(livereload())
             .pipe(notify({message: "JavaScript was constructed correctly and can now be used.", wait: true}));
 });
-
 gulp.task("app-images", function () {
     return streamqueue({objectMode: true}, gulp.src([
         "src/**/*.png",
@@ -212,26 +193,22 @@ gulp.task("app-images", function () {
         interlaced: true
     })).pipe(gulp.dest("Server/web")), gulp.src(["src/**/*.svg"]).pipe(gulp.dest("Server/web")));
 });
-
 gulp.task("watch", function () {
     livereload.listen();
-
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build-scripts"]);
     gulp.watch("src/scss/*", ["build-styles"]);
     gulp.watch("src/scss/*.scss", ["build-styles"]);
     gulp.watch(["src/js/*.js", "src/js/internals/**/*.js"], ["jshint", "build-scripts"]);
     gulp.watch("src/js/tests/**/*.js", ["jshint", "build-tests"]);
     gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["app-html", "templates"]);
-    gulp.watch("src/external-js/**/*.js", ["build-external-scripts"]);
+    gulp.watch("src/external-js/**/*", ["build-external-scripts"]);
     gulp.watch("src/external-styles/**/*", ["build-external-styles"]);
 });
-
 gulp.task("app-fonts", function () {
     return gulp.src([
         "bower_components/font-awesome/fonts/**/*"
     ]).pipe(gulp.dest("Server/web/fonts"));
 });
-
 gulp.task("build-styles", function () {
     return gulp.src([
         "src/scss/screen.scss"
@@ -247,7 +224,6 @@ gulp.task("build-styles", function () {
             .pipe(gulp.dest("Server/web/css"))
             .pipe(livereload());
 });
-
 gulp.task("build", [
     "jshint",
     "build-external-scripts",
@@ -262,5 +238,4 @@ gulp.task("build", [
     "app-html",
     "build-tests"
 ]);
-
 gulp.task("default", ["build", "watch"]);
