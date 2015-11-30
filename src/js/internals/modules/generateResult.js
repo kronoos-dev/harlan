@@ -13,6 +13,10 @@ module.exports = function (controller) {
         this.addSeparator = function (title, subtitle, description, items) {
             items = items || {};
             items.container = $("<div />").addClass("container");
+            items.result = {
+                oldContainer: container,
+                oldContent: content
+            };
             items.content = $("<div />").addClass("content");
             items.headerContainer = $("<div />").addClass("container");
             items.headerContent = $("<div />").addClass("content");
@@ -28,7 +32,9 @@ module.exports = function (controller) {
             items.headerContent.append(items.menu);
 
             items.addItem = function (icon) {
-                return items.menu.append($('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon)));
+                var item = $('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon));
+                items.menu.append(item);
+                return item;
             };
 
 
@@ -37,6 +43,9 @@ module.exports = function (controller) {
                     .append(items.headerContainer);
 
             result.append(header);
+            
+            container = $("<div />").addClass("container");
+            content = $("<div />").addClass("content");
             result.append(container.append(content));
 
             return header;
@@ -47,6 +56,36 @@ module.exports = function (controller) {
             content.append(ret);
             return ret;
         };
+
+        var generateAlert = function (radial, percent, context) {
+            context = context || {
+                60: "attention",
+                80: "warning"
+            };
+            var styleDefinition = null;
+            for (var minPerc in context) {
+                if (percent < parseInt(minPerc)) {
+                    break;
+                }
+                styleDefinition = context[minPerc];
+            }
+
+            if (styleDefinition) {
+                radial.element.addClass(styleDefinition);
+            }
+
+            return radial;
+        };
+
+        this.generateRadial = function (name, percent, context) {
+            var item = this.addItem(name, "").addClass("center"),
+                    itemValue = item.find(".value");
+            
+            var widget = controller.interface.widgets.radialProject(itemValue, percent);
+
+            return generateAlert(widget, percent, context);
+        };
+
 
         this.addItem = function (name, value, tagname) {
             var node = $("<div />").addClass("field");

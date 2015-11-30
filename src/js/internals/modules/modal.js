@@ -64,7 +64,7 @@ module.exports = function (controller) {
                     form.append(obj.label);
                 }
             };
-            
+
             var createList = function () {
                 var list = $("<ul />").addClass("list");
                 form.append(list);
@@ -135,8 +135,9 @@ module.exports = function (controller) {
 
 
             this.cancelButton = function (text, onCancel) {
-                this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
-                    if (onCancel) onCancel();
+                return this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
+                    if (onCancel)
+                        onCancel();
                     e.preventDefault();
                 });
             };
@@ -166,7 +167,7 @@ module.exports = function (controller) {
                     value: value,
                     name: name
                 }).addClass("button");
-                
+
                 form.append(submit);
                 return submit;
             };

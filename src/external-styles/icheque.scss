@@ -1,0 +1,89 @@
+$color: #feefc4;
+
+.autocomplete {
+
+    .item-title { 
+        text-transform: inherit;
+    }
+
+    .item-subtitle {
+        text-transform: inherit; 
+    }
+
+    li.icheque {
+        background: url(../images/textures/brilliant.png),linear-gradient(200deg,#33F700 -370%,#FFFFFF 80%);
+        border-bottom: 1px solid #F3FFF0;
+
+        &:after {
+            font-family: "FontAwesome";
+            content: '\f132';
+            font-size: 12px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+        &:hover, &.selected  {
+            background: #E2F9DC;
+        }    
+    }
+}
+
+@keyframes ichequeLegalLoading {
+    0 {
+        opacity: 1;
+    }
+    50%  {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.group-type.icheque-ban {
+
+    & > header {
+        background: url(../images/textures/brilliant.png),linear-gradient(180deg,#0033f7 -00%,#FFF 160%);
+        color: #fff;
+        h2 { 
+            text-transform: inherit;
+        }
+
+        h3 {
+            text-transform: inherit; 
+        }
+    }
+}
+
+.group-type.icheque {
+
+    & > header {
+        background: url(../images/textures/brilliant.png),linear-gradient(180deg,#33F700 -00%,#FFF 160%);
+    }
+
+    h2, h3 {
+        text-transform: inherit;
+    }
+
+    .separator {
+        background: url(../images/textures/brilliant.png),linear-gradient(260deg,#A9C3A3 -319%,#FFF 130%);
+    }
+
+    &.loading {
+        & > header {
+            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#33F700 -200%,#FFF 130%);
+            animation: ichequeLegalLoading infinite 3s ease-in-out;
+
+            .actions {
+                &:after {
+                    animation: fa-spin infinite 2s linear;
+                    font-family: "FontAwesome";
+                    content: "\f1ce";
+                }
+                li {
+                    display: none;
+                }
+            }
+        }
+    }
+}

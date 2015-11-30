@@ -1,4 +1,5 @@
 module.exports = function (parent, percent) {
+    percent = percent || 0;
     var radialProject = $("<div />").addClass("radialProject"),
             progress = $("<div />").addClass("progress"),
             progressFill = $("<div />").addClass("progressFill"),
@@ -19,5 +20,14 @@ module.exports = function (parent, percent) {
     percentText.text(percent.toString() + ' %');
 
     parent.append(radialProject);
-    return radialProject;
+    return {
+        element: radialProject,
+        change: function (percent) {
+            percent = percent || 0;
+            deg = 360 * percent / 100;
+            radialProject[percent > 50 ? "addClass" : "removeClass"]('gtHalf');
+            progressFill.css('transform', 'rotate(' + deg + 'deg)');
+            percentText.text(Math.floor(percent).toString() + ' %');
+        }
+    };
 };

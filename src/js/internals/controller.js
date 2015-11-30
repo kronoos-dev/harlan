@@ -127,11 +127,13 @@ var Controller = function () {
     /* Parsers */
     require("./parsers/placasWiki")(this);
     require("./parsers/juntaEmpresa")(this);
+    require("./parsers/cbusca")(this);
 
     /* Forms */
     require("./forms/receitaCertidao")(this);
 
     /* Modules */
+    require("./modules/security/phishx")(this);
     require("./modules/i18n")(this);
     require("./modules/autocomplete")(this);
     require("./modules/openReceipt")(this);
@@ -169,6 +171,7 @@ var Controller = function () {
     require("./modules/site")(this);
     require("./modules/placasWiki")(this);
     require("./modules/proshield")(this);
+    require("./modules/icheque")(this); 
 
     return this;
 };

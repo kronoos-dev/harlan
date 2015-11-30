@@ -1,20 +1,70 @@
-/* global toastr, addScreenState, require, userScreenState */
+/* global toastr, addScreenState, require, userScreenState, moment */
 
 var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
 var LockableStorage = require("lockable-storage");
 var uniqid = require('uniqid');
+var O = require('observed');
 
 (function (controller) {
     var CPF = require("cpf_cnpj").CPF;
     var emailRegex = require("email-regex");
     var userScreenState = null;
 
+    var zodiac = function (day, month) {
+
+        var zodiacSigns = {
+            capricorn: 'Capricórnio',
+            aquarius: 'Aquários',
+            pisces: 'Peixes',
+            aries: 'Aires',
+            taurus: 'Touro',
+            gemini: 'Gêmeos',
+            cancer: 'Câncer',
+            leo: 'Leão',
+            virgo: 'Virgem',
+            libra: 'Libra',
+            scorpio: 'Escorpião',
+            sagittarius: 'Sargitário'
+        };
+
+        if ((month == 1 && day <= 20) || (month == 12 && day >= 22)) {
+            return zodiacSigns.capricorn;
+        } else if ((month == 1 && day >= 21) || (month == 2 && day <= 18)) {
+            return zodiacSigns.aquarius;
+        } else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) {
+            return zodiacSigns.pisces;
+        } else if ((month == 3 && day >= 21) || (month == 4 && day <= 20)) {
+            return zodiacSigns.aries;
+        } else if ((month == 4 && day >= 21) || (month == 5 && day <= 20)) {
+            return zodiacSigns.taurus;
+        } else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) {
+            return zodiacSigns.gemini;
+        } else if ((month == 6 && day >= 22) || (month == 7 && day <= 22)) {
+            return zodiacSigns.cancer;
+        } else if ((month == 7 && day >= 23) || (month == 8 && day <= 23)) {
+            return zodiacSigns.leo;
+        } else if ((month == 8 && day >= 24) || (month == 9 && day <= 23)) {
+            return zodiacSigns.virgo;
+        } else if ((month == 9 && day >= 24) || (month == 10 && day <= 23)) {
+            return zodiacSigns.libra;
+        } else if ((month == 10 && day >= 24) || (month == 11 && day <= 22)) {
+            return zodiacSigns.scorpio;
+        } else if ((month == 11 && day >= 23) || (month == 12 && day <= 21)) {
+            return zodiacSigns.sagittarius;
+        }
+    };
+
+    var birthdayToZodiac = function (birthday) {
+        var pieces = birthday.split("/");
+        return zodiac(parseInt(pieces[0]), parseInt(pieces[1]));
+    };
+
     var emptyCall = function () {
         /* @void */
     };
 
-    var proshieldSection = function () {
-        var proshieldSection = controller.call("section", "Proshield", "Safekeeping para seu RH", "Matenha sua operação segura", false);
+    var proshieldSection = function (state) {
+        var proshieldSection = controller.call("section", "Proshield", "Safekeeping para seu RH", proshieldTip(state), false);
         proshieldSection[0].addClass("proshield");
         $("app-content").append(proshieldSection[0]);
         return proshieldSection;
@@ -101,6 +151,27 @@ var uniqid = require('uniqid');
             userScreenState.modal.close();
             userScreenState = null;
         }
+    };
+
+    var proshieldTip = function (state) {
+        var tips = {
+            "Confirme o nome do RG para uma precisão maior": state.data,
+            "Adicionar o nome da mãe garante maior precisão": state.data,
+            "Adicionar o nome do pai garante maior precisão": state.data,
+            "Adicionar o RG garante maior precisão": state.data,
+            "Configurar o endereço é importante": state.data,
+            "Configurar o telefone é importante": state.data,
+            "Configurar o cargo é importante": state.data
+        };
+
+        var validTips = [];
+        for (var key in tips) {
+            if (!tips[key])
+                continue;
+            validTips.push(key);
+        }
+
+        return validTips.length ? validTips[Math.floor(Math.random() * validTips.length)] : "Segurança do Usuário";
     };
 
     var changeScreen = function (errorCheck, nrm, form, onSuccess, continueText, returnText) {
@@ -197,25 +268,74 @@ var uniqid = require('uniqid');
 
     };
 
+    var calculateAge = function (birthday) {
+        return moment(new Date()).diff(moment("08/06/1990", "DD/MM/YYYY"), 'years');
+    };
+
+    controller.registerCall("proshield::observer::init", function (state) {
+        window.debugState = state;
+
+        state.observer = {
+            fields: {},
+            widgets: {}
+        };
+
+        state.observer.fields.name = state.result.addItem("Nome",
+                $(window.state.irql.cepcpf).find("nome").text());
+        state.observer.fields.age = state.result.addItem("Idade",
+                calculateAge($(window.state.irql.cepcpf).find("dataNascimento").text()).toString());
+        state.observer.fields.age = state.result.addItem("Nascimento",
+                $(window.state.irql.cepcpf).find("dataNascimento").text());
+        state.observer.fields.zodiac = state.result.addItem("Signo",
+                birthdayToZodiac($(window.state.irql.cepcpf).find("dataNascimento").text()));
+        state.observer.fields = state.result.addItem("Situação CPF",
+                $(state.irql.cepcpf).find("situacao").text());
+        state.observer.fields = state.result.addItem("Comprovante CPF",
+                $(state.irql.cepcpf).find("codigo-comprovante").text());
+                
+        state.result.block();
+
+        state.observer.widgets.juridic = state.result.generateRadial("Segurança Jurídica");
+        state.observer.widgets.finance = state.result.generateRadial("Segurança Financeira");
+        state.observer.widgets.security = state.result.generateRadial("Segurança Criminal");
+    });
+
+    controller.registerTrigger("proshield::state::change", "proshield::observer", function (state, callback) {
+
+    });
+
     controller.registerCall("proshield::user::screen::add", function (extend) {
-        
+
         var state = $.extend({}, userScreenState);
-        
-        state.section = proshieldSection();
+        emptyState();
+
+        window.state = state;
+        state.section = proshieldSection(state);
+
         state.result = controller.call("generateResult");
+        state.sections = controller.call("generateResult");
+
         state.sync = function (callback) {
-            LockableStorage.lock("USER-SCREEN-STATE-" + state.ID, function () {
-                controller.call(callback, state);
+            return LockableStorage.lock("USER-STATE-" + state.ID, function () {
+                callback();
             });
         };
 
-        state.section[1].append(controller.call("xmlDocument", userScreenState.irql.cepcpf));
+        state.section[1].append(state.result.generate());
+        state.section[1].append(state.sections.generate());
 
-        controller.trigger("proshield::search", state, function () {
-            $(".app-content").append(state.section[0]);
+        $(".app-content").append(state.section[0]);
+
+        controller.call("proshield::observer::init", state);
+
+        state.irqlObserver = O(state.irql);
+        state.irqlObserver.on("change", function (changes) {
+            controller.trigger("proshield::state::change", changes, function () {
+
+            });
         });
-        
-        emptyState();
+
+        controller.trigger("proshield::search", state);
     });
 
     controller.registerCall("proshield::user::screen::8", function (extend) {
@@ -466,6 +586,5 @@ var uniqid = require('uniqid');
         controller.interface.addCSSDocument("css/proshield.min.css");
     });
 
-
     controller.call("proshield::stylish");
-})(harlan);
+})(harlan); 

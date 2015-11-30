@@ -617,7 +617,7 @@ label {
 
             &:disabled {
                 background-color: none;
-            } 
+            }
         }
 
     }
@@ -1298,6 +1298,19 @@ input.link {
 
 .bipbop-loader { 
     z-index: 99999999999999999;
+}
+
+.phishx-wrapper {
+    position: relative;
+    display: block;
+    margin: 10px auto;
+    text-align: right;
+
+    .phishx {
+        border-radius: 3px;
+        right: 8px;
+        background: #bfffbf; 
+    }
 }
 
 @import "site";

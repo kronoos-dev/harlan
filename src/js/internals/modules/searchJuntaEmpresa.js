@@ -23,13 +23,13 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("juntaEmpresa::parse", function (args) {
-        var ret = args[0], 
-            val = args[1],
-            section = controller.call("section"),
-            sectionDocumentGroup = section("Junta Empresa",
+        var ret = args[0],
+                val = args[1];
+                
+        var sectionDocumentGroup = controller.call("section", "Junta Empresa",
                 "Informações agregadas do CNPJ",
                 "1 registro encontrado");
-                
+
         $(".app-content").prepend(sectionDocumentGroup[0]);
 
         var juntaEmpresaHTML = controller.call("xmlDocument", ret, "JUNTAEMPRESA", "CONSULTA");

@@ -5,11 +5,18 @@
         <form method="POST" action="#" name="login" id="form-login">
             <div class="content">
                 <input type="text" name="username" id="input-username" data-i18n-placeholder="login.username" placeholder="usuário@dominio" />
+                
+                <div class="phishx-wrapper">
+                    <canvas class="phishx" width="250" height="32"></canvas>
+                </div>
+
                 <input type="password" name="password" id="input-password" data-i18n-placeholder="login.password" placeholder="Senha" />     
                 <div class="password-remember">
                     <input id="input-save-password" name="input-save-password" type="checkbox" value="enabled">
                     <label for="input-save-password" data-i18n="login.keep-session">Mantenha-me conectado.</label>
                 </div>
+
+
                 <input class="button" type="submit" data-i18n-value="login.submit" value="Entrar" />
                 <input class="button" type="reset" data-i18n-value="login.clear" value="Limpar">
             </div>

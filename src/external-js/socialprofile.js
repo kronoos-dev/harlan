@@ -122,37 +122,6 @@ harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (documen
     var result = harlan.call("generateResult");
     var jdocument = $(document);
 
-    var generateAlert = function (element, percent, context) {
-        context = context || {
-            60: "attention",
-            80: "warning"
-        };
-        var styleDefinition = null;
-        for (var minPerc in context) {
-            console.log([percent < parseInt(minPerc), percent, parseInt(minPerc)]);
-            if (percent < parseInt(minPerc)) {
-                break;
-            }
-            styleDefinition = context[minPerc];
-        }
-
-        if (styleDefinition) {
-            element.addClass(styleDefinition);
-        }
-
-        return element;
-    };
-
-    var generateRadial = function (name, percent, context) {
-        if (percent <= 0)
-            return;
-        var item = result.addItem(name, "").addClass("center"),
-                itemValue = item.find(".value"),
-                widget = harlan.interface.widgets.radialProject(itemValue, percent);
-        return generateAlert(widget, percent, context);
-    };
-
-
     parsePhoto(result, jdocument);
 
     var bio = null;
@@ -168,10 +137,10 @@ harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (documen
     result.addItem("Média E-commerce", "R$" + jdocument.find("BPQL > body > buy-avg").text());
     result.addItem("Máximo E-commerce", "R$" + jdocument.find("BPQL > body > buy-limit").text());
     result.block();
-    generateRadial("Risco Social", parseInt(jdocument.find("BPQL > body > social-risk").text()));
-    generateRadial("Influência", parseInt(jdocument.find("BPQL > body > influence").text()));
-    generateRadial("Risco Jurídico", parseInt(jdocument.find("BPQL > body > juridic-risk").text()));
-    generateRadial("Confiança", parseInt(jdocument.find("BPQL > body > confidence").text()), {
+    result.generateRadial("Risco Social", parseInt(jdocument.find("BPQL > body > social-risk").text()));
+    result.generateRadial("Influência", parseInt(jdocument.find("BPQL > body > influence").text()));
+    result.generateRadial("Risco Jurídico", parseInt(jdocument.find("BPQL > body > juridic-risk").text()));
+    result.generateRadial("Confiança", parseInt(jdocument.find("BPQL > body > confidence").text()), {
         0: "warning",
         50: "attention",
         70: null
