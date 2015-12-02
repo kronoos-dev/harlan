@@ -1,12 +1,20 @@
-var _ = require("underscore");
+var _ = require("underscore"),
+        natural = require("natural");
+
+
 
 module.exports = function (controller) {
+
 
     var setAddress = function (result, jdocument) {
         var init = "BPQL > body > addresses > address";
 
+        var addressElements = [];
+        var cepElements = [];
+
         jdocument.find(init).each(function (i, node) {
-            result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
+
+            natural.JaroWinklerDistance();
 
             var nodes = {
                 "Endereço": "address",
@@ -14,21 +22,44 @@ module.exports = function (controller) {
                 "Complemento": "address-complement",
                 "CEP": "zipcode",
                 "Bairro": "neighborhood",
-                "Cidade": "state",
-                "Estado": "uf"
+                "Cidade": "city",
+                "Estado": "state"
             }, jnode = $(node), address = [];
 
             for (var idx in nodes) {
                 var data = jnode.find(nodes[idx]).text();
-                if (/^\**$/.test(data))
-                    continue;
-                result.addItem(idx, data, nodes[idx]);
+                nodes[idx] = (/^\**$/.test(data)) ? "" : data;
+            }
+
+            if (!nodes["Endereço"] || !nodes.CEP) {
+                return;
+            }
+
+            if (_.contains(addressElements, nodes["Endereço"]) ||
+                    _.contains(cepElements, nodes.CEP) ||
+                    Math.max.apply(this, _.map(addressElements, function (value) {
+                        return natural.JaroWinklerDistance(value, nodes["Endereço"]);
+                    })) > 0.85) {
+                return;
+            }
+
+            addressElements.push(nodes["Endereço"]);
+            cepElements.push(nodes.CEP);
+
+            result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
+
+            for (idx in nodes) {
+                if (node.val(/^\**$/.test(nodes[idx]))) {
+                    return;
+                }
+                result.addItem(idx, nodes[idx]);
             }
 
             jnode.find("*").each(function (idx, node) {
                 var jnode = $(node);
-                if (!/address-complement/i.test(jnode.prop("tagName")))
+                if (!/address-complement/i.test(jnode.prop("tagName"))) {
                     address.push(jnode.text());
+                }
             });
 
             var mapUrl = "http://maps.googleapis.com/maps/api/staticmap?" + $.param({

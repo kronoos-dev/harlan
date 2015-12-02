@@ -100,9 +100,16 @@ var cnpjMask = new StringMask("00.000.000/0000-00");
                 separator.addClass("external-source loading");
 
                 serverCommunication(task, function () {
-                    task.response(!task.error);
+                    task.response($(task.data).find("situacaoConsulta value").text() === "1", task.error);
                     separator.data("icheque", task); /* embed task at separator @ front-end driven */
-                    separator.removeClass("loading").addClass(task.error ? "error" : "success");
+                    separator.removeClass("loading");
+                    var elementClass = "success";
+                    if (task.error) {
+                        elementClass = "warning";
+                    } else if ($(task.data).find("situacaoConsulta value").text() !== "1") {
+                        elementClass = "error";
+                    }
+                    separator.addClass(elementClass);
                     documentCallback();
                     callback();
                 });
@@ -143,19 +150,22 @@ var cnpjMask = new StringMask("00.000.000/0000-00");
         return treatment;
     };
 
-    var reponseManager = function (length, elements) {
-        var processed = 0, confirmed = 0;
-        console.log("Created!");
+    var responseManager = function (length, elements) {
+        var processed = 0, confirmed = 0, ajaxFailures = 0;
 
         elements.cheques.find(".value").text(length);
         var updateElements = function () {
             elements.proccessedCheque.find(".value").text(processed.toString());
+            elements.confirmedCheque.change(confirmed.toString());
+            elements.errorCheque.change(ajaxFailures.toString());
             elements.radial.proccessedCheque.change(processed / length * 100);
             elements.radial.confirmedCheque.change(confirmed / length * 100);
+            elements.radial.errorCheque.change(ajaxFailures / length * 100);
         };
 
-        return function (isConfirmed) {
+        return function (isConfirmed, ajaxFailure) {
             processed++;
+            ajaxFailures += ajaxFailure ? 1 : 0;
             confirmed += isConfirmed ? 1 : 0;
             updateElements();
         };
@@ -191,10 +201,13 @@ var cnpjMask = new StringMask("00.000.000/0000-00");
 
                 elements.cheques = resultManager.addItem("Cheques", 0);
                 elements.proccessedCheque = resultManager.addItem("Cheques Processados", 0);
+                elements.confirmedCheque = resultManager.addItem("Cheques Positivos", 0);
+                elements.errorCheque = resultManager.addItem("Cheques com Erro", 0);
                 resultManager.block();
                 elements.radial.proccessedCheque = resultManager.generateRadial("Cheques Processados", 0);
                 elements.radial.confirmedCheque = resultManager.generateRadial("Cheques Positivos", 0);
-                var responser = reponseManager((results.length - 3) / 2, elements);
+                elements.radial.errorCheque = resultManager.generateRadial("Cheques com Erro", 0);
+                var responser = responseManager((results.length - 3) / 2, elements);
 
                 for (var key = 1; key < results.length - 2; key++) {
                     if (key % 2 !== 0) {
