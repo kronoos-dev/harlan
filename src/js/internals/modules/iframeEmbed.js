@@ -30,7 +30,6 @@ module.exports = function (controller) {
 
         title = title || location;
 
-        /* global module */
         controller.interface.helpers.activeWindow(".iframe");
 
         iframeLoaderNode.addClass("loading");
@@ -80,11 +79,10 @@ module.exports = function (controller) {
                 window.open(clickLocation, "_blank");
             }
         });
-        
+
         iframeNode.load(function () {
             iframeLoaderNode.removeClass("loading");
         });
     });
-
 
 };

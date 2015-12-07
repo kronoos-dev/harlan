@@ -1,5 +1,3 @@
-/* global BIPBOP_FREE */
-
 var emailRegex = require('email-regex');
 
 module.exports = function (controller) {

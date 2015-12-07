@@ -1,5 +1,3 @@
-/* global module, placa */
-
 module.exports = function (controller) {
 
     controller.registerTrigger("findDatabase::instantSearch", "placasWiki::instantSearch", function (args, callback) {

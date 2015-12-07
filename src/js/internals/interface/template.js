@@ -1,5 +1,3 @@
-/* global module, Mustache */
-
 var Templates = function () {
     
     this.render = function (path, view, callback) {

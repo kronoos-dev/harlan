@@ -202,7 +202,7 @@ label {
     }
 
     &.loading .icon {
-        @include animation(spin 1s infinite);
+        animation: spin 1s infinite;
         cursor: wait;
         &:after {
             content: "\f110";

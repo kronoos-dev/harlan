@@ -1,7 +1,7 @@
 /*
  * Módulo de Autenticação do Harlan
  */
-/* global module, BIPBOP_FREE */
+
 
 module.exports = function (controller) {
 
@@ -94,11 +94,6 @@ module.exports = function (controller) {
         var inputPassword = $("#input-password");
         var inputSavePassword = $("#input-save-password");
 
-        var onError = function () {
-            inputUsername.addClass("error");
-            inputPassword.addClass("error");
-        };
-
         if (/^\s*$/.test(inputUsername.val()) || inputPassword.val() === "") {
             toastr.error("Para acessar o Harlan você precisa inserir seu usuário e senha.", "Insira seu nome de usuário e senha.");
             onError();
@@ -107,13 +102,11 @@ module.exports = function (controller) {
 
         controller.serverCommunication.call("SELECT FROM 'HarlanAuthentication'.'Authenticate'",
                 controller.call("loader::ajax", controller.call("error::ajax", {
-                    dataType: "jsonp xml",
+                    error: function () {
+                        inputUsername.addClass("error");
+                        inputPassword.addClass("error");
+                    },
                     success: function (domDocument) {
-                        if ($().bipbopAssert(domDocument, controller.call("error::toast"))) {
-                            onError();
-                            return;
-                        }
-
                         var jDocument = $(domDocument);
                         var apiKey = jDocument.find("body apiKey").text();
                         authenticate(apiKey);

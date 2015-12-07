@@ -1,5 +1,3 @@
-/* global module */
-
 module.exports = function (controller) {
 
     controller.registerBootstrap("site::buttons", function (callback) {

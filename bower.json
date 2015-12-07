@@ -45,7 +45,9 @@
     "material-design-lite": "~1.0.0",
     "d3plus": "~1.7.4",
     "mocha": "~2.2.5",
-    "chai": "~3.0.0"
+    "chai": "~3.0.0",
+    "react": "~0.14.3",
+    "jquery-mask-plugin": "~1.13.4"
   },
   "resolutions": {
     "jquery": "~2.1.4",

@@ -260,8 +260,6 @@ module.exports = function (controller) {
                 callback();
             },
             success: function (domDocument) {
-                if ($().bipbopAssert(domDocument, controller.call("error::toast")))
-                    return;
                 parseDocument($(domDocument), text, modal);
             },
             cache: true

@@ -1,5 +1,3 @@
-/* global module, numeral */
-
 var uniqid = require('uniqid');
 var async = require("async");
 var assert = require("assert");

@@ -465,7 +465,7 @@ var O = require('observed');
                         "SC": "Santa Catarina", "SE": "Sergipe",
                         "SP": "São Paulo", "TO": "Tocantins"
                     }, true, "Estado Emissor").magicLabel(),
-                    rgEmissao = form.addInput("emissao", "text", "Data de Emissão", true).mask("99/99/9999").magicLabel().val(userScreenState.data.rgEmissao);
+                    rgEmissao = form.addInput("emissao", "text", "Data de Emissão", true).mask("00/00/0000").magicLabel().val(userScreenState.data.rgEmissao);
 
             changeScreen(errorDecorator([
                 checkNonEmpty("RG", rg),
@@ -549,8 +549,8 @@ var O = require('observed');
     controller.registerCall("proshield::user::screen::1", function (extend) {
         buildFormScreen("proshield::user::screen::1", controller.i18n.proshield.modalSubtitle(), controller.i18n.proshield.modalMessage(), function () {
             var form = userScreenState.modal.createForm();
-            var cpf = form.addInput("cpf", "text", controller.i18n.proshield.cpfInput(), true, "CPF").mask("999.999.999-99").magicLabel().val(userScreenState.data.cpf),
-                    cep = form.addInput("cep", "text", controller.i18n.proshield.cepInput(), true, "CEP").mask("99.999-999").magicLabel().val(userScreenState.data.cep),
+            var cpf = form.addInput("cpf", "text", controller.i18n.proshield.cpfInput(), true, "CPF").mask("000.000.000-00").magicLabel().val(userScreenState.data.cpf),
+                    cep = form.addInput("cep", "text", controller.i18n.proshield.cepInput(), true, "CEP").mask("00000-000").magicLabel().val(userScreenState.data.cep),
                     nascimento = form.addInput("nascimento", "text", controller.i18n.proshield.birthdayInput(), true, "Data de Nascimento").magicLabel().mask("99/99/9999").val(userScreenState.data.nascimento);
 
             changeScreen(errorDecorator([

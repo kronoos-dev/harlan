@@ -1,6 +1,3 @@
-/* global module, componentHandler */
-
-
 var Menu = function () {
 
     this.add = function (title, icon) {

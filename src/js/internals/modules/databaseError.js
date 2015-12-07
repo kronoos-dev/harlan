@@ -1,5 +1,3 @@
-/* global module */
-
 module.exports = function (controller) {
 
     var toastFatalError = function (message, type) {
@@ -18,7 +16,7 @@ module.exports = function (controller) {
             try {
                 var ret = $.parseXML(jqXHR.responseText);
 
-                if ($().bipbopAssert(ret, function (source, message) {
+                if ($.bipbopAssert(ret, function (source, message) {
                     if (source === "ExceptionDatabase") {
                         toastFatalError(message, "warning");
                     } else {

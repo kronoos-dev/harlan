@@ -1,5 +1,3 @@
-/* global module, harlan, describe, itls */
-
 module.exports = function () {
 
     describe('bipbop.controller', function () {

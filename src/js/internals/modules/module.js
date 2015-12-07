@@ -1,5 +1,3 @@
-/* global module */
-
 var FIND_MODULE = "BPQL > body > module > node";
 
 module.exports = function (controller) {

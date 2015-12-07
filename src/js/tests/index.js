@@ -1,8 +1,6 @@
 /* The tests are decoupled to minimize file
  *  size delivered to the customer. */
 
-/* global mocha, mochaPhantomJS */
-
 mocha.setup('bdd');
 window.harlan = require("../internals/controller")();
 
