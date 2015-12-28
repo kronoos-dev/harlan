@@ -65,6 +65,10 @@ module.exports = function (controller) {
         setSessionId(null);
     });
 
+    controller.registerCall("authentication::loggedin", function () {
+        controller.interface.helpers.activeWindow(".app");        
+    });
+
     var authenticate = function (apiKey) {
         var key = apiKey || getSessionId();
         if (!key) {
@@ -72,7 +76,7 @@ module.exports = function (controller) {
         }
         controller.serverCommunication.apiKey = key;
         controller.trigger("authentication::authenticated", null, function () {
-            controller.interface.helpers.activeWindow(".app");
+            controller.call("authentication::loggedin");
         });
 
         return true;

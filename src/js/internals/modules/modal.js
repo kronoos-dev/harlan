@@ -6,7 +6,6 @@ var uniqid = require('uniqid');
 module.exports = function (controller) {
 
     var modal = function () {
-
         var modal = $("<div />");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
@@ -45,7 +44,7 @@ module.exports = function (controller) {
             return wizard;
         };
 
-        var createForm = function () {
+        var createForm = function (instance) {
 
             var form = $("<form />");
             modal.append(form);
@@ -65,7 +64,7 @@ module.exports = function (controller) {
                 }
             };
 
-            var createList = function () {
+            var createList = function (formInstance, modalInstance) {
                 var list = $("<ul />").addClass("list");
                 form.append(list);
 
@@ -109,10 +108,8 @@ module.exports = function (controller) {
             };
 
             this.createList = function () {
-                return new createList();
+                return new createList(this, instance);
             };
-
-
 
             this.addInput = function (name, type, placeholder, obj, labelText) {
                 var id;
@@ -132,12 +129,13 @@ module.exports = function (controller) {
                 return input;
             };
 
-
-
             this.cancelButton = function (text, onCancel) {
                 return this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
-                    if (onCancel)
+                    if (onCancel) {
                         onCancel();
+                    } else {
+                        instance.close();
+                    }
                     e.preventDefault();
                 });
             };
@@ -180,7 +178,7 @@ module.exports = function (controller) {
         };
 
         this.createForm = function () {
-            return new createForm();
+            return new createForm(this);
         };
 
         this.element = function () {

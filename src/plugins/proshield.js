@@ -1,9 +1,16 @@
 /* global toastr, addScreenState, require, userScreenState, moment */
 
-var SEARCH_REGEX = /pros?h?i?e?l?d?/i;
-var LockableStorage = require("lockable-storage");
-var uniqid = require('uniqid');
-var O = require('observed');
+var SEARCH_REGEX = /pros?h?i?e?l?d?/i,
+        LockableStorage = require("lockable-storage"),
+        uniqid = require('uniqid'),
+        O = require('observed'),
+        WeightManager = require('weight-manager');
+
+var RADIAL_CONTEXT = {
+    0: "warning",
+    60: "attention",
+    80: "success"
+};
 
 (function (controller) {
     var CPF = require("cpf_cnpj").CPF;
@@ -276,32 +283,35 @@ var O = require('observed');
         window.debugState = state;
 
         state.observer = {
-            fields: {},
-            widgets: {}
+            fields: {
+                name: state.result.addItem("Nome", $(window.state.irql.cepcpf).find("nome").text()),
+                age: state.result.addItem("Idade", calculateAge($(window.state.irql.cepcpf).find("dataNascimento").text()).toString()),
+                birthday: state.result.addItem("Nascimento", $(window.state.irql.cepcpf).find("dataNascimento").text()),
+                zodiac: state.result.addItem("Signo", birthdayToZodiac($(window.state.irql.cepcpf).find("dataNascimento").text())),
+                cpfStatus: state.result.addItem("Situação CPF", $(state.irql.cepcpf).find("situacao").text()),
+                cpfReceipt: state.result.addItem("Comprovante CPF", $(state.irql.cepcpf).find("codigo-comprovante").text())
+            }
         };
 
-        state.observer.fields.name = state.result.addItem("Nome",
-                $(window.state.irql.cepcpf).find("nome").text());
-        state.observer.fields.age = state.result.addItem("Idade",
-                calculateAge($(window.state.irql.cepcpf).find("dataNascimento").text()).toString());
-        state.observer.fields.age = state.result.addItem("Nascimento",
-                $(window.state.irql.cepcpf).find("dataNascimento").text());
-        state.observer.fields.zodiac = state.result.addItem("Signo",
-                birthdayToZodiac($(window.state.irql.cepcpf).find("dataNascimento").text()));
-        state.observer.fields = state.result.addItem("Situação CPF",
-                $(state.irql.cepcpf).find("situacao").text());
-        state.observer.fields = state.result.addItem("Comprovante CPF",
-                $(state.irql.cepcpf).find("codigo-comprovante").text());
-                
         state.result.block();
 
-        state.observer.widgets.juridic = state.result.generateRadial("Segurança Jurídica");
-        state.observer.widgets.finance = state.result.generateRadial("Segurança Financeira");
-        state.observer.widgets.security = state.result.generateRadial("Segurança Criminal");
-    });
+        state.observer.widgets = {
+            juridic: state.result.generateRadial("Segurança Jurídica", 100, RADIAL_CONTEXT),
+            finance: state.result.generateRadial("Segurança Financeira", 100, RADIAL_CONTEXT),
+            security: state.result.generateRadial("Segurança Criminal", 100, RADIAL_CONTEXT)
+        };
 
-    controller.registerTrigger("proshield::state::change", "proshield::observer", function (state, callback) {
-
+        state.observer.valuate = {
+            juridic: WeightManager(100).onChange(function (data) {
+                state.observer.widgets.juridic.change(data.judge() * 100);
+            }),
+            finance: WeightManager(100).onChange(function (data) {
+                state.observer.widgets.finance.change(data.judge() * 100);
+            }),
+            security: WeightManager(100).onChange(function (data) {
+                state.observer.widgets.security.change(data.judge() * 100);
+            })
+        };
     });
 
     controller.registerCall("proshield::user::screen::add", function (extend) {
@@ -587,4 +597,4 @@ var O = require('observed');
     });
 
     controller.call("proshield::stylish");
-})(harlan); 
+})(harlan);

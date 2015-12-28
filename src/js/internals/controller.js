@@ -1,22 +1,24 @@
-var uniqid = require('uniqid');
-var async = require("async");
-var assert = require("assert");
-var url = require('url');
+var uniqid = require('uniqid'),
+        async = require("async"),
+        assert = require("assert"),
+        url = require('url'),
+        _ = require("underscore");
 
-var ServerCommunication = require("./library/serverCommunication");
-var ImportXMLDocument = require("./library/importXMLDocument");
-var Interface = require("./library/interface.js");
-var I18n = require("./library/i18n.js");
-var Store = require("./library/store.js");
+var ServerCommunication = require("./library/server-communication"),
+        ImportXMLDocument = require("./library/import-xml-document"),
+        Interface = require("./library/interface.js"),
+        I18n = require("./library/i18n.js"),
+        Store = require("./library/store.js");
 
 var Controller = function () {
 
+    this.database = new SQL.Database();
     this.confs = require("./config");
 
     var language = null;
 
-    this.i18n = new I18n(localStorage.language || 
-            navigator.language || 
+    this.i18n = new I18n(localStorage.language ||
+            navigator.language ||
             navigator.userLanguage || "pt", this);
 
     this.language = function () {
@@ -60,7 +62,7 @@ var Controller = function () {
             }
         };
 
-        console.log(":: trigger ::", name);
+        console.log(":: trigger ::", name, args);
         if (!(name in events)) {
             run();
             return this;
@@ -96,10 +98,19 @@ var Controller = function () {
         return this;
     };
 
+    this.listCalls = function (regex) {
+        regex = regex || /.*/;
+        for (var key in calls) {
+            if (regex.test(key)) {
+                console.log("harlan.call('" + key + "')", calls[key]);
+            }
+        }
+    };
+
     this.call = function () {
         var parameters = Array.from(arguments);
-        this.trigger("call::" + parameters[0]);
-        console.log(":: call ::", parameters[0]);
+        this.trigger("call::" + parameters[0], parameters);
+        console.log(":: call ::", parameters[0], parameters);
         assert.ok(parameters[0] in calls);
         return calls[parameters[0]].apply(this, parameters.slice(1));
     };
@@ -123,53 +134,53 @@ var Controller = function () {
     };
 
     /* Parsers */
-    require("./parsers/placasWiki")(this);
-    require("./parsers/juntaEmpresa")(this);
+    require("./parsers/placas-wiki")(this);
+    require("./parsers/junta-empresa")(this);
     require("./parsers/cbusca")(this);
 
     /* Forms */
-    require("./forms/receitaCertidao")(this);
+    require("./forms/receita-certidao")(this);
 
     /* Modules */
-    require("./modules/security/phishx")(this);
+    require("./modules/analytics/google-analytics")(this);
+    require("./modules/security/antiphishing")(this);
+    require("./modules/portofolio-manager")(this);
     require("./modules/i18n")(this);
     require("./modules/autocomplete")(this);
-    require("./modules/openReceipt")(this);
-    require("./modules/findDatabase")(this);
+    require("./modules/open-receipt")(this);
+    require("./modules/find-database")(this);
     require("./modules/loader")(this);
     require("./modules/error")(this);
     require("./modules/endpoint")(this);
     require("./modules/clipboard")(this);
     require("./modules/remove")(this);
-    require("./modules/databaseSearch")(this);
+    require("./modules/database-search")(this);
     require("./modules/comments")(this);
     require("./modules/modal")(this);
-    require("./modules/welcomeScreen")(this);
+    require("./modules/welcome-screen")(this);
     require("./modules/authentication")(this);
     require("./modules/history")(this);
     require("./modules/module")(this);
-    require("./modules/selectedResults")(this);
-    require("./modules/searchJuntaEmpresa")(this);
+    require("./modules/selected-results")(this);
+    require("./modules/search-junta-empresa")(this);
     require("./modules/save")(this);
-    require("./modules/findCompany")(this);
-    require("./modules/findDocument")(this);
-    require("./modules/xmlDocument")(this);
+    require("./modules/find-company")(this);
+    require("./modules/find-document")(this);
+    require("./modules/xml-document")(this);
     require("./modules/section")(this);
-    require("./modules/databaseError")(this);
+    require("./modules/database-error")(this);
     require("./modules/messages")(this);
-    require("./modules/mainSearch")(this);
+    require("./modules/main-search")(this);
     require("./modules/push")(this);
     require("./modules/oauth-io")(this);
-    require("./modules/urlParameter")(this);
-    require("./modules/generateResult")(this);
+    require("./modules/url-parameter")(this);
+    require("./modules/generate-result")(this);
     require("./modules/demonstrate")(this);
-    require("./modules/forgotPassword")(this);
-    require("./modules/iframeEmbed")(this);
-    require("./modules/analytics")(this);
+    require("./modules/forgot-password")(this);
+    require("./modules/iframe-embed")(this);
     require("./modules/site")(this);
-    require("./modules/placasWiki")(this);
-    require("./modules/proshield")(this);
-    require("./modules/icheque")(this); 
+    require("./modules/placas-wiki")(this);
+    require("./modules/icheques")(this);
 
     return this;
 };

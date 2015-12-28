@@ -21,12 +21,12 @@ var factoryCloseSection = function (section) {
 };
 
 
-var header = function (name, description, subdescription, disableDefaultActions, section) {
-    var header = $("<header />");
-    var headerContainer = $("<div />").addClass("container");
-    var headerContent = $("<div />").addClass("content");
-
-    var actions = $("<ul />").addClass("actions");
+var header = function (name, description, subdescription, section, disableDefaultActions, metadata) {
+    var header = $("<header />"),
+            headerContainer = $("<div />").addClass("container"),
+            headerContent = $("<div />").addClass("content"),
+            metadataElements = $("<ul />").addClass("metadata"),
+            actions = $("<ul />").addClass("actions");
 
     if (!disableDefaultActions) {
 
@@ -51,20 +51,28 @@ var header = function (name, description, subdescription, disableDefaultActions,
         headerContent.append($("<div />").addClass("results-display").text(subdescription));
     }
 
+
+    if (metadata.length) {
+        for (var i in metadata) {
+            metadataElements.append($("<li />").text(metadata[i]));
+        }
+    }
+
+    headerContent.append(metadataElements);
     headerContent.append(actions);
-
-
     headerContainer.append(headerContent);
     header.append(headerContainer);
 
-    return [header, actions];
+
+
+    return [header, actions, metadataElements];
 };
 
-var section = function (name, description, subdescription, disableDefaultActions) {
+var section = function (name, description, subdescription, disableDefaultActions, metadata) {
     var section = $("<section />").addClass("group-type");
     var results = $("<section />").addClass("results");
 
-    var data = header(name, description, subdescription, disableDefaultActions, section);
+    var data = header(name, description, subdescription, section, disableDefaultActions, metadata || []);
 
     section.append(data[0]);
     section.append(results);

@@ -1,4 +1,5 @@
-var assert = require("assert");
+var assert = require("assert"),
+        _ = require("underscore");
 
 module.exports = function (controller) {
 
@@ -43,7 +44,7 @@ module.exports = function (controller) {
                     .append(items.headerContainer);
 
             result.append(header);
-            
+
             container = $("<div />").addClass("container");
             content = $("<div />").addClass("content");
             result.append(container.append(content));
@@ -63,6 +64,9 @@ module.exports = function (controller) {
                 80: "warning"
             };
             var styleDefinition = null;
+
+            radial.element.removeClass(_.toArray(context).join(" "));
+
             for (var minPerc in context) {
                 if (percent < parseInt(minPerc)) {
                     break;
@@ -80,10 +84,18 @@ module.exports = function (controller) {
         this.generateRadial = function (name, percent, context) {
             var item = this.addItem(name, "").addClass("center"),
                     itemValue = item.find(".value");
-            
+
             var widget = controller.interface.widgets.radialProject(itemValue, percent);
 
-            return generateAlert(widget, percent, context);
+            var radial =  generateAlert(widget, percent, context);
+            
+            var change = radial.change;
+            radial.change = function (percent) {
+                change(percent);
+                generateAlert(radial, percent, context);
+            };
+            
+            return radial;
         };
 
 

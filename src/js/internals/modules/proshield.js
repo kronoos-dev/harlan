@@ -1,7 +1,7 @@
-module.exports = function () {
-
-    $.ajax({
-        dataType: "JSONP",
-        url: "js/proshield.js"
+module.exports = function (controller) {
+    controller.registerBootstrap("proshield::init", function (callback) {
+        $.getScript("js/proshield.js", function () {
+            callback();
+        });
     });
 }; 

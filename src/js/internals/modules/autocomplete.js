@@ -74,8 +74,9 @@ module.exports = function (controller) {
         };
 
         var addOption = function (prepend) {
-            var item = $("<li />");
-            options[prepend ? "prepend" : "append"](item);
+            var item = $("<li />"), 
+                    fnc  = prepend ? "prepend" : "append";
+            options[fnc](item);
             return item;
         };
 

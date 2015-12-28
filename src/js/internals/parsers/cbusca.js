@@ -14,8 +14,6 @@ module.exports = function (controller) {
 
         jdocument.find(init).each(function (i, node) {
 
-            natural.JaroWinklerDistance();
-
             var nodes = {
                 "Endereço": "address",
                 "Número": "number",
@@ -49,7 +47,7 @@ module.exports = function (controller) {
             result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
 
             for (idx in nodes) {
-                if (node.val(/^\**$/.test(nodes[idx]))) {
+                if (/^\**$/.test(nodes[idx])) {
                     return;
                 }
                 result.addItem(idx, nodes[idx]);

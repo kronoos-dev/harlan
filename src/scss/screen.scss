@@ -70,6 +70,12 @@ label {
     @include classHideEnabled;
 }
 
+.portofolio {
+    width: 100%;
+    position: absolute;
+    @include classHideEnabled;
+}
+
 .app-screen {
     position: absolute;
     width: 100%;
@@ -341,8 +347,68 @@ label {
     }
 }
 
+
 .results {
 
+
+    header {
+        background-color: rgba(255,255,255,0.6);
+        position: relative;
+
+        .content {
+            padding: 20px 0;
+        }
+
+        h3 {
+            font-family: "Open Sans Condensed";
+            font-size: 19px;
+        }
+
+        &.external-source {
+            overflow: hidden;
+            .content { 
+                padding-left: 50px;
+                &:before {
+                    font-family: "FontAwesome";
+                    display: block;
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    margin-top: -15px;
+                    font-size: 30px;
+                }
+            }
+
+            &.success {
+                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #87f78b 0%, #62f567 100%);
+                .content:before {
+                    content: "\f046";
+                }
+            }
+            &.error {
+                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f89592 0%, #f77e7a 100%);
+                .content:before {
+                    content: "\f057";
+                }
+            }
+            &.warning {
+                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f2f77a 0%, #f0f562 100%);
+                .content:before {
+                    content: "\f071";
+                }
+            }
+            &.loading {
+                background: linear-gradient(90deg, #C7CEF3 0%, #d9d9f6 100%);
+                background-size: 400% 400%;
+                animation: url(../images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
+                .content:before {
+                    animation: fa-spin 2s linear infinite;
+                    content: "\f013";
+
+                }
+            }
+        }
+    }
 
     .result {
         @include user-select(none);
@@ -350,64 +416,6 @@ label {
         @include result-types;
         width: 100%;
         table-layout: fixed;
-
-        header {
-            background-color: rgba(255,255,255,0.6);
-            position: relative;
-
-            .content {
-                padding: 20px 0;
-            }
-            h3 {
-                font-weight: 700;
-                font-family: "Open Sans Condensed";
-                font-size: 19px;
-            }
-            &.external-source {
-                overflow: hidden;
-                .content { 
-                    padding-left: 50px;
-                    &:before {
-                        font-family: "FontAwesome";
-                        display: block;
-                        position: absolute;
-                        left: 0;
-                        top: 50%;
-                        margin-top: -15px;
-                        font-size: 30px;
-                    }
-                }
-
-                &.success {
-                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #87f78b 0%, #62f567 100%);
-                    .content:before {
-                        content: "\f046";
-                    }
-                }
-                &.error {
-                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f89592 0%, #f77e7a 100%);
-                    .content:before {
-                        content: "\f057";
-                    }
-                }
-                &.warning {
-                    background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f2f77a 0%, #f0f562 100%);
-                    .content:before {
-                        content: "\f071";
-                    }
-                }
-                &.loading {
-                    background: linear-gradient(90deg, #C7CEF3 0%, #d9d9f6 100%);
-                    background-size: 400% 400%;
-                    animation: url(../images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
-                    .content:before {
-                        animation: fa-spin 2s linear infinite;
-                        content: "\f013";
-
-                    }
-                }
-            }
-        }
 
 
         .details {
@@ -720,6 +728,20 @@ label {
         @include box-shadow(0px -10px 10px 0px rgba(0,0,0,0.05) inset);
         width: 100%;
         @include user-select(none);
+        .metadata {
+            margin-top: 5px; 
+            font-size: 10px;
+            line-height: 140%;
+            li {
+                padding: 0 0 0 12px;
+                position: relative;
+                &:after {
+                    position: absolute;
+                    left: 0;
+                    content: "-";
+                }
+            }
+        }
     }
 
     .display-loader {
@@ -1300,16 +1322,85 @@ input.link {
     z-index: 99999999999999999;
 }
 
-.phishx-wrapper {
+.antiphishing-wrapper {
     position: relative;
     display: block;
     margin: 10px auto;
     text-align: right;
 
-    .phishx {
+    .antiphishing {
         border-radius: 3px;
         right: 8px;
         background: #bfffbf; 
+    }
+}
+
+.portofolio {
+
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-flow: column;
+
+    .container {
+        max-width: none;
+        width: 100%;
+    }
+
+    .content {
+        padding: 18px;
+    }
+
+    .portofolio-content {
+        height: 100%;
+        overflow: auto;
+        height: 100%;
+        position: relative;
+
+        & > .group-type {
+            & > header {
+                cursor: pointer;
+                float: left;
+                clear: left;
+                width: 420px;
+                &.action {
+                    h2 {
+                        text-transform: none;
+                        i {
+                            margin-right: 10px;
+                        }
+                    }
+                    background-color: #EFEFEF;
+                    ul.actions {
+                        height: 100%;
+                        display: table;
+                        table-layout: fixed;
+                        li {
+                            padding: 0 8px;
+                            display: table-cell;
+                            vertical-align: middle;
+                        }
+                    }
+                }
+                &.focus {
+                    display: block;
+                    background-color: #EFEFEF;
+                    box-shadow: none;
+                }
+
+            }
+
+            & > .results {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 420px;
+                &.focus {
+                    display: block;
+                }
+            }
+
+        }
     }
 }
 

@@ -33,16 +33,18 @@ var fileinclude = require("gulp-file-include"),
         merge = require("merge-stream");
 
 var externalJsSources = [
+    "bower_components/sql.js/js/sql.js",
+    "bower_components/sql.js/js/worker.sql.js",
     "bower_components/react/react.js",
     "bower_components/react/react-dom.js",
-    "bower_components/toastr/toastr.js",
-    "bower_components/oauth.io/dist/oauth.min.js",
-    "bower_components/zeroclipboard/dist/ZeroClipboard.js",
     "bower_components/jquery/dist/jquery.js",
     "bower_components/jquery/dist/jquery.js",
     "bower_components/jquery.bipbop/dist/jquery.bipbop.js",
     "bower_components/jquery.finger/dist/jquery.finger.js",
     "bower_components/jquery-mask-plugin/src/jquery.mask.js",
+    "bower_components/oauth.io/dist/oauth.min.js",
+    "bower_components/zeroclipboard/dist/ZeroClipboard.js",
+    "bower_components/toastr/toastr.js",
     "bower_components/d3/d3.js",
     "bower_components/mustache/mustache.js",
     "bower_components/nvd3/build/nv.d3.js",
@@ -111,8 +113,8 @@ gulp.task("i18n-pt", function () {
 
 gulp.task("i18n", ["i18n-pt", "i18n-en"]);
 
-gulp.task("build-external-scripts", function () {
-    var files = glob.sync("src/external-js/**/*.js");
+gulp.task("build-plugins", function () {
+    var files = glob.sync("src/plugins/*.js");
 
     return merge(files.map(function (entry) {
         entry = "./" + entry;
@@ -127,14 +129,13 @@ gulp.task("build-external-scripts", function () {
                 .pipe(sourcemaps.init({loadMaps: true}))
                 .pipe(thotypous())
                 .pipe(sourcemaps.write("."))
-                .pipe(gulp.dest("Server/web/js"))
-                .pipe(livereload());
+                .pipe(gulp.dest("Server/web/js"));
     }));
 
 });
 
-gulp.task("build-external-css", function () {
-    return gulp.src("src/external-styles/**/*.css")
+gulp.task("build-plugins-css", function () {
+    return gulp.src("src/plugins/styles/**/*.css")
             .pipe(autoprefixer())
             .pipe(minifyCSS())
             .pipe(rename({suffix: ".min"}))
@@ -142,8 +143,8 @@ gulp.task("build-external-css", function () {
             .pipe(livereload());
 });
 
-gulp.task("build-external-scss", function () {
-    return gulp.src("src/external-styles/**/*.scss")
+gulp.task("build-plugins-sass", function () {
+    return gulp.src("src/plugins/styles/**/*.scss")
             .pipe(sass())
             .pipe(autoprefixer())
             .pipe(minifyCSS())
@@ -152,14 +153,17 @@ gulp.task("build-external-scss", function () {
             .pipe(livereload());
 });
 
-gulp.task("build-external-styles", ["build-external-scss", "build-external-css"]);
+gulp.task("build-plugins-styles", ["build-plugins-sass", "build-plugins-css"]);
 
 gulp.task("deploy", function () {
     return gulp.src("./Server/web/**/*").pipe(ghPages());
 });
 
 gulp.task("jshint", function () {
-    return gulp.src(["src/js/**/*.js", "!src/js/internals/i18n/**/*", "src/external-js/**/*.js"])
+    return gulp.src([
+        "src/js/**/*.js",
+        "!src/js/internals/i18n/**/*",
+        "src/plugin-js/**/*.js"])
             .pipe(jshint({esnext: true}))
             .pipe(jshint.reporter(stylish));
 });
@@ -169,6 +173,7 @@ gulp.task("build-tests", ["jshint"], function () {
         entries: "./src/js/tests/index.js",
         debug: true
     })
+            .transform(babelify, {presets: ["es2015", "react"]})
             .bundle()
             .pipe(source("index.js"))
             .pipe(buffer())
@@ -199,7 +204,7 @@ gulp.task("build-scripts", ["jshint", "i18n"], function () {
             .pipe(sourcemaps.write("."))
             .pipe(gulp.dest("Server/web/js"))
             .pipe(livereload())
-            .pipe(notify({message: "JavaScript was constructed correctly and can now be used.", wait: true}));
+            .pipe(notify({message: "JavaScript was constructed correctly and can now be used.", wait: false}));
 });
 
 gulp.task("app-images", function () {
@@ -223,8 +228,8 @@ gulp.task("watch", function () {
     gulp.watch(["src/js/*.js", "src/js/internals/**/*.js"], ["jshint", "build-scripts"]);
     gulp.watch("src/js/tests/**/*.js", ["jshint", "build-tests"]);
     gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["app-html", "templates"]);
-    gulp.watch("src/external-js/**/*", ["build-external-scripts"]);
-    gulp.watch("src/external-styles/**/*", ["build-external-styles"]);
+    gulp.watch("src/plugin-js/**/*", ["build-plugins"]);
+    gulp.watch("src/plugins/styles/**/*", ["build-plugins-styles"]);
 });
 
 gulp.task("app-fonts", function () {
@@ -252,8 +257,8 @@ gulp.task("build-styles", function () {
 
 gulp.task("build", [
     "jshint",
-    "build-external-scripts",
-    "build-external-styles",
+    "build-plugins",
+    "build-plugins-styles",
     "manifest",
     "app-fonts",
     "build-scripts",

@@ -19,19 +19,19 @@ module.exports = function (controller) {
         return [e.pageX - $(targ).offset().left, e.pageY - $(targ).offset().top];
     };
 
-    controller.registerBootstrap("phishx::implement", function (callback) {
+    controller.registerBootstrap("antiphishing::implement", function (callback) {
         callback();
 
-        var canvas = $(".phishx:first");
+        var canvas = $(".antiphishing:first");
         var context = canvas.get(0).getContext("2d");
 
-        if (localStorage.getItem("phishx")) {
+        if (localStorage.getItem("antiphishing")) {
             var imageObj = new Image();
             imageObj.onload = function () {
                 context.drawImage(this, 0, 0);
             };
 
-            imageObj.src = localStorage.getItem("phishx");
+            imageObj.src = localStorage.getItem("antiphishing");
         }
 
         var mouseMove = null;
@@ -42,7 +42,7 @@ module.exports = function (controller) {
             context.fillRect(ps[0], ps[1], 1, 1);
             setTimeout(mouseMove);
             mouseMove = setTimeout(function () {
-                localStorage.setItem("phishx", canvas.get(0).toDataURL());
+                localStorage.setItem("antiphishing", canvas.get(0).toDataURL());
             }, 300);
         };
 
@@ -60,7 +60,7 @@ module.exports = function (controller) {
         
         canvas.dblclick(function (e) {
             context.clearRect(0, 0, canvas.width(), canvas.height());
-            localStorage.setItem("phishx", canvas.get(0).toDataURL());
+            localStorage.setItem("antiphishing", canvas.get(0).toDataURL());
         });
 
     });

@@ -1,36 +1,36 @@
-/* global harlan, numeral, Infinity, NaN */
-(function () {
+/* global controller */
+(function (controller) {
     var REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
     var REGEX_SIGLA = /\'sigla\'\s*=\s*'([^']*)'/i;
     var REGEX_PARAMETER = /\'(numero_oab|processo|)\'\s*=\s*'([^']*)'/i;
 
-    harlan.trigger("projuris::init");
-    harlan.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
-    harlan.interface.addCSSDocument("css/projuris.min.css");
+    controller.trigger("projuris::init");
+    controller.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
+    controller.interface.addCSSDocument("css/projuris.min.css");
 
     $(".scroll-down .actions").hide();
     $("controller.interface.helpers").attr({
         placeholder: "Qual processo você esta procurando?",
-        value: harlan.serverCommunication.apiKey,
+        value: controller.serverCommunication.apiKey,
         disabled: "disabled"
     });
 
-    harlan.registerCall("loader::catchElement", function () {
+    controller.registerCall("loader::catchElement", function () {
         return [];
     });
 
     $("title").text("Projuris | Processos Jurídicos Acompanhados no Sistema");
     $("link[rel='shortcut icon']").attr("href", "images/favicon-projuris.png");
 
-    harlan.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", harlan.call("loader::ajax", {
+    controller.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", controller.call("loader::ajax", {
         success: function (document) {
 
-            var section = harlan.call("section")(
+            var section = controller.call("section")(
                     "Processos Cadastrados",
                     "Processos jurídicos acompanhados no sistema",
                     "Créditos disponíveis e extrato");
             var jdocument = $(document);
-            var result = harlan.call("generateResult");
+            var result = controller.call("generateResult");
 
             result.addItem("Usuário", jdocument.find("BPQL > body > username").text());
 
@@ -45,7 +45,7 @@
             result.addItem("Créditos Contratados", numeral(credits).format('0,')).addClass("center");
             result.addItem("Créditos Utlizados", numeral(usedCredits).format('0,')).addClass("center");
 
-            var radial = harlan.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
+            var radial = controller.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
 
             if (perc > 0.8) {
                 radial.addClass("warning animated flash");
@@ -61,7 +61,7 @@
 
                 pushs.each(function (idx, node) {
                     var jnode = $(node);
-                    var resultNode = harlan.call("generateResult");
+                    var resultNode = controller.call("generateResult");
                     resultNode.addItem("Título", jnode.attr("label"));
                     resultNode.addItem("Versão", jnode.attr("version") || "0").addClass("center");
                     resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center").addClass("center");
@@ -90,4 +90,4 @@
             $(".app-content").append(section[0]);
         }
     }));
-})();
+})(harlan);

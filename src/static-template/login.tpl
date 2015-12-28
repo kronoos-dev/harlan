@@ -6,8 +6,8 @@
             <div class="content">
                 <input type="text" name="username" id="input-username" data-i18n-placeholder="login.username" placeholder="usuário@dominio" />
                 
-                <div class="phishx-wrapper">
-                    <canvas class="phishx" width="250" height="32"></canvas>
+                <div class="antiphishing-wrapper">
+                    <canvas class="antiphishing" width="250" height="32"></canvas>
                 </div>
 
                 <input type="password" name="password" id="input-password" data-i18n-placeholder="login.password" placeholder="Senha" />     

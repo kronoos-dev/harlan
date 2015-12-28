@@ -5,13 +5,17 @@ module.exports = function (controller) {
     var installedModules = null;
 
     var addScript = function (src, callback) {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.async = true;
-        script.onload = callback;
-        script.src = src;
-        document.getElementsByTagName('head')[0].appendChild(script);
-        return script;
+        try {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.onload = callback;
+            script.src = src;
+            document.getElementsByTagName('head')[0].appendChild(script);
+            return script;
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     controller.registerTrigger("authentication::authenticated", "module::authenticated", function (args, callback) {

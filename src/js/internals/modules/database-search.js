@@ -50,7 +50,7 @@ module.exports = function (controller) {
                 form = args[6];
 
         var results = section.find(".results");
-        var htmlNode = new controller.call("xmlDocument", doc);
+        var htmlNode = controller.call("xmlDocument", doc);
         htmlNode.find(".xml2html").data("form", form.serializeArray());
 
         results.empty().append(htmlNode);
