@@ -2,6 +2,9 @@
  * Módulo de Comunicação com a BIPBOP
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
+
+bipbop.websocketAddress = "ws://localhost:8090/";
+
 module.exports = function (controller) {
 
     /**
@@ -14,8 +17,9 @@ module.exports = function (controller) {
      * Api Key
      * @type string
      */
-    this.apiKey = BIPBOP_FREE;
+    var bipbopApiKey = BIPBOP_FREE;
 
+    /** O Harlan é assíncrono e o BIPBOP Loader bloqueante */
     $.bipbopDefaults.automaticLoader = false;
 
     /**
@@ -23,29 +27,32 @@ module.exports = function (controller) {
      * @param {WebSocket Data} data
      * @returns {undefined}
      */
-    var defaultCallback = function (data) {
-        controller.trigger("serverCommunication::websocket::data", data);
+    var defaultCallback = function (data, event) {
+        controller.trigger("serverCommunication::websocket::event", event);
+        if (data.method) {
+            controller.trigger("serverCommunication::websocket::" + data.method, data.data);
+        }
     };
 
     /* BIPBOP WebSocket */
-    this.webSocket = function () {
-        if (!webSocket) {
-            webSocketFnc = bipbop.webSocket(this.apiKey, defaultCallback, function (ws) {
-                controller.trigger("serverCommunication::websocket::open", ws);
-            });
+    this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, function (ws) {
+        controller.trigger("serverCommunication::websocket::open", ws);
+    });
 
-            controller.registerTrigger("authentication::authenticated", "serverCommunication::changeApiKey", function (args, callback) {
-                webSocketFnc(this.apiKey);
-                callback();
-            });
-        }
-        return webSocketFnc;
+    this.freeKey = function () {
+        return bipbopApiKey === BIPBOP_FREE;
+    };
+
+    /* BIPBOP API Key */
+    this.apiKey = function (apiKey) {
+        bipbopApiKey = apiKey;
+        this.webSocket(apiKey);
     };
 
     /* Retorna o XHR da requisição AJAX */
     this.call = function (query, configuration) {
         controller.trigger("serverCommunication::call", [query, configuration]);
-        return $.bipbop(query, this.apiKey, configuration);
+        return $.bipbop(query, bipbopApiKey, configuration);
     };
 
     /* ALIAS */

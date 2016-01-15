@@ -3,7 +3,7 @@ module.exports = function (controller) {
     var parserPlacas = function (document) {
         var jdocument = $(document);
 
-        var result = controller.call("generateResult");
+        var result = controller.call("result");
 
         var init = "BPQL > body > ";
         var nodes = {
@@ -20,14 +20,14 @@ module.exports = function (controller) {
         };
 
         for (var idx in nodes) {
-            result.addItem(idx,
-                    jdocument.find(init + nodes[idx]).text(), nodes[idx]);
+            result.addItem(idx, jdocument.find(init + nodes[idx]).text(), nodes[idx]);
         }
 
-        return result.generate();
+        return result.element();
     };
 
-    controller.registerBootstrap("parserPlacas", function () {
+    controller.registerBootstrap("parserPlacas", function (callback) {
+        callback();
         controller.importXMLDocument.register("PLACA", "CONSULTA", parserPlacas);
     });
 };

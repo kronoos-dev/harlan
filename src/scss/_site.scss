@@ -9,7 +9,7 @@
     }
 
     .content {
-        padding: 10px;
+        padding: 10px 30px;
     }
 
     .header {
@@ -92,8 +92,6 @@
                     }
                 }
             }
-
-
         }
     }
 
@@ -131,11 +129,30 @@
         }
     }
 
-    h3 {
+    h3, blockquote {
         line-height: 32px;
         font-size: 24px;
         max-width: 780px;
         margin: auto;
+    }
+
+    .mission {
+        blockquote {
+            &:before, &:after {
+                font-family: "FontAwesome";
+            }
+            &:before {
+                content: '\f10d';
+                margin-right: 23px;
+            }
+            &:after {
+                content: '\f10e';
+                margin-left: 8px;
+            }
+        }
+        small {
+            font-size: 16px;
+        }
     }
 
     h4 {
@@ -146,7 +163,7 @@
     .why-list {
         margin: 69px auto;
         li {
-            vertical-align: bottom;
+            vertical-align: top;
             max-width: 240px;
             text-align: center;
             margin: 30px;
@@ -239,6 +256,7 @@
             .head1 {
                 @extend .head2;
                 font-size: 18px;
+                line-height: 23px;
                 background-color: #e2e3ff;
             }
 
@@ -322,9 +340,12 @@
         max-width: 800px;
         text-align: left;
         margin: 60px auto;
-        
+        position: relative;
+
         li {
             &:before {
+                left: 0;
+                position: absolute;
                 content: "\f00c";
                 font-family: "FontAwesome";
                 font-size: 21px;
@@ -332,9 +353,10 @@
                 color: $color-action;
             }
             display: block;
-            line-height: 120%;
+            line-height: 150%;
             margin: 10px auto;
             font-size: 16px;
+            padding-left: 33px;
         }
     }
 }

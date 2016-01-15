@@ -30,7 +30,7 @@
                     "Processos jurídicos acompanhados no sistema",
                     "Créditos disponíveis e extrato");
             var jdocument = $(document);
-            var result = controller.call("generateResult");
+            var result = controller.call("result");
 
             result.addItem("Usuário", jdocument.find("BPQL > body > username").text());
 
@@ -61,7 +61,7 @@
 
                 pushs.each(function (idx, node) {
                     var jnode = $(node);
-                    var resultNode = controller.call("generateResult");
+                    var resultNode = controller.call("result");
                     resultNode.addItem("Título", jnode.attr("label"));
                     resultNode.addItem("Versão", jnode.attr("version") || "0").addClass("center");
                     resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center").addClass("center");
@@ -82,11 +82,11 @@
                         resultNode.addItem(parameter[1], parameter[2]);
                     }
 
-                    result.generate().append(resultNode.generate().addClass("table"));
+                    result.element().append(resultNode.element().addClass("table"));
                 });
             }
 
-            section[1].append(result.generate());
+            section[1].append(result.element());
             $(".app-content").append(section[0]);
         }
     }));

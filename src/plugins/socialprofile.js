@@ -119,7 +119,7 @@ var addMap = function (result, jdocument) {
 };
 
 harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (document) {
-    var result = harlan.call("generateResult");
+    var result = harlan.call("result");
     var jdocument = $(document);
 
     parsePhoto(result, jdocument);
@@ -152,7 +152,7 @@ harlan.importXMLDocument.register("SOCIALPROFILE", "CONSULTA", function (documen
     setContact(result, jdocument);
     socialNetwork(result, jdocument);
 
-    return result.generate();
+    return result.element();
 });
 
 socialprofile();

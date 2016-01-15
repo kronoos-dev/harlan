@@ -18,14 +18,23 @@ module.exports = function (controller) {
     controller.registerCall("error::ajax", function (dict) {
         var error = dict.error;
         dict.error = function (jqXHR) {
+            var call = Array.from(arguments);
             try {
-                $.bipbopAssert($.parseXML(jqXHR.responseText), controller.call("error::toast"));
+                var xml = $.parseXML(jqXHR.responseText);
+                $.bipbopAssert(xml, controller.call("error::toast"));
+                if (error) {
+                    call.splice(0, 0, xml);
+                    error.apply(this, xml);
+                }
+                return;
             } catch (err) {
                 toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }
 
-            if (error)
+            if (error) {
+                call.splice(0, 0, null);
                 error.apply(this, Array.from(arguments));
+            }
         };
         return dict;
     });

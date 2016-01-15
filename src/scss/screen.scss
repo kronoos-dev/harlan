@@ -1,8 +1,8 @@
 @import "../../bower_components/font-awesome/scss/font-awesome.scss";
 @import "../../bower_components/toastr/toastr.scss";
 @import "../../bower_components/animate.css/animate.css";
-@import "../../bower_components/nvd3/build/nv.d3.css";
 @import "../../bower_components/material-design-lite/material.css";
+@import "../../bower_components/pikaday/css/pikaday.css";
 
 @import "compass";
 @import "compass/reset";
@@ -27,6 +27,10 @@ input {
 
 b {
     font-weight: bolder;
+}
+
+em {
+    font-weight: bold;
 }
 
 ::-ms-clear {
@@ -219,6 +223,8 @@ label {
 
 .header {
 
+    position: relative;
+    z-index: 1;
     box-sizing: border-box;
     width: 100%;
     background: #fff;
@@ -237,7 +243,6 @@ label {
             text-align: center;
             display: table-cell;
             vertical-align: middle;
-            width: 5%;
         }
 
     }
@@ -269,18 +274,33 @@ label {
 .actions {
     @include user-select(none);
     text-align: right;
-    font-size: 13px;
-
-    i {
-        font-size: 14px;
-    }
+    font-size: 14px;
 
     .content {
+        @mixin outShadow {
+            @include box-shadow(0px 0px 4px #D6D6D6);
+        }
+        @include outShadow;
+        vertical-align: top;
         z-index: 2;
         background-color: #fff;
         display: inline-block;
         @include border-bottom-left-radius(3px);
         padding: 0px 15px;
+
+        &.credits {
+            cursor: pointer;
+            letter-spacing: 0.19em;
+            font-family: $font-open-sans;
+            background-color: lighten(#BAFFB9, 5%);
+            padding: 10px 15px+8px;
+            transition: 300ms ease-out background-color;
+            @include outShadow;
+            &:hover {
+                background-color: #BAFFB9;
+
+            }
+        }
     }
 
     ul {
@@ -320,7 +340,7 @@ label {
         }
     }
 
-    @media (max-width : 360px) {
+    @media (max-width : 600px) {
 
         text-align: center;
 
@@ -360,7 +380,7 @@ label {
         }
 
         h3 {
-            font-family: "Open Sans Condensed";
+            font-family: $font-open-sans-condensed;
             font-size: 19px;
         }
 
@@ -850,7 +870,7 @@ label {
             margin: 30px;
             padding: 10px;
             background-color: transparentize(lighten(#000, 10%), 0.35);
-            border-radius: 25px;
+            @include border-radius(25px);
             color: #fff;
             vertical-align: top;
             font-size: 23px;
@@ -933,7 +953,7 @@ input, button, select {
     }
 
     &.error {
-        background-color: rgba(255,0,0,0.02);
+        background-color: rgb(243, 237, 237);
         border-bottom-color: red;
     }
 
@@ -949,6 +969,11 @@ input, button, select {
             background: #e7e7e7;
         }
 
+        &.small {
+            cursor: pointer;
+        }
+
+
     }
 
     &[type="checkbox"] {
@@ -956,6 +981,7 @@ input, button, select {
     }
 
 }
+
 .button:first-child, :not(.button) + .button {
     margin-top: 30px;
 }
@@ -968,6 +994,7 @@ input, button, select {
     margin-top: -5px;
     margin-bottom: 10px;
     color: rgb(169, 169, 169);
+    float: right;
 }
 
 h2 {
@@ -1009,7 +1036,6 @@ h2 {
         max-width: 500px;
     }
 
-
     .content {
         padding: 30px;
         @media (max-width : 360px) {
@@ -1034,6 +1060,7 @@ h2 {
 }
 
 .modal {
+    top: 0;
     height: 100%;
     width: 100%;
     z-index: 100;
@@ -1044,12 +1071,12 @@ h2 {
     display: table;
 
     h2, h3, h4 {
+        line-height: 23px;
         margin: 8px 0;
         &:first-child {
             margin-top: 0;
         }
     }
-
 
     & > div {
 
@@ -1071,7 +1098,7 @@ h2 {
                 box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.03);
                 background: #fff;
                 width: 100%;
-                border-radius: 3px;
+                @include border-radius(3px);
                 max-width: 600px;
                 padding: 38px;
                 border: #fff 1px solid
@@ -1080,7 +1107,14 @@ h2 {
         }
     }
 
-
+    .actions {
+        text-align: center;
+        margin-top: 10px;
+        &:last-child li {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
 
     input:last-child {
         margin-bottom: 0;
@@ -1123,10 +1157,10 @@ h2 {
             display: table-row;
             &:hover {
                 div, i {
-                    background-color: darken($color-background, 10%);
+                    background-color: darken($color-background, 3%);
                 }
                 i {
-                    color: darken($color-action, 25%);
+                    color: darken($color-action, 5%);
                 }
             }
             &.unread {
@@ -1400,6 +1434,107 @@ input.link {
                 }
             }
 
+        }
+    }
+}
+
+.progress {
+    height: 100%;
+    width: 100%;
+    display: table;
+    position: fixed;
+
+    @include classHideEnabled;
+
+    .container {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .content {
+        text-align: center;
+    }
+
+    .loader {
+        display: block;
+        margin: 30px auto;
+    }
+
+    .loader-bar {
+        display: block;
+        height: 30px;
+        width: 320px;
+        border-radius: 3px;
+        margin: 12px auto;
+        background-color: #fff;
+        line-height: 30px;
+        font-family: $font-open-sans;
+        position: relative;
+    }
+
+    .loader-progress {
+        position: absolute;
+        width: 0%;
+        height: 100%;
+        background-color: #ABB9DA;
+        top: 0;
+        @include border-radius(3px);
+        transition: width 300ms ease-in-out
+    }
+}
+
+.pika-single {
+    position: absolute;
+}
+
+
+.multi-field {
+    display: flex;
+    width: 100%;
+    position: relative;
+    margin: 12px auto;
+
+    .input-label {
+        position: absolute;
+        margin: 0;
+        text-align: left; 
+        bottom: -10px;
+        margin-left: 16px;
+        display: none;
+    }
+
+    input:last-child {
+        margin-bottom: 10px;
+    }
+
+    .money {
+        &.input-label {
+            bottom: 50%;
+            margin-bottom: -6px;
+            font-size: 16px;
+            display: block;
+        }
+        &.has-label {
+            padding-left: 50px;
+        }
+    }
+
+
+}
+
+label.help.cmc7 {
+    &:hover {
+        &:after {
+            opacity: 1;
+            z-index: 10;
+            position: fixed;
+            content: " ";
+            display: block;
+            width: 522px;
+            height: 325px;
+            margin-top: -162px;
+            margin-left: -261px;
+            background-image: url("../images/icheques/cheque.svg");
         }
     }
 }

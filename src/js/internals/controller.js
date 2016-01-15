@@ -13,6 +13,7 @@ var ServerCommunication = require("./library/server-communication"),
 var Controller = function () {
 
     this.database = new SQL.Database();
+    
     this.confs = require("./config");
 
     var language = null;
@@ -127,11 +128,38 @@ var Controller = function () {
 
     this.store = new Store(this);
 
+    var debugDevil = function (calls, instance) {
+        for (var i in calls) {
+            calls[i]((function (name) {
+                var timeout = setTimeout(function () {
+                    console.log("Devil Found! Their name is " + name);
+                }, 5000);
+
+                return function () {
+                    clearTimeout(timeout);
+                };
+            })(i));
+            instance.trigger("bootstrap::end");
+        }
+        return;
+    };
+
     this.run = function () {
-        async.auto(bootstrapCalls, function (err, results) {
+        var calls = bootstrapCalls; /* prevent race cond */
+        bootstrapCalls = {};
+        
+        var me = this;
+
+        //debugDevil(calls, me);
+        
+        async.auto(calls, function (err, results) {
             console.log(":: bootstrap ::", err, results);
+            me.trigger("bootstrap::end");
         });
     };
+    
+    /* Web3 */
+    require("./modules/web3");
 
     /* Parsers */
     require("./parsers/placas-wiki")(this);
@@ -144,7 +172,6 @@ var Controller = function () {
     /* Modules */
     require("./modules/analytics/google-analytics")(this);
     require("./modules/security/antiphishing")(this);
-    require("./modules/portofolio-manager")(this);
     require("./modules/i18n")(this);
     require("./modules/autocomplete")(this);
     require("./modules/open-receipt")(this);
@@ -168,19 +195,21 @@ var Controller = function () {
     require("./modules/find-document")(this);
     require("./modules/xml-document")(this);
     require("./modules/section")(this);
+    require("./modules/iugu")(this);
     require("./modules/database-error")(this);
     require("./modules/messages")(this);
     require("./modules/main-search")(this);
     require("./modules/push")(this);
     require("./modules/oauth-io")(this);
     require("./modules/url-parameter")(this);
-    require("./modules/generate-result")(this);
+    require("./modules/result")(this);
     require("./modules/demonstrate")(this);
     require("./modules/forgot-password")(this);
     require("./modules/iframe-embed")(this);
     require("./modules/site")(this);
     require("./modules/placas-wiki")(this);
     require("./modules/icheques")(this);
+    require("./modules/credits")(this);
 
     return this;
 };

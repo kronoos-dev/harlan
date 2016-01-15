@@ -3,7 +3,7 @@ var assert = require("assert"),
 
 module.exports = function (controller) {
 
-    var generateResult = function (inputContainer, inputContent, inputResult) {
+    var result = function (inputContainer, inputContent, inputResult) {
         var container = inputContainer || $("<div />").addClass("container");
         var content = inputContent || $("<div />").addClass("content");
         var result = inputResult || $("<div />").addClass("result");
@@ -123,18 +123,18 @@ module.exports = function (controller) {
             return content;
         };
 
-        this.generate = function () {
+        this.element = function () {
             return result;
         };
 
         return this;
     };
 
-    controller.registerCall("generateResult", function () {
-        return new generateResult();
+    controller.registerCall("result", function () {
+        return new result();
     });
 
-    controller.registerCall("generateResult::import", function (result) {
+    controller.registerCall("result::import", function (result) {
         assert.ok(result.hasClass("result"));
 
         var container = result.find(".container").first();
@@ -143,7 +143,7 @@ module.exports = function (controller) {
         var content = container.find(".content");
         assert.ok(content.length > 0);
 
-        return new generateResult(container, content, result);
+        return new result(container, content, result);
     });
 
 };

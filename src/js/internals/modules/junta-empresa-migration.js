@@ -1,6 +1,7 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("juntaEmpresaMigration", function () {
+    controller.registerBootstrap("juntaEmpresaMigration", function (callback) {
+        callback();
         if (!/juntaempresa\.com\.br/.test(document.referrer)) {
             return;
         }

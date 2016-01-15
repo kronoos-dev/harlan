@@ -113,7 +113,7 @@ module.exports = function (controller) {
     var parserConsultas = function (document) {
         var jdocument = $(document);
 
-        var result = controller.call("generateResult");
+        var result = controller.call("result");
 
         var nodes = {
             "Nome": "name"
@@ -130,10 +130,11 @@ module.exports = function (controller) {
         setAddress(result, jdocument);
         setContact(result, jdocument);
 
-        return result.generate();
+        return result.element();
     };
 
-    controller.registerBootstrap("parserCbusca", function () {
+    controller.registerBootstrap("parserCbusca", function (callback) {
+        callback();
         controller.importXMLDocument.register("CBUSCA", "CONSULTA", parserConsultas);
     });
 

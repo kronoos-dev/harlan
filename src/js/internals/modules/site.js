@@ -20,12 +20,15 @@ module.exports = function (controller) {
             };
         };
 
-        $(".action-home").click(window($(".site")));
-        $(".action-login").click(window($(".login")));
-        $(".action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
-        $(".action-buy").click(newWindow("https://api.bipbop.com.br/checkout.html"));
+        $(".action-home").click(function (e) {
+            e.preventDefault();
+            controller.call("default::page");
+        });
+        $("body > .site .action-login").click(window($(".login")));
+        $("body > .site .action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
+        $("body > .site .action-buy").click(newWindow("https://api.bipbop.com.br/checkout.html"));
 
-        $(".action-evaluate").click(function (e) {
+        $("body > .site .action-evaluate").click(function (e) {
             e.preventDefault();
             controller.call("authentication::force", BIPBOP_FREE);
         });
@@ -38,7 +41,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("site::carrousel", function () {
-        var carrousel = $(".site .carrousel");
+        var carrousel = $("body > .site .carrousel");
         var list = carrousel.find("ul");
         var images = carrousel.find("img");
 

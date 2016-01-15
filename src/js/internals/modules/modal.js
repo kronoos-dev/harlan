@@ -44,13 +44,30 @@ module.exports = function (controller) {
             return wizard;
         };
 
+        var createActions = function (instance) {
+            var actions = $("<ul />").addClass("actions");
+            modal.append(actions);
+            this.add = function (name) {
+                var link = $("<a />").attr("href", "#").text(name),
+                        item = $("<li> /").append(link);
+                actions.append(item);
+                return item;
+            };
+
+            return this;
+        };
+
+        this.createActions = function () {
+            return new createActions(this);
+        };
+
         var createForm = function (instance) {
 
             var form = $("<form />");
             modal.append(form);
 
             var createLabel = function (input, obj, labelText, placeholder) {
-                if ((obj && typeof obj !== "object") || labelText) {
+                if (!obj) {
                     obj = {};
                 }
 
@@ -60,14 +77,14 @@ module.exports = function (controller) {
                             .addClass("input-label")
                             .attr({'for': obj.id})
                             .text(labelText || placeholder);
-                    form.append(obj.label);
+                    var label = obj.append || form;
+                    input[obj.labelPosition || "after"](obj.label);
                 }
             };
 
             var createList = function (formInstance, modalInstance) {
                 var list = $("<ul />").addClass("list");
                 form.append(list);
-
                 this.item = function (icon, text) {
                     var item = $("<li />");
                     list.append(item);
@@ -82,11 +99,19 @@ module.exports = function (controller) {
                     return item;
                 };
 
+                this.add = this.item;
+
                 this.element = function () {
                     return list;
                 };
 
                 return this;
+            };
+
+            this.multiField = function () {
+                var div = $("<div />").addClass("multi-field");
+                form.append(div);
+                return div;
             };
 
             this.addSelect = function (id, name, list, obj, labelText) {
@@ -114,6 +139,9 @@ module.exports = function (controller) {
             this.addInput = function (name, type, placeholder, obj, labelText) {
                 var id;
 
+                if (!obj) {
+                    obj = {};
+                }
 
                 var input = $("<input />").attr({
                     name: name,
@@ -123,7 +151,8 @@ module.exports = function (controller) {
                     autocapitalize: false
                 });
 
-                form.append(input);
+                var a = obj.append || form;
+                a.append(input);
                 createLabel(input, obj, labelText, placeholder);
 
                 return input;
@@ -176,7 +205,6 @@ module.exports = function (controller) {
 
             return this;
         };
-
         this.createForm = function () {
             return new createForm(this);
         };

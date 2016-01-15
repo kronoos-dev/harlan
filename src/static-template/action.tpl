@@ -1,5 +1,8 @@
 <div class="actions">
     <div class="container">
+        <div class="content credits" id="action-credits">
+            <i class="fa fa-dollar"></i> <span>0,00</span>
+        </div>
         <div class="content">
             <ul class="module-menu">
                 <li>

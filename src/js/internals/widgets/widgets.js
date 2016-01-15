@@ -1,9 +1,10 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+var ChartJS = require("chart.js");
+
 module.exports = {
       radialProject : require("./radial-project"),
-      jquery: require("./jquery")()
+      chart: function () {
+          return new ChartJS.apply(this, Array.from(arguments));
+      }
 };
+
+require("./jquery/magic-label");

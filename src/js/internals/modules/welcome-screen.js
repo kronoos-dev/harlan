@@ -23,8 +23,7 @@ module.exports = function (controller) {
     controller.registerTrigger("authentication::authenticated", "welcomeScreen::authenticated", function (args, callback) {
         callback();
         if (!localStorage.welcome) {
-            controller.call(controller.serverCommunication.apiKey === BIPBOP_FREE ?
-                    "welcomescreen::email" : "welcomescreen::wizard");
+            controller.call(controller.serverCommunication.freeKey() ? "welcomescreen::email" : "welcomescreen::wizard");
             localStorage.welcome = true;
         }
     });
@@ -99,9 +98,9 @@ module.exports = function (controller) {
 
     controller.registerCall("welcomescreen::putemail", function (modal) {
         modal = createModal(modal);
-        
+
         var elements = [];
-        
+
         elements.push(modal.subtitle("Uma nova experiência em busca cadastral."));
         elements.push(modal.addParagraph("Harlan é a ferramenta que conecta seus cadastros e relatórios na nuvem e te avisa se algum acoisa mudar, como o endereço de todos os seus clientes. Fique sabendo o que aconteceu na hora que aconteceu, não permita que cadastros desatualizados atrapalhem para seu negócio, conheça o Harlan preenchendo seu e-mail agora."));
 
@@ -109,7 +108,7 @@ module.exports = function (controller) {
         elements.push(form.element());
 
         var inputEmailAddress = form.addInput("email-address", "text", "Qual seu endereço de e-mail?");
-        
+
         form.addSubmit("submit", "Próximo");
 
         form.element().submit(function (e) {
@@ -130,7 +129,7 @@ module.exports = function (controller) {
             deleteElements(elements);
             controller.call("welcomescreen::wizard", modal);
         });
-        
+
     });
 
     controller.registerCall("welcomescreen::email", function (modal) {
@@ -142,22 +141,22 @@ module.exports = function (controller) {
 
         var form = modal.createForm();
         elements.push(form.element());
-        
+
         var submitForm = function (name) {
             return function (e) {
                 e.preventDefault();
                 controller.call("oauth::call", [name, null, function () {
-                    toastr.warning("Não foi possível autenticar, tente novamente.");
-                }, function () {
-                    deleteElements(elements);
-                    controller.call("welcomescreen::wizard", modal);
-                }]);
+                        toastr.warning("Não foi possível autenticar, tente novamente.");
+                    }, function () {
+                        deleteElements(elements);
+                        controller.call("welcomescreen::wizard", modal);
+                    }]);
             };
         };
-        
+
         form.addSubmit("submit", "Usar a conta Google").click(submitForm("google_plus"));
         form.addSubmit("submit", "Usar a conta LinkedIn").click(submitForm("linkedin2"));
-        
+
         form.addSubmit("submit", "Usar minha conta de e-mail.").removeClass("button").addClass("link").click(function (e) {
             e.preventDefault();
             deleteElements(elements);

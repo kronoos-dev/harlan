@@ -21,8 +21,15 @@ module.exports = {
     zeroClipboard: {
         swfPath: "/assets/ZeroClipboard.swf"
     },
+    iugu: {
+        debug: true,
+        token: "44176a3c-50ec-4c45-b092-1d957813d22d"
+    },
     oauthKey: "AYY0iBNDo95aIcw--iWIqa71ZJs",
     checkoutUrl: 'https://irql.bipbop.com.br/api/checkout.html',
     inboxTime: 50000,
-    googleAnalyticsId: "UA-36688252-3" /* Universal Analytics */
+    googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
+    web3: {
+        endpoint: "http://localhost:8545"
+    }
 };

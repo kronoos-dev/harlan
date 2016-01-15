@@ -322,8 +322,8 @@ var RADIAL_CONTEXT = {
         window.state = state;
         state.section = proshieldSection(state);
 
-        state.result = controller.call("generateResult");
-        state.sections = controller.call("generateResult");
+        state.result = controller.call("result");
+        state.sections = controller.call("result");
 
         state.sync = function (callback) {
             return LockableStorage.lock("USER-STATE-" + state.ID, function () {
@@ -331,8 +331,8 @@ var RADIAL_CONTEXT = {
             });
         };
 
-        state.section[1].append(state.result.generate());
-        state.section[1].append(state.sections.generate());
+        state.section[1].append(state.result.element());
+        state.section[1].append(state.sections.element());
 
         $(".app-content").append(state.section[0]);
 
@@ -593,7 +593,7 @@ var RADIAL_CONTEXT = {
     });
 
     controller.registerCall("proshield::stylish", function () {
-        controller.interface.addCSSDocument("css/proshield.min.css");
+        controller.interface.addCSSDocument("css/proshield.css");
     });
 
     controller.call("proshield::stylish");

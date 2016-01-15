@@ -1,6 +1,4 @@
-/*
- * Módulo de Autenticação do Harlan
- */
+/* global toastr, BIPBOP_FREE, module */
 
 
 module.exports = function (controller) {
@@ -30,13 +28,20 @@ module.exports = function (controller) {
     };
 
     /**
+     * Set the default page! \m/
+     */
+    controller.registerCall("default::page", function () {
+        controller.interface.helpers.activeWindow(".site");
+    });
+
+    /**
      * Registra o formulário
      */
-    controller.registerBootstrap("authentication::bootstrap", function (callback) {
+    controller.registerTrigger("bootstrap::end", "authentication::bootstrap", function (obj, callback) {
         callback();
 
         if (!authenticate()) {
-            controller.interface.helpers.activeWindow(".site");
+            controller.call("default::page");
         }
 
         $("#action-logout").click(function (e) {
@@ -56,26 +61,26 @@ module.exports = function (controller) {
      * Chama pelo logout
      */
     controller.registerCall("authentication::logout", function () {
-        controller.serverCommunication.apiKey = BIPBOP_FREE;
-        controller.interface.helpers.activeWindow(".site");
-
+        controller.serverCommunication.apiKey(BIPBOP_FREE);
+        controller.call("default::page");
         $("#input-username").val("");
         $("#input-password").val("");
         $("#input-save-password").removeAttr("checked");
         setSessionId(null);
+        location.reload(true); /* prevent information leak */
     });
 
     controller.registerCall("authentication::loggedin", function () {
-        controller.interface.helpers.activeWindow(".app");        
+        controller.interface.helpers.activeWindow(".app");
     });
 
-    var authenticate = function (apiKey) {
+    var authenticate = function (apiKey, ret) {
         var key = apiKey || getSessionId();
         if (!key) {
             return false;
         }
-        controller.serverCommunication.apiKey = key;
-        controller.trigger("authentication::authenticated", null, function () {
+        controller.serverCommunication.apiKey(key);
+        controller.trigger("authentication::authenticated", ret, function () {
             controller.call("authentication::loggedin");
         });
 
@@ -92,11 +97,14 @@ module.exports = function (controller) {
     /**
      * Chama pela autenticação
      */
-    controller.registerCall("authentication::authenticate", function () {
+    controller.registerCall("authentication::authenticate", function (inputUsername, inputPassword, savePassword, callback) {
 
-        var inputUsername = $("#input-username");
-        var inputPassword = $("#input-password");
-        var inputSavePassword = $("#input-save-password");
+        savePassword = typeof savePassword !== "undefined" ?
+                savePassword :
+                $("#input-save-password").is(":checked");
+
+        inputUsername = inputUsername || $("#input-username");
+        inputPassword = inputPassword || $("#input-password");
 
         if (/^\s*$/.test(inputUsername.val()) || inputPassword.val() === "") {
             toastr.error("Para acessar o Harlan você precisa inserir seu usuário e senha.", "Insira seu nome de usuário e senha.");
@@ -112,19 +120,44 @@ module.exports = function (controller) {
                     },
                     success: function (domDocument) {
                         var jDocument = $(domDocument);
-                        var apiKey = jDocument.find("body apiKey").text();
-                        authenticate(apiKey);
+                        var apiKey = jDocument.find("BPQL > body apiKey").text();
+                        authenticate(apiKey, jDocument);
 
-                        if (inputSavePassword.is(":checked")) {
+                        if (savePassword) {
                             setSessionId(apiKey);
                         }
-
+                        if (callback) {
+                            callback();
+                        }
                     },
                     data: {
                         username: inputUsername.val(),
                         password: inputPassword.val()
                     }
                 })));
+    });
+
+    controller.registerCall("authentication::need", function (callback) {
+        if (controller.serverCommunication.freeKey()) {
+            controller.interface.helpers.activeWindow(".login");
+            var modal = controller.call("modal");
+            modal.title("Você precisa estar autenticado");
+            modal.subtitle("Essa operação exige que você esteja autenticado.");
+            modal.addParagraph("Reinicie a operação após autenticar-se.");
+            var form = modal.createForm();
+            form.element().submit(function (e) {
+                e.preventDefault();
+                modal.close();
+            });
+            form.addSubmit("ok", "Entendido");
+            return true;
+        }
+
+        if (callback) {
+            callback();
+        }
+
+        return false;
     });
 
 };

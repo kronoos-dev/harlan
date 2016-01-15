@@ -130,7 +130,7 @@ module.exports = function (controller) {
     var parserConsultas = function (document) {
         var jdocument = $(document);
 
-        var result = controller.call("generateResult");
+        var result = controller.call("result");
 
         setCompanyName(result, jdocument);
         setCompanyActivity(result, jdocument);
@@ -161,11 +161,12 @@ module.exports = function (controller) {
         setCompanyActivitys(result, jdocument);
         setCompanyContact(result, jdocument);
 
-        return result.generate();
+        return result.element();
 
     };
 
-    controller.registerBootstrap("parserPlacas", function () {
+    controller.registerBootstrap("parserJuntaEmpresa", function (callback) {
+        callback();
         controller.importXMLDocument.register("JUNTAEMPRESA", "CONSULTA", parserConsultas);
     });
 

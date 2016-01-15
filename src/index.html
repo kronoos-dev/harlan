@@ -11,7 +11,7 @@
         <link href="//fonts.googleapis.com/css?family=Poiret+One|Open+Sans:400italic,400,300,600,700,800|Open+Sans+Condensed:300,700" rel="stylesheet" type="text/css" />
         <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-        <link href="css/app.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/app.css" rel="stylesheet" type="text/css" />
         <link rel="manifest" href="manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" /> 
@@ -23,8 +23,8 @@
     </head>
     <body>
         <!-- Mantém para evitar Ajax -->
-        <div class="portofolio hide">
-            @@include('static-template/portofolio-manager.tpl')
+        <div class="progress">
+            @@include('static-template/progress.tpl')
         </div>
         <div class="site hide">
             @@include('static-template/site.tpl')
@@ -38,13 +38,12 @@
                 @@include('static-template/action.tpl')
             </div>
             <div class="app-content">
-                <!-- Inserir Filtros -->
             </div>
         </div>
         <div class="iframe hide">
             @@include('static-template/iframe.tpl')
             <iframe></iframe>
         </div>
-        <script src="js/app.min.js"></script>
+        <script src="js/app-installer.js"></script>
     </body>
 </html>
