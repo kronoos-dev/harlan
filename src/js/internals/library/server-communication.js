@@ -3,8 +3,6 @@
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
 
-bipbop.websocketAddress = "wss://irql.bipbop.com.br/ws";
-
 module.exports = function (controller) {
 
     /**
