@@ -98,7 +98,7 @@ module.exports = function (controller) {
 
         modal.title("Mensagens Privadas");
         modal.subtitle("Caixa de mensagens privadas.");
-        modal.addParagraph("Aqui estão as mensagens importantes que o Harlan tem para você, \n\
+        modal.addParagraph("Aqui estão as mensagens importantes que o sistema tem para você, \n\
                 é importante que você leia todas. Mantendo sua caixa sempre zerada.");
         
         var form = modal.createForm();

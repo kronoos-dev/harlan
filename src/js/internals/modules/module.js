@@ -92,7 +92,7 @@ module.exports = function (controller) {
         var modal = controller.call("modal");
         modal.title("Administrador de Módulos");
         modal.subtitle("Enriqueça seu sistema com módulos.");
-        modal.addParagraph("O sistema de módulos do Harlan foi desenvolvido para que nós e terceiros possam adicionar novas funcionalidades ao sistema. Para agregar um módulo a sua interface é necessário que digite abaixo o ENDPOINT do JavaScript a ser requisitado.");
+        modal.addParagraph("O sistema de módulos foi desenvolvido para que nós e terceiros possam adicionar novas funcionalidades ao sistema. Para agregar um módulo a sua interface é necessário que digite abaixo o ENDPOINT do JavaScript a ser requisitado.");
 
         var form = modal.createForm();
 

@@ -3,8 +3,12 @@
 var CPF = require("cpf_cnpj").CPF,
         CNPJ = require("cpf_cnpj").CNPJ,
         CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
-        MATCH_NON_DIGITS = /[^\d]/g;
+        MATCH_NON_DIGITS = /[^\d]/g,
+        squel = require("squel"),
+        _ = require("underscore"),
+        StringMask = require('string-mask');
 
+var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
 module.exports = function (controller) {
 
@@ -15,6 +19,16 @@ module.exports = function (controller) {
                 .replace(CMC7_BANK_ACCOUNT, 'check-$1-$2-$3')] = document;
     };
 
+    var checkAlreadyExists = function (check) {
+        return controller.database.exec(squel
+                .select()
+                .from("ICHEQUES_CHECKS")
+                .field("COUNT(1)")
+                .where("CMC = ?", check.cmc.replace(MATCH_NON_DIGITS, '')).toString())[0]['values'][0] > 0;
+    };
+
+    controller.registerCall("icheques::check::alreadyExists", checkAlreadyExists);
+
     var getCMC7Storage = function (cmc7) {
         cmc7 = cmc7.replace(MATCH_NON_DIGITS, '');
         if (cmc7.length !== 30) {
@@ -24,15 +38,25 @@ module.exports = function (controller) {
     };
 
     var newCheck = function (data, checkList, storage, modal) {
+        data.cmc = data.cmc.replace(MATCH_NON_DIGITS, '');
+
+        if (checkAlreadyExists(data) || _.findIndex(storage, function (compare) {
+            return compare.cmc === data.cmc;
+        }) !== -1) {
+            toastr.warning("O cheque informado já foi cadastrado.", "Efeture uma busca no sistema.");
+            return;
+        }
+
         var item = checkList.item("fa-times-circle-o", [
-            data.cmc,
+            CMC7_MASK.apply(data.cmc),
             data.expire.isValid() ? data.expire.format("DD/MM/YYYY") : "",
             data.observation || data.document,
             data.ammount ? "R$ " + data.ammount : "Valor não informado"
         ]);
 
+
         data.ammount = Math.floor(numeral(data.ammount)._value * 100);
-        data.cmc = data.cmc.replace(/[^\d]/g, '');
+
         data[CPF.isValid(data.document) ? "cpf" : "cnpj"] = data.document;
         delete data.document;
         data.expire = (data.expire.isValid() ? data.expire : moment().add(5, 'months')).format("YYYYMMDD");
@@ -81,12 +105,12 @@ module.exports = function (controller) {
     };
 
     var newCheckFormAction = null;
-    
+
     controller.registerCall("icheques::newcheck", function (callback, cmcValue, cpfValue) {
         if (newCheckFormAction && !newCheckFormAction()) {
             return;
         }
-        
+
         callback = callback || newCheckWrapper || generateCustomer;
         cpfValue = cpfValue || (cmcValue ? getCMC7Storage(cmcValue) : null);
 
@@ -120,7 +144,6 @@ module.exports = function (controller) {
         obj.label.addClass("money");
 
         var inputExpire = form.addInput("Vencimento", "text", "Vencimento", obj, "Vencimento").mask("00/00/0000");
-
         inputExpire.pikaday();
         var inputObservacao = form.addInput("Observação", "text", "Observação", {}, "Observação");
 
@@ -148,7 +171,7 @@ module.exports = function (controller) {
                 inputExpire.removeClass("error");
             }
 
-            if (!/^\d{30}$/.test(cmc7.replace(/[^\d]/g, ''))) {
+            if (!/^\d{30}$/.test(cmc7.replace(MATCH_NON_DIGITS, ''))) {
                 errors.push("O CMC7 do cheque não confere.");
                 inputCMC7.addClass("error");
             } else {
@@ -178,12 +201,12 @@ module.exports = function (controller) {
                 cmc: cmc7,
                 observation: inputObservacao.val()
             });
-            
+
             modal.close();
             newCheckFormAction = null;
             return true;
         };
-        
+
         form.element().submit(newCheckFormAction);
 
         form.addSubmit("addcheck", "Adicionar Cheque").addClass("strong");

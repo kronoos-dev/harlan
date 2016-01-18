@@ -5,7 +5,8 @@ var SAFE_PASSWORD = /^.{6,}$/,
         VALIDATE_NAME = /^[a-zA-Z\s]+$/,
         CPF = require("cpf_cnpj").CPF,
         CNPJ = require("cpf_cnpj").CNPJ,
-        emailRegex = require("email-regex");
+        emailRegex = require("email-regex"),
+        sprintf = require("sprintf");
 
 module.exports = function (controller) {
 
@@ -128,7 +129,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall("icheques::createAccount", function (callback) {
+    controller.registerCall("icheques::createAccount", function (callback, contract, parameters) {
         var modal = controller.call("modal");
         modal.title("Crie sua conta iCheques");
         modal.subtitle("Informe seu usuário e senha desejados para continuar");
@@ -137,7 +138,9 @@ module.exports = function (controller) {
         var form = modal.createForm(),
                 inputUsername = form.addInput("user", "text", "Usuário"),
                 inputPassword = form.addInput("password", "password", "Senha"),
-                inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha");
+                inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha"),
+                inputAgree = form.addCheckbox("agree", sprintf("Eu li e aceito o <a href=\"%s\" target=\"_blank\">contrato de usuário</a>.",
+                        contract || "legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
 
         form.addSubmit("login", "Próximo Passo");
 
@@ -149,6 +152,10 @@ module.exports = function (controller) {
                     password = inputPassword.val(),
                     confirmPassword = inputConfirmPassword.val();
 
+            if (!inputAgree[1].is(':checked')) {
+                errors.push("Você precisa aceitar o contrato de usuário.");
+            }
+
             if (/^\s*$/.test(username)) {
                 inputUsername.addClass("error");
                 errors.push("O nome de usuário esta em branco.");
@@ -156,7 +163,7 @@ module.exports = function (controller) {
                 inputUsername.addClass("error");
                 errors.push("O nome de usuário é inválido.");
             } else {
-                inputUsername.removeClass("error");
+                inputUsername.removeClass("erricheques::createAccountor");
             }
 
             if (!SAFE_PASSWORD.test(password)) {
@@ -185,21 +192,22 @@ module.exports = function (controller) {
                         },
                         success: function () {
                             modal.close();
-                            controller.call("icheques::createAccount::1", {
+                            controller.call("icheques::createAccount::1", $.extend(
+                                    parameters || {}, {
                                 username: username,
                                 password: password
-                            }, callback);
+                            }), callback);
                         }
                     })));
         });
 
-        var actions = modal.createActions(); 
-        
+        var actions = modal.createActions();
+
         actions.add("Cancelar").click(function (e) {
             e.preventDefault();
             modal.close();
         });
-        
+
         actions.add("Login").click(function (e) {
             e.preventDefault();
             modal.close();

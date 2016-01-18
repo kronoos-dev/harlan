@@ -2,7 +2,8 @@
 module.exports = function (controller) {
 
     var databaseInteger = function (value) {
-        return value ? parseInt(value) : null;
+        
+        return value && /^\d+$/.test(value) ? parseInt(value) : null;
     };
 
     controller.registerCall("icheques::parse::element", function (element) {

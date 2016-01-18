@@ -58,13 +58,11 @@ module.exports = function (controller) {
                 }
 
 
-                console.log(lines[key - 1]);
-
                 var expire = moment(lines[key - 1].substring(300, 300 + 6), "DDMMYY");
 
                 var data = {
                     expire: (expire.isValid() ? expire : moment().add(5, 'months')).format("YYYYMMDD"),
-                    cmc: lines[key].substring(34, 34 + 32).trim().replace(/[^\d]/, "")
+                    cmc: lines[key].substring(34, 34 + 32).trim().replace(/[^\d]/g, "")
                 }, document = lines[key - 1].substring(17, 17 + 14).trim();
 
                 data[CPF.isValid(document) ? "cpf" : "cnpj"] = document;

@@ -20,6 +20,7 @@
     require("./lib/icheques/checkout")(controller);
     require("./lib/icheques/create-account")(controller);
     require("./lib/icheques/harlan")(controller);
+    require("./lib/icheques/report")(controller);
     
     /*
      *  Nada como um nado estilo livre nesse mar 

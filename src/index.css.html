@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title data-i18n="index.title">Harlan | Desfrute de todo potencial da informação</title>
+        <meta name="description" content="Através do Harlan você utiliza toda informação a seu favor de maneira prática e rápida">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/images/favicon.png"/>
+
+        <!-- Google Fonts -->
+        <link href="//fonts.googleapis.com/css?family=Poiret+One|Open+Sans:400italic,400,300,600,700,800|Open+Sans+Condensed:300,700" rel="stylesheet" type="text/css" />
+        <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <link href="css/app.css" rel="stylesheet" type="text/css" />
+        <link rel="manifest" href="manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" /> 
+        <link rel="apple-touch-icon" sizes="120x120" href="images/ios/AppIcon.appiconset/Icon-60@2x.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="images/ios/AppIcon.appiconset/Icon-76@2x.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="images/ios/AppIcon.appiconset/Icon-60@3x.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="images/ios/AppIcon.appiconset/Icon-76.png" />
+        <script type="text/javascript" src="//cdn.ywxi.net/js/1.js" async></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.js"></script>
+    </head>
+    <body>
+        <!-- Mantém para evitar Ajax -->
+        <div class="appe">
+            <div class="scroll-down">
+                @@include('static-template/header.tpl')
+                @@include('static-template/action.tpl')
+            </div>
+            <div class="app-content">
+            </div>
+            <div class="report">
+                <div class="container">
+                    <ul class="r-actions">
+                        <li><i class="fa fa-filter"></i></li>
+                        <li><i class="fa fa-times"></i></li>
+                    </ul>
+                    <div class="content">
+                        <h2>Cheques a receber</h2>
+                        <h3>Relatório do dia 11/01 até 11/02</h3>
+                        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+                        <canvas id="myChart" width="1000" height="250"></canvas>
+                        <div class="open">
+                            <button class="button">Abrir Cheques</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var ctx = $("#myChart").get(0).getContext("2d");
+            var myNewChart = new Chart(ctx).Line({
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        label: "My First dataset",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    },
+                    {
+                        label: "My Second dataset",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [28, 48, 40, 19, 86, 27, 90]
+                    }
+                ]
+            });
+
+        </script>
+    </body>
+</html>

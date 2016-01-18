@@ -70,6 +70,12 @@ gulp.task("bower-swf", function () {
     ]).pipe(gulp.dest("Server/web/assets"));
 });
 
+gulp.task("legal", function () {
+    return gulp.src([
+        "legal/**/*.pdf"
+    ]).pipe(gulp.dest("Server/web/legal"));
+});
+
 gulp.task("manifest", function () {
     return gulp.src([
         "CNAME",
@@ -298,6 +304,7 @@ gulp.task("build-styles", function () {
 });
 
 gulp.task("build", [
+    "legal",
     "jshint",
     "build-plugins",
     "manifest",
@@ -350,3 +357,4 @@ gulp.task("watch", function () {
         "!src/plugins/styles/**/*.js"
     ], ["build-plugins"]);
 });
+

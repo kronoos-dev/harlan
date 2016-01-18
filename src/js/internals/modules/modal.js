@@ -77,6 +77,12 @@ module.exports = function (controller) {
                             .addClass("input-label")
                             .attr({'for': obj.id})
                             .text(labelText || placeholder);
+                    
+                    if (obj.class) {
+                        obj.label.addClass(obj.class);
+                        input.addClass(obj.class);
+                    }
+                    
                     var label = obj.append || form;
                     input[obj.labelPosition || "after"](obj.label);
                 }
@@ -182,7 +188,7 @@ module.exports = function (controller) {
                 var div = $("<div />")
                         .addClass("checkbox")
                         .append(checkbox)
-                        .append($("<label/>").attr("for", elementId).text(label));
+                        .append($("<label/>").attr("for", elementId).html(label));
 
                 form.append(div);
                 return [div, checkbox];

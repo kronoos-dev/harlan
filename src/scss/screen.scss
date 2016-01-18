@@ -1507,6 +1507,10 @@ input.link {
         margin-bottom: 10px;
     }
 
+    .labelShow.input-label {
+        display: block;
+    }
+
     .money {
         &.input-label {
             bottom: 50%;
@@ -1517,6 +1521,10 @@ input.link {
         &.has-label {
             padding-left: 50px;
         }
+    }
+
+    &.double-margin {
+        margin: 24px 0;
     }
 
 

@@ -9,36 +9,6 @@ var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
 module.exports = function (controller) {
 
-    var getPushDocument = function (item, cb) {
-        var parse = function (ret) {
-            if (ret)
-                controller.call("icheques::parse::push", item, ret);
-        };
-
-        controller.serverCommunication.call("SELECT FROM 'PUSH'.'DOCUMENT'", controller.call("error::ajax", {
-            data: {id: item.pushId},
-            success: parse,
-            error: parse,
-            complete: function () {
-                cb(null, item);
-            }
-        }));
-    };
-
-    controller.registerCall("icheques::sync", function (storage, callback) {
-        async.mapLimit(storage, 2, function (item, cb) {
-            getPushDocument(item, function (err, item) {
-                controller.database.exec(squel
-                        .update()
-                        .table("ICHEQUES_CHECKS")
-                        .where("PUSH_ID = ?", item.pushId)
-                        .setFields(controller.call("icheques::databaseObject", item)).toString());
-                controller.call("icheques::item::upgrade", item);
-                cb(err, item);
-            });
-        }, callback);
-    });
-
     controller.registerTrigger("authentication::authenticated", "icheques::sync::authentication::authenticated", function (data, callback) {
         if (controller.serverCommunication.freeKey()) {
             callback();
@@ -64,7 +34,7 @@ module.exports = function (controller) {
     var showCheck = function (check, result) {
         var separator = result.addSeparator("Verificação de Cheque",
                 "Verificação de Dados do Cheque",
-                "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/, "")));
+                "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")));
         separator.addClass("external-source loading");
         var checkResult = controller.call("result");
         checkResult.element().insertAfter(separator);
@@ -81,7 +51,9 @@ module.exports = function (controller) {
         }
 
         var nodes = [];
-        var documentUpdate = function (item) {
+        var documentUpdate = function (check) {
+            separator.data("item", check);
+
             var rescan = function () {
                 for (var i in nodes) {
                     nodes[i].remove();
@@ -90,32 +62,30 @@ module.exports = function (controller) {
                 separator.removeClass("loading success error warning");
             }
 
-            if (item.exceptionMessage) {
-                if (item.exceptionPushable) {
+            if (check.exceptionMessage) {
+                if (check.exceptionPushable) {
                     rescan();
                     separator.addClass("warning");
-                    nodes.push(checkResult.addItem("Erro", item.exceptionMessage));
+                    nodes.push(checkResult.addItem("Erro", check.exceptionMessage));
                 }
                 return;
             }
 
-            if (item.queryStatus) {
-                console.error(item.queryStatus);
-                
+            if (check.queryStatus) {
                 rescan();
                 var elementClass = "success";
-                
-                if (item.queryStatus !== 1) {
+
+                if (check.queryStatus !== 1) {
                     elementClass = "error";
                 }
 
                 separator.addClass(elementClass);
 
-                nodes.push(checkResult.addItem("Situação", item.situation));
-                nodes.push(checkResult.addItem("Exibição", item.display));
+                nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", check.situation));
+                nodes.push(checkResult.addItem("Exibição", check.display));
 
-                if (item.occurence) {
-                    nodes.push(checkResult.addItem("Ocorrência", item.occurence));
+                if (check.ocurrenceCode) {
+                    nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", check.ocurrence));
                 }
 
                 separator.addClass(elementClass);
@@ -163,21 +133,30 @@ module.exports = function (controller) {
 
     controller.registerCall("icheques::show::document", showDocument);
 
+    controller.registerCall("icheques::show::query", function (query) {
+        _.each(query.columns, function (item, i, list) {
+            list[i] = changeCase.camelCase(item);
+        });
+
+        _.each(query.values, function (item, i, list) {
+            list[i] = _.object(query.columns, item);
+        });
+
+        controller.call("icheques::show", query.values);
+    });
+
     controller.registerCall("icheques::show", function (storage, callback) {
-        var documents = {};
-        for (var i in storage) {
-            var document = storage[i].cpf || storage[i].cnpj;
-            if (!documents[document]) {
-                documents[document] = [];
-            }
-            documents[document].push(storage[i]);
-        }
+        var documents = _.groupBy(storage, function (a) {
+            return a.cpf || a.cnpj;
+        });
 
         async.map(_.pairs(documents), showDocument, function (err, results) {
+            
             /** @TODO Trocar para novo modelo */
             for (var i in results) {
                 $(".app-content").append(results[i][0]);
             }
+            
             if (callback) {
                 callback();
             }
@@ -204,15 +183,12 @@ module.exports = function (controller) {
         var dbResponse = controller.database.exec(squel
                 .select()
                 .from("ICHEQUES_CHECKS")
-                .where("PUSH_ID = ?", data.pushObject._id));
+                .where("PUSH_ID = ?", data.pushId).toString());
 
         if (!dbResponse[0]['values'][0]) {
             controller.call("icheques::insertDatabase", data);
             return;
         }
-
-
-        controller.call("icheques::parse::push", $.parseXML(data.pushMemory.document.data));
 
         controller.database.exec(squel
                 .update()

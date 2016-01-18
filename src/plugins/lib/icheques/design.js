@@ -36,6 +36,19 @@ module.exports = function (controller) {
         controller.call("icheques::newcheck");
     });
 
-
+    $(".icheques-site .action-buy-harlan, .icheques-site .action-buy").click(function (e) {
+        e.preventDefault();
+        controller.call("icheques::createAccount", function () {
+            var modal = controller.call("modal");
+            modal.title("Você completou sou cadastro no iCheques");
+            modal.subtitle("Parabéns! Sua conta foi criada com sucesso.");
+            modal.addParagraph("Esperamos que tenha uma ótima experiência com nosso produto, a partir de agora nunca mais se preocupe se seus cheques estão seguros em sua carteira.");
+            var form = modal.createForm();
+            form.element().submit(function (e) {
+                e.preventDefault();
+            });
+            form.addSubmit("exit", "Sair");
+        });
+    });
 
 };

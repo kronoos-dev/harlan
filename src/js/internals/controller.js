@@ -13,7 +13,7 @@ var ServerCommunication = require("./library/server-communication"),
 var Controller = function () {
 
     this.database = new SQL.Database();
-    
+
     this.confs = require("./config");
 
     var language = null;
@@ -110,10 +110,11 @@ var Controller = function () {
 
     this.call = function () {
         var parameters = Array.from(arguments);
-        this.trigger("call::" + parameters[0], parameters);
         console.log(":: call ::", parameters[0], parameters);
         assert.ok(parameters[0] in calls);
-        return calls[parameters[0]].apply(this, parameters.slice(1));
+        var data = calls[parameters[0]].apply(this, parameters.slice(1));
+        this.trigger("call::" + parameters[0], parameters);
+        return data;
     };
 
     this.serverCommunication = new ServerCommunication(this);
@@ -147,17 +148,17 @@ var Controller = function () {
     this.run = function () {
         var calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
-        
+
         var me = this;
 
         //debugDevil(calls, me);
-        
+
         async.auto(calls, function (err, results) {
             console.log(":: bootstrap ::", err, results);
             me.trigger("bootstrap::end");
         });
     };
-    
+
     /* Web3 */
     require("./modules/web3");
 
@@ -186,6 +187,7 @@ var Controller = function () {
     require("./modules/modal")(this);
     require("./modules/welcome-screen")(this);
     require("./modules/authentication")(this);
+    require("./modules/report")(this);
     require("./modules/history")(this);
     require("./modules/module")(this);
     require("./modules/selected-results")(this);

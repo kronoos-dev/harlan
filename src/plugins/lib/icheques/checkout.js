@@ -23,6 +23,8 @@ module.exports = function (controller) {
                 sql = null;
         try {
             if (Array.isArray(check)) {
+                if (check.length <= 0)
+                    return;
                 fields = _.map(databaseObject(check), function (check) {
                     return databaseObject(check);
                 });
@@ -41,6 +43,10 @@ module.exports = function (controller) {
     controller.registerCall("icheques::insertDatabase", insertDatabase);
 
     var calculateCheck = function (check) {
+        if (controller.call("icheques::check::alreadyExists", check)) {
+            return 0;
+        }
+
         var months = moment(check.expire, "YYYYMMDD").diff(moment(), "month") - controller.confs.icheques.monthsIncluded;
         if (months <= controller.confs.icheques.monthsIncluded) {
             return controller.confs.icheques.price;
@@ -50,24 +56,25 @@ module.exports = function (controller) {
     };
 
     var newCheck = function (check, callback) {
-        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'",
-                controller.call("loader::ajax", {
-                    data: check,
-                    success: function (ret) {
-                        $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
-                        insertDatabase(check);
-                        callback();
-                    },
-                    error: function (err) {
-                        callback(err);
-                    }
-                }));
+        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
+            data: check,
+            success: function (ret) {
+                $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
+                insertDatabase(check);
+            },
+            complete: function () {
+                callback();
+            }
+        });
     };
 
     controller.registerCall("icheques::newCheck", newCheck);
     controller.registerCall("icheques::calculateCheckValue", calculateCheck);
 
     controller.registerCall("icheques::checkout", function (storage) {
+        if (!storage.length) {
+            return;
+        }
         controller.call("icheques::calculateBill", storage, function () {
             var q = async.queue(newCheck);
             var loaderUnregister = $.bipbopLoader.register();
