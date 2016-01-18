@@ -47,10 +47,10 @@ module.exports = function (controller) {
                     modal.close();
                 });
             } else {
-                var credits = numeral(needed / 100.).format("$0,0.00");
+                var credits = numeral(needed / 100.0).format("$0,0.00");
                 modal.title("Vamos debitar de seus créditos");
                 modal.subtitle(sprintf("O valor para esta operação ficou em %s.", credits));
-                modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.).format("$0,0.00")));
+                modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.0).format("$0,0.00")));
                 var form = modal.createForm();
                 form.element().submit(function (e) {
                     e.preventDefault();
