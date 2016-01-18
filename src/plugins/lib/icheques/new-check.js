@@ -115,7 +115,7 @@ module.exports = function (controller) {
         cpfValue = cpfValue || (cmcValue ? getCMC7Storage(cmcValue) : null);
 
         var modal = controller.call("modal");
-        modal.title("Adicionar Novo Cheque");
+        modal.title("Adicionar Cheque");
         modal.subtitle("Preencha as informações abaixo do cheque.");
         modal.addParagraph("Preencha e confirme as informações, você será notificado no e-mail assim que validarmos o cheque. Se tiver um scanner de cheques você pode usá-lo agora.");
 
