@@ -3,7 +3,9 @@
 var async = require("async"),
         StringMask = require("string-mask"),
         _ = require("underscore"),
-        squel = require("squel");
+        squel = require("squel"),
+        changeCase = require('change-case');
+
 var SEARCH_REGEX = /cheq?u?e?/i, FIDC = /fid?c?/i, LIMIT = 3;
 var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
@@ -151,12 +153,12 @@ module.exports = function (controller) {
         });
 
         async.map(_.pairs(documents), showDocument, function (err, results) {
-            
+
             /** @TODO Trocar para novo modelo */
             for (var i in results) {
                 $(".app-content").append(results[i][0]);
             }
-            
+
             if (callback) {
                 callback();
             }

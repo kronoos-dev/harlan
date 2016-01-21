@@ -5,7 +5,7 @@
             <ul>
                 <li><a href="#" class="action-home">Home</a></li>
                 <li><a target="_blank" href="http://blog.bipbop.com.br/">Blog</a></li>
-                <li><a href="mailto:contato@bipbop.com.br">Suporte</a></li>
+                <li><a href="mailto:consrctato@bipbop.com.br">Suporte</a></li>
                 <li><a href="https://api.bipbop.com.br/">Web Service</a></li>
                 <li><a href="#" class="action-login">Login</a></li>
             </ul>
@@ -19,12 +19,6 @@
             <div class="carrousel">
                 <ul>
                 </ul>
-                <img src="images/site/screenshoots/0.png" />
-                <img src="images/site/screenshoots/1.png" />
-                <img src="images/site/screenshoots/2.png" />
-                <img src="images/site/screenshoots/3.png" />
-                <img src="images/site/screenshoots/4.png" />
-                <img src="images/site/screenshoots/5.png" />
             </div>
         </div>
         <div class="action">

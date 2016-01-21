@@ -206,7 +206,10 @@ $color: #feefc4;
             }
 
             margin: 23px auto;
-            min-width: 320px;
+            
+            
+            width: 100%;
+            max-width: 320px;
 
             td {
                 border-bottom: 1px solid #eee;

@@ -61,6 +61,10 @@ module.exports = function (controller) {
      * Chama pelo logout
      */
     controller.registerCall("authentication::logout", function () {
+        var modal = controller.call("modal");
+        modal.title("Você esta saíndo da conta.");
+        modal.subtitle("Aguarde enquanto a página é recarregada para sua segurança.");
+        modal.addParagraph("Esperamos que sua visita tenha sido proveitosa e sua experiência incrível.");
         controller.serverCommunication.apiKey(BIPBOP_FREE);
         controller.call("default::page");
         $("#input-username").val("");

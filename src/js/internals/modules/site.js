@@ -34,9 +34,15 @@ module.exports = function (controller) {
         });
     });
 
-
     controller.registerBootstrap("site::carrousel", function (callback) {
         callback();
+
+        for (var i = 0; i <= 5; i++) {
+            $("body > .site .carrousel").append($("<img />")
+                    .attr("src", "images/site/screenshoots/" + i.toString() + ".png"));
+        }
+
+
         controller.call("site::carrousel");
     });
 

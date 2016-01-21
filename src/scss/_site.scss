@@ -75,6 +75,7 @@
                     left: 0;
                     top: 10%;
                     width: 100%;
+                    z-index: 100;
                 }
 
                 li {
@@ -387,7 +388,9 @@
 
     .container {
         position: relative;
-        display: flex;
+        @media (min-width: 600px) {
+            display: flex;
+        }
     }
 
     h2 {
@@ -411,8 +414,10 @@
     }
 
     .content {
-        &:first-child {
-            max-width: 420px;            
+        @media (min-width: 600px) {
+            &:first-child {
+                max-width: 420px;            
+            }
         }
         padding: 20px;
     }

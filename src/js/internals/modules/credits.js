@@ -27,13 +27,15 @@ module.exports = function (controller) {
 
     controller.registerCall("credits::has", function (needed, callback) {
         controller.call("authentication::need", function () {
-            var modal = controller.call("modal");
-            var missing = companyCredits - needed;
+            var modal = controller.call("modal"),
+                    missing = companyCredits - needed,
+                    form, actions;
+
             if (missing < 0) {
                 modal.title("Você precisa de créditos!");
                 modal.subtitle("Para continuar essa operação você precisa adquirir créditos.");
                 modal.addParagraph(sprintf("Estão faltando %s para você poder continuar, adquira créditos.", numeral(Math.abs(missing) / 100).format("$0,0.00")));
-                var form = modal.createForm();
+                form = modal.createForm();
                 form.element().submit(function (e) {
                     e.preventDefault();
                     modal.close();
@@ -42,7 +44,7 @@ module.exports = function (controller) {
                     });
                 });
                 form.addSubmit("submit", "Adquirir Créditos");
-                var actions = modal.createActions();
+                actions = modal.createActions();
                 actions.add("Cancelar").click(function () {
                     modal.close();
                 });
@@ -51,7 +53,7 @@ module.exports = function (controller) {
                 modal.title("Vamos debitar de seus créditos");
                 modal.subtitle(sprintf("O valor para esta operação ficou em %s.", credits));
                 modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.0).format("$0,0.00")));
-                var form = modal.createForm();
+                form = modal.createForm();
                 form.element().submit(function (e) {
                     e.preventDefault();
                     modal.close();
@@ -59,7 +61,7 @@ module.exports = function (controller) {
                 });
 
                 form.addSubmit("submit", "Prosseguir");
-                var actions = modal.createActions();
+                actions = modal.createActions();
                 actions.add("Cancelar").click(function () {
                     modal.close();
                 });

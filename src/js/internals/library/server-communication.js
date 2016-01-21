@@ -1,9 +1,18 @@
+/* global bipbop, module */
+
 /**
  * Módulo de Comunicação com a BIPBOP
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
 
+
 module.exports = function (controller) {
+
+    if (controller.confs.websocketAddress)
+        bipbop.websocketAddress = controller.confs.websocketAddress;
+    
+    if (controller.confs.webserviceAddress)
+        bipbop.webserviceAddress = controller.confs.webserviceAddress;
 
     /**
      * Web Socket Function

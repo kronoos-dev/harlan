@@ -1,55 +1,66 @@
-var AppInstaller = function (jsPath, refreshRate, downloadStopAt) {
+/* global Buffer */
 
-    var xhr = new XMLHttpRequest(),
+(function (path, size, compressedSize, encode) {
+    'use strict';
+    var
+            contentIndex = 0,
+            content = new Buffer(size),
+            streamHttp = require("stream-http"),
             domReady = require("domready"),
-            interval = null,
-            interfaceProgress;
+            assert = require("assert"),
+            inflateWorker = new Worker("js/app-inflate.js"),
+            downloadedSize = 0,
+            totalSize = compressedSize + size,
+            decompressedSize = 0,
+            chunks = [],
+            updateInterfaceProgress = function () {
+                console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "% Downloaded");
+            };
 
-    var drawInterface = function (bootProgress) {
-        bootProgress = bootProgress || 0;
+    domReady(function () {
+        var interfaceProgress = document.getElementById("loader-progress"),
+                interfaceLogo = document.getElementById("loader-logo");
 
-        var totalBytes = parseInt(xhr.getResponseHeader('Content-length')),
-                dlBytes = xhr.responseText.length,
-                downloadProgress = (dlBytes / totalBytes) * 100;
-
-        var partialDownloadProgress = (downloadStopAt * downloadProgress / 100);
-        var partialBootProgress = (((downloadStopAt - 100) * bootProgress) / 100);
-        var totalProgress = partialBootProgress + partialDownloadProgress;
-
-        interfaceProgress.style.width = totalProgress.toString() + "%";
-    };
-
-    var clear = function () {
-        clearInterval(interval);
-        interval = null;
-    };
-
-
-    xhr.addEventListener("loadend", clear);
-
-    xhr.addEventListener("load", function () {
-        (new Function(xhr.responseText))();
+        updateInterfaceProgress = function () {
+            var progress = (downloadedSize + decompressedSize) / totalSize;
+            if (progress > 80) {
+                interfaceLogo.className = "fa-spin";
+            }
+            interfaceProgress.style.width = (progress * 100).toString() + "%";
+        };
     });
 
-    xhr.onreadystatechange = function () {
-        switch (xhr.readyState) {
-            case 2:
-                interval = setInterval(drawInterface, refreshRate);
-                break;
+    inflateWorker.onmessage = function (message) {
+        if (message.data === null) {
+            assert.equal(decompressedSize, size);
+            inflateWorker.terminate(); /* goodbye! */
+            return;
+        }
+
+        decompressedSize += message.data.length;
+        for (var i = 0; i < message.data.length; i++) {
+            content[contentIndex++] = message.data[i];
+        }
+
+        updateInterfaceProgress();
+
+        if (decompressedSize === size) {
+            (new Function(content.toString(encode)))();
+            return;
         }
     };
 
-    var loadHarlan = function () {
-        interfaceProgress = document.getElementById("loader-progress");
-        interfaceProgress = document.getElementById("loader-progress");
-        xhr.open("GET", jsPath);
-        xhr.overrideMimeType("application/javascript");
-        xhr.send();
-    };
+    streamHttp.get(path, function (pipe) {
+        pipe.on('data', function (data) {
+            downloadedSize += data.length;
+            inflateWorker.postMessage([data, downloadedSize < compressedSize ? false : true]);
+            updateInterfaceProgress();
+        });
 
-    domReady(loadHarlan);
+        pipe.on('end', function () {
 
-    return this;
-};
+            assert.equal(downloadedSize, compressedSize);
+        });
+    });
 
-new AppInstaller("js/app.js", 90, 100);
+})("js/app.js.gz", parseInt('/* @echo APP_SIZE */'), parseInt('/* @echo COMPRESSED_SIZE */'), "utf-8");

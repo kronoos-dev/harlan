@@ -120,30 +120,7 @@ var Controller = function () {
     this.serverCommunication = new ServerCommunication(this);
     this.importXMLDocument = new ImportXMLDocument(this);
 
-    /**
-     * From day to night and night to day
-     * An endless sea of choice
-     * If you should ever lose your way
-     * Just listen to your voice
-     */
-
     this.store = new Store(this);
-
-    var debugDevil = function (calls, instance) {
-        for (var i in calls) {
-            calls[i]((function (name) {
-                var timeout = setTimeout(function () {
-                    console.log("Devil Found! Their name is " + name);
-                }, 5000);
-
-                return function () {
-                    clearTimeout(timeout);
-                };
-            })(i));
-            instance.trigger("bootstrap::end");
-        }
-        return;
-    };
 
     this.run = function () {
         var calls = bootstrapCalls; /* prevent race cond */
@@ -212,6 +189,13 @@ var Controller = function () {
     require("./modules/placas-wiki")(this);
     require("./modules/icheques")(this);
     require("./modules/credits")(this);
+
+    /**
+     * From day to night and night to day
+     * An endless sea of choice
+     * If you should ever lose your way
+     * Just listen to your voice
+     */
 
     return this;
 };
