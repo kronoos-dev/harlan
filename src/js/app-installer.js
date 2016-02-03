@@ -1,7 +1,9 @@
 /* global Buffer */
 
 (function (path, size, compressedSize, encode) {
+    
     'use strict';
+    
     var
             contentIndex = 0,
             content = new Buffer(size),
@@ -32,7 +34,7 @@
 
     inflateWorker.onmessage = function (message) {
         if (message.data === null) {
-            assert.equal(decompressedSize, size);
+            (new Function(content.toString(encode)))();
             inflateWorker.terminate(); /* goodbye! */
             return;
         }
@@ -43,11 +45,6 @@
         }
 
         updateInterfaceProgress();
-
-        if (decompressedSize === size) {
-            (new Function(content.toString(encode)))();
-            return;
-        }
     };
 
     streamHttp.get(path, function (pipe) {
@@ -55,11 +52,6 @@
             downloadedSize += data.length;
             inflateWorker.postMessage([data, downloadedSize < compressedSize ? false : true]);
             updateInterfaceProgress();
-        });
-
-        pipe.on('end', function () {
-
-            assert.equal(downloadedSize, compressedSize);
         });
     });
 
