@@ -73,7 +73,7 @@ module.exports = function (controller) {
         var credits = 0;
 
         if (ret) {
-            var node = ret.find("BPQL > body credits");
+            var node = $("BPQL > body credits", ret);
             if (node.length) {
                 credits = parseInt(node.text());
             }

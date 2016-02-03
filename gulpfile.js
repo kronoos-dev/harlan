@@ -21,6 +21,7 @@
             jshint = require("gulp-jshint"),
             babelify = require("babelify"),
             concat = require("gulp-concat"),
+            markdown = require("gulp-markdown"),
             browserify = require("browserify"),
             stylish = require("jshint-stylish"),
             source = require("vinyl-source-stream"),
@@ -132,9 +133,25 @@
 
     gulp.task("build-plugins-template", function () {
         return gulp.src('src/plugins/templates/**/*.html')
+                .pipe(htmlMinifier({
+                    collapseWhitespace: true,
+                    removeComments: true
+                }))
                 .pipe(htmltojs())
                 .pipe(gulp.dest('src/plugins/templates'));
     });
+
+    gulp.task("build-plugins-markdown", function () {
+        return gulp.src('src/plugins/markdown/**/*.md')
+                .pipe(markdown())
+                .pipe(htmlMinifier({
+                    collapseWhitespace: true,
+                    removeComments: true
+                }))
+                .pipe(htmltojs())
+                .pipe(gulp.dest('src/plugins/markdown'));
+    });
+
 
     gulp.task("build-plugins-sql", function () {
         return gulp.src('src/plugins/sql/**/*.sql')
@@ -144,7 +161,12 @@
                 .pipe(gulp.dest('src/plugins/sql'));
     });
 
-    gulp.task("build-plugins", ["build-plugins-template", "build-plugins-styles", "build-plugins-sql"], function () {
+    gulp.task("build-plugins", [
+        "build-plugins-template",
+        "build-plugins-markdown",
+        "build-plugins-styles",
+        "build-plugins-sql"
+    ], function () {
         var files = glob.sync("src/plugins/*.js");
 
         return merge(files.map(function (entry) {
@@ -160,7 +182,8 @@
                     .pipe(gulpif(DEVEL, sourcemaps.init({loadMaps: true})))
                     .pipe(gulpif(PRODUCTION, thotypous()))
                     .pipe(gulpif(DEVEL, sourcemaps.write(".")))
-                    .pipe(gulp.dest("Server/web/js"));
+                    .pipe(gulp.dest("Server/web/js"))
+                    .pipe(livereload());
         }));
 
     });
@@ -176,8 +199,7 @@
                 .pipe(cssjoin())
                 .pipe(nano())
                 .pipe(css2js())
-                .pipe(gulp.dest("src/plugins/styles/"))
-                .pipe(livereload());
+                .pipe(gulp.dest("src/plugins/styles/"));
     });
 
     gulp.task("build-plugins-sass", function () {
@@ -187,8 +209,7 @@
                 .pipe(cssjoin())
                 .pipe(nano())
                 .pipe(css2js())
-                .pipe(gulp.dest("src/plugins/styles"))
-                .pipe(livereload());
+                .pipe(gulp.dest("src/plugins/styles"));
     });
 
     gulp.task("build-plugins-styles", ["build-plugins-sass", "build-plugins-css"]);
@@ -222,8 +243,7 @@
                 .pipe(sourcemaps.init({loadMaps: true}))
                 .pipe(concat("index.js"))
                 .pipe(sourcemaps.write("."))
-                .pipe(gulp.dest("test/spec"))
-                .pipe(livereload());
+                .pipe(gulp.dest("test/spec"));
     });
 
     gulp.task("build-inflate", function () {
@@ -239,8 +259,7 @@
                 .pipe(gulpif(PRODUCTION, thotypous()))
                 .pipe(concat("app-inflate.js"))
                 .pipe(gulpif(DEVEL, sourcemaps.write(".")))
-                .pipe(gulp.dest("Server/web/js"))
-                .pipe(livereload());
+                .pipe(gulp.dest("Server/web/js"));
     });
 
     gulp.task("build-installer", ["build-application"], function () {
@@ -260,8 +279,7 @@
                         APP_SIZE: fs.statSync("./Server/web/js/app.js").size
                     }}))
                 .pipe(gulpif(DEVEL, sourcemaps.write(".")))
-                .pipe(gulp.dest("Server/web/js"))
-                .pipe(livereload());
+                .pipe(gulp.dest("Server/web/js"));
     });
 
     gulp.task("build-application", ["jshint", "i18n"], function () {
@@ -354,14 +372,14 @@
 
     gulp.task("watch", function () {
         livereload.listen();
-        gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build-application"]);
+        gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build-installer", "build-application"]);
         gulp.watch(["src/scss/*", "src/scss/*.scss"], ["build-styles"]);
         gulp.watch([
             "src/js/*.js",
             "src/js/internals/**/*.js",
             "!src/js/app-installer.js",
             "!src/js/app-inflate.js",
-            "!src/js/internals/i18n/**/*.js"], ["jshint", "build-application"]);
+            "!src/js/internals/i18n/**/*.js"], ["jshint", "build-application", "build-installer"]);
         gulp.watch("src/js/app-inflate.js", ["jshint", "build-inflate"]);
         gulp.watch("src/js/app-installer.js", ["jshint", "build-installer"]);
         gulp.watch("src/js/tests/**/*.js", ["jshint", "build-tests"]);
@@ -371,6 +389,8 @@
             "src/plugins/templates/**/*.html",
             "src/plugins/sql/**/*.sql",
             "src/plugins/**/*.js",
+            "src/plugins/markdown/**/*.md",
+            "!src/plugins/markdown/**/*.js",
             "!src/plugins/templates/**/*.js",
             "!src/plugins/sql/**/*.js",
             "!src/plugins/styles/**/*.js"

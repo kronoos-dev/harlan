@@ -6,18 +6,20 @@ module.exports = function (locale, controller) {
     };
 
     var validPikaday = {
-        "pt": {
-            "previousMonth": "Mes Anterior", "nextMonth": "Mes Seguinte",
-            "months": ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
-            "weekdays": ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
-            "weekdaysShort": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+        pt: {
+            format: 'DD/MM/YYYY',
+            i18n: {
+                "previousMonth": "Mes Anterior", "nextMonth": "Mes Seguinte",
+                "months": ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+                "weekdays": ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
+                "weekdaysShort": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+            }
         }
     };
 
     var numeralConversor = {
         "pt": "pt-br"
     };
-
 
 
     var language = validLanguages[userLanguage] ? userLanguage : "pt";
@@ -30,8 +32,8 @@ module.exports = function (locale, controller) {
         if (typeof args[0] !== "object") {
             args[0] = {};
         }
-        args[0].format = 'DD/MM/YYYY';
-        args[0].i18n = validPikaday[language];
+        args[0].format = validPikaday[language].format;
+        args[0].i18n = validPikaday[language].i18n;
         pikaday.apply(this, args);
     };
 
@@ -42,5 +44,7 @@ module.exports = function (locale, controller) {
         console.log(e);
     }
 
-    return validLanguages[language];
+    var validLanguage = validLanguages[language];
+    validLanguage.pikaday = validPikaday[language];
+    return validLanguage;
 };

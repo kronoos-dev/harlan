@@ -15,10 +15,12 @@ module.exports = function (controller) {
         "min-height": $(window).height()
     });
 
-    /* Instalar o CHECKOUT HARLAN aqui */
-
     $("body > .icheques-site .action-login").click(function () {
         controller.interface.helpers.activeWindow(".login");
+    });
+
+    controller.registerTrigger("authentication::authenticated", "welcomeScreen::authenticated", function (args, cb) {
+        cb();
     });
 
     controller.registerCall("default::page", function () {
@@ -36,9 +38,12 @@ module.exports = function (controller) {
         controller.call("icheques::newcheck");
     });
 
-    $(".icheques-site .action-buy-harlan, .icheques-site .action-buy").click(function (e) {
+    $(".icheques-site .action-buy").click(function (e) {
         e.preventDefault();
-        controller.call("icheques::createAccount", function () {
+
+        var element = $(this);
+
+        controller.call("icheques::createAccount", function (data) {
             var modal = controller.call("modal");
             modal.title("Você completou sou cadastro no iCheques");
             modal.subtitle("Parabéns! Sua conta foi criada com sucesso.");
@@ -46,8 +51,11 @@ module.exports = function (controller) {
             var form = modal.createForm();
             form.element().submit(function (e) {
                 e.preventDefault();
+                modal.close();
             });
-            form.addSubmit("exit", "Sair");
+            form.addSubmit("exit", "Entrar");
+        }, element.attr("data-contract"), {
+            type: element.attr("data-type")
         });
     });
 

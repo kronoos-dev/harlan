@@ -37,6 +37,7 @@
             text-align: center !important;
 
             a {
+                cursor: pointer;
                 box-sizing: border-box;
                 display: inline-block;
                 min-width: 74px;
@@ -359,100 +360,5 @@
             font-size: 16px;
             padding-left: 33px;
         }
-    }
-}
-
-.report {
-
-    box-shadow: 0px 0 8px #CACACA;
-    background-color: #fff;
-    margin: 30px 0;
-    font-size: 16px;
-
-    ul.r-actions {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        font-size: 18px;
-        li {
-            transition: color 200ms ease-in;
-            color: rgb(147, 167, 216);
-            &:hover {
-                color: #3e5fad;
-            }
-            margin: 0 12px;
-            display: inline-block;
-            cursor: pointer;
-        }
-    }
-
-    .container {
-        position: relative;
-        @media (min-width: 600px) {
-            display: flex;
-        }
-    }
-
-    h2 {
-        font-weight: bold;
-        font-size: 24px;
-        line-height: 32px;
-    }
-    h3 {
-        font-size: 18px;
-        line-height: 26px;
-    }
-
-    p {
-        margin: 10px 0;
-        font-size: 16px;
-    }
-
-    canvas {
-        display: block;
-        margin: 50px auto;
-    }
-
-    .content {
-        @media (min-width: 600px) {
-            &:first-child {
-                max-width: 420px;            
-            }
-        }
-        padding: 20px;
-    }
-
-    .open {
-        text-align: right;
-    }
-
-    .button {
-        display: inline-block;
-        width: auto;
-        box-shadow: none;
-        text-align: center;
-        border: none;
-        background-color: #fdad30;
-        color: #fff;
-        font-weight: bold;
-        transition: background-color 200ms ease-in;
-        &:hover {
-            background-color: darken(#fdad30, 10%);
-        }
-        margin: 10px;
-        margin-bottom: 0;
-
-    }
-
-
-    .label {
-        color: #fff;
-        padding: 10px;
-        display: inline-block;
-        font-size: 13px;
-        line-height: 16px;
-        background-color: #93A7D8;
-        margin: 3px;
-        @include border-radius(2px);
     }
 }

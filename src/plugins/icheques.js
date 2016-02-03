@@ -21,7 +21,12 @@
     require("./lib/icheques/create-account")(controller);
     require("./lib/icheques/harlan")(controller);
     require("./lib/icheques/report")(controller);
-    
+    require("./lib/icheques/search")(controller);
+    require("./lib/icheques/buy-reader")(controller);
+    require("./lib/icheques/welcome")(controller);
+    require("./lib/icheques/full-profile")(controller);
+    require("./lib/icheques/bank-profile")(controller);
+
     /*
      *  Nada como um nado estilo livre nesse mar 
      *  nado de peito que é desse jeito que eu curto nadar 

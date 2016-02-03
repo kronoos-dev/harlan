@@ -206,8 +206,8 @@ $color: #feefc4;
             }
 
             margin: 23px auto;
-            
-            
+
+
             width: 100%;
             max-width: 320px;
 
@@ -346,5 +346,22 @@ $color: #feefc4;
 .why-list {
     p {
         margin: 10px auto;
+    }
+}
+
+label.help.cmc7 {
+    &:hover {
+        &:after {
+            opacity: 1;
+            z-index: 10;
+            position: fixed;
+            content: " ";
+            display: block;
+            width: 522px;
+            height: 325px;
+            margin-top: -162px;
+            margin-left: -261px;
+            background-image: url("../images/icheques/cheque.svg");
+        }
     }
 }

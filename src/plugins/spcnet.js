@@ -1,3 +1,5 @@
+/* global numeral */
+
 var APP_TITLE = "Consulta de Protestos",
         SCPC_PATH = "BPQL > body > scpc",
         _ = require("underscore");
@@ -30,17 +32,6 @@ var reduce = function (array) {
         }));
 
         var score = Math.max(creditors.length * 0.2, protests * 0.3, debt / 500);
-        
-        console.log({
-            creditors: creditors,
-            protests: protests,
-            debt: debt,
-            score: {
-                creditors: creditors.length * 0.2,
-                protests: protests * 0.3,
-                debt: debt / 500
-            }
-        });
 
         score = 1 - (score > 1 ? 1 : score);
 

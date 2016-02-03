@@ -9,10 +9,10 @@ var magicLabel = function (element, elementLabel) {
 };
 
 $.fn.extend({
-    magicLabel: function () {
+    magicLabel: function (elementLabel) {
         this.each(function () {
             var element = $(this);
-            var elementLabel = $("label[for='" + element.attr("id") + "']");
+            var elementLabel = elementLabel || $("label[for='" + element.attr("id") + "']");
             if (!elementLabel.length) {
                 return;
             }

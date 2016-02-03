@@ -1,11 +1,13 @@
 /* global module */
-var ReportModel = function () {
+var gamificationIcons = require("./data/gamification-icons");
+
+var ReportModel = function (closeable) {
     var elementNews = $("<div />").addClass("report"),
             elementContainer = $("<div />").addClass("container"),
             elementActions = $("<ul />").addClass("r-actions"),
             elementContent = $("<div />").addClass("content"),
             elementOpen = null;
-    
+
     elementNews.append(elementContainer
             .append(elementActions)
             .append(elementContent));
@@ -33,7 +35,7 @@ var ReportModel = function () {
         elementContent.append($("<h3 />").text(subtitle));
         return this;
     };
-    
+
     this.label = function (content) {
         var span = $("<span />").addClass("label").text(content);
         elementContent.append(span);
@@ -51,6 +53,15 @@ var ReportModel = function () {
         return canvas.get(0);
     };
 
+    this.gamification = function (type) {
+        this.newContent();
+        var icon = $("<i />")
+                .addClass(gamificationIcons[type])
+                .addClass("gamification");
+        elementContent.append(icon);
+        return icon;
+    };
+
     this.paragraph = function (text) {
         var p = $("<p />").text(text);
         elementContent.append(p);
@@ -58,12 +69,12 @@ var ReportModel = function () {
     };
 
     this.button = function (name, action) {
-        buttonElement().append($("<button />").text(name).click(function (e) {
+        var button = $("<button />").text(name).click(function (e) {
             e.preventDefault();
             action();
-        }).addClass("button"));
-
-        return this;
+        }).addClass("button");
+        buttonElement().append(button);
+        return button;
     };
 
     this.content = function () {
@@ -82,20 +93,36 @@ var ReportModel = function () {
         return this;
     };
 
-    this.newAction("fa-times", function () {
+    this.close = function () {
         elementNews.remove();
-    });
+    };
+
+    if (typeof closeable === "undefined" || closeable) {
+        /* closeable */
+        this.newAction("fa-times", function () {
+            elementNews.remove();
+        });
+    }
 
     return this;
 };
 
 module.exports = function (controller) {
 
-    controller.registerCall("report", function (title, subtitle, paragraph) {
-        var model = new ReportModel();
-        model.title(title);
-        model.subtitle(subtitle);
-        model.paragraph(paragraph);
+    controller.registerCall("report", function (title, subtitle, paragraph, closeable) {
+        var model = new ReportModel(closeable);
+        if (title) {
+            model.title(title);
+        }
+
+        if (subtitle) {
+            model.subtitle(subtitle);
+        }
+
+        if (paragraph) {
+            model.paragraph(paragraph);
+        }
+
         return model;
     });
 

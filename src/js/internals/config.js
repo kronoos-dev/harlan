@@ -1,6 +1,8 @@
 var url = require("url");
 
 module.exports = {
+    webserviceAddress: "http://localhost:9000/",
+    websocketAddress: "ws://localhost:8090",
     proshield: {
         hosts: [
             "proshield",
@@ -31,5 +33,8 @@ module.exports = {
     googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
     web3: {
         endpoint: "http://localhost:8545"
+    },
+    roost: {
+        apiKey : ""
     }
 };

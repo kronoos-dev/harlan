@@ -17,6 +17,11 @@ module.exports = function (controller) {
             return;
         }
 
+        var unregister = null,
+                loaderTimeout = setTimeout(function () {
+                    unregister = $.bipbopLoader.register();
+                }, 1000);
+                
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
             success: function (ret) {
                 var storage = [];
@@ -29,11 +34,15 @@ module.exports = function (controller) {
             },
             complete: function () {
                 callback();
+                clearTimeout(loaderTimeout);
+                if (unregister)
+                    unregister();
             }
         }));
     });
 
     var showCheck = function (check, result) {
+        console.log(check);
         var separator = result.addSeparator("Verificação de Cheque",
                 "Verificação de Dados do Cheque",
                 "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")));
@@ -62,7 +71,7 @@ module.exports = function (controller) {
                 } /* rescan */
                 nodes = [];
                 separator.removeClass("loading success error warning");
-            }
+            };
 
             if (check.exceptionMessage) {
                 if (check.exceptionPushable) {
@@ -133,17 +142,30 @@ module.exports = function (controller) {
         });
     };
 
-    controller.registerCall("icheques::show::document", showDocument);
+    controller.registerCall("icheques::resultDatabase", function (databaseResult) {
+        if (!databaseResult) {
+            return [{columns: [], values: []}];
+        }
 
-    controller.registerCall("icheques::show::query", function (query) {
-        _.each(query.columns, function (item, i, list) {
+        _.each(databaseResult.columns, function (item, i, list) {
             list[i] = changeCase.camelCase(item);
         });
 
-        _.each(query.values, function (item, i, list) {
-            list[i] = _.object(query.columns, item);
+        _.each(databaseResult.values, function (item, i, list) {
+            list[i] = _.object(databaseResult.columns, item);
         });
 
+        return databaseResult;
+    });
+
+
+    controller.registerCall("icheques::show::document", showDocument);
+
+    controller.registerCall("icheques::show::query", function (query) {
+        if (!query) {
+            return;
+        }
+        controller.call("icheques::resultDatabase", query);
         controller.call("icheques::show", query.values);
     });
 

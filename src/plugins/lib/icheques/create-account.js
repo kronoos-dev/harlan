@@ -27,7 +27,7 @@ module.exports = function (controller) {
             append: form.multiField(),
             labelPosition: "before"
         }, inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
-                inputCnpj = form.addInput("cnpj", "text", "CNPJ", objDocument, "CNPJ (Empresas)").mask("00.000.000/0000-00"),
+                inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00"),
                 inputZipcode = form.addInput("cep", "text", "CEP", objLocation).mask("00000-000"),
                 inputPhone = form.addInput("phone", "text", "Telefone", objLocation).mask("(00) 0000-00009");
 
@@ -110,9 +110,11 @@ module.exports = function (controller) {
                             ddd: ddd,
                             phone: phone
                         }, data),
-                        success: function () {
+                        success: function (domDocument) {
                             modal.close();
-                            callback();
+                            var apiKey = $("BPQL > body apiKey", domDocument).text();
+                            controller.call("authentication::force", apiKey, domDocument);
+                            callback(domDocument);
                         }
                     })));
         });
@@ -130,7 +132,9 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("icheques::createAccount", function (callback, contract, parameters) {
-        var modal = controller.call("modal");
+        var modal = controller.call("modal"),
+                parameters = parameters || {};
+
         modal.title("Crie sua conta iCheques");
         modal.subtitle("Informe seu usuário e senha desejados para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
@@ -192,8 +196,7 @@ module.exports = function (controller) {
                         },
                         success: function () {
                             modal.close();
-                            controller.call("icheques::createAccount::1", $.extend(
-                                    parameters || {}, {
+                            controller.call("icheques::createAccount::1", $.extend(parameters, {
                                 username: username,
                                 password: password
                             }), callback);

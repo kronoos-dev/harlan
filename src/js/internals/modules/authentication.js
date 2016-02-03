@@ -94,8 +94,8 @@ module.exports = function (controller) {
     /**
      * Força uma autenticação
      */
-    controller.registerCall("authentication::force", function (args) {
-        authenticate(args);
+    controller.registerCall("authentication::force", function (apiKey, ret) {
+        authenticate(apiKey, ret);
     });
 
     /**
@@ -123,9 +123,8 @@ module.exports = function (controller) {
                         inputPassword.addClass("error");
                     },
                     success: function (domDocument) {
-                        var jDocument = $(domDocument);
-                        var apiKey = jDocument.find("BPQL > body apiKey").text();
-                        authenticate(apiKey, jDocument);
+                        var apiKey = $("BPQL > body apiKey", domDocument).text();
+                        authenticate(apiKey, domDocument);
 
                         if (savePassword) {
                             setSessionId(apiKey);

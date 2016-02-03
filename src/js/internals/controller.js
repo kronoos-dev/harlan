@@ -183,12 +183,14 @@ var Controller = function () {
     require("./modules/url-parameter")(this);
     require("./modules/result")(this);
     require("./modules/demonstrate")(this);
+    require("./modules/form")(this);
     require("./modules/forgot-password")(this);
     require("./modules/iframe-embed")(this);
     require("./modules/site")(this);
     require("./modules/placas-wiki")(this);
     require("./modules/icheques")(this);
     require("./modules/credits")(this);
+    require("./modules/alert")(this);
 
     /**
      * From day to night and night to day

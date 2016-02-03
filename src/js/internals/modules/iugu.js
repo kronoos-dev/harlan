@@ -8,6 +8,16 @@ var AES = require("crypto-js/aes"),
  */
 module.exports = function (controller) {
 
+    var loaded = false;
+
+    var iuguError = function () {
+        controller.call("alert", {
+            title : "Ocorreu um erro no sistema de pagamentos!",
+            subtitle : "Não foi possível carregar a biblioteca de pagamentos.",
+            paragraph: "Para que o sistema carregue corretamente é necessário que todo o domínio iugu.com esteja liberado, solicite ao seu administrador de redes."
+        });
+    };
+
     var iuguKey = function () {
         return 'iugu_' + controller.confs.iugu.token;
     };
@@ -77,14 +87,14 @@ module.exports = function (controller) {
         modal.subtitle("Você deseja continuar mesmo assim?");
         modal.addParagraph("Quanto mais forte a senha, mais protegido estará o computador contra os hackers e softwares mal-intencionados. Use para uma frase secreta ou senha de no mínimo oito dígitos, com números, caracteres especiais, letras minúsculas e maiúsculas.");
         var form = modal.createForm();
-        
+
         form.element().submit(function (e) {
             e.preventDefault();
             modal.close();
         });
-        
+
         form.addSubmit("changepw", "Mudar Senha");
-        
+
         modal.createActions().add("Eu aceito o risco!").click(function (e) {
             e.preventDefault();
             modal.close();
@@ -228,12 +238,26 @@ module.exports = function (controller) {
     };
 
     controller.registerBootstrap("iugu::init", function (callback) {
+        var alreadyLoaded = false,
+                timeout = setTimeout(function () {
+                    alreadyLoaded = true;
+                    console.error("Iugu can't load");
+                    callback();
+                }, 5000);
+
         $.getScript("https://js.iugu.com/v2", function () {
-            callback(); /* Fucking Done! */
+            loaded = true;
+            clearTimeout(timeout);
+            if (!alreadyLoaded) {
+                callback(); /* Fucking Done! */
+            }
         });
     });
 
     controller.registerCall("iugu::requestPaymentToken", function (callback, passesErrors, password) {
+        if (!loaded) {
+            return iuguError();
+        }
         Iugu.setTestMode(controller.confs.iugu.debug);
         Iugu.setAccountID(controller.confs.iugu.token);
         console.log("Iugu::requestPaymentToken", callback);

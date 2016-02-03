@@ -3,5 +3,9 @@
     "cancel": "Cancelar",
     "return": "Retornar",
     "create": "Criar",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "ok" : "Compreendi",
+    "confirm" : "Confirmar",
+    "back" : "Voltar",
+    "next" : "Próximo"
 }

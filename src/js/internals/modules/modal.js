@@ -1,16 +1,30 @@
+/* global module */
+
 var uniqid = require('uniqid');
+
+var GAMIFICATION_IMAGE = "images/gamification.png";
+new Image().src = GAMIFICATION_IMAGE; /* Preload Image */
+
+var gamificationIcons = require("./data/gamification-icons");
 
 /**
  * Inicializa um modal
  */
 module.exports = function (controller) {
 
-    var modal = function () {
+    var Modal = function () {
         var modal = $("<div />");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
 
         $("body").append(modalContainer);
+
+        this.gamification = function (type) {
+            var image = $("<div />")
+                    .addClass("gamification").addClass(gamificationIcons[type]);
+            modal.append(image);
+            return image;
+        };
 
         this.title = function (content) {
             var h2 = $("<h2 />").text(content);
@@ -77,12 +91,12 @@ module.exports = function (controller) {
                             .addClass("input-label")
                             .attr({'for': obj.id})
                             .text(labelText || placeholder);
-                    
+
                     if (obj.class) {
                         obj.label.addClass(obj.class);
                         input.addClass(obj.class);
                     }
-                    
+
                     var label = obj.append || form;
                     input[obj.labelPosition || "after"](obj.label);
                 }
@@ -175,7 +189,7 @@ module.exports = function (controller) {
                 });
             };
 
-            this.addCheckbox = function (name, label, checked, value) {
+            this.addCheckbox = function (name, label, checked, value, item) {
                 var elementId = uniqid();
 
                 var checkbox = $("<input />").attr({
@@ -185,13 +199,14 @@ module.exports = function (controller) {
                     id: elementId
                 });
 
+                var label;
                 var div = $("<div />")
                         .addClass("checkbox")
                         .append(checkbox)
-                        .append($("<label/>").attr("for", elementId).html(label));
-
-                form.append(div);
-                return [div, checkbox];
+                        .append(label = $("<label/>").attr("for", elementId).html(label));
+                
+                (item.append || form).append(div);
+                return [div, checkbox, label];
             };
 
             this.addSubmit = function (name, value) {
@@ -231,7 +246,7 @@ module.exports = function (controller) {
     };
 
     controller.registerCall("modal", function () {
-        return new modal();
+        return new Modal();
     });
 
 };

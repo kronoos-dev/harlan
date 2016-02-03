@@ -18,6 +18,13 @@ var colorMix = "neutral", colors = {
     success: harmonizer.harmonize("#00ff6b", colorMix)
 };
 
+var messages = {
+    overall: require('../../../markdown/icheques/default.report.html.js'),
+    noOcurrence: require('../../../markdown/icheques/no-ocurrence.report.html.js'),
+    ocurrence: require('../../../markdown/icheques/ocurrence.report.html.js'),
+    processing: require('../../../markdown/icheques/processing.report.html.js')
+};
+
 var parseDate = function (val, format) {
     if (/^\s*$/.test(val))
         return null;
@@ -38,21 +45,21 @@ var AccountOverview = function (controller) {
 
     var report = controller.call("report",
             AccountOverview.prototype.about.title,
-            AccountOverview.prototype.about.subtitle,
-            AccountOverview.prototype.about.description), timeout = null,
+            AccountOverview.prototype.about.subtitle), timeout = null,
             labels = [], doughnut = null, lastDataset = null;
 
-    var mainLabel = report.label("Visão Geral");
-    var i = this;
-    var expression = squel.expr();
+    var status = report.paragraph().html(messages.overall),
+            mainLabel = report.label("Visão Geral"),
+            i = this,
+            expression = squel.expr();
 
-    report.button("Abrir Documentos", function () {
+    var openButton = report.button("Abrir Documentos", function () {
         var querystr = squel
                 .select()
                 .from('ICHEQUES_CHECKS')
                 .where(expression)
                 .toString();
-        
+
         var query = controller.database.exec(querystr)[0];
         if (!query || !query.values) {
             return;
@@ -98,7 +105,7 @@ var AccountOverview = function (controller) {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10 AND QUERY_STATUS != 1)");
             filterLabels.push(report.label("Cheques com Ocorrência"));
         }
-        
+
 
         if (f.endExpiration) {
             expression.and("EXPIRE <= ?", f.endExpiration);
@@ -301,7 +308,8 @@ var AccountOverview = function (controller) {
                 highlight: color.lighten(0.1).hslString(),
                 label: queryResult[i][2] ? numeral(queryResult[i][2] / 100.).format("$0,0.00") : "",
                 ammount: queryResult[i][2],
-                situation: queryResult[i][0]
+                situation: queryResult[i][0],
+                queryStatus: queryResult[i][1]
             });
 
             iteratorColors[iterateColor] += 1;
@@ -309,6 +317,32 @@ var AccountOverview = function (controller) {
 
         return data;
     };
+
+    var manipulationItens = [];
+
+    var manipulateDataset = function (dataset) {
+
+        _.each(manipulationItens, function (e) {
+            e.remove(); /* remove elements */
+        });
+
+        var datasetQueryStatus = _.map(dataset, function (obj) {
+            return obj.queryStatus;
+        });
+
+        if (!_.without(datasetQueryStatus, 1).length) {
+            manipulationItens.push(report.button("Antecipar Cheques").insertBefore(openButton));
+            status.html(messages.noOcurrence);
+        } else if (!_.without(datasetQueryStatus, 10, null).length) {
+            manipulationItens.push(report.button("Requisitar Suporte").insertBefore(openButton));
+            status.html(messages.processing);
+        } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {
+            status.html(messages.ocurrence);
+        } else {
+            status.html(messages.overall);
+        }
+    };
+
 
     var drawDoughnut = function (dataset) {
 
@@ -333,7 +367,16 @@ var AccountOverview = function (controller) {
     };
 
     this.draw = function () {
-        var dataset = generateDataset(), hashDataset = hashObject(dataset);
+
+        var dataset = generateDataset();
+
+        if (!this.showable(true, dataset)) {
+            return;
+        }
+
+        var hashDataset = hashObject(dataset);
+
+        manipulateDataset(dataset);
 
         if (hashDataset === lastDataset) {
             return; /* nothing changed */
@@ -349,6 +392,22 @@ var AccountOverview = function (controller) {
         } else {
             drawDoughnut(dataset);
         }
+    };
+
+    this.showable = function (showAlert, dataset, title, subtitle, paragraph) {
+        if ((dataset || generateDataset()).length) {
+            return true;
+        }
+
+        if (showAlert) {
+            controller.call("alert", {
+                title: title || "Sem cheques para montagem de relatório.",
+                subtitle: subtitle || "Você precisa de alguns cheques para poder poder continuar.",
+                paragraph: paragraph || "Você não possui cheques cadastrados para continuar, insira alguns e tente novamente."
+            });
+        }
+
+        return false;
     };
 
     this.element = function () {
