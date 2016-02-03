@@ -1620,6 +1620,7 @@ input.link {
         }
         padding: 20px;
         &:last-child {
+            box-sizing: border-box;
             width: 100%;
         }
 

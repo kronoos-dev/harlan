@@ -198,14 +198,14 @@ module.exports = function (controller) {
                     id: elementId
                 });
 
-                var label;
+                var lblItem;
                 var div = $("<div />")
                         .addClass("checkbox")
                         .append(checkbox)
-                        .append(label = $("<label/>").attr("for", elementId).html(label));
+                        .append(lblItem = $("<label/>").attr("for", elementId).html(label));
 
                 (item.append || form).append(div);
-                return [div, checkbox, label];
+                return [div, checkbox, lblItem];
             };
 
             this.addSubmit = function (name, value) {
