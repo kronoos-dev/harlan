@@ -159,9 +159,7 @@ module.exports = function (controller) {
             this.addInput = function (name, type, placeholder, obj, labelText) {
                 var id;
 
-                if (!obj) {
-                    obj = {};
-                }
+                obj = obj || {};
 
                 var input = $("<input />").attr({
                     name: name,
@@ -191,6 +189,7 @@ module.exports = function (controller) {
 
             this.addCheckbox = function (name, label, checked, value, item) {
                 var elementId = uniqid();
+                item = item || {};
 
                 var checkbox = $("<input />").attr({
                     type: "checkbox",
@@ -204,7 +203,7 @@ module.exports = function (controller) {
                         .addClass("checkbox")
                         .append(checkbox)
                         .append(label = $("<label/>").attr("for", elementId).html(label));
-                
+
                 (item.append || form).append(div);
                 return [div, checkbox, label];
             };
