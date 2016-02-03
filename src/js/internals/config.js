@@ -1,8 +1,6 @@
 var url = require("url");
 
 module.exports = {
-    webserviceAddress: "http://localhost:9000/",
-    websocketAddress: "ws://localhost:8090",
     proshield: {
         hosts: [
             "proshield",
