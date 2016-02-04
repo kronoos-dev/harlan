@@ -44,7 +44,7 @@ module.exports = function (controller) {
                     email = inputEmail.val();
 
             if (!VALIDATE_NAME.test(name)) {
-                errors.push("O nome informado não é válido.");
+                errors.push("O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.");
                 inputName.addClass("error");
             } else {
                 inputName.removeClass("error");
@@ -91,7 +91,7 @@ module.exports = function (controller) {
             }
 
             if (errors.length) {
-                for (var i in errors.length) {
+                for (var i in errors) {
                     toastr.warning(errors[i], "Não foi possível prosseguir");
                 }
                 return;
@@ -183,7 +183,7 @@ module.exports = function (controller) {
             }
 
             if (errors.length) {
-                for (var i in errors.length) {
+                for (var i in errors) {
                     toastr.warning(errors[i], "Não foi possível prosseguir");
                 }
                 return;

@@ -90,7 +90,7 @@ module.exports = function (controller) {
                     obj.label = $("<label />")
                             .addClass("input-label")
                             .attr({'for': obj.id})
-                            .text(labelText || placeholder);
+                            .html(labelText || placeholder);
 
                     if (obj.class) {
                         obj.label.addClass(obj.class);

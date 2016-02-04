@@ -44,6 +44,14 @@
             </ul>
             <ul>
                 <li>
+                    <a href="#" id="action-change-password"><i class="fa fa-lock"></i></a>
+                    <div class="mdl-tooltip" for="action-password" data-i18n="index.changePassword">
+                        Nova Senha
+                    </div>                
+                </li>
+            </ul>
+            <ul>
+                <li>
                     <a href="#" id="action-show-modules"><i class="fa fa-cubes"></i></a>
                     <div class="mdl-tooltip" for="action-show-modules" data-i18n="index.modules">
                         Módulos

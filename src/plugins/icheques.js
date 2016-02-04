@@ -26,6 +26,7 @@
     require("./lib/icheques/welcome")(controller);
     require("./lib/icheques/full-profile")(controller);
     require("./lib/icheques/bank-profile")(controller);
+    require("./lib/icheques/antecipate")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar 

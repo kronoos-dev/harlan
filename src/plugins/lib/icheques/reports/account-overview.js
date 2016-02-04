@@ -53,7 +53,86 @@ var AccountOverview = function (controller) {
             i = this,
             expression = squel.expr();
 
-    var openButton = report.button("Abrir Documentos", function () {
+    var modalFilter = function () {
+        /* How deep is your love? */
+
+        var modal = controller.call("modal");
+        modal.title("Filtrar Resultados");
+        modal.subtitle("Adicione filtros a sua consulta.");
+        var form = modal.createForm();
+
+        var multiFieldCreation = form.multiField(),
+                multiFieldExpire = form.multiField(),
+                multiFieldValue = form.multiField().addClass("double-margin"),
+                initExpiration = form.addInput("init-expire", "text", "00/00/00", {
+                    append: multiFieldExpire,
+                    labelPosition: "before",
+                    class: "labelShow"
+                }, "Expiração").mask("00/00/0000"),
+                endExpiration = form.addInput("end-expire", "text", "00/00/00", {
+                    append: multiFieldExpire,
+                    labelPosition: "before",
+                    class: "labelShow"
+                }, "Expiração até").mask("00/00/0000"),
+                initCreation = form.addInput("init-creation", "text", "00/00/00", {
+                    append: multiFieldCreation,
+                    labelPosition: "before",
+                    class: "labelShow"
+                }, "Criação").mask("00/00/0000"),
+                endCreation = form.addInput("end-creation", "text", "00/00/00", {
+                    append: multiFieldCreation,
+                    labelPosition: "before",
+                    class: "labelShow"
+                }, "Criação Até").mask("00/00/0000"),
+                initAmmount = form.addInput("init-ammount", "text", "Valor", {
+                    append: multiFieldValue,
+                    class: "money",
+                    labelPosition: "before"
+                }, "R$").mask('000.000.000.000.000,00', {reverse: true}),
+                endAmmount = form.addInput("end-ammount", "text", "Valor Até", {
+                    append: multiFieldValue,
+                    class: "money",
+                    labelPosition: "before"
+                }, "R$").mask('000.000.000.000.000,00', {reverse: true});
+
+        _.each([initCreation, endCreation, initExpiration, endExpiration], function (e) {
+            e.pikaday();
+        });
+
+        var filter = form.addSelect("filter-overview", "Cheques", [
+            "Todos os tipos de cheque",
+            "Cheques processados",
+            "Cheques em processamento",
+            "Cheques sem ocorrências",
+            "Cheques com ocorrências"
+        ]);
+
+        form.element().submit(function (e) {
+            e.preventDefault();
+            reportFilter({
+                initExpiration: parseDate(initExpiration.val(), "YYYYMMDD"),
+                endExpiration: parseDate(endExpiration.val(), "YYYYMMDD"),
+                initCreation: parseDate(initCreation.val()),
+                endCreation: parseDate(endCreation.val()),
+                initAmmount: parseValue(initAmmount.val()),
+                endAmmount: parseValue(endAmmount.val()),
+                filter: filter.val()
+            });
+            modal.close();
+        });
+
+        form.addSubmit("filter", "Filtrar");
+
+        modal.createActions().add("Cancelar").click(function (e) {
+            e.preventDefault();
+            modal.close();
+        });
+
+    };
+
+
+    var filterLabels = [];
+    var openDocuments = function () {
         var querystr = squel
                 .select()
                 .from('ICHEQUES_CHECKS')
@@ -66,13 +145,9 @@ var AccountOverview = function (controller) {
         }
 
         controller.call("icheques::show::query", query);
-    });
-
-    report.newContent();
-
-    var canvas = report.canvas(250, 250);
-
-    var filterLabels = [];
+    };
+    
+    
     var reportFilter = function (f) {
         _.each(filterLabels, function (e) {
             e.remove();
@@ -154,82 +229,12 @@ var AccountOverview = function (controller) {
         i.draw();
     };
 
-    report.newAction("fa-filter", function () {
-        /* How deep is your love? */
+    report.newAction("fa-folder-open", openDocuments);
+    var openButton = report.button("Filtrar Cheques", modalFilter);
 
-        var modal = controller.call("modal");
-        modal.title("Filtrar Resultados");
-        modal.subtitle("Adicione filtros a sua consulta.");
-        var form = modal.createForm();
+    report.newContent();
 
-        var multiFieldCreation = form.multiField(),
-                multiFieldExpire = form.multiField(),
-                multiFieldValue = form.multiField().addClass("double-margin"),
-                initExpiration = form.addInput("init-expire", "text", "00/00/00", {
-                    append: multiFieldExpire,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Expiração").mask("00/00/0000"),
-                endExpiration = form.addInput("end-expire", "text", "00/00/00", {
-                    append: multiFieldExpire,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Expiração até").mask("00/00/0000"),
-                initCreation = form.addInput("init-creation", "text", "00/00/00", {
-                    append: multiFieldCreation,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Criação").mask("00/00/0000"),
-                endCreation = form.addInput("end-creation", "text", "00/00/00", {
-                    append: multiFieldCreation,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Criação Até").mask("00/00/0000"),
-                initAmmount = form.addInput("init-ammount", "text", "Valor", {
-                    append: multiFieldValue,
-                    class: "money",
-                    labelPosition: "before"
-                }, "R$").mask('000.000.000.000.000,00', {reverse: true}),
-                endAmmount = form.addInput("end-ammount", "text", "Valor Até", {
-                    append: multiFieldValue,
-                    class: "money",
-                    labelPosition: "before"
-                }, "R$").mask('000.000.000.000.000,00', {reverse: true});
-
-        _.each([initCreation, endCreation, initExpiration, endExpiration], function (e) {
-            e.pikaday();
-        });
-
-        var filter = form.addSelect("filter-overview", "Cheques", [
-            "Todos os tipos de cheque",
-            "Cheques processados",
-            "Cheques em processamento",
-            "Cheques sem ocorrências",
-            "Cheques com ocorrências"
-        ]);
-
-        form.element().submit(function (e) {
-            e.preventDefault();
-            reportFilter({
-                initExpiration: parseDate(initExpiration.val(), "YYYYMMDD"),
-                endExpiration: parseDate(endExpiration.val(), "YYYYMMDD"),
-                initCreation: parseDate(initCreation.val()),
-                endCreation: parseDate(endCreation.val()),
-                initAmmount: parseValue(initAmmount.val()),
-                endAmmount: parseValue(endAmmount.val()),
-                filter: filter.val()
-            });
-            modal.close();
-        });
-
-        form.addSubmit("filter", "Filtrar");
-
-        modal.createActions().add("Cancelar").click(function (e) {
-            e.preventDefault();
-            modal.close();
-        });
-
-    });
+    var canvas = report.canvas(250, 250);
 
     /**
      * Agrupa resultados com menos de 5% evitando problemas no gráfico
@@ -331,12 +336,24 @@ var AccountOverview = function (controller) {
         });
 
         if (!_.without(datasetQueryStatus, 1).length) {
-            manipulationItens.push(report.button("Antecipar Cheques").insertBefore(openButton));
+            manipulationItens.push(report.button("Antecipar Cheques", function () {
+                controller.call("icheques::antecipate",
+                        controller.registerCall("icheques::resultDatabase", controller.database.exec(squel
+                                .select()
+                                .from('ICHEQUES_CHECKS')
+                                .where(expression)
+                                .toString())[0]));
+            }).insertBefore(openButton));
             status.html(messages.noOcurrence);
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
-            manipulationItens.push(report.button("Requisitar Suporte").insertBefore(openButton));
+            manipulationItens.push(report.button("Requisitar Suporte", function () {
+                controller.call("support");
+            }).insertBefore(openButton));
             status.html(messages.processing);
         } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {
+            manipulationItens.push(report.button("Abrir Documentos", function () {
+                openDocuments();
+            }).insertBefore(openButton));
             status.html(messages.ocurrence);
         } else {
             status.html(messages.overall);

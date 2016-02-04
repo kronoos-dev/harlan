@@ -38,7 +38,7 @@ module.exports = function (controller) {
                 .addClass("icheque")
                 .click(function (e) {
                     e.preventDefault();
-                    controller.call("icheques::show", databaseResult.values);
+                    controller.call("icheques::show", databaseResult.values, null, true);
                 });
 
         callback();
@@ -64,7 +64,7 @@ module.exports = function (controller) {
             args[1].item("iCheques", "Relatório Geral de Cheques", sprintf("Documento: %s Cheque: %s", databaseResult.values[i].cpf ||
                     databaseResult.values[i].cnpj, CMC7_MASK.apply(databaseResult.values[i].cmc))).addClass("icheque").click(function (e) {
                 e.preventDefault();
-                controller.call("icheques::show", [databaseResult.values[i]]);
+                controller.call("icheques::show", [databaseResult.values[i]], null, true);
             });
         }
 

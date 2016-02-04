@@ -324,6 +324,19 @@ $color: #feefc4;
         background: url(../images/textures/brilliant.png),linear-gradient(260deg,#A9C3A3 -319%,#FFF 130%);
     }
 
+    &.warning {
+        & > header {
+            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);        
+
+            h2:before {
+                font-family: "FontAwesome";
+                content: "\f071"; 
+                margin-right: 8px;
+                font-size: 18px;
+            }
+        }
+    }
+
     &.loading {
         & > header {
             background: url(../images/textures/brilliant.png),linear-gradient(180deg,#33F700 -200%,#FFF 130%);

@@ -21,7 +21,7 @@ module.exports = function (controller) {
                 loaderTimeout = setTimeout(function () {
                     unregister = $.bipbopLoader.register();
                 }, 1000);
-                
+
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
             success: function (ret) {
                 var storage = [];
@@ -41,8 +41,7 @@ module.exports = function (controller) {
         }));
     });
 
-    var showCheck = function (check, result) {
-        console.log(check);
+    var showCheck = function (check, result, section) {
         var separator = result.addSeparator("Verificação de Cheque",
                 "Verificação de Dados do Cheque",
                 "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")));
@@ -88,6 +87,8 @@ module.exports = function (controller) {
 
                 if (check.queryStatus !== 1) {
                     elementClass = "error";
+                    section[0].addClass("warning");
+                    separator.find("h4").text(check.situation);
                 }
 
                 separator.addClass(elementClass);
@@ -109,9 +110,9 @@ module.exports = function (controller) {
         return documentUpdate;
     };
 
-    var showChecks = function (checks, result) {
+    var showChecks = function (checks, result, section) {
         for (var i in checks) {
-            showCheck(checks[i], result);
+            showCheck(checks[i], result, section);
         }
     };
 
@@ -123,7 +124,7 @@ module.exports = function (controller) {
                 result = controller.call("result");
         section[1].append(result.element());
         section[0].addClass("icheque loading");
-        showChecks(task[1], result);
+        showChecks(task[1], result, section);
         callback(null, section);
         controller.serverCommunication.call("SELECT FROM 'CBUSCA'.'CONSULTA'", {
             cache: true,
@@ -140,6 +141,8 @@ module.exports = function (controller) {
                 section[0].removeClass("loading");
             }
         });
+
+        return section[0];
     };
 
     controller.registerCall("icheques::resultDatabase", function (databaseResult) {
@@ -169,7 +172,7 @@ module.exports = function (controller) {
         controller.call("icheques::show", query.values);
     });
 
-    controller.registerCall("icheques::show", function (storage, callback) {
+    controller.registerCall("icheques::show", function (storage, callback, prepend) {
         var documents = _.groupBy(storage, function (a) {
             return a.cpf || a.cnpj;
         });
@@ -178,7 +181,7 @@ module.exports = function (controller) {
 
             /** @TODO Trocar para novo modelo */
             for (var i in results) {
-                $(".app-content").append(results[i][0]);
+                $(".app-content")[prepend ? "prepend" : "append" ](results[i][0]);
             }
 
             if (callback) {

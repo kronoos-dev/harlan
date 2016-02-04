@@ -122,7 +122,7 @@ module.exports = function (controller) {
         var form = modal.createForm();
         var dataCMC7 = {};
         var dataCPF = {};
-        var inputCMC7 = form.addInput("CMC7", "text", "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 (?)").val(cmcValue).mask("00000000 0000000000 000000000000");
+        var inputCMC7 = form.addInput("CMC7", "text", "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 <a href=\"#\">(Ajuda)</a>").val(cmcValue).mask("00000000 0000000000 000000000000");
         var options = {
             onKeyPress: function (input, e, field, options) {
                 var masks = ['000.000.000-009', '00.000.000/0000-00'],
@@ -130,7 +130,7 @@ module.exports = function (controller) {
                 inputDocument.mask(mask, options);
             }
         };
-        var inputDocument = form.addInput("CPF/CNPJ", "text", "CPF/CNPJ impresso no cheque.", dataCPF, "CPF/CNPJ (?)").mask("000.000.000-00", options).val(cpfValue || "");
+        var inputDocument = form.addInput("CPF/CNPJ", "text", "CPF/CNPJ impresso no cheque.", dataCPF, "CPF/CNPJ <a href=\"#\">(Ajuda)</a>").mask("000.000.000-00", options).val(cpfValue || "");
 
         dataCMC7.label.addClass("help cmc7");
         dataCPF.label.addClass("help cmc7");

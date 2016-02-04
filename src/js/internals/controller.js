@@ -191,6 +191,7 @@ var Controller = function () {
     require("./modules/icheques")(this);
     require("./modules/credits")(this);
     require("./modules/alert")(this);
+    require("./modules/password")(this);
 
     /**
      * From day to night and night to day
