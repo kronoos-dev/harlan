@@ -258,7 +258,6 @@ module.exports = function (controller) {
         if (!loaded) {
             return iuguError();
         }
-        Iugu.setTestMode(controller.confs.iugu.debug);
         Iugu.setAccountID(controller.confs.iugu.token);
         console.log("Iugu::requestPaymentToken", callback);
         getPaymentToken(function (paymentToken) {

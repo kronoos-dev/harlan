@@ -22,7 +22,7 @@ module.exports = {
         swfPath: "/assets/ZeroClipboard.swf"
     },
     iugu: {
-        debug: true,
+        debug: false,
         token: "44176a3c-50ec-4c45-b092-1d957813d22d"
     },
     oauthKey: "AYY0iBNDo95aIcw--iWIqa71ZJs",
