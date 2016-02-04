@@ -165,7 +165,7 @@ module.exports = function (controller) {
                 errors.push("O nome de usuário esta em branco.");
             } else if (!/^[a-z]{4,}$/i.test(username)) {
                 inputUsername.addClass("error");
-                errors.push("O nome de usuário é inválido.");
+                errors.push("O nome de usuário deve ter mais de 3 dígitos e não pode conter caracteres especiais.");
             } else {
                 inputUsername.removeClass("erricheques::createAccountor");
             }
