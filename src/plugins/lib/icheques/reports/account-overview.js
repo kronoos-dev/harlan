@@ -12,6 +12,8 @@ var Harmonizer = require("color-harmony").Harmonizer,
         changeCase = require('change-case');
 
 var controller;
+var updateRegister = [];
+var async = require("async");
 var harmonizer = new Harmonizer();
 var colorMix = "neutral", colors = {
     error: harmonizer.harmonize("#ff1a53", colorMix),
@@ -146,8 +148,8 @@ var AccountOverview = function () {
 
         controller.call("icheques::show::query", query);
     };
-    
-    
+
+
     var reportFilter = function (f) {
         _.each(filterLabels, function (e) {
             e.remove();
@@ -399,7 +401,7 @@ var AccountOverview = function () {
             return; /* nothing changed */
         }
 
-        hashDataset = lastDataset;
+        lastDataset = hashDataset;
 
         if (timeout) {
             clearTimeout(timeout);
@@ -431,6 +433,19 @@ var AccountOverview = function () {
         return report.element();
     };
 
+    var selfie = this;
+    var draw = function () {
+        selfie.draw();
+    };
+    
+    updateRegister.push(draw);
+    report.onClose = function () {
+        var idx = updateRegister.indexOf(draw);
+        if (idx !== -1)
+            delete updateRegister[idx];
+
+    };
+
     return this;
 };
 
@@ -440,7 +455,14 @@ AccountOverview.prototype.about = {
     description: "Verifique os principais motivos dos cheques estarem ruins na sua carteira, sejam por sustação, cadastro incorreto e demais."
 };
 
+
+
 module.exports = function (c) {
     controller = c;
+
+    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "ichequeUpdate::draw::serverCommunication::websocket", function (obj, cb) {
+        async.parallel(updateRegister, cb);
+    });
+
     return AccountOverview;
 };

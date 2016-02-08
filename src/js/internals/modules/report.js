@@ -94,6 +94,9 @@ var ReportModel = function (closeable) {
     };
 
     this.close = function () {
+        if (this.onClose) {
+            this.onClose();
+        }
         elementNews.remove();
     };
 

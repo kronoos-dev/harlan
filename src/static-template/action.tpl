@@ -45,7 +45,7 @@
             <ul>
                 <li>
                     <a href="#" id="action-change-password"><i class="fa fa-lock"></i></a>
-                    <div class="mdl-tooltip" for="action-password" data-i18n="index.changePassword">
+                    <div class="mdl-tooltip" for="action-change-password" data-i18n="index.changePassword">
                         Nova Senha
                     </div>                
                 </li>

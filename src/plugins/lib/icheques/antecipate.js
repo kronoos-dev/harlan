@@ -22,7 +22,7 @@ module.exports = function (controller) {
         if (!banks.length) {
             controller.call("alert", {
                 title: "Você não tem o perfil aprovado por nenhum fundo.",
-                subtitle: "Atualize seu dados bancários, cadastrais e procure uma factoring iCheques para habilitar essa função."
+                subtitle: "Atualize seus dados bancários, cadastrais e procure uma factoring iCheques para habilitar essa função."
             });
             return;
         }

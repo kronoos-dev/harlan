@@ -27,5 +27,8 @@ module.exports = {
     googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
     web3: {
         endpoint: "http://localhost:8545"
+    },
+    gcm: {
+        apiKey : "AIzaSyAwitAYDKWMC4WYfF4YW5pTVN_GS1yxa-8"
     }
 };
