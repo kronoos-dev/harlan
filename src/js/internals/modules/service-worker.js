@@ -1,6 +1,4 @@
-/* global module */
-
-"use strict";
+/* global module, navigator, console */
 
 module.exports = function (controller) {
 

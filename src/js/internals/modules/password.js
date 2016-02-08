@@ -36,7 +36,7 @@ module.exports = function (controller) {
         modal.addParagraph(PASSWORD_TIPS[Math.floor(Math.random() * PASSWORD_TIPS.length)]);
         var form = modal.createForm(),
                 inputPassword = form.addInput("password", "password", "Senha Antiga"),
-                inputPassword = form.addInput("password", "password", "Nova Senha"),
+                inputNewPassword = form.addInput("password", "password", "Nova Senha"),
                 inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha");
 
         form.addSubmit("login", "Alterar Senha");
@@ -45,18 +45,19 @@ module.exports = function (controller) {
             e.preventDefault();
 
             var errors = [],
-                    password = inputPassword.val(),
+                    oldPassword = inputPassword.val(),
+                    password = inputNewPassword.val(),
                     confirmPassword = inputConfirmPassword.val();
 
             if (!SAFE_PASSWORD.test(password)) {
-                inputPassword.addClass("error");
+                inputNewPassword.addClass("error");
                 errors.push("A senha deve possuir no mínimo 6 dígitos.");
             } else if (password !== confirmPassword) {
-                inputPassword.addClass("error");
+                inputNewPassword.addClass("error");
                 inputConfirmPassword.addClass("error");
                 errors.push("A senha não confere");
             } else {
-                inputPassword.removeClass("error");
+                inputNewPassword.removeClass("error");
                 inputConfirmPassword.removeClass("error");
             }
 

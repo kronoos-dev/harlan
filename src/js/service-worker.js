@@ -1,7 +1,5 @@
 /* global self, clients */
 
-"use strict";
-
 self.addEventListener('push', function (event) {
     event.waitUntil(self.registration.showNotification("Temos uma mensagem para você!", {
         body: 'Você recebeu uma mensagem, para acessar clique aqui e abra sua conta.',
