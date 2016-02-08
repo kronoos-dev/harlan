@@ -11,6 +11,7 @@ var Harmonizer = require("color-harmony").Harmonizer,
         squel = require("squel"),
         changeCase = require('change-case');
 
+var controller;
 var harmonizer = new Harmonizer();
 var colorMix = "neutral", colors = {
     error: harmonizer.harmonize("#ff1a53", colorMix),
@@ -40,8 +41,7 @@ var parseValue = function (val) {
     return /^\s*$/.test(val) ? null : numeral(val)._value;
 };
 
-
-var AccountOverview = function (controller) {
+var AccountOverview = function () {
 
     var report = controller.call("report",
             AccountOverview.prototype.about.title,
@@ -338,7 +338,7 @@ var AccountOverview = function (controller) {
         if (!_.without(datasetQueryStatus, 1).length) {
             manipulationItens.push(report.button("Antecipar Cheques", function () {
                 controller.call("icheques::antecipate",
-                        controller.registerCall("icheques::resultDatabase", controller.database.exec(squel
+                        controller.call("icheques::resultDatabase", controller.database.exec(squel
                                 .select()
                                 .from('ICHEQUES_CHECKS')
                                 .where(expression)
@@ -440,4 +440,7 @@ AccountOverview.prototype.about = {
     description: "Verifique os principais motivos dos cheques estarem ruins na sua carteira, sejam por sustação, cadastro incorreto e demais."
 };
 
-module.exports = AccountOverview;
+module.exports = function (c) {
+    controller = c;
+    return AccountOverview;
+};

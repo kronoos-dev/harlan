@@ -20,6 +20,9 @@ module.exports = function (controller) {
 
     controller.registerTrigger("authentication::authenticated", "module::authenticated", function (args, callback) {
         controller.serverCommunication.call("SELECT FROM 'HARLANMODULES'.'JS'", {
+            error: function () {
+                callback(Array.from(arguments));
+            },
             success: function (ret) {
 
                 installedModules = ret;

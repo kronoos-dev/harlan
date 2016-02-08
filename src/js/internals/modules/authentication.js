@@ -65,13 +65,25 @@ module.exports = function (controller) {
         modal.title("Você esta saíndo da conta.");
         modal.subtitle("Aguarde enquanto a página é recarregada para sua segurança.");
         modal.addParagraph("Esperamos que sua visita tenha sido proveitosa e sua experiência incrível.");
-        controller.serverCommunication.apiKey(BIPBOP_FREE);
-        controller.call("default::page");
-        $("#input-username").val("");
-        $("#input-password").val("");
-        $("#input-save-password").removeAttr("checked");
-        setSessionId(null);
-        location.reload(true); /* prevent information leak */
+
+        var loggedout = false, logout = function () {
+            loggedout = true;
+            controller.serverCommunication.apiKey(BIPBOP_FREE);
+            controller.call("default::page");
+            $("#input-username").val("");
+            $("#input-password").val("");
+            $("#input-save-password").removeAttr("checked");
+            setSessionId(null);
+            location.reload(true); /* prevent information leak */
+        }, timeout = setTimeout(logout, 10000);
+
+        controller.trigger("authentication::logout", null, function () {
+            if (loggedout) {
+                return;
+            }
+            clearTimeout(timeout);
+            logout();
+        });
     });
 
     controller.registerCall("authentication::loggedin", function () {
@@ -84,7 +96,11 @@ module.exports = function (controller) {
             return false;
         }
         controller.serverCommunication.apiKey(key);
-        controller.trigger("authentication::authenticated", ret, function () {
+        controller.trigger("authentication::authenticated", ret, function (err) {
+            if (err) {
+                controller.call("default::page");
+                return;
+            }
             controller.call("authentication::loggedin");
         });
 

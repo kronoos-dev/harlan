@@ -23,6 +23,9 @@ module.exports = function (controller) {
                 }, 1000);
 
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
+            error: function () {
+                callback(Array.from(arguments));
+            },
             success: function (ret) {
                 var storage = [];
                 $(ret).find("check").each(function () {

@@ -5,20 +5,20 @@ module.exports = function (controller) {
     var dictReports = {
         "icheques::report::overview": {
             findRegex: /cheque/i,
-            method: require("./reports/account-overview")
+            method: require("./reports/account-overview")(controller)
         }
     };
 
     for (var i in dictReports) {
         controller.registerCall(i, function (showAlert) {
-            var report = new (dictReports[i].method)(controller);
+            var report = new (dictReports[i].method);
             if (report.showable(showAlert)) {
                 $(".app-content").prepend(report.element());
                 report.draw();
             }
         });
     }
-
+    
     controller.registerTrigger("findDatabase::instantSearch", "icheques::report", function (args, callback) {
         callback();
         for (var i in dictReports) {

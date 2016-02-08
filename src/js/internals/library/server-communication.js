@@ -5,6 +5,7 @@
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
 
+var SHA256 = require("crypto-js/sha256");
 
 module.exports = function (controller) {
 
@@ -48,6 +49,10 @@ module.exports = function (controller) {
 
     this.freeKey = function () {
         return bipbopApiKey === BIPBOP_FREE;
+    };
+    
+    this.userHash = function () {
+        return SHA256(bipbopApiKey);
     };
 
     /* BIPBOP API Key */

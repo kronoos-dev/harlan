@@ -18,11 +18,7 @@ module.exports = {
     instantSearchDelay: 500, /* ms */
     animatedShowTable: 300,
     hideAutocomplete: 300,
-    zeroClipboard: {
-        swfPath: "/assets/ZeroClipboard.swf"
-    },
     iugu: {
-        debug: false,
         token: "44176a3c-50ec-4c45-b092-1d957813d22d"
     },
     oauthKey: "AYY0iBNDo95aIcw--iWIqa71ZJs",
@@ -31,8 +27,5 @@ module.exports = {
     googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
     web3: {
         endpoint: "http://localhost:8545"
-    },
-    roost: {
-        apiKey : ""
     }
 };

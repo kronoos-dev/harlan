@@ -70,6 +70,12 @@ module.exports = function (controller) {
                 item.elementLabel = checkbox[2].addClass("checkbox");
             } else if (item.type === "select") {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText);
+            } else if (item.type === "textarea") {
+                item.element = form.addTextarea(item.name, item.type, item.placeholder, item, item.labelText);
+
+                if (screen.magicLabel || item.magicLabel) {
+                    item.element.magicLabel(item.label);
+                }
             } else {
                 item.element = form.addInput(item.name, item.type, item.placeholder, item, item.labelText);
 

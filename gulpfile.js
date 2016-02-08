@@ -82,6 +82,7 @@
 
     gulp.task("manifest", function () {
         return gulp.src([
+            "manifest.json",
             "CNAME",
             "src/robots.txt"
         ]).pipe(gulp.dest("Server/web"));
@@ -262,6 +263,22 @@
                 .pipe(gulp.dest("Server/web/js"));
     });
 
+    gulp.task("build-service-worker", function () {
+        return browserify({
+            entries: "./src/js/service-worker.js",
+            debug: true
+        })
+                .transform(babelify, {presets: ["es2015", "react"]})
+                .bundle()
+                .pipe(source("service-worker.js"))
+                .pipe(buffer())
+                .pipe(gulpif(DEVEL, sourcemaps.init({loadMaps: true})))
+                .pipe(gulpif(PRODUCTION, thotypous()))
+                .pipe(concat("service-worker.js"))
+                .pipe(gulpif(DEVEL, sourcemaps.write(".")))
+                .pipe(gulp.dest("Server/web"));
+    });
+
     gulp.task("build-installer", ["build-application"], function () {
         return browserify({
             entries: "./src/js/app-installer.js",
@@ -353,6 +370,8 @@
     });
 
     gulp.task("build", [
+        "build-service-worker",
+        "manifest",
         "legal",
         "jshint",
         "build-plugins",
@@ -374,9 +393,11 @@
         livereload.listen();
         gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build-installer", "build-application"]);
         gulp.watch(["src/scss/*", "src/scss/*.scss"], ["build-styles"]);
+        gulp.watch(["src/js/service-worker.js"], ["build-service-worker"]);
         gulp.watch([
             "src/js/*.js",
             "src/js/internals/**/*.js",
+            "!src/js/service-worker.js",
             "!src/js/app-installer.js",
             "!src/js/app-inflate.js",
             "!src/js/internals/i18n/**/*.js"], ["jshint", "build-application", "build-installer"]);

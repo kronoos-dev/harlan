@@ -156,7 +156,27 @@ module.exports = function (controller) {
                 return new createList(this, instance);
             };
 
-            this.addInput = function (name, type, placeholder, obj, labelText) {
+            this.addTextarea = function (name, type, placeholder, obj, labelText, value) {
+                var id;
+
+                obj = obj || {};
+
+                var input = $("<textarea />").attr({
+                    name: name,
+                    type: type,
+                    placeholder: placeholder,
+                    autocomplete: false,
+                    autocapitalize: false
+                }).text(value);
+
+                var a = obj.append || form;
+                a.append(input);
+                createLabel(input, obj, labelText, placeholder);
+
+                return input;
+            };
+
+            this.addInput = function (name, type, placeholder, obj, labelText, value) {
                 var id;
 
                 obj = obj || {};
@@ -166,7 +186,8 @@ module.exports = function (controller) {
                     type: type,
                     placeholder: placeholder,
                     autocomplete: false,
-                    autocapitalize: false
+                    autocapitalize: false,
+                    value: value
                 });
 
                 var a = obj.append || form;

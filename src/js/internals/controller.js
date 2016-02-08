@@ -136,6 +136,9 @@ var Controller = function () {
         });
     };
 
+    /* Service Worker */
+    require("./modules/service-worker")(this);
+
     /* Web3 */
     require("./modules/web3");
 
@@ -157,7 +160,6 @@ var Controller = function () {
     require("./modules/loader")(this);
     require("./modules/error")(this);
     require("./modules/endpoint")(this);
-    require("./modules/clipboard")(this);
     require("./modules/remove")(this);
     require("./modules/database-search")(this);
     require("./modules/comments")(this);
@@ -191,6 +193,7 @@ var Controller = function () {
     require("./modules/icheques")(this);
     require("./modules/credits")(this);
     require("./modules/alert")(this);
+    require("./modules/push-notification")(this);
     require("./modules/password")(this);
 
     /**

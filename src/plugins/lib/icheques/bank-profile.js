@@ -133,6 +133,7 @@ module.exports = function (controller) {
         actions.add("Pesquisa Factoring").click(function (e) {
             e.preventDefault();
             modal.close();
+            controller.call("icheques::factoring::search");
         });
 
         actions.add("Sair").click(function (e) {
