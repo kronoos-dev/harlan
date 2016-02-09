@@ -58,7 +58,7 @@ var ReportModel = function (closeable) {
         var icon = $("<i />")
                 .addClass(gamificationIcons[type])
                 .addClass("gamification");
-        elementContent.append(icon);
+        elementContent.append(icon).addClass("container-gamification");
         return icon;
     };
 

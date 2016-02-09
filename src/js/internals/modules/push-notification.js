@@ -84,7 +84,6 @@ module.exports = function (controller) {
                     });
                 });
             });
-            report.newContent();
             report.gamification("socialShare");
             $(".app-content").append(report.element());
         });

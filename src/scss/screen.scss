@@ -1524,31 +1524,6 @@ input.link {
 
 }
 
-.gamification {
-    float: left;
-    width: 166px;
-    height: 166px;
-    display: inline-block;
-    background: url(../images/gamification.png);
-    backgroud-position: 50px 50px;
-
-    $init-x: -120px;
-    $init-y: -86px;
-
-    background-position-x: $init-x;
-    background-position-y: $init-y;
-    margin-right: 30px;
-
-    @for $x from 0 through 4 {
-        @for $y from 0 through 4 {
-            &.icon-#{$y}-#{$x} {
-                background-position-x: ($x * -196px) + $init-x;
-                background-position-y: ($y * -225px) + $init-y;
-            }
-        }
-    }
-}
-
 .magic-label-hide {
     transition: 300ms opacity; 
     opacity: 0;
@@ -1674,6 +1649,41 @@ input.link {
 
     .gamification {
         margin: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .container-gamification {
+        display: none;
+    }
+}
+
+.gamification {
+    float: left;
+    width: 166px;
+    height: 166px;
+    display: inline-block;
+    background: url(../images/gamification.svg);
+    backgroud-position: 50px 50px;
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+
+    $init-x: -120px;
+    $init-y: -86px;
+
+    background-position-x: $init-x;
+    background-position-y: $init-y;
+    margin-right: 30px;
+
+    @for $x from 0 through 4 {
+        @for $y from 0 through 4 {
+            &.icon-#{$y}-#{$x} {
+                background-position-x: ($x * -196px) + $init-x;
+                background-position-y: ($y * -225px) + $init-y;
+            }
+        }
     }
 }
 
