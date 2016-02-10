@@ -6,7 +6,7 @@ module.exports = function (controller) {
         callback();
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js', {scope: './'}).then(function () {
-                console.log("Whatever");
+                console.log('ServiceWorker Running');
             }).catch(function (err) {
                 // registration failed :(
                 console.log('ServiceWorker registration failed: ', err);

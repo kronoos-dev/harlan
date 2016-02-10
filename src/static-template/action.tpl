@@ -44,6 +44,12 @@
             </ul>
             <ul>
                 <li>
+                    <a href="#" id="action-subaccount"><i class="fa fa-users"></i></a>
+                    <div class="mdl-tooltip" for="action-subaccount" data-i18n="index.subaccount">
+                        Subcontas
+                    </div>                
+                </li>
+                <li>
                     <a href="#" id="action-change-password"><i class="fa fa-lock"></i></a>
                     <div class="mdl-tooltip" for="action-change-password" data-i18n="index.changePassword">
                         Nova Senha

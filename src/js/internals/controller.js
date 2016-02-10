@@ -195,6 +195,7 @@ var Controller = function () {
     require("./modules/alert")(this);
     require("./modules/push-notification")(this);
     require("./modules/password")(this);
+    require("./modules/subaccount")(this);
 
     /**
      * From day to night and night to day

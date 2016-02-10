@@ -7,29 +7,21 @@ module.exports = function (controller) {
     };
 
     controller.registerTrigger("authentication::logout", "pushNotification::authentication::logout", function (opts, cb) {
-        var onError = function (e) {
-            console.error('Error thrown while unsubscribing from push messaging.', e);
+        if (!localStorage[keyPushEndpoint()]) {
             cb();
-        };
+            return;
+        }
 
-        navigator.serviceWorker.ready.then(function (serviceWorkerRegistration) {
-            serviceWorkerRegistration.pushManager.getSubscription().then(function (subscription) {
-                controller.serverCommunication.call("DELETE FROM 'HARLANPUSH'.'ENDPOINT'",
-                        controller.call("error::ajax", {
-                            data: {
-                                endpoint: subscription ? subscription.endpoint : localStorage[keyPushEndpoint()]
-                            },
-                            complete: function () {
-                                delete localStorage[keyPushEndpoint()];
-                                if (subscription) {
-                                    subscription.unsubscribe().then(function () {
-                                        cb();
-                                    }).catch(onError);
-                                }
-                            }
-                        }));
-            }).catch(onError);
-        }).catch(onError);
+        controller.serverCommunication.call("DELETE FROM 'HARLANPUSH'.'ENDPOINT'",
+                controller.call("error::ajax", {
+                    data: {
+                        endpoint: localStorage[keyPushEndpoint()]
+                    },
+                    complete: function () {
+                        delete localStorage[keyPushEndpoint()];
+                        cb();
+                    }
+                }));
     });
 
     controller.registerTrigger("authentication::authenticated", "pushNotification::authentication::authenticate", function (opts, cb) {
