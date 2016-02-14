@@ -15,6 +15,15 @@ module.exports = function (controller) {
         "min-height": $(window).height()
     });
 
+    $(".app .module-menu").hide();
+    $("#action-show-modules").parent().parent().hide();
+
+    /* única forma segura de sair do sistema e voltar a home */
+    $(".logo").click(function (e) {
+        e.preventDefault();
+        controller.call("authentication::logout");
+    });
+
     $("body > .icheques-site .action-login").click(function () {
         controller.interface.helpers.activeWindow(".login");
     });

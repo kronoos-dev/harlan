@@ -156,14 +156,13 @@ module.exports = function (controller) {
                 return new createList(this, instance);
             };
 
-            this.addTextarea = function (name, type, placeholder, obj, labelText, value) {
+            this.addTextarea = function (name, placeholder, obj, labelText, value) {
                 var id;
 
                 obj = obj || {};
 
                 var input = $("<textarea />").attr({
                     name: name,
-                    type: type,
                     placeholder: placeholder,
                     autocomplete: false,
                     autocapitalize: false

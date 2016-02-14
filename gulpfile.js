@@ -2,6 +2,7 @@
     "use strict";
 
     var fs = require("fs"),
+            crypto = require('crypto'),
             pako = require("gulp-pako"),
             preprocess = require("gulp-preprocess"),
             fileinclude = require("gulp-file-include"),
@@ -293,7 +294,8 @@
                 .pipe(concat("app-installer.js"))
                 .pipe(preprocess({context: {
                         COMPRESSED_SIZE: fs.statSync("./Server/web/js/app.js.gz").size,
-                        APP_SIZE: fs.statSync("./Server/web/js/app.js").size
+                        APP_SIZE: fs.statSync("./Server/web/js/app.js").size,
+                        MD5: crypto.createHash('md5').update(fs.readFileSync("./Server/web/js/app.js")).digest("hex")
                     }}))
                 .pipe(gulpif(DEVEL, sourcemaps.write(".")))
                 .pipe(gulp.dest("Server/web/js"));

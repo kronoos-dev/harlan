@@ -55,4 +55,4 @@
         });
     });
 
-})("js/app.js.gz", parseInt('/* @echo APP_SIZE */'), parseInt('/* @echo COMPRESSED_SIZE */'), "utf-8");
+})("js/app.js.gz?h=/* @echo MD5 */", parseInt('/* @echo APP_SIZE */'), parseInt('/* @echo COMPRESSED_SIZE */'), "utf-8");

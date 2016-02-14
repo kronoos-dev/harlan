@@ -71,7 +71,7 @@ module.exports = function (controller) {
             } else if (item.type === "select") {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText);
             } else if (item.type === "textarea") {
-                item.element = form.addTextarea(item.name, item.type, item.placeholder, item, item.labelText);
+                item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
 
                 if (screen.magicLabel || item.magicLabel) {
                     item.element.magicLabel(item.label);

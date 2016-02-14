@@ -3,7 +3,7 @@
         <div class="content credits" id="action-credits">
             <i class="fa fa-dollar"></i> <span>0,00</span>
         </div>
-        <div class="content">
+        <div class="content" id="harlan-menu">
             <ul class="module-menu">
                 <li>
                     <a href="#" id="action-save"><i class="fa fa-save"></i></a>

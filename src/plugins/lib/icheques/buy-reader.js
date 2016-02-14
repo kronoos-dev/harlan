@@ -16,7 +16,7 @@ module.exports = function (controller) {
                 false);
 
         report.button("Comprar Leitora", function () {
-            var win = window.open("http://www.automatizando.com.br/listaprodutos.asp?idloja=4351&idproduto=1149841&q=leitor-de-cheque-nonus-hand-bank-eco-20&gclid=Cj0KEQiAxMG1BRDFmu3P3qjwmeMBEiQAEzSDLveR71nqCG1EPimTyf-3Nq0N65qdEcJ7AKtEsj8QodIaAvn38P8HAQ", '_blank');
+            var win = window.open("http://nonus.lojavirtualfc.com.br/prod,idloja,1617,idproduto,3674706,HandbanK-Eco-20#.VsEOwXUrKWQ", '_blank');
             win.focus();
         });
 
