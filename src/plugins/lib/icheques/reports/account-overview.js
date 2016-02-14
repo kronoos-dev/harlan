@@ -338,14 +338,14 @@ var AccountOverview = function () {
         });
 
         if (!_.without(datasetQueryStatus, 1).length) {
-            manipulationItens.push(report.button("Antecipar Cheques", function () {
-                controller.call("icheques::antecipate",
-                        controller.call("icheques::resultDatabase", controller.database.exec(squel
-                                .select()
-                                .from('ICHEQUES_CHECKS')
-                                .where(expression)
-                                .toString())[0]));
-            }).insertBefore(openButton));
+//            manipulationItens.push(report.button("Antecipar Cheques", function () {
+//                controller.call("icheques::antecipate",
+//                        controller.call("icheques::resultDatabase", controller.database.exec(squel
+//                                .select()
+//                                .from('ICHEQUES_CHECKS')
+//                                .where(expression)
+//                                .toString())[0]));
+//            }).insertBefore(openButton));
             status.html(messages.noOcurrence);
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             manipulationItens.push(report.button("Requisitar Suporte", function () {

@@ -19,7 +19,12 @@ var formDescription = {
                     "name": "actual-risk",
                     "type": "text",
                     "placeholder": "Risco Atual",
-                    "labelText": "Risco Atual"
+                    "labelText": "Risco Atual",
+                    "mask": "000.000.000.000,00",
+                    "maskOptions": {
+                        "reverse": true
+                    },
+                    "numeral": true
                 },
                 [
                     {
@@ -127,7 +132,7 @@ module.exports = function (controller) {
             });
         });
 
-        form.addSubmit("newbank", "Adicionar Banco ou Factoring");
+//        form.addSubmit("newbank", "Adicionar Banco ou Factoring");
 
         var actions = modal.createActions();
         actions.add("Pesquisa Factoring").click(function (e) {
