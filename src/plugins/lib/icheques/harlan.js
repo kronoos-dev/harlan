@@ -138,7 +138,7 @@ module.exports = function (controller) {
                 result.element().prepend(controller.call("xmlDocument", ret));
             },
             error: function () {
-                result.element().prepend(result.addItem("Documento", task[0]));
+                result.content().prepend(result.addItem("Documento", task[0]));
             },
             complete: function () {
                 section[0].removeClass("loading");
