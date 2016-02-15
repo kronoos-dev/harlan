@@ -1673,15 +1673,13 @@ input.link {
     $init-x: -120px;
     $init-y: -86px;
 
-    background-position-x: $init-x;
-    background-position-y: $init-y;
+    background-positio: $init-x $init-y;
     margin-right: 30px;
 
     @for $x from 0 through 4 {
         @for $y from 0 through 4 {
             &.icon-#{$y}-#{$x} {
-                background-position-x: ($x * -196px) + $init-x;
-                background-position-y: ($y * -225px) + $init-y;
+                background-position: (($x * -196px) + $init-x) (($y * -225px) + $init-y);
             }
         }
     }

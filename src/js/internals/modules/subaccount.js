@@ -118,7 +118,7 @@ module.exports = function (controller) {
                 return status ? "fa-check" : "fa-times";
             };
 
-            var item = list.add(iconStatus(), _.filter([
+            var acc = list.add(iconStatus(), _.filter([
                 cnpj, cpf, username
             ])).click(function () {
                 var unregisterLoader = $.bipbopLoader.register();
@@ -126,7 +126,7 @@ module.exports = function (controller) {
                     data: {username: username},
                     success: function () {
                         status = !status;
-                        item.find(".fa").removeClass("fa-check fa-times").addClass(iconStatus());
+                        acc.find(".fa").removeClass("fa-check fa-times").addClass(iconStatus());
                     },
                     complete: function () {
                         unregisterLoader();

@@ -28,7 +28,10 @@ module.exports = function (controller) {
         cb();
 
         /* Notification Check */
-
+        if (typeof ServiceWorkerRegistration === "undefined") {
+            return;
+        }
+        
         if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
             console.warn('Notifications aren\'t supported.');
             return;
