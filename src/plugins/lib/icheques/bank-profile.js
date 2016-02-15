@@ -132,14 +132,14 @@ module.exports = function (controller) {
             });
         });
 
-//        form.addSubmit("newbank", "Adicionar Banco ou Factoring");
+        form.addSubmit("newbank", "Adicionar Banco ou Factoring");
 
         var actions = modal.createActions();
-        actions.add("Pesquisa Factoring").click(function (e) {
-            e.preventDefault();
-            modal.close();
-            controller.call("icheques::factoring::search");
-        });
+//        actions.add("Pesquisa Factoring").click(function (e) {
+//            e.preventDefault();
+//            modal.close();
+//            controller.call("icheques::factoring::search");
+//        });
 
         actions.add("Sair").click(function (e) {
             e.preventDefault();
