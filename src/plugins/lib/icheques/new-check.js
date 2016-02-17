@@ -10,6 +10,8 @@ var CPF = require("cpf_cnpj").CPF,
 
 var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
+var validCheck = require("./data/valid-check");
+
 module.exports = function (controller) {
 
     var newCheckWrapper = null;
@@ -39,6 +41,11 @@ module.exports = function (controller) {
 
     var newCheck = function (data, checkList, storage, modal) {
         data.cmc = data.cmc.replace(MATCH_NON_DIGITS, '');
+
+        if (!validCheck(data.cmc)) {
+            toastr.warning("A instituição bancária emissora do cheque não é aceita pelo sistema.", "A instituição bancária não é aceita pelo iCheques.");
+            return;
+        }
 
         if (checkAlreadyExists(data) || _.findIndex(storage, function (compare) {
             return compare.cmc === data.cmc;

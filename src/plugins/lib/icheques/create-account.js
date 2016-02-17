@@ -19,14 +19,20 @@ module.exports = function (controller) {
         var form = modal.createForm();
 
         var inputName = form.addInput("nome", "text", "Nome Completo"),
-                inputEmail = form.addInput("email", "email", "E-mail"),
                 objDocument = {
+                    append: form.multiField(),
+                    labelPosition: "before"
+                }, objEmail = {
                     append: form.multiField(),
                     labelPosition: "before"
                 }, objLocation = {
             append: form.multiField(),
             labelPosition: "before"
-        }, inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
+        }, 
+                        inputEmail = form.addInput("email", "email", "E-mail", objEmail),
+                inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou?", objEmail),
+
+        inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
                 inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00"),
                 inputZipcode = form.addInput("cep", "text", "CEP", objLocation).mask("00000-000"),
                 inputPhone = form.addInput("phone", "text", "Telefone", objLocation).mask("(00) 0000-00009");
@@ -41,7 +47,8 @@ module.exports = function (controller) {
                     cpf = inputCpf.val(),
                     cnpj = inputCnpj.val(),
                     zipcode = inputZipcode.val(),
-                    email = inputEmail.val();
+                    email = inputEmail.val(),
+                    commercialReference = inputCommercialReference.val();
 
             if (!VALIDATE_NAME.test(name)) {
                 errors.push("O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.");
@@ -106,6 +113,8 @@ module.exports = function (controller) {
                             name: name,
                             email: email,
                             cpf: cpf,
+                            cnpj: cnpj,
+                            commercialReference: commercialReference,
                             zipcode: zipcode,
                             ddd: ddd,
                             phone: phone

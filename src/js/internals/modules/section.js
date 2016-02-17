@@ -1,14 +1,20 @@
 var factoryShowForm = function (section, button) {
+    var minimized = section.hasClass("minimized"),
+            iButton = button.find("i");
+
     return function (e) {
-        e.preventDefault();
-        var iButton = button.find("i");
-        var flipElements = section.find("form, section, footer");
-        if (iButton.hasClass("fa-minus-square-o")) {
-            flipElements.hide();
+        if (e) {
+            e.preventDefault();
+        }
+
+        if (!minimized) {
             iButton.removeClass().addClass("fa fa-plus-square-o");
+            section.addClass("minimized");
+            minimized = true;
         } else {
             iButton.removeClass().addClass("fa fa-minus-square-o");
-            flipElements.show();
+            section.removeClass("minimized");
+            minimized = false;
         }
     };
 };
@@ -21,22 +27,20 @@ var factoryCloseSection = function (section) {
 };
 
 
-var header = function (name, description, subdescription, section, disableDefaultActions, metadata) {
+var header = function (name, description, subdescription, section, disableDefaultActions, minimized) {
     var header = $("<header />"),
             headerContainer = $("<div />").addClass("container"),
             headerContent = $("<div />").addClass("content"),
             metadataElements = $("<ul />").addClass("metadata"),
-            actions = $("<ul />").addClass("actions");
+            actions = $("<ul />").addClass("actions"),
+            formShow = null;
 
     if (!disableDefaultActions) {
-
-        if (section) {
-            var maximizeButton = $("<li />").addClass("action-resize").append($("<i />").addClass("fa fa-minus-square-o"));
-            actions.append(maximizeButton);
-            maximizeButton.click(factoryShowForm(section, maximizeButton));
-            actions.append($("<li />").addClass("action-close").append($("<i />").addClass("fa fa-times-circle")).click(factoryCloseSection(section)));
-        }
-
+        var maximizeButton = $("<li />").addClass("action-resize").append($("<i />").addClass("fa fa-minus-square-o"));
+        actions.append(maximizeButton);
+        actions.append($("<li />").addClass("action-close").append($("<i />").addClass("fa fa-times-circle")).click(factoryCloseSection(section)));
+        formShow = factoryShowForm(section, maximizeButton);
+        maximizeButton.click(formShow);
     }
 
     if (name) {
@@ -52,27 +56,23 @@ var header = function (name, description, subdescription, section, disableDefaul
     }
 
 
-    if (metadata.length) {
-        for (var i in metadata) {
-            metadataElements.append($("<li />").text(metadata[i]));
-        }
-    }
-
     headerContent.append(metadataElements);
     headerContent.append(actions);
     headerContainer.append(headerContent);
     header.append(headerContainer);
 
-
+    if (minimized && formShow) {
+        formShow();
+    }
 
     return [header, actions, metadataElements];
 };
 
-var section = function (name, description, subdescription, disableDefaultActions, metadata) {
+var section = function (name, description, subdescription, disableDefaultActions, minimized) {
     var section = $("<section />").addClass("group-type");
     var results = $("<section />").addClass("results");
 
-    var data = header(name, description, subdescription, section, disableDefaultActions, metadata || []);
+    var data = header(name, description, subdescription, section, disableDefaultActions, minimized);
 
     section.append(data[0]);
     section.append(results);
@@ -90,8 +90,8 @@ module.exports = function (controller) {
         };
     });
 
-    controller.registerCall("section", function (name, description, subdescription, disableDefaultActions) {
-        return section(name, description, subdescription, disableDefaultActions);
+    controller.registerCall("section", function (name, description, subdescription, disableDefaultActions, minimized) {
+        return section(name, description, subdescription, disableDefaultActions, minimized);
     });
 
 };

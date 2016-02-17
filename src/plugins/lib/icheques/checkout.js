@@ -1,9 +1,10 @@
-/* global moment, module */
+/* global moment, module, toastr */
 
 var squel = require("squel"),
         changeCase = require('change-case'),
         async = require("async"),
-        _ = require("underscore");
+        _ = require("underscore"),
+        validCheck = require("./data/valid-check");
 
 module.exports = function (controller) {
 
@@ -43,6 +44,10 @@ module.exports = function (controller) {
     controller.registerCall("icheques::insertDatabase", insertDatabase);
 
     var calculateCheck = function (check) {
+        if (!validCheck(check.cmc)) {
+            return 0;
+        }
+
         if (controller.call("icheques::check::alreadyExists", check)) {
             return 0;
         }
@@ -56,6 +61,9 @@ module.exports = function (controller) {
     };
 
     var newCheck = function (check, callback) {
+        if (!validCheck(check.cmc)) {
+            return false;
+        }
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
             data: check,
             success: function (ret) {
@@ -66,6 +74,7 @@ module.exports = function (controller) {
                 callback();
             }
         });
+        return true;
     };
 
     controller.registerCall("icheques::newCheck", newCheck);
@@ -75,6 +84,14 @@ module.exports = function (controller) {
         if (!storage.length) {
             return;
         }
+        
+        for (var i in storage) {
+            if (!validCheck(storage[i].cmc)) {
+                toastr.warning("Alguns cheques não poderão ser processados.", "Instituição bancária não interegrada ao iCheques.");
+                break;
+            }
+        }
+        
         controller.call("icheques::calculateBill", storage, function () {
             var q = async.queue(newCheck);
             var loaderUnregister = $.bipbopLoader.register();

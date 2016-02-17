@@ -13,7 +13,7 @@ var gamificationIcons = require("./data/gamification-icons");
 module.exports = function (controller) {
 
     var Modal = function () {
-        var modal = $("<div />");
+        var modal = $("<div />").addClass("modal-content");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
 
@@ -260,6 +260,8 @@ module.exports = function (controller) {
         this.close = function () {
             modalContainer.remove();
         };
+
+        var close = this.close;
 
         return this;
     };

@@ -199,7 +199,10 @@
                 }))
 
                 .pipe(cssjoin())
-                .pipe(nano())
+                .pipe(nano({
+                    reduceIdents: false,
+                    mergeIdents: false
+                }))
                 .pipe(css2js())
                 .pipe(gulp.dest("src/plugins/styles/"));
     });
@@ -209,7 +212,10 @@
                 .pipe(sass())
                 .pipe(autoprefixer())
                 .pipe(cssjoin())
-                .pipe(nano())
+                .pipe(nano({
+                    reduceIdents: false,
+                    mergeIdents: false
+                }))
                 .pipe(css2js())
                 .pipe(gulp.dest("src/plugins/styles"));
     });

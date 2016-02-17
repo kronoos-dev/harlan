@@ -123,7 +123,7 @@ module.exports = function (controller) {
         var section = controller.call("section",
                 "iCheque",
                 "Prevenção a fraudes na sua carteira de cheques.",
-                "Documento " + task[0]),
+                "Documento " + task[0], false, true),
                 result = controller.call("result");
         section[1].append(result.element());
         section[0].addClass("icheque loading");
@@ -182,10 +182,15 @@ module.exports = function (controller) {
 
         async.map(_.pairs(documents), showDocument, function (err, results) {
 
+            var moreResults = controller.call("moreResults", 5);
             /** @TODO Trocar para novo modelo */
             for (var i in results) {
-                $(".app-content")[prepend ? "prepend" : "append" ](results[i][0]);
+                moreResults.append(results[i][0]);
             }
+
+
+            $(".app-content").append(moreResults.element());
+            moreResults.show();
 
             if (callback) {
                 callback();

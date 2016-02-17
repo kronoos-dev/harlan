@@ -1,5 +1,3 @@
-var url = require("url");
-
 module.exports = {
     proshield: {
         hosts: [

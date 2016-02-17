@@ -833,21 +833,6 @@ label {
         background-color: #efefef;
     }
 
-    .load-more {
-        display: none;
-        @include background-image(linear-gradient(rgba(255,255,255, 0.5), rgba(255,255,255, 0.2)));
-        &:hover {
-            @include background-image(linear-gradient(rgba(255,255,255, 0.2), rgba(255,255,255, 0.5)));
-        }
-        .content {
-            font-family: $font-open-sans-condensed;
-            font-weight: bold;
-            text-align: center;
-            font-size: 16px;
-        }
-        @include classHideEnabled;
-    }
-
     .result {
         @include box-shadow(0px 2px 1px 0px rgba(0,0,0,0.05) inset);
         background-color: $color-background !important;
@@ -897,17 +882,6 @@ label {
         }
     }
 
-
-    &.maximized {
-        .results, .load-more {
-            display: block;
-            &.board {
-                display: flex;
-            }
-        }
-
-    }
-
     &.saved {
         header {
             background-color: $color-save;
@@ -922,6 +896,24 @@ label {
     }
 
 }
+
+.load-more {
+    user-select: none;
+    cursor: pointer;
+    background-image: linear-gradient(hsla(111, 100%, 50%, 0.62),hsla(105, 100%, 50%, 0.2));
+    &:hover {
+        background-image: linear-gradient(hsla(111, 100%, 50%, 0.90),hsla(105, 100%, 50%, 0.5));
+    }
+    .content {
+        font-family: $font-open-sans-condensed;
+        font-weight: bold;
+        text-align: center;
+        font-size: 18px;
+        padding: 16px 0;
+    }
+    @include classHideEnabled;
+}
+
 
 p {
     font-weight: 300;
@@ -1664,7 +1656,7 @@ input.link {
     height: 166px;
     display: inline-block;
     background: url(../images/gamification.svg);
-    backgroud-position: 50px 50px;
+    background-position: 50px 50px;
 
     @media (max-width: 600px) {
         display: none;
@@ -1673,7 +1665,7 @@ input.link {
     $init-x: -120px;
     $init-y: -86px;
 
-    background-positio: $init-x $init-y;
+    background-position: $init-x $init-y;
     margin-right: 30px;
 
     @for $x from 0 through 4 {
@@ -1682,6 +1674,12 @@ input.link {
                 background-position: (($x * -196px) + $init-x) (($y * -225px) + $init-y);
             }
         }
+    }
+}
+
+.minimized {
+    form, section, footer {
+        display: none;
     }
 }
 
