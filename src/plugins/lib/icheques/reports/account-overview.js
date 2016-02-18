@@ -203,7 +203,7 @@ var AccountOverview = function () {
         }
 
         if (f.initCreation && f.endCreation) {
-            expression.and("CREATION >= ?", f.initCreation.second(0).minute(59).hour(23).unix());
+            expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
             filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
         } else if (f.initCreation) {
             expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
