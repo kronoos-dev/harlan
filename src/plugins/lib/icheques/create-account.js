@@ -1,12 +1,12 @@
 /* global module, toastr */
 
 var SAFE_PASSWORD = /^.{6,}$/,
-        PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i,
-        VALIDATE_NAME = /^[a-zA-Z\s]+$/,
-        CPF = require("cpf_cnpj").CPF,
-        CNPJ = require("cpf_cnpj").CNPJ,
-        emailRegex = require("email-regex"),
-        sprintf = require("sprintf");
+    PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i,
+    VALIDATE_NAME = /^[a-zA-Z\s]+$/,
+    CPF = require("cpf_cnpj").CPF,
+    CNPJ = require("cpf_cnpj").CNPJ,
+    emailRegex = require("email-regex"),
+    sprintf = require("sprintf");
 
 module.exports = function (controller) {
 
@@ -19,141 +19,143 @@ module.exports = function (controller) {
         var form = modal.createForm();
 
         var inputName = form.addInput("nome", "text", "Nome Completo"),
-                objDocument = {
-                    append: form.multiField(),
-                    labelPosition: "before"
-                }, objEmail = {
-                    append: form.multiField(),
-                    labelPosition: "before"
-                }, objLocation = {
+        objDocument = {
+            append: form.multiField(),
+            labelPosition: "before"
+        }, objEmail = {
+            append: form.multiField(),
+            labelPosition: "before"
+        }, objLocation = {
             append: form.multiField(),
             labelPosition: "before"
         }, 
-                        inputEmail = form.addInput("email", "email", "E-mail", objEmail),
-                inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou?", objEmail),
+        inputEmail = form.addInput("email", "email", "E-mail", objEmail),
+        inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou?", objEmail),
 
-        inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
-                inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00"),
+            inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
+            inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00"),
                 inputZipcode = form.addInput("cep", "text", "CEP", objLocation).mask("00000-000"),
                 inputPhone = form.addInput("phone", "text", "Telefone", objLocation).mask("(00) 0000-00009");
 
-        form.addSubmit("login", "Criar Conta");
+            form.addSubmit("login", "Criar Conta");
 
-        form.element().submit(function (e) {
-            e.preventDefault();
+            form.element().submit(function (e) {
+                e.preventDefault();
 
-            var errors = [],
-                    name = inputName.val(),
+                var errors = [],
+                name = inputName.val(),
                     cpf = inputCpf.val(),
                     cnpj = inputCnpj.val(),
-                    zipcode = inputZipcode.val(),
-                    email = inputEmail.val(),
-                    commercialReference = inputCommercialReference.val();
+                        zipcode = inputZipcode.val(),
+                        email = inputEmail.val(),
+                            commercialReference = inputCommercialReference.val();
 
-            if (!VALIDATE_NAME.test(name)) {
-                errors.push("O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.");
-                inputName.addClass("error");
-            } else {
-                inputName.removeClass("error");
-            }
-
-            if (!CPF.isValid(cpf)) {
-                inputCpf.addClass("error");
-                errors.push("O CPF informado não é válido.");
-            } else {
-                inputCpf.removeClass("error");
-            }
-
-            if (cnpj) {
-                if (!CNPJ.isValid(cnpj)) {
-                    inputCnpj.addClass("error");
-                    errors.push("O CNPJ informado não é válido.");
+                if (!VALIDATE_NAME.test(name)) {
+                    errors.push("O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.");
+                    inputName.addClass("error");
                 } else {
-                    data.cnpj = cnpj;
+                    inputName.removeClass("error");
+                }
+
+                if (cpf) {
+                    if (!CPF.isValid(cpf)) {
+                        inputCpf.addClass("error");
+                        errors.push("O CPF informado não é válido.");
+                    } else {
+                        inputCpf.removeClass("error");
+                    }
+                }
+
+                if (cnpj) {
+                    if (!CNPJ.isValid(cnpj)) {
+                        inputCnpj.addClass("error");
+                        errors.push("O CNPJ informado não é válido.");
+                    } else {
+                        data.cnpj = cnpj;
+                        inputCnpj.removeClass("error");
+                    }
+                } else {
                     inputCnpj.removeClass("error");
                 }
-            } else {
-                inputCnpj.removeClass("error");
-            }
 
-            if (!emailRegex().test(email)) {
-                inputEmail.addClass("error");
-                errors.push("O endereço de e-mail informado não é válido.");
-            } else {
-                inputEmail.removeClass("error");
-            }
-
-            if (!/\d{5}-\d{3}/.test(zipcode)) {
-                inputZipcode.addClass("error");
-                errors.push("O CEP informado não é válido.");
-            } else {
-                inputZipcode.removeClass("error");
-            }
-
-            if (!PHONE_REGEX.test(inputPhone.val())) {
-                inputPhone.addClass("error");
-                errors.push("O telefone informado não é válido.");
-            } else {
-                inputPhone.removeClass("error");
-            }
-
-            if (errors.length) {
-                for (var i in errors) {
-                    toastr.warning(errors[i], "Não foi possível prosseguir");
+                if (!emailRegex().test(email)) {
+                    inputEmail.addClass("error");
+                    errors.push("O endereço de e-mail informado não é válido.");
+                } else {
+                    inputEmail.removeClass("error");
                 }
-                return;
-            }
 
-            var phoneMatch = PHONE_REGEX.exec(inputPhone.val()),
-                    ddd = phoneMatch[1], phone = phoneMatch[2] + '-' + phoneMatch[3];
+                if (!/\d{5}-\d{3}/.test(zipcode)) {
+                    inputZipcode.addClass("error");
+                    errors.push("O CEP informado não é válido.");
+                } else {
+                    inputZipcode.removeClass("error");
+                }
 
-            controller.serverCommunication.call("INSERT INTO 'IChequesAuthentication'.'ACCOUNT'",
-                    controller.call("error::ajax", controller.call("loader::ajax", {
-                        data: $.extend({
-                            name: name,
-                            email: email,
-                            cpf: cpf,
-                            cnpj: cnpj,
-                            commercialReference: commercialReference,
-                            zipcode: zipcode,
-                            ddd: ddd,
-                            phone: phone
-                        }, data),
-                        success: function (domDocument) {
-                            modal.close();
-                            var apiKey = $("BPQL > body apiKey", domDocument).text();
-                            controller.call("authentication::force", apiKey, domDocument);
-                            callback(domDocument);
-                        }
-                    })));
-        });
-        var actions = modal.createActions();
-        actions.add("Voltar").click(function (e) {
-            e.preventDefault();
-            modal.close();
-            controller.call("icheques::createAccount", callback);
-        });
+                if (!PHONE_REGEX.test(inputPhone.val())) {
+                    inputPhone.addClass("error");
+                    errors.push("O telefone informado não é válido.");
+                } else {
+                    inputPhone.removeClass("error");
+                }
 
-        actions.add("Cancelar").click(function (e) {
-            e.preventDefault();
-            modal.close();
-        });
+                if (errors.length) {
+                    for (var i in errors) {
+                        toastr.warning(errors[i], "Não foi possível prosseguir");
+                    }
+                    return;
+                }
+
+                var phoneMatch = PHONE_REGEX.exec(inputPhone.val()),
+                ddd = phoneMatch[1], phone = phoneMatch[2] + '-' + phoneMatch[3];
+
+                controller.serverCommunication.call("INSERT INTO 'IChequesAuthentication'.'ACCOUNT'",
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: $.extend({
+                                name: name,
+                                email: email,
+                                cpf: cpf,
+                                cnpj: cnpj,
+                                commercialReference: commercialReference,
+                                zipcode: zipcode,
+                                ddd: ddd,
+                                phone: phone
+                            }, data),
+                            success: function (domDocument) {
+                                modal.close();
+                                var apiKey = $("BPQL > body apiKey", domDocument).text();
+                                controller.call("authentication::force", apiKey, domDocument);
+                                callback(domDocument);
+                            }
+                        })));
+            });
+            var actions = modal.createActions();
+            actions.add("Voltar").click(function (e) {
+                e.preventDefault();
+                modal.close();
+                controller.call("icheques::createAccount", callback);
+            });
+
+            actions.add("Cancelar").click(function (e) {
+                e.preventDefault();
+                modal.close();
+            });
     });
 
     controller.registerCall("icheques::createAccount", function (callback, contract, parameters) {
         var modal = controller.call("modal"),
-                parameters = parameters || {};
+        parameters = parameters || {};
 
         modal.title("Crie sua conta iCheques");
         modal.subtitle("Informe seu usuário e senha desejados para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
         var form = modal.createForm(),
-                inputUsername = form.addInput("user", "text", "Usuário"),
-                inputPassword = form.addInput("password", "password", "Senha"),
-                inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha"),
+        inputUsername = form.addInput("user", "text", "Usuário"),
+            inputPassword = form.addInput("password", "password", "Senha"),
+            inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha"),
                 inputAgree = form.addCheckbox("agree", sprintf("Eu li e aceito o <a href=\"%s\" target=\"_blank\">contrato de usuário</a>.",
-                        contract || "legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
+                            contract || "legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
 
         form.addSubmit("login", "Próximo Passo");
 
@@ -161,9 +163,9 @@ module.exports = function (controller) {
             e.preventDefault();
 
             var errors = [],
-                    username = inputUsername.val(),
-                    password = inputPassword.val(),
-                    confirmPassword = inputConfirmPassword.val();
+            username = inputUsername.val(),
+                password = inputPassword.val(),
+                confirmPassword = inputConfirmPassword.val();
 
             if (!inputAgree[1].is(':checked')) {
                 errors.push("Você precisa aceitar o contrato de usuário.");
@@ -234,8 +236,8 @@ module.exports = function (controller) {
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
         var form = modal.createForm(),
-                inputUsername = form.addInput("user", "text", "Usuário"),
-                inputPassword = form.addInput("password", "password", "Senha");
+        inputUsername = form.addInput("user", "text", "Usuário"),
+            inputPassword = form.addInput("password", "password", "Senha");
 
         form.addSubmit("login", "Autenticar");
 
