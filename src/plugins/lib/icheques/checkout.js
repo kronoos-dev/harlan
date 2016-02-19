@@ -62,8 +62,10 @@ module.exports = function (controller) {
 
     var newCheck = function (check, callback) {
         if (!validCheck(check.cmc)) {
+            callback();
             return false;
         }
+
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
             data: check,
             success: function (ret) {
@@ -84,14 +86,15 @@ module.exports = function (controller) {
         if (!storage.length) {
             return;
         }
-        
+
         for (var i in storage) {
             if (!validCheck(storage[i].cmc)) {
-                toastr.warning("Alguns cheques não poderão ser processados.", "Instituição bancária não interegrada ao iCheques.");
+                toastr.warning("Alguns cheques não poderão ser processados.",
+                        "Instituição bancária não interegrada ao iCheques.");
                 break;
             }
         }
-        
+
         controller.call("icheques::calculateBill", storage, function () {
             var q = async.queue(newCheck);
             var loaderUnregister = $.bipbopLoader.register();
@@ -109,6 +112,9 @@ module.exports = function (controller) {
     controller.registerCall("icheques::calculateBill", function (checks, callback) {
         var total = 0;
         for (var i in checks) {
+            if (!validCheck(checks[i].cmc)) {
+                continue;
+            }
             total += calculateCheck(checks[i]);
         }
 
