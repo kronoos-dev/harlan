@@ -6,6 +6,9 @@ module.exports = function (controller) {
 
     installDatabase(controller);
 
+    /* Sem demonstração */
+    $("#demonstration").parent().hide();
+
     document.title = "Proteja sua carteira de cheques | iCheques";
     controller.interface.helpers.changeFavicon("images/icheques/favicon.png");
     require("../../styles/icheques.js");

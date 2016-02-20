@@ -18,8 +18,8 @@ var formDescription = {
                 {
                     "name": "actual-risk",
                     "type": "text",
-                    "placeholder": "Risco Atual",
-                    "labelText": "Risco Atual",
+                    "placeholder": "Risco Atual (R$)",
+                    "labelText": "Risco Atual (R$)",
                     "mask": "000.000.000.000,00",
                     "maskOptions": {
                         "reverse": true

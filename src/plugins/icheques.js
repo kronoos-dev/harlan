@@ -1,17 +1,13 @@
 /* global toastr */
-
 (function (controller) {
     
-    controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933"; /* LOL! */
+    controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933";
 
     $.extend(controller.confs.icheques, {
         price: 150,
         monthsIncluded: 5,
         moreMonths: 30
     });
-    
-    /* Sem demonstração */
-    $("#demonstration").parent().hide();
     
     require("./lib/icheques/parser")(controller);
     require("./lib/icheques/design")(controller);

@@ -1,5 +1,9 @@
 /* global harlan */
 
+/**
+ * @deprecated Mudar para o generator-harlan
+ */
+
 var jform = harlan.store.get("socialprofile")[0];
 jform.find("input[name='email']").attr("type", "email");
 jform.find("input[name='documento']").mask("999.999.999-99");

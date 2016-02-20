@@ -13,9 +13,7 @@ var ServerCommunication = require("./library/server-communication"),
 var Controller = function () {
 
     this.database = new SQL.Database();
-
     this.confs = require("./config");
-
     var language = null;
 
     this.i18n = new I18n(localStorage.language ||
@@ -190,13 +188,15 @@ var Controller = function () {
     require("./modules/iframe-embed")(this);
     require("./modules/site")(this);
     require("./modules/placas-wiki")(this);
-    require("./modules/icheques")(this);
     require("./modules/credits")(this);
     require("./modules/alert")(this);
     require("./modules/push-notification")(this);
     require("./modules/password")(this);
     require("./modules/subaccount")(this);
     require("./modules/more-results")(this);
+    require("./modules/instant-search")(this);
+    require("./modules/icheques")(this);
+    require("./modules/dive")(this);
 
     /**
      * From day to night and night to day

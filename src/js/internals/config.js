@@ -7,6 +7,12 @@ module.exports = {
             "proshield.harlan.com.br"
         ]
     },
+    dive: {
+        hosts: [
+            "dive",
+            "dive.harlan.com.br"
+        ]
+    },
     icheques: {
         hosts: [
             "icheques.com.br",

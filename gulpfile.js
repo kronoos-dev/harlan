@@ -193,11 +193,6 @@
     gulp.task("build-plugins-css", function () {
         return gulp.src("src/plugins/styles/**/*.css")
                 .pipe(autoprefixer())
-                .pipe(fileinclude({
-                    prefix: "@",
-                    basepath: "@file"
-                }))
-
                 .pipe(cssjoin())
                 .pipe(nano({
                     reduceIdents: false,
@@ -230,7 +225,7 @@
         return gulp.src([
             "src/js/**/*.js",
             "!src/js/internals/i18n/**/*",
-            "src/plugin-js/**/*.js"])
+            "src/plugins/**/*.js"])
                 .pipe(gulpif(PRODUCTION, jshint({esnext: true})))
                 .pipe(gulpif(PRODUCTION, jshint.reporter(stylish)));
     });
