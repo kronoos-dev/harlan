@@ -1,0 +1,93 @@
+.autocomplete {
+
+    position: relative;
+
+    .input-icon {
+        position: absolute;
+        top: 18px;
+        right: 12px;
+        font-size: 18px;
+        color: $color-action;
+    }
+
+    ul {
+        @include box-shadow(0 0 10px 2px rgba(0,0,0,0.08));
+        position: absolute;
+        z-index: 1;
+        background-color: #fff;
+        width: 100%;
+        display: none;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+
+        &.active {
+            display: block;
+        }
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    li {
+        cursor: pointer;
+        font-size: 18px;
+        color: $color-font;
+        padding: 20px 15px;
+        line-height: 14px;
+        text-align: left;
+        border-bottom: 1px solid #efefef;
+        position: relative;
+
+        &:hover, &.selected  {
+            background-color: darken(#fff, 5%);
+        }
+
+        @mixin color-icon($color, $icon) {
+            background: $color;
+            &:after {
+                font-family: "FontAwesome";
+                content: $icon;
+                font-size: 12px;
+                position: absolute;
+                right: 10px;
+                top: 10px;
+            }
+            &:hover, &.selected  {
+                background-color: darken($color, 5%);
+            }
+
+        }
+
+        &.company {
+            @include color-icon(#fff, "\f0f7");
+        }
+
+        &.database {
+            @include color-icon(lighten($color-action, 23%), "\f002");
+        }
+
+        &.saved {
+            @include color-icon($color-save, "\f0c7");
+        }
+    }
+
+    .item-title {
+        text-transform: capitalize;
+        font-size: 21px;
+        line-height: 120%;
+        font-family: $font-open-sans-condensed;
+        margin: 8px 0;
+        margin-top: 2px;
+    }
+
+    .item-subtitle {
+        text-transform: capitalize;
+        font-size: 14px;
+        margin: 6px 0;
+    }
+
+    .item-description {
+        font-size: 12px;
+    }
+}

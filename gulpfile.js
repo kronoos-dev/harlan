@@ -4,6 +4,7 @@
     var fs = require("fs"),
             crypto = require('crypto'),
             pako = require("gulp-pako"),
+            bg = require("gulp-image-resize"),
             preprocess = require("gulp-preprocess"),
             fileinclude = require("gulp-file-include"),
             path = require("path"),
@@ -27,6 +28,8 @@
             stylish = require("jshint-stylish"),
             source = require("vinyl-source-stream"),
             gulp = require("gulp"),
+            filter = require('gulp-filter'),
+            imageResize = require("gulp-image-resize"),
             addSource = require("gulp-add-src"),
             livereload = require("gulp-livereload"),
             ghPages = require("gulp-gh-pages"),
@@ -328,12 +331,32 @@
                 .pipe(gulp.dest("Server/web"));
     });
 
+    gulp.task("build-images-backgrounds", function () {
+
+        return gulp.src([
+            "src/images/bg/*.{jpg,jpeg}"
+        ])
+                .pipe(imageResize({
+                    width: 4096,
+                    quality: 0.8,
+                    format: "jpg"
+                }))
+                .pipe(gulpif(PRODUCTION, imageop({
+                    optimizationLevel: 5,
+                    progressive: true,
+                    interlaced: true
+                })))
+                .pipe(gulp.dest("Server/web/images/bg"));
+    });
+
     gulp.task("build-images-no-vector", function () {
+
         return gulp.src([
             "src/**/*.png",
             "src/**/*.jpg",
             "src/**/*.gif",
-            "src/**/*.jpeg"
+            "src/**/*.jpeg",
+            "!src/images/bg/*.jpg"
         ])
                 .pipe(gulpif(PRODUCTION, imageop({
                     optimizationLevel: 5,
@@ -343,7 +366,7 @@
                 .pipe(gulp.dest("Server/web"));
     });
 
-    gulp.task("build-images", ["build-images-no-vector", "build-images-vector"]);
+    gulp.task("build-images", ["build-images-no-vector", "build-images-vector", "build-images-backgrounds"]);
 
     gulp.task("build-fonts", function () {
         return gulp.src([

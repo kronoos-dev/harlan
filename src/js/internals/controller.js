@@ -197,6 +197,7 @@ var Controller = function () {
     require("./modules/instant-search")(this);
     require("./modules/icheques")(this);
     require("./modules/dive")(this);
+    require("./modules/bipbop")(this);
 
     /**
      * From day to night and night to day

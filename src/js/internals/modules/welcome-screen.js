@@ -10,7 +10,8 @@ module.exports = function (controller) {
         var form = modal.createForm();
         form.element().submit(function (e) {
             e.preventDefault();
-            document.location.href = controller.confs.checkoutUrl;
+            controller.call("bipbop::createAccount");
+            modal.close();
         });
 
         form.addSubmit("buy", "Adquirir");

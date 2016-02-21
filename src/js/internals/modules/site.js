@@ -26,7 +26,9 @@ module.exports = function (controller) {
         });
         $("body > .site .action-login").click(window($(".login")));
         $("body > .site .action-sales").click(newWindow("http://www.bipbop.com.br/#contato"));
-        $("body > .site .action-buy").click(newWindow("https://api.bipbop.com.br/checkout.html"));
+        $("body > .site .action-buy").click(function () {
+            controller.call("bipbop::createAccount");
+        });
 
         $("body > .site .action-evaluate").click(function (e) {
             e.preventDefault();

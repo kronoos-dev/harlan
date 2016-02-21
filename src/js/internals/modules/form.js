@@ -45,7 +45,7 @@ module.exports = function (controller) {
                     return;
                 }
 
-                if (item.validate && !item.validate(item, screen, configure)) {
+                if (item.validate && !item.validate(item, screen, configuration)) {
                     item.element.addClass("error");
                     ret = false;
                     return;
@@ -95,7 +95,7 @@ module.exports = function (controller) {
 
             item.element.change(function () {
 
-                if (item.validate && !item.validate(item, screen, configure)) {
+                if (item.validate && !item.validate(item, screen, configuration)) {
                     item.element.addClass("error");
                 }
 
@@ -124,7 +124,7 @@ module.exports = function (controller) {
                     return numeral().unformat(input.element.val());
                 }
                 if (input.pikaday) {
-                    var moment = input.element.get(0).getMoment();
+                    var moment = moment(input.element.val(), controller.i18n.pikaday.format);
                     if (!moment.isValid) {
                         return null;
                     }
@@ -157,8 +157,8 @@ module.exports = function (controller) {
             form.element().submit(function (e) {
                 e.preventDefault();
 
-                if (screen.validate && !screen.validate()) {
-                    return;
+                if (screen.validate ? !screen.validate() : !defaultScreenValidation()) {
+                    return; 
                 }
 
                 modal.close();

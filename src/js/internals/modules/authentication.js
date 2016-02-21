@@ -62,7 +62,7 @@ module.exports = function (controller) {
      */
     controller.registerCall("authentication::logout", function () {
         var modal = controller.call("modal");
-        modal.title("Você esta saíndo da conta.");
+        modal.title("Você está saindo da conta.");
         modal.subtitle("Aguarde enquanto a página é recarregada para sua segurança.");
         modal.addParagraph("Esperamos que sua visita tenha sido proveitosa e sua experiência incrível.");
 

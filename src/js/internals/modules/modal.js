@@ -140,13 +140,15 @@ module.exports = function (controller) {
                     name: name
                 });
 
+                obj.options = {};
                 for (var i in list) {
-                    list[i] = select.append($("<option />").attr({
+                    obj.options[i] = select.append($("<option />").attr({
                         value: i
                     }).text(list[i]));
                 }
 
-                form.append(select);
+                var a = obj.append || form;
+                a.append(select);
                 createLabel(select, obj, labelText);
 
                 return select;

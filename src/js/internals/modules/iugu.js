@@ -156,11 +156,12 @@ module.exports = function (controller) {
         });
     };
 
-    var getCreditCard = function (callback) {
+    var getCreditCard = function (callback, config) {
+        config = config || {};
         var modal = controller.call("modal");
-        modal.title("Cartão de Crédito");
-        modal.subtitle("Configure seu Cartão de Crédito");
-        modal.addParagraph("Armazenamos seu cartão de crédito com segurança, para acessá-lo novamente é necessário que crie uma senha de cobranças.");
+        modal.title(config.title || "Cartão de Crédito");
+        modal.subtitle(config.subtitle || "Configure seu Cartão de Crédito");
+        modal.addParagraph(config.paragraph || "Armazenamos seu cartão de crédito com segurança, para acessá-lo novamente é necessário que crie uma senha de cobranças.");
         var form = modal.createForm();
 
         var inputCardNumber = form.addInput("credit-card", "text", "1234 5678 9123 4567", {}, "Número do Cartão").payment('formatCardNumber'),
@@ -168,7 +169,7 @@ module.exports = function (controller) {
                 inputCardHolder = form.addInput("holder", "text", "Marcelo Araújo", {}, "Nome do Titular"),
                 inputCardCVV = form.addInput("cvv", "text", "108", {}, "Código de Verificação");
 
-        form.addSubmit("submit", "Configurar Cartão");
+        form.addSubmit("submit", config.submit || "Configurar Cartão");
 
         form.element().submit(function (e) {
             e.preventDefault();
@@ -236,6 +237,10 @@ module.exports = function (controller) {
             modal.close();
         });
     };
+
+    controller.registerCall("getCreditCard", function (callback, config) {
+        return getCreditCard(callback, config);
+    });
 
     controller.registerBootstrap("iugu::init", function (callback) {
         var alreadyLoaded = false,
