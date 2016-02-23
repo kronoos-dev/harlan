@@ -86,8 +86,18 @@ module.exports = function (controller) {
 
             if (check.queryStatus) {
                 rescan();
-                var elementClass = "success";
-
+                
+                var elementClass = "success",
+                    situation = check.situation,
+                    display = check.display,
+                    ocurrence = check.ocurrence;
+                    
+                if (check.queryStatus === 2) {
+                    situation = "Uh-oh! Esse talão parece estar bloqueado.";
+                    display = "Uh-oh! Esse talão parece estar bloqueado.  Recomendamos entrar em contato com o emissor (através de nossas informações ou do seu cadastro) e pedir o desbloqueio ou troca dos cheques.";
+                    ocurrence = "Talão bloqueado (" + check.ocurrence +")";
+                }
+                
                 if (check.queryStatus !== 1) {
                     elementClass = "error";
                     section[0].addClass("warning");
@@ -96,11 +106,11 @@ module.exports = function (controller) {
 
                 separator.addClass(elementClass);
 
-                nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", check.situation));
-                nodes.push(checkResult.addItem("Exibição", check.display));
+                nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", situation));
+                nodes.push(checkResult.addItem("Exibição", display));
 
                 if (check.ocurrenceCode) {
-                    nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", check.ocurrence));
+                    nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", ocurrence));
                 }
 
                 separator.addClass(elementClass);
