@@ -32,9 +32,9 @@ module.exports = function (controller) {
                 break;
         }
 
-        report.button("Dados Bancários", function () {
-            controller.call("icheques::form::bank");
-        });
+//        report.button("Dados Bancários", function () {
+//            controller.call("icheques::form::bank");
+//        });
 
         report.gamification("shield");
 
