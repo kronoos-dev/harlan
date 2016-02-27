@@ -1,4 +1,4 @@
-/* global controller, numeral, Infinity, NaN */
+/* global controller, numeral, Infinity, NaN, moment */
 (function (controller) {
     var REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
     var REGEX_SIGLA = /\'sigla\'\s*=\s*'([^']*)'/i;
@@ -48,9 +48,9 @@
             var radial = controller.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
 
             if (perc > 0.8) {
-                radial.addClass("warning animated flash");
+                radial.element.addClass("warning animated flash");
             } else if (perc > 0.6) {
-                radial.addClass("attention animated flash");
+                radial.element.addClass("attention animated flash");
             }
 
 
