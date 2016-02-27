@@ -164,10 +164,10 @@ module.exports = function (controller) {
         modal.addParagraph(config.paragraph || "Armazenamos seu cartão de crédito com segurança, para acessá-lo novamente é necessário que crie uma senha de cobranças.");
         var form = modal.createForm();
 
-        var inputCardNumber = form.addInput("credit-card", "text", "1234 5678 9123 4567", {}, "Número do Cartão").payment('formatCardNumber'),
-                inputCardExpiry = form.addInput("expire", "text", "MM / YY", {}, "Vencimento").payment('formatCardExpiry'),
-                inputCardHolder = form.addInput("holder", "text", "Marcelo Araújo", {}, "Nome do Titular"),
-                inputCardCVV = form.addInput("cvv", "text", "108", {}, "Código de Verificação");
+        var inputCardNumber = form.addInput("credit-card", "text", "Número do Cartão", {}, "Número do Cartão").payment('formatCardNumber').addClass("cc-number"),
+                inputCardExpiry = form.addInput("expire", "text", "Mês / Ano", {}, "Vencimento").payment('formatCardExpiry').addClass("cc-expiry"),
+                inputCardHolder = form.addInput("holder", "text", "Nome do Titular", {}, "Nome do Titular").addClass("cc-holder"),
+                inputCardCVV = form.addInput("cvv", "text", "CVV do Cartão (verso)", {}, "CVV").addClass("cc-cvv");
 
         form.addSubmit("submit", config.submit || "Configurar Cartão");
 
@@ -233,6 +233,7 @@ module.exports = function (controller) {
         });
 
         var actions = modal.createActions();
+
         actions.add("Cancelar").click(function (e) {
             modal.close();
         });

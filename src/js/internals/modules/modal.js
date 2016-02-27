@@ -39,11 +39,18 @@ module.exports = function (controller) {
         };
 
         this.addParagraph = function (content) {
-            var p = $("<p />").text(content);
+            var p = $("<p />").html(content);
             modal.append(p);
             return p;
         };
 
+        this.addProgress = function (initProgress) {
+            var progress = controller.call("progress::init", initProgress);
+            modal.append(progress.element);
+            return function (perc) {
+                controller.call("progress::update", progress, perc);
+            };
+        };
 
         this.imageParagraph = function (image, content, imageTitle, imageAlternative) {
             var wizard = $("<div />").addClass("wizard")
@@ -134,7 +141,7 @@ module.exports = function (controller) {
                 return div;
             };
 
-            this.addSelect = function (id, name, list, obj, labelText) {
+            this.addSelect = function (id, name, list, obj, labelText, value) {
                 var select = $("<select />").attr({
                     id: id,
                     name: name
@@ -145,6 +152,10 @@ module.exports = function (controller) {
                     obj.options[i] = select.append($("<option />").attr({
                         value: i
                     }).text(list[i]));
+                }
+                
+                if (value) {
+                    select.val(value);
                 }
 
                 var a = obj.append || form;

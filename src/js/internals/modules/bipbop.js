@@ -1,6 +1,7 @@
 /* global numeral, module, harlan, moment */
 
-var documentValidator = require("cpf_cnpj");
+var documentValidator = require("cpf_cnpj"),
+        async = require("async");
 
 var validateCPF = function (item) {
     return documentValidator.CPF.isValid(item.element.val());
@@ -16,26 +17,92 @@ var validateCNPJ = function (item) {
 
 module.exports = function (controller) {
 
-    controller.registerCall("bipbop::createAccount::submit", function (formData, creditCard) {
-        var unregister = $.bipbopLoader.register();
-        controller.serverCommunication.call("SELECT FROM 'BIPBOP'.'CHECKOUT'", controller.call("error::ajax", {
-            method: "POST",
-            data: {
-                "parameters": $.param($.extend({}, formData, creditCard))
-            },
-            success: function () {
-                controller.call("alert", {
-                    icon: "pass",
-                    title: "Parabéns! Agora você tem uma conta BIPBOP.",
-                    subtitle: "Enviamos um e-mail com as informações de acesso.",
-                    paragraph: "Verifique seu e-mail para adquirir a senha de acesso. \
-Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de entrada e lixo eletrônico."
-                });
-            },
-            complete: function () {
-                unregister();
+    var bipbopRequestCNPJ = function (formValues, callback) {
+        controller.serverCommunication.call("SELECT FROM 'BIPBOPJS'.'NOME'",
+                controller.call("error::ajax", {
+                    data: {
+                        "q": "SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
+                        "documento": formValues.cnpj
+                    },
+                    success: function () {
+                        callback();
+                    },
+                    error: function (err) {
+                        callback("failed");
+                    }
+                }));
+    };
+
+    var bipbopRequestCPFCEP = function (formValues, form, callback) {
+        controller.serverCommunication.call("SELECT FROM 'BIPBOPJS'.'NOME'",
+                controller.call("error::ajax", {
+                    data: {
+                        "q[0]": "SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
+                        "q[1]": "SELECT FROM 'BIPBOPJS'.'CEP'",
+                        "documento": formValues.cpf,
+                        "cep": formValues.cep,
+                        "nascimento": formValues.nascimento
+                    },
+                    success: function (ret) {
+                        form.setValue("nome", $("body > nome", ret).text());
+                        form.setValue("endereco", $("cep > lograduro", ret).text());
+                        form.setValue("cidade", $("cep > cidade", ret).text());
+                        form.setValue("estado", $("cep > uf", ret).text());
+                        callback();
+                    },
+                    error: function () {
+                        callback("failed");
+                    }
+                }));
+    };
+
+    var bipbopRequest = function (callback, configuration, screen, form) {
+        form.defaultScreenValidation(function (ret) {
+            if (!ret) {
+                return callback(false);
             }
-        }));
+
+            var formValues = form.readValues();
+            var unregister = $.bipbopLoader.register();
+            async.parallel([
+                bipbopRequestCNPJ.bind(this, formValues),
+                bipbopRequestCPFCEP.bind(this, formValues, form)
+            ], function (err) {
+                unregister();
+                callback(!err);
+            });
+        }, configuration, screen);
+    };
+
+
+    controller.registerCall("bipbop::createAccount::submit", function (formData, creditCard) {
+        controller.call("confirm", {
+            icon: "wizard",
+            title: "Você aceita as condições de serviço?",
+            subtitle: "Para criar a conta é necessário aceitar a licença do software.",
+            paragraph: "Verifique as condições gerais do <a href='https://api.bipbop.com.br/bipbop-contrato-v1.pdf' target='blank'>contrato de licença de software e outras avenças</a> para continuar.",
+            confirmText: "Aceitar"
+        }, function () {
+            var unregister = $.bipbopLoader.register();
+            controller.serverCommunication.call("SELECT FROM 'BIPBOP'.'CHECKOUT'", controller.call("error::ajax", {
+                method: "POST",
+                data: {
+                    "parameters": $.param($.extend({}, formData, creditCard))
+                },
+                success: function () {
+                    controller.call("alert", {
+                        icon: "pass",
+                        title: "Parabéns! Agora você tem uma conta BIPBOP.",
+                        subtitle: "Enviamos um e-mail com as informações de acesso.",
+                        paragraph: "Verifique seu e-mail para adquirir a senha de acesso. \
+Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de entrada e lixo eletrônico."
+                    });
+                },
+                complete: function () {
+                    unregister();
+                }
+            }));
+        });
     });
 
     controller.registerCall("bipbop::createAccount", function () {
@@ -52,7 +119,7 @@ Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de e
                 title: "Configurar Método de Pagamento",
                 subtitle: "Configure seu método de pagamento para continuar.",
                 paragraph: "É necessário que você informe seu cartão de crédito para poder criar a conta.",
-                submit: "Criar Conta"
+                submit: "Configurar Cartão"
             });
         });
 
@@ -63,6 +130,7 @@ Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de e
             "screens": [
                 {
                     "magicLabel": true,
+                    "validate": bipbopRequest,
                     "fields": [
                         [{
                                 "name": "email",

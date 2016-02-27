@@ -64,8 +64,10 @@
                     <div class="head2">Open-Source</div>
                     <div class="head1">Pessoas Físicas</div>
                     <div>Código fonte disponível no GitHub.</div>
-                    <div>Livre e gratuito.</div>
-                    <div>Licença MIT.</div>
+                    <div>Livre e gratuito para sempre, crie sua aplicação.</div>
+                    <div>Licença do código <a href="https://github.com/bipbop/harlan/blob/master/LICENSE.txt" target="_blank">MIT</a>.</div>
+                    <div>&nbsp;</div>
+                    <div>&nbsp;</div>
                     <div>&nbsp;</div>
                     <div>&nbsp;</div>
                     <div class="enter"><input type="submit" class="submit action-evaluate" value="Acessar"></div>
@@ -74,9 +76,11 @@
                     <div class="head2">Para Empresas</div>
                     <div class="head1">Comercial</div>
                     <div>Sua chave de API.</div>
+                    <div>Conecte-se com a API BIPBOP e Marketplace.</div>
                     <div>Pagamento no cartão de crédito.</div>
-                    <div>Conecte-se com a API e Marketplace.</div>
                     <div>Utilização de módulos.</div>
+                    <div>Suporte 8/5.</div>
+                    <div>Apenas R$ 390,00 por mês mais adicional de consumo.</div>
                     <div>&nbsp;</div>
                     <div class="enter"><input type="submit" class="submit action-buy" value="Comprar"></div>
                 </div>
@@ -88,6 +92,8 @@
                     <div>Feito para SAP&trade; TOTVs&trade; e outros.</div>
                     <div>Módulos customizados.</div>
                     <div>Suporte 24/7.</div>
+                    <div>Certificado SSL próprio.</div>
+                    <div>Nuvem particular para seus dados.</div>
                     <div class="enter"><input type="submit" class="submit action-sales" value="Comercial"></div>
                 </div>
                 <p>Alguma questão? Envie um e-mail para <a href="mailto:contato@bipbop.com.br">contato@bipbop.com.br</a>.</p>

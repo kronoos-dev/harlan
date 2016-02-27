@@ -9,12 +9,10 @@
             content = new Buffer(size),
             streamHttp = require("stream-http"),
             domReady = require("domready"),
-            assert = require("assert"),
             inflateWorker = new Worker("js/app-inflate.js"),
             downloadedSize = 0,
             totalSize = compressedSize + size,
             decompressedSize = 0,
-            chunks = [],
             updateInterfaceProgress = function () {
                 console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "% Downloaded");
             };

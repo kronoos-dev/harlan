@@ -14,7 +14,8 @@ module.exports = function (controller) {
         var next = function () {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
-            display();
+            console.log(this);
+            display.call(this);
             return this;
         };
 
@@ -22,7 +23,8 @@ module.exports = function (controller) {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
-            display();
+            console.log(this);
+            display.call(this);
             return this;
         };
 
@@ -32,34 +34,24 @@ module.exports = function (controller) {
             assert(c.screens.length > 0);
             configuration = c;
             currentScreen = 0;
-            display();
+            display.call(this);
             return this;
         };
 
-        var defaultScreenValidation = function () {
-            var ret = true, screen = configuration.screens[currentScreen];
+        this.setValue = function (name, value) {
+            name = camelCase(name);
+            if (!configuration) {
+                return;
+            }
 
-            var validateItem = function (item) {
-                if (Array.isArray(item)) {
-                    _.each(item, validateItem);
-                    return;
-                }
+            _.each(configuration.screens, function (v) {
+                _.each(_.flatten(v.fields), function (field) {
+                    if (camelCase(field.name) === name) {
+                        field.value = value;
+                    }
+                });
+            });
 
-                if (item.validate && !item.validate(item, screen, configuration)) {
-                    item.element.addClass("error");
-                    ret = false;
-                    return;
-                }
-                if (!item.optional && /^\s*$/.test(item.element.val())) {
-                    item.element.addClass("error");
-                    ret = false;
-                    return;
-                }
-            };
-
-            _.each(screen.fields, validateItem);
-
-            return ret;
         };
 
         var createField = function (item, form, screen) {
@@ -69,7 +61,7 @@ module.exports = function (controller) {
                 item.container = checkbox[0];
                 item.elementLabel = checkbox[2].addClass("checkbox");
             } else if (item.type === "select") {
-                item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText);
+                item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText, item.value);
             } else if (item.type === "textarea") {
                 item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
 
@@ -77,7 +69,7 @@ module.exports = function (controller) {
                     item.element.magicLabel(item.label);
                 }
             } else {
-                item.element = form.addInput(item.name, item.type, item.placeholder, item, item.labelText);
+                item.element = form.addInput(item.name, item.type, item.placeholder, item, item.labelText, item.value);
 
                 if (screen.magicLabel || item.magicLabel) {
                     item.element.magicLabel(item.label);
@@ -111,6 +103,10 @@ module.exports = function (controller) {
 
         var getValue = function (input, c) {
 
+            if (!input.element) {
+                return null; /* not defined */
+            }
+
             if (input.getValue) {
                 return input.getValue(input, c);
             }
@@ -135,6 +131,15 @@ module.exports = function (controller) {
             return input.element.val();
         };
 
+        this.readValues = function () {
+            return _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), function (input) {
+                return [
+                    camelCase(input.name),
+                    getValue(input, configuration)
+                ];
+            }));
+        };
+
         var display = function () {
             var modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
@@ -156,23 +161,19 @@ module.exports = function (controller) {
 
             form.element().submit(function (e) {
                 e.preventDefault();
+                (screen.validate || this.defaultScreenValidation)(function (validInput) {
+                    if (!validInput) {
+                        return;
+                    }
 
-                if (screen.validate ? !screen.validate() : !defaultScreenValidation()) {
-                    return; 
-                }
-
-                modal.close();
-                if (currentScreen + 1 < configuration.screens.length) {
-                    next();
-                } else {
-                    callback(_.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), function (input) {
-                        return [
-                            camelCase(input.name),
-                            getValue(input, configuration)
-                        ];
-                    })));
-                }
-            });
+                    modal.close();
+                    if (currentScreen + 1 < configuration.screens.length) {
+                        next.call(this);
+                    } else {
+                        callback(this.readValues());
+                    }
+                }.bind(this), configuration, configuration.screens[currentScreen], this);
+            }.bind(this));
 
             for (var i in screen.fields) {
                 var field = screen.fields[i];
@@ -196,9 +197,9 @@ module.exports = function (controller) {
             if (currentScreen - 1 >= 0) {
                 actions.add(controller.i18n.system.back()).click(function (e) {
                     e.preventDefault();
-                    back();
+                    back.call(this);
                     modal.close();
-                });
+                }.bind(this));
             }
 
             /* Cancelar */
@@ -210,7 +211,30 @@ module.exports = function (controller) {
             return this;
         };
 
-        this.defaultScreenValidation = defaultScreenValidation;
+        this.defaultScreenValidation = function (callback, configuration, screen) {
+            var ret = true,
+                    validateItem = function (item) {
+                        if (Array.isArray(item)) {
+                            _.each(item, validateItem);
+                            return;
+                        }
+
+                        if (item.validate && !item.validate(item, screen, configuration)) {
+                            item.element.addClass("error");
+                            ret = false;
+                            return;
+                        }
+                        if (!item.optional && /^\s*$/.test(item.element.val())) {
+                            item.element.addClass("error");
+                            ret = false;
+                            return;
+                        }
+                    };
+
+            _.each(screen.fields, validateItem);
+
+            callback(ret);
+        };
 
         return this;
     };

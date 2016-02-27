@@ -55,6 +55,7 @@
         }
     }
 
+
     input:last-child {
         margin-bottom: 0;
     }
@@ -136,7 +137,15 @@
         display: block;
         z-index: 1;
         position: relative;
-    }
+        box-sizing: border-box;
+    }    
 
 }
 
+.cc-number {
+    background: url(../images/cc/blue-yellow-stripes.png);
+    background-repeat: no-repeat;
+    background-position: right center;
+    /* padding-left: 65px; */
+    background-origin: content-box;
+}

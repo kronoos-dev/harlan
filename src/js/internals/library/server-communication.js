@@ -11,7 +11,7 @@ module.exports = function (controller) {
 
     if (controller.confs.websocketAddress)
         bipbop.websocketAddress = controller.confs.websocketAddress;
-    
+
     if (controller.confs.webserviceAddress)
         bipbop.webserviceAddress = controller.confs.webserviceAddress;
 
@@ -50,15 +50,18 @@ module.exports = function (controller) {
     this.freeKey = function () {
         return bipbopApiKey === BIPBOP_FREE;
     };
-    
+
     this.userHash = function () {
         return SHA256(bipbopApiKey);
     };
 
     /* BIPBOP API Key */
     this.apiKey = function (apiKey) {
-        bipbopApiKey = apiKey;
-        this.webSocket(apiKey);
+        if (apiKey && bipbopApiKey !== apiKey) {
+            bipbopApiKey = apiKey;
+            this.webSocket(apiKey);
+        }
+        return bipbopApiKey;
     };
 
     /* Retorna o XHR da requisição AJAX */

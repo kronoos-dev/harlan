@@ -56,7 +56,7 @@ var ReportModel = function (closeable) {
     this.gamification = function (type) {
         this.newContent();
         var icon = $("<i />")
-                .addClass(gamificationIcons[type])
+                .addClass(gamificationIcons[type] || type)
                 .addClass("gamification");
         elementContent.append(icon).addClass("container-gamification");
         return icon;

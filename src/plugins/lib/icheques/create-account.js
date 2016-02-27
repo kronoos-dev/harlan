@@ -204,7 +204,7 @@ module.exports = function (controller) {
                 inputUsername.addClass("error");
                 errors.push("O nome de usuário deve ter mais de 3 dígitos e não pode conter caracteres especiais.");
             } else {
-                inputUsername.removeClass("erricheques::createAccountor");
+                inputUsername.removeClass("error");
             }
 
             if (!SAFE_PASSWORD.test(password)) {

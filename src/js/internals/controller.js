@@ -192,6 +192,7 @@ var Controller = function () {
     require("./modules/alert")(this);
     require("./modules/push-notification")(this);
     require("./modules/password")(this);
+    require("./modules/progress")(this);
     require("./modules/subaccount")(this);
     require("./modules/more-results")(this);
     require("./modules/instant-search")(this);
@@ -206,7 +207,7 @@ var Controller = function () {
      * Just listen to your voice
      */
 
-    return this;
+     return this;
 };
 
 module.exports = function () {
