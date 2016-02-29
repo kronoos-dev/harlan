@@ -51,7 +51,7 @@ var AccountOverview = function () {
             labels = [], doughnut = null, lastDataset = null;
 
     var status = report.paragraph().html(messages.overall),
-            mainLabel = report.label("Visão Geral"),
+//            mainLabel = report.label("Visão Geral"),
             i = this,
             expression = squel.expr();
 
@@ -168,64 +168,64 @@ var AccountOverview = function () {
 
         if (f.filter === "1") {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10)");
-            filterLabels.push(report.label("Cheques Processados"));
+//            filterLabels.push(report.label("Cheques Processados"));
         }
         else if (f.filter === "2") {
             expression.and("(QUERY_STATUS IS NULL OR QUERY_STATUS == 10)");
-            filterLabels.push(report.label("Cheques em Processamento"));
+//            filterLabels.push(report.label("Cheques em Processamento"));
         }
         else if (f.filter === "3") {
             expression.and("(QUERY_STATUS = 1)");
-            filterLabels.push(report.label("Cheques sem Ocorrência"));
+//            filterLabels.push(report.label("Cheques sem Ocorrência"));
         }
         else if (f.filter === "4") {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10 AND QUERY_STATUS != 1)");
-            filterLabels.push(report.label("Cheques com Ocorrência"));
+//            filterLabels.push(report.label("Cheques com Ocorrência"));
         }
 
 
         if (f.endExpiration) {
             expression.and("EXPIRE <= ?", f.endExpiration);
-            filterLabels.push(report.label("Expira até " + moment(f.endExpiration, "YYYYMMDD").format("DD/MM/YYYY")));
+//            filterLabels.push(report.label("Expira até " + moment(f.endExpiration, "YYYYMMDD").format("DD/MM/YYYY")));
         }
 
         if (f.initExpiration && f.endExpiration) {
             expression.and("EXPIRE >= ?", f.initExpiration);
-            filterLabels.push((report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
+//            filterLabels.push((report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         } else if (f.initExpiration) {
             expression.and("EXPIRE = ?", f.initExpiration);
-            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
+//            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         }
 
         if (f.endCreation) {
             expression.and("CREATION <= ?", f.endCreation.second(59).minute(59).hour(23).unix());
-            filterLabels.push(report.label("Criado até " + f.endCreation.format("DD/MM/YYYY")));
+//            filterLabels.push(report.label("Criado até " + f.endCreation.format("DD/MM/YYYY")));
         }
 
         if (f.initCreation && f.endCreation) {
             expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
-            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
+//            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
         } else if (f.initCreation) {
             expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
             expression.and("CREATION <= ?", f.initCreation.second(59).minute(59).hour(23).unix());
-            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
+//            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
         }
 
         if (f.endAmmount) {
             expression.and("AMMOUNT <= ?", f.endAmmount * 100);
-            filterLabels.push(report.label("Valor até " + numeral(f.initAmmount / 100).format("$0,0.00")));
+//            filterLabels.push(report.label("Valor até " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
 
         if (f.initAmmount && f.endAmmount) {
             expression.and("AMMOUNT >= ?", f.initAmmount * 100);
-            filterLabels.push(report.label("Valor de " + numeral(f.initAmmount / 100).format("$0,0.00")));
+//            filterLabels.push(report.label("Valor de " + numeral(f.initAmmount / 100).format("$0,0.00")));
         } else if (f.initAmmount) {
             expression.and("AMMOUNT = ?", f.initAmmount * 100);
-            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
+//            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
 
         _.each(filterLabels, function (e) {
-            e.insertAfter(mainLabel);
+//            e.insertAfter(mainLabel);
         });
 
         i.draw();
@@ -348,9 +348,6 @@ var AccountOverview = function () {
 //            }).insertBefore(openButton));
             status.html(messages.noOcurrence);
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
-            manipulationItens.push(report.button("Requisitar Suporte", function () {
-                controller.call("support");
-            }).insertBefore(openButton));
             status.html(messages.processing);
         } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {
             manipulationItens.push(report.button("Abrir Documentos", function () {

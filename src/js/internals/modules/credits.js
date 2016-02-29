@@ -1,6 +1,7 @@
 /* global numeral */
 
-var sprintf = require("sprintf");
+var sprintf = require("sprintf"),
+        escaper = require("true-html-escape");
 
 module.exports = function (controller) {
 
@@ -62,6 +63,7 @@ module.exports = function (controller) {
 
                 form.addSubmit("submit", "Prosseguir");
                 actions = modal.createActions();
+
                 actions.add("Cancelar").click(function () {
                     modal.close();
                 });
@@ -94,6 +96,53 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("credits::charge", function (value, quantity, description, callback) {
+        var modal = controller.call("modal");
+        modal.title("Método de Pagamento");
+        modal.subtitle("Selecione o Método de Pagamento");
+        var form = modal.createForm();
+
+        form.element().submit(function (e) {
+            e.preventDefault();
+            modal.close();
+            controller.call("credits::charge::creditCard", value, quantity, description, callback);
+        });
+
+        form.addSubmit("creditcard", "Cartão de Crédito");
+        form.addSubmit("bankslip", "Boleto Bancário").click(function (e) {
+            e.preventDefault();
+            modal.close();
+            controller.call("credits::charge::bankSlip", value, quantity, description);
+        });
+
+        modal.createActions().add(controller.i18n.system.cancel()).click(function (e) {
+            e.preventDefault();
+            modal.close();
+        });
+    });
+
+    controller.registerCall("credits::charge::bankSlip", function (value, quantity, description) {
+        var unregister = $.bipbopLoader.register();
+        controller.serverCommunication.call("SELECT FROM 'HarlanCredits'.'PurchaseBankSlip'", controller.call("error::ajax", {
+            data: {
+                description: description || "Recarga de créditos",
+                value: value,
+                quantity: quantity || 1
+            },
+            success: function (data) {
+                controller.call("alert", {
+                    icon: "pass",
+                    title: "Seu pagamento foi gerado com sucesso!",
+                    subtitle: "O pagamento com boleto bancário leva 1 dia para ser compensado.",
+                    paragraph: "O link com o boleto foi encaminhado para seu e-mail, se preferir você pode acessá-lo <a href='" + escaper.escape($("BPQL > body pdf", data).text()) + "' target='_blank'>clicando aqui</a>."
+                });
+            },
+            complete: function () {
+                unregister();
+            }
+        }));
+    });
+
+    controller.registerCall("credits::charge::creditCard", function (value, quantity, description, callback) {
         controller.call("authentication::need", function () {
             callback = callback || defaultChargeCallback;
             quantity = quantity || 1;
@@ -102,7 +151,7 @@ module.exports = function (controller) {
                 controller.serverCommunication.call("SELECT FROM 'HARLANCREDITS'.'PURCHASE'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: {
-                                description: "Recarga de créditos" || description,
+                                description: description || "Recarga de créditos",
                                 value: value,
                                 token: token.id,
                                 quantity: quantity

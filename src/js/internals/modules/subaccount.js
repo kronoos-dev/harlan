@@ -1,6 +1,7 @@
 /* global module */
 
 var _ = require("underscore");
+
 var formDescription = {
     "title": "Criação de Subconta",
     "subtitle": "Preencha os dados abaixo.",
@@ -31,14 +32,14 @@ var formDescription = {
                 [{
                         "name": "name",
                         "type": "text",
-                        "placeholder": "Nome do Responsável",
+                        "placeholder": "Nome do Responsável (opcional)",
                         "optional": true,
                         "labelText": "Nome do Responsável"
                     },
                     {
                         "name": "zipcode",
                         "type": "text",
-                        "placeholder": "CEP",
+                        "placeholder": "CEP (opcional)",
                         "optional": true,
                         "labelText": "CEP",
                         "mask": "00000-000"
@@ -46,14 +47,14 @@ var formDescription = {
                 [{
                         "name": "email",
                         "type": "text",
-                        "placeholder": "E-mail do Responsável",
+                        "placeholder": "E-mail do Responsável (opcional)",
                         "optional": true,
                         "labelText": "E-mail do Responsável"
                     },
                     {
                         "name": "phone",
                         "type": "text",
-                        "placeholder": "Telefone do Responsável",
+                        "placeholder": "Telefone do Responsável (opcional)",
                         "labelText": "Telefone do Responsável",
                         "mask": "(00) 0000-00009",
                         "optional": true
@@ -61,7 +62,7 @@ var formDescription = {
                 [{
                         "name": "cpf",
                         "type": "text",
-                        "placeholder": "CPF",
+                        "placeholder": "CPF (opcional)",
                         "labelText": "CPF",
                         "mask": "000.000.000-00",
                         "optional": true,
@@ -72,7 +73,7 @@ var formDescription = {
                     {
                         "name": "cnpj",
                         "type": "text",
-                        "placeholder": "CNPJ",
+                        "placeholder": "CNPJ (opcional)",
                         "labelText": "CNPJ",
                         "mask": "00.000.000/0000-00",
                         "optional": true,
@@ -84,6 +85,7 @@ var formDescription = {
         }
     ]
 };
+
 module.exports = function (controller) {
 
     var register = function (data) {
@@ -100,6 +102,7 @@ module.exports = function (controller) {
                     }
                 }));
     };
+    
     var listAccounts = function (data) {
         var modal = controller.call("modal");
         modal.title("Gestão de Subcontas");
@@ -136,21 +139,27 @@ module.exports = function (controller) {
         });
 
         var actions = modal.createActions();
+        
         form.element().submit(function (e) {
             e.preventDefault();
             controller.call("subaccount::create");
             modal.close();
         });
+        
         form.addSubmit("create-subaccount", "Criar Subconta");
+        
         actions.add("Sair").click(function (e) {
             e.preventDefault();
             modal.close();
         });
+        
     };
+    
     controller.registerCall("subaccount::create", function () {
         var form = controller.call("form", register);
         form.configure(formDescription);
     });
+    
     controller.registerCall("subaccount::list", function () {
         controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'LIST'", {
             success: function (data) {
@@ -158,6 +167,7 @@ module.exports = function (controller) {
             }
         });
     });
+    
     controller.registerBootstrap("subaccount", function (cb) {
         cb();
         $("#action-subaccount").click(function (e) {
@@ -165,4 +175,9 @@ module.exports = function (controller) {
             controller.call("subaccount::list");
         });
     });
+    
+    controller.registerCall("subaccount::formDescription", function (newDescription) {
+        formDescription = newDescription;
+    });
+    
 };

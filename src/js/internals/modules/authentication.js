@@ -74,6 +74,7 @@ module.exports = function (controller) {
             $("#input-password").val("");
             $("#input-save-password").removeAttr("checked");
             setSessionId(null);
+            controller.trigger("authentication::logout::end");
             location.reload(true); /* prevent information leak */
         }, timeout = setTimeout(logout, 10000);
 

@@ -64,7 +64,6 @@ module.exports = function (controller) {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText, item.value);
             } else if (item.type === "textarea") {
                 item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
-
                 if (screen.magicLabel || item.magicLabel) {
                     item.element.magicLabel(item.label);
                 }
@@ -172,7 +171,7 @@ module.exports = function (controller) {
                     } else {
                         callback(this.readValues());
                     }
-                }.bind(this), configuration, configuration.screens[currentScreen], this);
+                }.bind(this), configuration, screen, this);
             }.bind(this));
 
             for (var i in screen.fields) {
@@ -189,8 +188,8 @@ module.exports = function (controller) {
                 }
             }
 
-            form.addSubmit("next", currentScreen + 1 < configuration.screens.length ?
-                    controller.i18n.system.next() : controller.i18n.system.finish());
+            form.addSubmit("next", screen.nextButton || (currentScreen + 1 < configuration.screens.length ?
+                    controller.i18n.system.next() : controller.i18n.system.finish()));
 
             var actions = modal.createActions();
 
@@ -224,10 +223,19 @@ module.exports = function (controller) {
                             ret = false;
                             return;
                         }
-                        if (!item.optional && /^\s*$/.test(item.element.val())) {
-                            item.element.addClass("error");
-                            ret = false;
-                            return;
+
+                        if (!item.optional) {
+                            if (item.element.attr("type") === "checkbox") {
+                                if (!item.element.is(":checked")) {
+                                    $("label[for='" + item.element.attr("id") + "']").addClass("error");
+                                    ret = false;
+                                    return;
+                                }
+                            } else if (/^\s*$/.test(item.element.val())) {
+                                item.element.addClass("error");
+                                ret = false;
+                                return;
+                            }
                         }
                     };
 

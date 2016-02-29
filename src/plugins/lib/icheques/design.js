@@ -24,7 +24,7 @@ module.exports = function (controller) {
     /* única forma segura de sair do sistema e voltar a home */
     $(".logo").click(function (e) {
         e.preventDefault();
-        controller.call("authentication::logout");
+        window.location = "https://www.icheques.com.br/";
     });
 
     $("body > .icheques-site .action-login").click(function () {

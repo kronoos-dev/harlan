@@ -82,6 +82,7 @@
     "stream-browserify": "^2.0.1",
     "stream-http": "^2.1.0",
     "string-mask": "^0.2.1",
+    "true-html-escape": "0.0.2",
     "underscore": "^1.7.0",
     "uniqid": "^1.0.0",
     "vinyl-buffer": "^1.0.0",

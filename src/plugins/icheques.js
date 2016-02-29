@@ -1,6 +1,6 @@
 /* global toastr */
 (function (controller) {
-    
+
     controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933";
 
     $.extend(controller.confs.icheques, {
@@ -8,7 +8,8 @@
         monthsIncluded: 5,
         moreMonths: 30
     });
-    
+
+    require("./lib/icheques/welcome")(controller);
     require("./lib/icheques/parser")(controller);
     require("./lib/icheques/design")(controller);
     require("./lib/icheques/new-check")(controller);
@@ -19,11 +20,12 @@
     require("./lib/icheques/report")(controller);
     require("./lib/icheques/search")(controller);
     require("./lib/icheques/buy-reader")(controller);
-    require("./lib/icheques/welcome")(controller);
     require("./lib/icheques/full-profile")(controller);
     require("./lib/icheques/bank-profile")(controller);
     require("./lib/icheques/antecipate")(controller);
     require("./lib/icheques/contact")(controller);
+    require("./lib/icheques/logout")(controller);
+    require("./lib/icheques/subaccount")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar 
@@ -39,5 +41,5 @@
      
      *  Link: http://www.vagalume.com.br/gabriel-pensador/tempestade.html#ixzz3stkENplW
      */
-    
+
 })(harlan);

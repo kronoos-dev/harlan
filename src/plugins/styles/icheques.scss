@@ -1,5 +1,9 @@
 $color: #feefc4;
 
+.header .alerts {
+    display: none;
+}
+
 .logo {
 
     & > span {
@@ -19,6 +23,12 @@ $color: #feefc4;
     }
 
 }
+.modal p.sellit {
+    text-align: center;
+    font-weight: bold;
+    color: #093720;
+}
+
 .icheques-site {
 
     .call-to-action {

@@ -18,28 +18,27 @@ module.exports = function (controller) {
             controller.call("icheques::form::company");
         });
 
-        switch ($("BPQL > body > type", ret).text()) {
-            case "credit-anticipator":
-                report.button("Adicionar Fundo", function () {
-                    /* cria subchave */
-                });
-                break;
+//        switch ($("BPQL > body > type", ret).text()) {
+//            case "credit-anticipator":
+//                report.button("Adicionar Fundo", function () {
+//                    /* cria subchave */
+//                });
+//                break;
+//
+//            case "retail":
+//                report.button("Adicionar Empresa", function () {
+//                    /* cria subchave */
+//                });
+//                break;
+//        }
 
-            case "retail":
-                report.button("Adicionar Empresa", function () {
-                    /* cria subchave */
-                });
-                break;
-        }
-
-        report.button("Dados Bancários", function () {
-            controller.call("icheques::form::bank");
-        });
+//        report.button("Dados Bancários", function () {
+//            controller.call("icheques::form::bank");
+//        });
 
         report.gamification("shield");
 
         $(".app-content").prepend(report.element());
-
     });
 
     controller.registerTrigger("call::authentication::loggedin", "icheques::welcome", function (args, callback) {

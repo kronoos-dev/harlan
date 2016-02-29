@@ -1074,7 +1074,9 @@ input[type=checkbox] {
 
     & + label {
         @include user-select(none);
-
+        &.error {
+            color: #D10E0E;
+        }
     }
 
     &:checked + label:before {

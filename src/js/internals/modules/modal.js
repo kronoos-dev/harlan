@@ -74,6 +74,12 @@ module.exports = function (controller) {
                 actions.append(item);
                 return item;
             };
+            
+            this.observation = function(name) {
+                var item = $("<li> /").text(name);
+                actions.append(item);
+                return item;
+            };
 
             return this;
         };

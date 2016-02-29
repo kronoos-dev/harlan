@@ -12,8 +12,8 @@ module.exports = function (controller) {
 
     var iuguError = function () {
         controller.call("alert", {
-            title : "Ocorreu um erro no sistema de pagamentos!",
-            subtitle : "Não foi possível carregar a biblioteca de pagamentos.",
+            title: "Ocorreu um erro no sistema de pagamentos!",
+            subtitle: "Não foi possível carregar a biblioteca de pagamentos.",
             paragraph: "Para que o sistema carregue corretamente é necessário que todo o domínio iugu.com esteja liberado, solicite ao seu administrador de redes."
         });
     };
@@ -164,10 +164,13 @@ module.exports = function (controller) {
         modal.addParagraph(config.paragraph || "Armazenamos seu cartão de crédito com segurança, para acessá-lo novamente é necessário que crie uma senha de cobranças.");
         var form = modal.createForm();
 
-        var inputCardNumber = form.addInput("credit-card", "text", "Número do Cartão", {}, "Número do Cartão").payment('formatCardNumber').addClass("cc-number"),
-                inputCardExpiry = form.addInput("expire", "text", "Mês / Ano", {}, "Vencimento").payment('formatCardExpiry').addClass("cc-expiry"),
-                inputCardHolder = form.addInput("holder", "text", "Nome do Titular", {}, "Nome do Titular").addClass("cc-holder"),
-                inputCardCVV = form.addInput("cvv", "text", "CVV do Cartão (verso)", {}, "CVV").addClass("cc-cvv");
+        var creditCardHead = form.multiField(),
+                creditCardFooter = form.multiField();
+
+        var inputCardNumber = form.addInput("credit-card", "text", "Número do Cartão", {append: creditCardHead}, "Número do Cartão").payment('formatCardNumber').addClass("cc-number").magicLabel(),
+                inputCardExpiry = form.addInput("expire", "text", "Mês / Ano", {append: creditCardHead}, "Vencimento").payment('formatCardExpiry').addClass("cc-expiry").magicLabel(),
+                inputCardHolder = form.addInput("holder", "text", "Nome do Titular", {append: creditCardFooter}, "Nome do Titular").addClass("cc-holder").magicLabel(),
+                inputCardCVV = form.addInput("cvv", "text", "CVV do Cartão (verso)", {append: creditCardFooter}, "CVV").addClass("cc-cvv").magicLabel();
 
         form.addSubmit("submit", config.submit || "Configurar Cartão");
 
