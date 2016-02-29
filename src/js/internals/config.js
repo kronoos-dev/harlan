@@ -2,8 +2,6 @@ module.exports = {
     proshield: {
         hosts: [
             "proshield",
-            "proshield.com.br",
-            "www.proshield.com.br",
             "proshield.harlan.com.br"
         ]
     },
@@ -16,8 +14,7 @@ module.exports = {
     icheques: {
         hosts: [
             "icheques",
-            "icheques.com.br",
-            "www.icheques.com.br"
+            "painel.icheques.com.br"
         ]
     },
     instantSearchDelay: 500, /* ms */
