@@ -15,6 +15,7 @@ module.exports = {
     },
     icheques: {
         hosts: [
+            "icheques",
             "icheques.com.br",
             "www.icheques.com.br"
         ]
