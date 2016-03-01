@@ -11,7 +11,7 @@ module.exports = function (controller) {
 
     for (var i in dictReports) {
         controller.registerCall(i, function (showAlert) {
-            var report = new (dictReports[i].method);
+            var report = new dictReports[i].method();
             if (report.showable(showAlert)) {
                 $(".app-content").prepend(report.element());
                 report.draw();

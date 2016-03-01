@@ -264,7 +264,7 @@ var AccountOverview = function () {
                 a.color = "#93A7D8";
                 a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
                 a.ammount = (a.ammount || 0) + (b.ammount || 0);
-                a.label = "Outros" + (a.ammount ? " " + numeral(a.ammount / 100.).format("$0,0.00") : "");
+                a.label = "Outros" + (a.ammount ? " " + numeral(a.ammount / 100.0).format("$0,0.00") : "");
                 return a;
             });
         });
@@ -313,7 +313,7 @@ var AccountOverview = function () {
                 value: queryResult[i][3],
                 color: color.hslString(),
                 highlight: color.lighten(0.1).hslString(),
-                label: queryResult[i][2] ? numeral(queryResult[i][2] / 100.).format("$0,0.00") : "",
+                label: queryResult[i][2] ? numeral(queryResult[i][2] / 100.0).format("$0,0.00") : "",
                 ammount: queryResult[i][2],
                 situation: queryResult[i][0],
                 queryStatus: queryResult[i][1]

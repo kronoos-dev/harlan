@@ -26,7 +26,7 @@ module.exports = function (controller) {
                 .select()
                 .from("ICHEQUES_CHECKS")
                 .field("COUNT(1)")
-                .where("CMC = ?", check.cmc.replace(MATCH_NON_DIGITS, '')).toString())[0]['values'][0] > 0;
+                .where("CMC = ?", check.cmc.replace(MATCH_NON_DIGITS, '')).toString())[0]values[0] > 0;
     };
 
     controller.registerCall("icheques::check::alreadyExists", checkAlreadyExists);

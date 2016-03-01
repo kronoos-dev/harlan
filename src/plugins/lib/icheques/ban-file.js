@@ -36,8 +36,8 @@ module.exports = function (controller) {
             try {
                 controller.call("icheques::fidc::enter", getFile(inputFile));
                 modal.close();
-            } catch (e) {
-                toastr.warning(e);
+            } catch (exception) {
+                toastr.warning(exception);
                 inputFile.addClass("error");
             }
         });

@@ -17,9 +17,9 @@ module.exports = function (controller) {
 
         if (onTerminator) {
             onTerminator = false;
-            if ((group === 0 && e.keyCode === 188 && cmcNumber.length === 0)
-                    || (group === 1 && e.keyCode === 188 && cmcNumber.length === 8)
-                    || (group === 2 && e.keyCode === 190 && cmcNumber.length === 18)) {
+            if ((group === 0 && e.keyCode === 188 && cmcNumber.length === 0) ||
+                    (group === 1 && e.keyCode === 188 && cmcNumber.length === 8) ||
+                    (group === 2 && e.keyCode === 190 && cmcNumber.length === 18)) {
                 group++;
                 return;
             } else if (group === 3 && e.keyCode === 191 && cmcNumber.length === 30) {

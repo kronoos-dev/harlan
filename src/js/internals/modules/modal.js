@@ -148,6 +148,9 @@ module.exports = function (controller) {
             };
 
             this.addSelect = function (id, name, list, obj, labelText, value) {
+                
+                obj = obj || {};
+                
                 var select = $("<select />").attr({
                     id: id,
                     name: name

@@ -94,8 +94,7 @@ module.exports = function (controller) {
                         icon: "pass",
                         title: "Parabéns! Agora você tem uma conta BIPBOP.",
                         subtitle: "Enviamos um e-mail com as informações de acesso.",
-                        paragraph: "Verifique seu e-mail para adquirir a senha de acesso. \
-Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de entrada e lixo eletrônico."
+                        paragraph: "Verifique seu e-mail para adquirir a senha de acesso. Caso não encontre aguarde alguns instantes e verifique novamente sua caixa de entrada e lixo eletrônico."
                     });
                 },
                 complete: function () {
