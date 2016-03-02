@@ -38,6 +38,8 @@ module.exports = function (controller) {
         report.gamification("shield");
 
         $(".app-content").prepend(report.element());
+
+        controller.call("icheques::reference", ret);
     });
 
     controller.registerTrigger("call::authentication::loggedin", "icheques::welcome", function (args, callback) {

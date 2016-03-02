@@ -146,7 +146,19 @@ var AccountOverview = function () {
             return;
         }
 
-        controller.call("icheques::show::query", query);
+        if (!$("section.icheque, footer.load-more").length) {
+            controller.call("icheques::show::query", query, function () {
+                $(window).scrollTop($("section.icheque, .footer.load-more").first().offset().top);
+            });
+        } else {
+            $(window).scrollTop($("section.icheque, .footer.load-more").first().offset().top);
+            controller.call("confirm", {
+                title: "Encontramos alguns resultados já abertos.",
+                subtitle: "Você tem certeza que deseja abrir mais estes?"
+            }, function () {
+                controller.call("icheques::show::query", query);
+            });
+        }
     };
 
 
@@ -434,7 +446,7 @@ var AccountOverview = function () {
     var draw = function () {
         selfie.draw();
     };
-    
+
     updateRegister.push(draw);
     report.onClose = function () {
         var idx = updateRegister.indexOf(draw);

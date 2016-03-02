@@ -21,12 +21,10 @@
 
         display: table-cell;
         vertical-align: middle;
-        max-height: 100%;
         position: relative;
 
         & > div {
 
-            max-height: 100%;
             overflow: auto;
             position: relative;
 

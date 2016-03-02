@@ -177,12 +177,12 @@ module.exports = function (controller) {
 
     controller.registerCall("icheques::show::document", showDocument);
 
-    controller.registerCall("icheques::show::query", function (query) {
+    controller.registerCall("icheques::show::query", function (query, callback, prepend) {
         if (!query) {
             return;
         }
         controller.call("icheques::resultDatabase", query);
-        controller.call("icheques::show", query.values);
+        controller.call("icheques::show", query.values, callback, prepend);
     });
 
     controller.registerCall("icheques::show", function (storage, callback, prepend) {

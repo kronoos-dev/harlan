@@ -15,7 +15,7 @@ module.exports = function (controller) {
     $("body").append(siteTemplate);
 
     $("body > .icheques-site .call-to-action").css({
-        "min-height": $(window).height()
+        "height": window.innerHeight
     });
 
     $(".app .module-menu").hide();

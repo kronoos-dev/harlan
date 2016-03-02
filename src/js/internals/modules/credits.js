@@ -132,7 +132,7 @@ module.exports = function (controller) {
                 controller.call("alert", {
                     icon: "pass",
                     title: "Seu pagamento foi gerado com sucesso!",
-                    subtitle: "O pagamento com boleto bancário leva 1 dia para ser compensado.",
+                    subtitle: "O pagamento com boleto bancário leva um dia útil para ser compensado.",
                     paragraph: "O link com o boleto foi encaminhado para seu e-mail, se preferir você pode acessá-lo <a href='" + escaper.escape($("BPQL > body pdf", data).text()) + "' target='_blank'>clicando aqui</a>."
                 });
             },
