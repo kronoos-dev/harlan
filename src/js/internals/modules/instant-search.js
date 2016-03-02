@@ -2,8 +2,8 @@
 
 module.exports = function (controller) {
 
-    controller.registerCall("instantSearch", function (input, callback) {
-        var autocomplete = controller.call("autocomplete", input);
+    controller.registerCall("instantSearch", function (input, callback, autocomplete) {
+        autocomplete = autocomplete || controller.call("autocomplete", input);
 
         var searchLength;
         var searchId;

@@ -22,9 +22,11 @@ module.exports = function (controller) {
     $("#action-show-modules").parent().parent().hide();
 
     /* única forma segura de sair do sistema e voltar a home */
-    $(".logo").click(function (e) {
-        e.preventDefault();
-        window.location = "https://www.icheques.com.br/";
+    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function () {
+        $(".logo, #action-logout").off().click(function (e) {
+            e.preventDefault();
+            window.location = "https://www.icheques.com.br/";
+        });
     });
 
     $("body > .icheques-site .action-login").click(function () {

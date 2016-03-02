@@ -1,5 +1,6 @@
 /* global module */
-var gamificationIcons = require("./data/gamification-icons");
+var gamificationIcons = require("./data/gamification-icons"),
+        Form = require("./lib/form");
 
 var ReportModel = function (closeable) {
     var elementNews = $("<div />").addClass("report"),
@@ -66,6 +67,13 @@ var ReportModel = function (closeable) {
         var p = $("<p />").text(text);
         elementContent.append(p);
         return p;
+    };
+
+    this.form = function (controller) {
+        return new Form({
+            element: this.content,
+            close: this.close
+        }, controller);
     };
 
     this.button = function (name, action) {

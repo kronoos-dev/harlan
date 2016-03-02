@@ -8,28 +8,25 @@
         monthsIncluded: 5,
         moreMonths: 30
     });
-    try {
-        require("./lib/icheques/reference")(controller);
-        require("./lib/icheques/welcome")(controller);
-        require("./lib/icheques/parser")(controller);
-        require("./lib/icheques/new-check")(controller);
-        require("./lib/icheques/cmc-reader")(controller);
-        require("./lib/icheques/checkout")(controller);
-        require("./lib/icheques/create-account")(controller);
-        require("./lib/icheques/harlan")(controller);
-        require("./lib/icheques/report")(controller);
-        require("./lib/icheques/search")(controller);
-        require("./lib/icheques/buy-reader")(controller);
-        require("./lib/icheques/full-profile")(controller);
-        require("./lib/icheques/bank-profile")(controller);
-        require("./lib/icheques/antecipate")(controller);
-        require("./lib/icheques/contact")(controller);
-        require("./lib/icheques/logout")(controller);
-        require("./lib/icheques/subaccount")(controller);
-        require("./lib/icheques/design")(controller);
-    } catch (e) {
-        console.error(e);
-    }
+
+    require("./lib/icheques/reference")(controller);
+    require("./lib/icheques/welcome")(controller);
+    require("./lib/icheques/parser")(controller);
+    require("./lib/icheques/new-check")(controller);
+    require("./lib/icheques/cmc-reader")(controller);
+    require("./lib/icheques/checkout")(controller);
+    require("./lib/icheques/create-account")(controller);
+    require("./lib/icheques/harlan")(controller);
+    require("./lib/icheques/report")(controller);
+    require("./lib/icheques/search")(controller);
+    require("./lib/icheques/buy-reader")(controller);
+    require("./lib/icheques/full-profile")(controller);
+    require("./lib/icheques/bank-profile")(controller);
+    require("./lib/icheques/antecipate")(controller);
+    require("./lib/icheques/contact")(controller);
+    require("./lib/icheques/logout")(controller);
+    require("./lib/icheques/subaccount")(controller);
+    require("./lib/icheques/design")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar 
