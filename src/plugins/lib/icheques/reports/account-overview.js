@@ -43,12 +43,14 @@ var parseValue = function (val) {
     return /^\s*$/.test(val) ? null : numeral(val)._value;
 };
 
-var AccountOverview = function () {
+var AccountOverview = function (closeable) {
 
     var report = controller.call("report",
             AccountOverview.prototype.about.title,
-            AccountOverview.prototype.about.subtitle), timeout = null,
+            AccountOverview.prototype.about.subtitle, null, closeable), timeout = null,
             labels = [], doughnut = null, lastDataset = null;
+    
+    report.element().addClass("ichequesAccountOverview");
 
     var status = report.paragraph().html(messages.overall),
 //            mainLabel = report.label("Visão Geral"),

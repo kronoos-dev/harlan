@@ -2,12 +2,20 @@
 
 module.exports = function (controller) {
 
-    controller.registerCall("icheques::reference", function () {
-        if (localStorage.hasCommercialReference) {
+    var report = null;
+
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::reference::websocket::authentication", function (data, callback) {
+        callback();
+
+        if (report) {
+            report.close();
+        }
+
+        if (data.commercialReference) {
             return;
         }
-        
-        var report = controller.call("report",
+
+        report = controller.call("report",
                 "Quem indicou a você o iCheques?",
                 "Nos diga quem foi bom samaritano que indicou a você o iCheques.",
                 "Nossa pergunta é porque nós pretendemos dar um saco cheio de moedas de ouro para quem te apresentou nossa maravilhosa ferramenta.",
@@ -26,7 +34,6 @@ module.exports = function (controller) {
 
             };
         };
-
 
         autocomplete.item("Sites de Busca (aka. Google)", null, "Eu encontrei o iCheques através de um site de buscas.").click(fill("Google"));
         autocomplete.item("E-mail Marketing (não SPAM)", null, "Eu recebi um e-mail marketing muito banaca de vocês.").click(fill("Google"));

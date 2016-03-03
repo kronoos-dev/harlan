@@ -1,6 +1,5 @@
 /* global toastr, BIPBOP_FREE, module */
 
-
 module.exports = function (controller) {
 
     /**
@@ -97,6 +96,7 @@ module.exports = function (controller) {
             return false;
         }
         controller.serverCommunication.apiKey(key);
+
         controller.trigger("authentication::authenticated", ret, function (err) {
             if (err) {
                 controller.call("default::page");

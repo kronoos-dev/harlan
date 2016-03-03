@@ -1,3 +1,8 @@
+/* global module */
+
+var loaderRegister = 0,
+        loaderUnregister = null;
+
 module.exports = function (controller) {
 
     var siteTemplate = require('../../templates/icheques-site.html.js'),
@@ -71,6 +76,19 @@ module.exports = function (controller) {
         }, element.attr("data-contract"), {
             type: element.attr("data-type")
         });
+    });
+
+    controller.registerCall("loader::register", function () {
+        loaderRegister++;
+        loaderUnregister = $.bipbopLoader.register();
+    });
+
+    controller.registerCall("loader::unregister", function () {
+        if (--loaderRegister > 0) {
+            return;
+        }
+        if (loaderUnregister)
+            loaderUnregister();
     });
 
 };

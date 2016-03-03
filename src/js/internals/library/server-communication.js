@@ -16,12 +16,6 @@ module.exports = function (controller) {
         bipbop.webserviceAddress = controller.confs.webserviceAddress;
 
     /**
-     * Web Socket Function
-     * @type @exp;bipbop@call;webSocket
-     */
-    var webSocketFnc;
-
-    /**
      * Api Key
      * @type string
      */

@@ -10,8 +10,8 @@ module.exports = function (controller) {
     };
 
     for (var i in dictReports) {
-        controller.registerCall(i, function (showAlert) {
-            var report = new dictReports[i].method();
+        controller.registerCall(i, function (showAlert, closeable) {
+            var report = new dictReports[i].method(closeable);
             if (report.showable(showAlert)) {
                 $(".app-content").prepend(report.element());
                 report.draw();
@@ -26,14 +26,14 @@ module.exports = function (controller) {
                 continue;
             args[1].item("iCheques", "Relatório Geral de Cheques", "Acesso ao relatório geral de cheques").addClass("icheque").click(function (e) {
                 e.preventDefault();
-                controller.call(i, true);
+                controller.call(i, true, true);
             });
         }
     });
 
     controller.registerTrigger("call::authentication::loggedin", "icheques::report::overview", function (args, callback) {
         callback();
-        controller.call("icheques::report::overview");
+        controller.call("icheques::report::overview", false, false);
     });
 
 };

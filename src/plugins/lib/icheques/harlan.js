@@ -155,6 +155,10 @@ module.exports = function (controller) {
             }
         });
 
+        if (!$(".ichequesAccountOverview").length) {
+            controller.call("icheques::report::overview", false, false);
+        }
+
         return section[0];
     };
 

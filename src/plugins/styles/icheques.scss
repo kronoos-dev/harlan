@@ -7,19 +7,16 @@ $color: #feefc4;
 .logo {
 
     & > span {
-        background-image: url('../images/icheques/logo-icon.png');
+        top: 0;
+        background: url(../images/icheques/logo.svg) no-repeat;
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 180px;
+        height: 54px;
+        margin-right: 0;
     }
     h1 {
-        font-size: 0;
-        color: transparent;
-        margin-top: 8px;
-        background-image: url('../images/icheques/logo-text.svg');
-        height: 30px;
-        width: 142px;
-        background-size: contain;
-        display: inline-block;
-        background-repeat: no-repeat;
-        vertical-align: bottom;
+        display: none;
     }
 
 }

@@ -18,7 +18,7 @@ module.exports = function (controller) {
                             controller.call("alert", {
                                 icon: "pass",
                                 title: "Parabéns! Você comprou com sucesso a leitora Nonus HandbanK 10 USB.",
-                                subtitle: "Em 4 dias úteis sua leitora será entregue, também estamos anciosos."
+                                subtitle: "Em 4 dias úteis sua leitora será entregue, também estamos ansiosos."
                             });
                         }
                     }));
@@ -139,7 +139,7 @@ module.exports = function (controller) {
             form.addSubmit("submit", "Adquirir por R$ 938,00");
             var actions = modal.createActions();
             actions.observation("Garantia de 12 meses");
-            actions.observation("Entrega em 4 dias");
+            actions.observation("Entrega em 4 dias úteis");
             actions.add("Cancelar").click(function (e) {
                 e.preventDefault();
                 modal.close();
