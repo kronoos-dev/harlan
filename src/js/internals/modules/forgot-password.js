@@ -4,6 +4,8 @@ var SAFE_PASSWORD = /^.{6,}$/;
 
 module.exports = function (controller) {
 
+    controller.endpoint.forgotPassword = "SELECT FROM 'HARLANAUTHENTICATION'.'FORGOTPASSWORD'";
+
     controller.registerCall("forgotPassword", function (callback) {
         var modal = controller.call("modal");
         modal.title("Recupere sua senha");
@@ -24,7 +26,7 @@ module.exports = function (controller) {
 
             usernameInput.removeClass("error");
 
-            controller.serverCommunication.call("SELECT FROM 'HARLANAUTHENTICATION'.'FORGOTPASSWORD'",
+            controller.serverCommunication.call(controller.endpoint.forgotPassword,
                     controller.call("error::ajax", controller.call("loader::ajax", {
                         data: {username: username},
                         success: function () {

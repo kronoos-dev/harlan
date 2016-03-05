@@ -1,7 +1,6 @@
 /* global module */
 
 var _ = require("underscore");
-
 var formDescription = {
     "title": "Criação de Subconta",
     "subtitle": "Preencha os dados abaixo.",
@@ -15,26 +14,29 @@ var formDescription = {
                     "name": "alias",
                     "type": "text",
                     "placeholder": "Nome de Usuário",
-                    "labelText": "Nome de Usuário"
+                    "labelText": "Nome de Usuário",
+                    "optional": false
                 },
                 [{
                         "name": "password",
                         "type": "password",
                         "placeholder": "Senha",
-                        "labelText": "Senha"
+                        "labelText": "Senha",
+                        "optional": false
                     },
                     {
                         "name": "repeat-password",
                         "type": "password",
                         "placeholder": "Repita sua Senha",
-                        "labelText": "Repita sua Senha"
+                        "labelText": "Repita sua Senha",
+                        "optional": false
                     }],
                 [{
                         "name": "name",
                         "type": "text",
-                        "placeholder": "Nome do Responsável (opcional)",
+                        "placeholder": "Nome (opcional)",
                         "optional": true,
-                        "labelText": "Nome do Responsável"
+                        "labelText": "Nome"
                     },
                     {
                         "name": "zipcode",
@@ -47,15 +49,15 @@ var formDescription = {
                 [{
                         "name": "email",
                         "type": "text",
-                        "placeholder": "E-mail do Responsável (opcional)",
+                        "placeholder": "E-mail (opcional)",
                         "optional": true,
-                        "labelText": "E-mail do Responsável"
+                        "labelText": "E-mail"
                     },
                     {
                         "name": "phone",
                         "type": "text",
-                        "placeholder": "Telefone do Responsável (opcional)",
-                        "labelText": "Telefone do Responsável",
+                        "placeholder": "Telefone (opcional)",
+                        "labelText": "Telefone",
                         "mask": "(00) 0000-00009",
                         "optional": true
                     }],
@@ -85,11 +87,11 @@ var formDescription = {
         }
     ]
 };
-
 module.exports = function (controller) {
 
+    controller.endpoint.subaccountCreate = "SELECT FROM 'BIPBOPAPIKEY'.'GENERATE'";
     var register = function (data) {
-        controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'GENERATE'",
+        controller.serverCommunication.call(controller.endpoint.subaccountCreate,
                 controller.call("error::ajax", {
                     data: data,
                     success: function () {
@@ -102,7 +104,6 @@ module.exports = function (controller) {
                     }
                 }));
     };
-    
     var listAccounts = function (data) {
         var modal = controller.call("modal");
         modal.title("Gestão de Subcontas");
@@ -110,7 +111,6 @@ module.exports = function (controller) {
         modal.addParagraph("A gestão de subcontas permite você administrar múltiplos usuários.");
         var form = modal.createForm();
         var list = form.createList();
-
         $("BPQL > body > company", data).each(function (idx, item) {
 
             var status = $("status", item).text() === "1",
@@ -120,7 +120,6 @@ module.exports = function (controller) {
             var iconStatus = function () {
                 return status ? "fa-check" : "fa-times";
             };
-
             var acc = list.add(iconStatus(), _.filter([
                 cnpj, cpf, username
             ])).click(function () {
@@ -137,29 +136,22 @@ module.exports = function (controller) {
                 });
             });
         });
-
         var actions = modal.createActions();
-        
         form.element().submit(function (e) {
             e.preventDefault();
             controller.call("subaccount::create");
             modal.close();
         });
-        
         form.addSubmit("create-subaccount", "Criar Subconta");
-        
         actions.add("Sair").click(function (e) {
             e.preventDefault();
             modal.close();
         });
-        
     };
-    
     controller.registerCall("subaccount::create", function () {
         var form = controller.call("form", register);
         form.configure(formDescription);
     });
-    
     controller.registerCall("subaccount::list", function () {
         controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'LIST'", {
             success: function (data) {
@@ -167,7 +159,6 @@ module.exports = function (controller) {
             }
         });
     });
-    
     controller.registerBootstrap("subaccount", function (cb) {
         cb();
         $("#action-subaccount").click(function (e) {
@@ -175,9 +166,7 @@ module.exports = function (controller) {
             controller.call("subaccount::list");
         });
     });
-    
     controller.registerCall("subaccount::formDescription", function (newDescription) {
         formDescription = newDescription;
     });
-    
 };

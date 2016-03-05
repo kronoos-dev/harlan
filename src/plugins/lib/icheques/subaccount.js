@@ -2,44 +2,28 @@
 
 module.exports = function (controller) {
 
+    controller.endpoint.subaccountCreate = "INSERT INTO 'DatabaseIChequesProfile'.'SUBACCOUNT'";
+
     controller.call("subaccount::formDescription", {
         "title": "Criação de Subconta",
         "subtitle": "Preencha os dados abaixo.",
-        "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente.",
+        "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente. Cada subchave inicia uma cobrança de R$ 200,00 (duzentos reais) mensal.",
         "gamification": "star",
         "screens": [
             {
                 "magicLabel": true,
                 "fields": [
-                    {
-                        "name": "alias",
-                        "type": "text",
-                        "placeholder": "Nome de Usuário",
-                        "labelText": "Nome de Usuário"
-                    },
-                    [{
-                            "name": "password",
-                            "type": "password",
-                            "placeholder": "Senha",
-                            "labelText": "Senha"
-                        },
-                        {
-                            "name": "repeat-password",
-                            "type": "password",
-                            "placeholder": "Repita sua Senha",
-                            "labelText": "Repita sua Senha"
-                        }],
                     [{
                             "name": "name",
                             "type": "text",
-                            "placeholder": "Nome do Responsável (opcional)",
+                            "placeholder": "Nome do Responsável",
                             "optional": true,
                             "labelText": "Nome do Responsável"
                         },
                         {
                             "name": "zipcode",
                             "type": "text",
-                            "placeholder": "CEP (opcional)",
+                            "placeholder": "CEP",
                             "optional": true,
                             "labelText": "CEP",
                             "mask": "00000-000"
@@ -47,40 +31,43 @@ module.exports = function (controller) {
                     [{
                             "name": "email",
                             "type": "text",
-                            "placeholder": "E-mail do Responsável (opcional)",
-                            "optional": true,
-                            "labelText": "E-mail do Responsável"
+                            "placeholder": "E-mail",
+                            "optional": false,
+                            "labelText": "E-mail"
                         },
                         {
                             "name": "phone",
                             "type": "text",
-                            "placeholder": "Telefone do Responsável (opcional)",
-                            "labelText": "Telefone do Responsável",
+                            "placeholder": "Telefone (opcional)",
+                            "labelText": "Telefone",
                             "mask": "(00) 0000-00009",
                             "optional": true
                         }],
                     [{
-                            "name": "cpf",
-                            "type": "text",
-                            "placeholder": "CPF (opcional)",
-                            "labelText": "CPF",
-                            "mask": "000.000.000-00",
-                            "optional": true,
-                            "maskOptions": {
-                                "reverse": true
-                            }
+                            "name": "password",
+                            "type": "password",
+                            "placeholder": "Senha",
+                            "labelText": "Senha",
+                            "optional": false
                         },
                         {
-                            "name": "cnpj",
-                            "type": "text",
-                            "placeholder": "CNPJ (opcional)",
-                            "labelText": "CNPJ",
-                            "mask": "00.000.000/0000-00",
-                            "optional": true,
-                            "maskOptions": {
-                                "reverse": true
-                            }
+                            "name": "repeat-password",
+                            "type": "password",
+                            "placeholder": "Repita sua Senha",
+                            "labelText": "Repita sua Senha",
+                            "optional": false
                         }],
+                    {
+                        "name": "cnpj",
+                        "type": "text",
+                        "placeholder": "CNPJ",
+                        "labelText": "CNPJ",
+                        "mask": "00.000.000/0000-00",
+                        "optional": false,
+                        "maskOptions": {
+                            "reverse": true
+                        }
+                    },
                     {
                         "name": "accept",
                         "type": "checkbox",

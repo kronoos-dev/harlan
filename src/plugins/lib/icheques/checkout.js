@@ -90,7 +90,7 @@ module.exports = function (controller) {
         for (var i in storage) {
             if (!validCheck(storage[i].cmc)) {
                 toastr.warning("Alguns cheques não poderão ser processados.",
-                        "Instituição bancária não interegrada ao iCheques.");
+                        "Instituição bancária não integrada ao iCheques.");
                 break;
             }
         }

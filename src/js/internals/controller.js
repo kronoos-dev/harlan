@@ -27,6 +27,8 @@ var Controller = function () {
     var bootstrapCalls = {};
     var calls = {};
     var events = {};
+    
+    this.endpoint = {};
 
     /**
      * List all possible calls
