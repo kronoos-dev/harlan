@@ -70,6 +70,7 @@ module.exports = function (controller) {
 
             controller.serverCommunication.call("SELECT FROM 'BIPBOPADMIN'.'PASSWORD'", controller.call("error::ajax", {
                 data: {
+                    "password" : oldPassword,
                     "password-old": oldPassword,
                     "password-new": password,
                     "password-repeat": confirmPassword
