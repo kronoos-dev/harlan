@@ -103,6 +103,7 @@ module.exports = function (controller) {
                 return;
             }
             controller.call("authentication::loggedin");
+            controller.trigger("authentication::authenticated::end");
         });
 
         return true;

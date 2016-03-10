@@ -49,7 +49,7 @@ module.exports = function (controller) {
     controller.registerCall("icheques::fidc::enter", function (file) {
         fileReaderStream(file).pipe(concat(function (buffer) {
             var lines = buffer.toString().split("\r\n");
-            readExtension[TEST_BAN_EXTENSION.exec("file.rem")[1].toLowerCase()](lines);
+            readExtension[TEST_BAN_EXTENSION.exec(file.name)[1].toLowerCase()](lines);
         }));
     });
 
@@ -60,6 +60,7 @@ module.exports = function (controller) {
             if (key % 2 !== 0) {
                 continue;
             }
+
 
             var expire = moment(lines[key - 1].substring(249, 249 + 6), "DDMMYY");
 
@@ -91,7 +92,7 @@ module.exports = function (controller) {
             } else {
                 data.cnpj = document;
             }
-            
+
             storage.push(data);
         }
 

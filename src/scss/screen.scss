@@ -1391,7 +1391,13 @@ input.link {
             width: 100%;
         }
 
-        ol {
+        h4 {
+            font-size: 16px;
+            line-height: 45px;
+            font-weight: bold;
+        }
+
+        ol, ul {
             position: relative;
             padding-left: 18px;
             li {
