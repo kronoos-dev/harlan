@@ -1,5 +1,12 @@
+var radialCeil = function (value) {
+    if (!value) {
+        return 0;
+    }
+    return (Math.round(value) * 100) / 100;
+};
+
 module.exports = function (parent, percent) {
-    percent = percent || 0;
+    percent = radialCeil(percent);
     var radialProject = $("<div />").addClass("radialProject"),
             progress = $("<div />").addClass("progress"),
             progressFill = $("<div />").addClass("progressFill"),
@@ -23,7 +30,7 @@ module.exports = function (parent, percent) {
     return {
         element: radialProject,
         change: function (percent) {
-            percent = percent || 0;
+            percent = radialCeil(percent);
             deg = 360 * percent / 100;
             radialProject[percent > 50 ? "addClass" : "removeClass"]('gtHalf');
             progressFill.css('transform', 'rotate(' + deg + 'deg)');
