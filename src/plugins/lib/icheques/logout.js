@@ -2,7 +2,8 @@
 
 module.exports = function (controller) {
 
-    controller.registerTrigger("authentication::logout::end", "icheques::authentication::logout::end", function (param, cb) {
+    controller.registerCall("authentication::logout", function () {
+        delete localStorage.sessionId;
         window.location = "https://www.icheques.com.br/";
     });
     

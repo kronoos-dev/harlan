@@ -28,6 +28,7 @@
     require("./lib/icheques/logout")(controller);
     require("./lib/icheques/subaccount")(controller);
     require("./lib/icheques/design")(controller);
+    require("./lib/icheques/contract-accept")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar 
