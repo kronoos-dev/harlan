@@ -219,7 +219,7 @@ module.exports = function (controller) {
         form.addSubmit("addcheck", "Adicionar Cheque").addClass("strong");
 
         var actions = modal.createActions();
-        actions.add("Arquivo BAN").click(function (e) {
+        actions.add("Arquivo BAN ou REM").click(function (e) {
             e.preventDefault();
             newCheckFormAction = null;
             modal.close();

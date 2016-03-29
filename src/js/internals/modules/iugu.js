@@ -167,10 +167,21 @@ module.exports = function (controller) {
         var creditCardHead = form.multiField(),
                 creditCardFooter = form.multiField();
 
-        var inputCardNumber = form.addInput("credit-card", "text", "Número do Cartão", {append: creditCardHead}, "Número do Cartão").payment('formatCardNumber').addClass("cc-number").magicLabel(),
-                inputCardExpiry = form.addInput("expire", "text", "Mês / Ano", {append: creditCardHead}, "Vencimento").payment('formatCardExpiry').addClass("cc-expiry").magicLabel(),
-                inputCardHolder = form.addInput("holder", "text", "Nome do Titular", {append: creditCardFooter}, "Nome do Titular").addClass("cc-holder").magicLabel(),
-                inputCardCVV = form.addInput("cvv", "text", "CVV do Cartão (verso)", {append: creditCardFooter}, "CVV").addClass("cc-cvv").magicLabel();
+        var inputCardNumber = form.addInput("credit-card", "text", "Número do Cartão", {
+            labelPosition: "before",
+            append: creditCardHead}, "Número do Cartão").payment('formatCardNumber').addClass("cc-number").magicLabel(),
+                inputCardExpiry = form.addInput("expire", "text", "Mês / Ano", {
+                    labelPosition: "before",
+                    append: creditCardHead
+                }, "Vencimento").payment('formatCardExpiry').addClass("cc-expiry").magicLabel(),
+                inputCardHolder = form.addInput("holder", "text", "Nome do Titular", {
+                    labelPosition: "before",
+                    append: creditCardFooter
+                }, "Nome do Titular").addClass("cc-holder").magicLabel(),
+                inputCardCVV = form.addInput("cvv", "text", "CVV do Cartão (verso)", {
+                    labelPosition: "before",
+                    append: creditCardFooter
+                }, "CVV").addClass("cc-cvv").magicLabel();
 
         form.addSubmit("submit", config.submit || "Configurar Cartão");
 
