@@ -5,7 +5,7 @@
 
 Este documento é voltado para desenvolvedores que desejam carregar o Harlan dentro de seus sistemas ou otimizá-lo através da criação de módulos. Esse documento fornece um resumo do que é necessário para se trabalhar dentro deste sistema.
 
-![](http://harlan.bipbop.com.br/images/bipbop-logo-460.png) 
+![](http://www.harlan.com.br/images/bipbop-logo-460.png) 
 
 ### O que é o Harlan?
 
