@@ -14,7 +14,6 @@ module.exports = function (controller) {
         var next = function () {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
-            console.log(this);
             display.call(this);
             return this;
         };
@@ -23,7 +22,6 @@ module.exports = function (controller) {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
-            console.log(this);
             display.call(this);
             return this;
         };
@@ -48,6 +46,9 @@ module.exports = function (controller) {
                 _.each(_.flatten(v.fields), function (field) {
                     if (camelCase(field.name) === name) {
                         field.value = value;
+                        if (field.element) {
+                            field.element.val(v);
+                        }
                     }
                 });
             });
@@ -64,7 +65,7 @@ module.exports = function (controller) {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText, item.value);
             } else if (item.type === "textarea") {
                 item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
-                if (screen.magicLabel || item.magicLabel) {
+                if (configuration.magicLabel || screen.magicLabel || item.magicLabel) {
                     item.element.magicLabel(item.label);
                 }
             } else {
@@ -139,11 +140,21 @@ module.exports = function (controller) {
             }));
         };
 
+        this.getField = function (name) {
+            var items = _.flatten(_.pluck(configuration.screens, 'fields'));
+            for (var i in items) {
+                if(items[i].name == name) {
+                    return items[i];
+                }
+            }
+            return null;
+        };
+
         var display = function () {
             var modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
 
-            var gamification = modal.gamification || configuration.gamification;
+            var gamification = screen.gamification || configuration.gamification;
             if (gamification) {
                 modal.gamification(gamification);
             }

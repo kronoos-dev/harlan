@@ -1,6 +1,12 @@
-/* global toastr, module */
+var owasp = require('owasp-password-strength-test');
 
-var SAFE_PASSWORD = /^.{6,}$/;
+owasp.config({
+  allowPassphrases       : true,
+  maxLength              : 128,
+  minLength              : 6,
+  minPhraseLength        : 20,
+  minOptionalTestsToPass : 3,
+}); /* Senha mais simples para esquecidos não anotarem */
 
 module.exports = function (controller) {
 
@@ -64,26 +70,30 @@ module.exports = function (controller) {
 
             if (/^\s*$/.test(secureCode)) {
                 inputSecureCode.addClass("error");
-                errors.push("Você deve preencher o código de segurança.");
+                errors.push("Você deve preencher o código de segurança para poder\
+                             continuar.");
             } else {
                 inputSecureCode.removeClass("error");
             }
 
-            if (!SAFE_PASSWORD.test(password)) {
+            if (!owasp.test(password).strong) {
                 inputPassword.addClass("error");
-                errors.push("A senha deve possuir no mínimo 6 dígitos.");
+                errors.push("A senha que você tenta configurar é muito fraca, tente\
+                             uma com 10 (dez) dígitos, números, caracteres maísculos,\
+                             minúsculos e especiais.");
             } else if (password !== confirmPassword) {
                 inputPassword.addClass("error");
                 inputConfirmPassword.addClass("error");
-                errors.push("A senha não confere");
+                errors.push("A senhas digitadas não conferem, certifique que a \
+                             senha escolhida pode ser memorizada.");
             } else {
                 inputPassword.removeClass("error");
                 inputConfirmPassword.removeClass("error");
             }
 
-            if (errors.length) {
+            if (errors) {
                 for (var i in errors.length) {
-                    toastr.warning(errors[i], "Não foi possível prosseguir");
+                    toastr.warning(errors[i], "Não foi possível prosseguir devido a um erro.");
                 }
                 return;
             }
@@ -121,4 +131,4 @@ module.exports = function (controller) {
             controller.call("forgotPassword");
         });
     });
-}; 
+};

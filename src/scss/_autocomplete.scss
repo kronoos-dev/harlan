@@ -59,6 +59,12 @@
 
         }
 
+        &.admin-company {
+            @include color-icon(#cbff7c, "\f0f2");
+            background-image: url('../images/textures/brilliant.png');
+        }
+
+
         &.company {
             @include color-icon(#fff, "\f0f7");
         }

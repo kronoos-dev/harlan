@@ -29,6 +29,7 @@ module.exports = function (controller) {
             "subtitle": "Digite o endereço de entrega da leitora.",
             "paragraph": "Preencha abaixo os campos para que a leitora seja entregue.",
             "nextButton": "Adquirir",
+            "gamification" : "magicWand",
             "screens": [{
                     magicLabel: true,
                     fields: [

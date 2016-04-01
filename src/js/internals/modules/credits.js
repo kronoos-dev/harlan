@@ -171,7 +171,7 @@ module.exports = function (controller) {
 
             modal.title("Carregar a Conta de Créditos");
             modal.subtitle("Selecione a opção de créditos desejada.");
-            modal.addParagraph("Algumas consultas na BIPBOP exigem créditos para serem realizadas, recarregue sua conta já.");
+            modal.addParagraph("Para continuar desfrutando de todos os recursos da plataforma recarregue sua conta, veja qual opção abaixo se encaixa melhor dentro da sua necessidade.");
             var form = modal.createForm(),
                     list = form.createList();
 

@@ -126,6 +126,7 @@ module.exports = function (controller) {
             "title": "Criar uma Conta BIPBOP",
             "subtitle": "Tenha acesso ao melhor do Harlan.",
             "paragraph": "Com uma única conta BIPBOP você pode acessar vários de nossos serviços.",
+            "gamification" : "magicWand",
             "screens": [
                 {
                     "magicLabel": true,

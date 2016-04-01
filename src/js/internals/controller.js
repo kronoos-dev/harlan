@@ -27,7 +27,7 @@ var Controller = function () {
     var bootstrapCalls = {};
     var calls = {};
     var events = {};
-    
+
     this.endpoint = {};
 
     /**
@@ -198,9 +198,11 @@ var Controller = function () {
     require("./modules/subaccount")(this);
     require("./modules/more-results")(this);
     require("./modules/instant-search")(this);
+    require("./modules/tooltip")(this);
     require("./modules/icheques")(this);
     require("./modules/dive")(this);
     require("./modules/bipbop")(this);
+    require("./modules/admin/index")(this);
 
     /**
      * From day to night and night to day

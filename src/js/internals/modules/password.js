@@ -1,5 +1,5 @@
 /* global module */
-var SAFE_PASSWORD = /^.{6,}$/,
+var owasp = require("owasp-password-strength-test"),
         PASSWORD_TIPS = [
             "Tenha sempre instalado e atualizado em seu micro um programa antivírus e, se possível, programe-o para atualizar as listas de vírus automaticamente quando estiver conectado à internet.",
             "Troque sua senha da internet e do aplicativo periodicamente.",
@@ -49,13 +49,15 @@ module.exports = function (controller) {
                     password = inputNewPassword.val(),
                     confirmPassword = inputConfirmPassword.val();
 
-            if (!SAFE_PASSWORD.test(password)) {
+            if (!owasp.test(password).strong) {
                 inputNewPassword.addClass("error");
-                errors.push("A senha deve possuir no mínimo 6 dígitos.");
+                errors.push("A senha que você tenta configurar é muito fraca, tente\
+                             uma com 10 (dez) dígitos, números, caracteres maísculos,\
+                             minúsculos e especiais.");
             } else if (password !== confirmPassword) {
                 inputNewPassword.addClass("error");
                 inputConfirmPassword.addClass("error");
-                errors.push("A senha não confere");
+                errors.push("As senhas não conferem, verifique e tente novamente.");
             } else {
                 inputNewPassword.removeClass("error");
                 inputConfirmPassword.removeClass("error");
@@ -63,7 +65,7 @@ module.exports = function (controller) {
 
             if (errors.length) {
                 for (var i in errors) {
-                    toastr.warning(errors[i], "Não foi possível prosseguir");
+                    toastr.warning(errors[i], "Não foi possível prosseguir.");
                 }
                 return;
             }

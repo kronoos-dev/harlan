@@ -82,14 +82,6 @@ var section = function (name, description, subdescription, disableDefaultActions
 
 module.exports = function (controller) {
 
-    controller.registerCall("section::spinner", function (element) {
-        var item = $("<li />").addClass("display-loader").append($("<i />").addClass("fa fa-spinner fa-spin"));
-        element.append(item);
-        return function () {
-            item.remove();
-        };
-    });
-
     controller.registerCall("section", function (name, description, subdescription, disableDefaultActions, minimized) {
         return section(name, description, subdescription, disableDefaultActions, minimized);
     });

@@ -40,12 +40,12 @@ em {
 
 body {
     font-family: $font-open-sans;
-    font-size: 16px;    
+    font-size: 16px;
     background-color: $color-background;
     color: $color-font;
 }
 
-label { 
+label {
     font-family: $font-open-sans;
     font-size: 15px;
     font-weight: 300;
@@ -326,9 +326,9 @@ label {
 
     a {
         @include transition(color 200ms ease-in);
-        @include a-color($color-action);        
+        @include a-color($color-action);
         &:hover {
-            @include a-color(darken($color-action, 25%));        
+            @include a-color(darken($color-action, 25%));
         }
     }
 
@@ -358,10 +358,10 @@ label {
 
 @keyframes backgroundPosition {
     0% {
-        background-position: 0% 50%; 
+        background-position: 0% 50%;
     }
     50% {
-        background-position: 100% 50%; 
+        background-position: 100% 50%;
     }
     100% {
         background-position: 0% 50%;
@@ -387,7 +387,7 @@ label {
 
         &.external-source {
             overflow: hidden;
-            .content { 
+            .content {
                 padding-left: 50px;
                 &:before {
                     font-family: "FontAwesome";
@@ -472,7 +472,6 @@ label {
                 font-size: 9px;
                 line-height: 180%;
                 color: lighten($color-font, 10%);
-                cursor: pointer;
                 display: inline-block;
             }
 
@@ -482,7 +481,7 @@ label {
             }
 
             .value {
-                @include user-select(all); 
+                @include user-select(all);
                 text-align: justify;
                 font-family: $font-open-sans-condensed;
                 font-size: 23px;
@@ -548,7 +547,7 @@ label {
 
         .field.first-visible .value:before {
             font-family: "FontAwesome";
-            content: "\f00c"; 
+            content: "\f00c";
             margin-right: 10px;
         }
 
@@ -705,7 +704,7 @@ label {
             content: "";
             display: block;
             clear: both;
-        }    
+        }
     }
 
     &:last-child > div {
@@ -752,7 +751,7 @@ label {
         box-sizing: border-box;
         position: relative;
         .metadata {
-            margin-top: 5px; 
+            margin-top: 5px;
             font-size: 10px;
             line-height: 140%;
             li {
@@ -862,11 +861,11 @@ label {
             color: #fff;
             vertical-align: top;
             font-size: 23px;
-            font-family: "FontAwesome"; 
+            font-family: "FontAwesome";
             word-break: break-word;
             position: initial;
             top: auto;
-            right: auto;            
+            right: auto;
         }
 
         .saved {
@@ -893,9 +892,19 @@ label {
     &.database {
         header {
             background-color: lighten($color-action, 18%);
-
         }
     }
+
+    &.admin-company {
+        header {
+            background-image: url('../images/textures/brilliant.png');
+            background-color: #99FF00;
+            &.separator {
+                background-color: #dfdfdf;
+            }
+        }
+    }
+
 
 }
 
@@ -1135,7 +1144,7 @@ input.link {
     }
 }
 
-.bipbop-loader { 
+.bipbop-loader {
     z-index: 99999999999999999;
 }
 
@@ -1148,7 +1157,7 @@ input.link {
     .antiphishing {
         border-radius: 3px;
         right: 8px;
-        background: #bfffbf; 
+        background: #bfffbf;
     }
 }
 
@@ -1280,7 +1289,7 @@ input.link {
     .input-label {
         position: absolute;
         margin: 0;
-        text-align: left; 
+        text-align: left;
         bottom: -10px;
         margin-left: 16px;
         display: none;
@@ -1317,13 +1326,13 @@ input.link {
 }
 
 .magic-label-hide {
-    transition: 300ms opacity; 
+    transition: 300ms opacity;
     opacity: 0;
     display: block;
 }
 
 .magic-label-show {
-    transition: 300ms opacity; 
+    transition: 300ms opacity;
     opacity: 1;
     display: block;
 }
@@ -1382,7 +1391,7 @@ input.link {
     .content {
         @media (min-width: 600px) {
             &:first-child {
-                max-width: 420px;            
+                max-width: 420px;
             }
         }
         padding: 20px;
