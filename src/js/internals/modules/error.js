@@ -22,19 +22,17 @@ module.exports = function (controller) {
             try {
                 var xml = $.parseXML(jqXHR.responseText);
                 $.bipbopAssert(xml, controller.call("error::toast"));
-                if (error) {
-                    call.splice(0, 0, xml);
-                    error.apply(this, xml);
+                if (dict.bipbopError) {
+                    dict.bipbopError(xml);
                 }
-                return;
             } catch (err) {
                 toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }
 
             if (error) {
-                call.splice(0, 0, null);
-                error.apply(this, Array.from(arguments));
+                error(...arguments);
             }
+
         };
         return dict;
     });

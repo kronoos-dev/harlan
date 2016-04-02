@@ -103,17 +103,16 @@ var Controller = function () {
         regex = regex || /.*/;
         for (var key in calls) {
             if (regex.test(key)) {
-                console.log("harlan.call('" + key + "')", calls[key]);
+                console.log(`harlan.call('${key}')`, calls[key]);
             }
         }
     };
 
-    this.call = function () {
-        var parameters = Array.from(arguments);
-        console.log(":: call ::", parameters[0], parameters);
-        assert.ok(parameters[0] in calls);
-        var data = calls[parameters[0]].apply(this, parameters.slice(1));
-        this.trigger("call::" + parameters[0], parameters);
+    this.call = function (name, ...parameters) {
+        console.log(":: call ::", name, parameters);
+        assert.ok(name in calls);
+        var data = calls[name](...parameters);
+        this.trigger(`call::${name}`, parameters);
         return data;
     };
 

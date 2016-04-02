@@ -24,7 +24,7 @@ module.exports = function (controller) {
 
     controller.registerCall("loader::register", function () {
         loaderRegister++;
-        
+
         animationElement = controller.call("loader::catchElement");
         if (!animationElement.length) {
             $(".q").addClass("loading");
@@ -57,13 +57,13 @@ module.exports = function (controller) {
         dict.beforeSend = function () {
             controller.call("loader::register");
             if (beforeSend)
-                beforeSend.apply(this, Array.from(arguments));
+                beforeSend(...Array.from(arguments));
         };
 
         dict.complete = function (jqXHR, textStatus) {
             controller.call("loader::unregister");
             if (complete)
-                complete.apply(this, Array.from(arguments));
+                complete(...Array.from(arguments));
         };
 
         return dict;

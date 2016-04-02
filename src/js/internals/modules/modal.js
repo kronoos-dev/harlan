@@ -30,7 +30,7 @@ module.exports = function (controller) {
 
         $(window).resize(webkitIOSandSafariHack);
         var interval = setInterval(webkitIOSandSafariHack, SAFARI_HACK_REFRESH_RATE);
-        
+
         modal.on("remove", function () {
             clearInterval(interval);
         });
@@ -54,11 +54,13 @@ module.exports = function (controller) {
             return h3;
         };
 
-        this.addParagraph = function (content) {
+        this.paragraph = function (content) {
             var p = $("<p />").html(content);
             modal.append(p);
             return p;
         };
+
+        this.addParagraph = this.paragraph;
 
         this.addProgress = function (initProgress) {
             var progress = controller.call("progress::init", initProgress);
@@ -81,26 +83,6 @@ module.exports = function (controller) {
             return wizard;
         };
 
-        this.createActions = function () {
-            var actions = $("<ul />").addClass("actions");
-            modal.append(actions);
-            return {
-                add: function (name) {
-                    var link = $("<a />").attr("href", "#").text(name),
-                            item = $("<li> /").append(link);
-                    actions.append(item);
-                    return item;
-                },
-                observation: function (name) {
-                    var item = $("<li> /").text(name);
-                    actions.append(item);
-                    return item;
-                }
-            };
-
-
-        };
-
         this.createForm = function () {
             return new Form(this, controller);
         };
@@ -118,6 +100,33 @@ module.exports = function (controller) {
         };
 
         var close = this.close;
+
+        this.createActions = function () {
+            var actions = $("<ul />").addClass("actions");
+            modal.append(actions);
+            var add = (name) => {
+                var link = $("<a />").attr("href", "#").text(name),
+                        item = $("<li> /").append(link);
+                actions.append(item);
+                return item;
+            };
+            return {
+                add: add,
+                cancel: function (onExit, text) {
+                    add(text || controller.i18n.system.cancel()).click((e) => {
+                        e.preventDefault();
+                        if (onExit) onExit();
+                        close();
+                    });
+                },
+                observation: function (name) {
+                    var item = $("<li> /").text(name);
+                    actions.append(item);
+                    return item;
+                }
+            };
+        };
+
 
         return this;
     };

@@ -3,15 +3,17 @@ var gamificationIcons = require("./data/gamification-icons"),
         Form = require("./lib/form");
 
 var ReportModel = function (closeable) {
-    var elementNews = $("<div />").addClass("report"),
+    var
+            universalContainer = $("<div />"),
+            elementNews = $("<div />").addClass("report"),
             elementContainer = $("<div />").addClass("container"),
             elementActions = $("<ul />").addClass("r-actions"),
             elementContent = $("<div />").addClass("content"),
             elementOpen = null;
 
-    elementNews.append(elementContainer
+    universalContainer.append(elementNews.append(elementContainer
             .append(elementActions)
-            .append(elementContent));
+            .append(elementContent)));
 
     var buttonElement = function () {
         if (!elementOpen) {
@@ -90,7 +92,7 @@ var ReportModel = function (closeable) {
     };
 
     this.element = function () {
-        return elementNews;
+        return universalContainer;
     };
 
     this.newAction = function (icon, action) {
@@ -105,13 +107,13 @@ var ReportModel = function (closeable) {
         if (this.onClose) {
             this.onClose();
         }
-        elementNews.remove();
+        universalContainer.remove();
     };
 
     if (typeof closeable === "undefined" || closeable) {
         /* closeable */
-        this.newAction("fa-times", function () {
-            elementNews.remove();
+        this.newAction("fa-times", () => {
+            this.close();
         });
     }
 

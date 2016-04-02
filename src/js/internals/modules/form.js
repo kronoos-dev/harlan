@@ -1,24 +1,25 @@
 /* global module, numeral */
 
 var assert = require("assert"),
-        _ = require("underscore"),
-        camelCase = require('change-case').camelCase;
+    _ = require("underscore"),
+    camelCase = require('change-case').camelCase,
+    async = require("async");
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
-    var GenerateForm = function (callback) {
+    var GenerateForm = function(callback) {
 
         var currentScreen = 0;
         var configuration = null;
 
-        var next = function () {
+        var next = function() {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
             display.call(this);
             return this;
         };
 
-        var back = function () {
+        var back = function() {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
@@ -26,7 +27,7 @@ module.exports = function (controller) {
             return this;
         };
 
-        this.configure = function (c) {
+        this.configure = function(c) {
             assert(typeof c === "object");
             assert(Array.isArray(c.screens));
             assert(c.screens.length > 0);
@@ -36,14 +37,14 @@ module.exports = function (controller) {
             return this;
         };
 
-        this.setValue = function (name, value) {
+        this.setValue = function(name, value) {
             name = camelCase(name);
             if (!configuration) {
                 return;
             }
 
-            _.each(configuration.screens, function (v) {
-                _.each(_.flatten(v.fields), function (field) {
+            _.each(configuration.screens, function(v) {
+                _.each(_.flatten(v.fields), function(field) {
                     if (camelCase(field.name) === name) {
                         field.value = value;
                         if (field.element) {
@@ -55,7 +56,7 @@ module.exports = function (controller) {
 
         };
 
-        var createField = function (item, form, screen) {
+        var createField = function(item, form, screen) {
             if (item.type === "checkbox") {
                 var checkbox = form.addCheckbox(item.name, item.labelText, item.checked, item.value, item);
                 item.element = checkbox[1];
@@ -85,7 +86,13 @@ module.exports = function (controller) {
 
             }
 
-            item.element.change(function () {
+            item.element.change(function() {
+                if (item.validateAsync)
+                    item.validateAsync((isValid) => {
+                        if (!isValid) {
+                            item.element.addClass("error");
+                        }
+                    }, item, screen, configuration);
 
                 if (item.validate && !item.validate(item, screen, configuration)) {
                     item.element.addClass("error");
@@ -101,7 +108,7 @@ module.exports = function (controller) {
             return this;
         };
 
-        var getValue = function (input, c) {
+        var getValue = function(input, c) {
 
             if (!input.element) {
                 return null; /* not defined */
@@ -131,8 +138,8 @@ module.exports = function (controller) {
             return input.element.val();
         };
 
-        this.readValues = function () {
-            return _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), function (input) {
+        this.readValues = function() {
+            return _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), function(input) {
                 return [
                     camelCase(input.name),
                     getValue(input, configuration)
@@ -140,17 +147,17 @@ module.exports = function (controller) {
             }));
         };
 
-        this.getField = function (name) {
+        this.getField = function(name) {
             var items = _.flatten(_.pluck(configuration.screens, 'fields'));
             for (var i in items) {
-                if(items[i].name == name) {
+                if (items[i].name == name) {
                     return items[i];
                 }
             }
             return null;
         };
 
-        var display = function () {
+        var display = function() {
             var modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
 
@@ -169,9 +176,9 @@ module.exports = function (controller) {
 
             var form = modal.createForm();
 
-            form.element().submit(function (e) {
+            form.element().submit(function(e) {
                 e.preventDefault();
-                (screen.validate || this.defaultScreenValidation)(function (validInput) {
+                (screen.validate || this.defaultScreenValidation)(function(validInput) {
                     if (!validInput) {
                         return;
                     }
@@ -200,12 +207,12 @@ module.exports = function (controller) {
             }
 
             form.addSubmit("next", screen.nextButton || (currentScreen + 1 < configuration.screens.length ?
-                    controller.i18n.system.next() : controller.i18n.system.finish()));
+                controller.i18n.system.next() : controller.i18n.system.finish()));
 
             var actions = modal.createActions();
 
             if (currentScreen - 1 >= 0) {
-                actions.add(controller.i18n.system.back()).click(function (e) {
+                actions.add(controller.i18n.system.back()).click(function(e) {
                     e.preventDefault();
                     back.call(this);
                     modal.close();
@@ -213,7 +220,7 @@ module.exports = function (controller) {
             }
 
             /* Cancelar */
-            actions.add(controller.i18n.system.cancel()).click(function (e) {
+            actions.add(controller.i18n.system.cancel()).click(function(e) {
                 e.preventDefault();
                 modal.close();
             });
@@ -221,45 +228,54 @@ module.exports = function (controller) {
             return this;
         };
 
-        this.defaultScreenValidation = function (callback, configuration, screen) {
-            var ret = true,
-                    validateItem = function (item) {
-                        if (Array.isArray(item)) {
-                            _.each(item, validateItem);
-                            return;
-                        }
+        this.defaultScreenValidation = function(callback, configuration, screen) {
+            var ret = true;
+            async.each(_.flatten(screen.fields), (item, callback) => {
 
-                        if (item.validate && !item.validate(item, screen, configuration)) {
-                            item.element.addClass("error");
-                            ret = false;
-                            return;
-                        }
-
-                        if (!item.optional) {
-                            if (item.element.attr("type") === "checkbox") {
-                                if (!item.element.is(":checked")) {
-                                    $("label[for='" + item.element.attr("id") + "']").addClass("error");
-                                    ret = false;
-                                    return;
-                                }
-                            } else if (/^\s*$/.test(item.element.val())) {
-                                item.element.addClass("error");
-                                ret = false;
-                                return;
-                            }
-                        }
+                if (item.validateAsync) {
+                    var callbackEnveloped = callback;
+                    callback = () => {
+                        item.validateAsync((valid) => {
+                            if (!valid) ret = false;
+                            callbackEnveloped();
+                        }, item, screen, configuration);
                     };
+                }
 
-            _.each(screen.fields, validateItem);
+                if (item.validate && !item.validate(item, screen, configuration)) {
+                    item.element.addClass("error");
+                    ret = false;
+                    callback();
+                    return;
+                }
 
-            callback(ret);
+                if (!item.optional) {
+                    if (item.element.attr("type") === "checkbox") {
+                        if (!item.element.is(":checked")) {
+                            $("label[for='" + item.element.attr("id") + "']").addClass("error");
+                            ret = false;
+                            callback();
+                            return;
+                        }
+                    } else if (/^\s*$/.test(item.element.val())) {
+                        item.element.addClass("error");
+                        ret = false;
+                        callback();
+                        return;
+                    }
+                }
+
+                callback();
+            }, () => {
+                callback(ret);
+            });
         };
 
         return this;
     };
 
 
-    controller.registerCall("form", function (parameters) {
+    controller.registerCall("form", function(parameters) {
         return new GenerateForm(parameters);
     });
 

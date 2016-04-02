@@ -1,7 +1,18 @@
 module.exports = (controller) => {
 
-    controller.registerCall("admin::changeAddress", (addressInputs) => {
-        var form = controller.call("form");
+    controller.registerCall("admin::changeAddress", (companyNode, username, section) => {
+        var form = controller.call("form", (opts) => {
+            opts.username = username;
+            controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'ADDRESS'",
+                controller.call("error::ajax", controller.call("loader::ajax", {
+                    data: opts,
+                    success: (response) => {
+                        controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
+                    }
+                })));
+        });
+
+        var endereco = $(companyNode).children("endereco");
         form.configure({
             "title": "Alteração de Endereço",
             "subtitle": "Preencha os dados abaixo.",
@@ -14,13 +25,15 @@ module.exports = (controller) => {
                         "name": "endereco",
                         "optional": false,
                         "type": "text",
-                        "placeholder": "Endereço"
+                        "value": endereco.find("endereco:eq(0)").text(),
+                        "placeholder": "Endereço",
                     }, {
                         "name": "zipcode",
                         "type": "text",
                         "placeholder": "CEP",
                         "optional": false,
                         "labelText": "CEP",
+                        "value": endereco.find("endereco:eq(4)").text(),
                         "mask": "00000-000"
                     }],
                     [{
@@ -28,15 +41,18 @@ module.exports = (controller) => {
                         "optional": false,
                         "type": "text",
                         "numeral": true,
+                        "value": endereco.find("endereco:eq(1)").text(),
                         "placeholder": "Número"
                     }, {
                         "name": "complemento",
+                        "value": endereco.find("endereco:eq(2)").text(),
                         "type": "text",
                         "optional": true,
                         "placeholder": "Complemento"
                     }],
                     [{
                         "name": "cidade",
+                        "value": endereco.find("endereco:eq(5)").text(),
                         "optional": false,
                         "type": "text",
                         "placeholder": "Cidade"
@@ -44,6 +60,7 @@ module.exports = (controller) => {
                         "name": "estado",
                         "optional": false,
                         "type": "select",
+                        "value": endereco.find("endereco:eq(6)").text(),
                         "placeholder": "Estado",
                         "list": {
                             "": "Escolha um estado",

@@ -1,6 +1,7 @@
-var documentValidator = require("cpf_cnpj"),
-    owasp = require('owasp-password-strength-test'),
-    validUsername = /^[a-z\@\.\_\-\s\d]{3,}$/i;
+var owasp = require('owasp-password-strength-test'),
+    VALID_USERNAME = /^[a-z\@\.\_\-\s\d]{3,}$/i,
+    CPF = require("cpf_cnpj").CPF,
+    CNPJ = require("cpf_cnpj").CNPJ;
 
 module.exports = (controller) => {
 
@@ -67,7 +68,7 @@ module.exports = (controller) => {
                         }
 
                         var usernameElement = formManager.getField("username").element;
-                        if (!validUsername.test(values.username)) {
+                        if (!VALID_USERNAME.test(values.username)) {
                             usernameElement.addClass("error");
                             toastr.error("O nome de usuário precisa ter 3 ou mais caracteres, sem espaços.");
                             callback(false);
@@ -135,6 +136,10 @@ module.exports = (controller) => {
                         "optional": true,
                         "maskOptions": {
                             "reverse": true
+                        },
+                        validate: function(item) {
+                            if (item.element.val())
+                                return CPF.isValid(item.element.val());
                         }
                     }, {
                         "name": "cnpj",
@@ -145,6 +150,10 @@ module.exports = (controller) => {
                         "optional": true,
                         "maskOptions": {
                             "reverse": true
+                        },
+                        validate: function(item) {
+                            if (item.element.val())
+                                return CNPJ.isValid(item.element.val());
                         }
                     }]
                 ],
@@ -170,10 +179,6 @@ module.exports = (controller) => {
                                     "Impossível continuar sem nome");
                                 isValid = false;
                             }
-                            if (!documentValidator.CPF.isValid(values.cpf)) {
-                                toastr.error("O CPF inserido não confere, verifique e tente novamente.");
-                                isValid = false;
-                            }
                         }
 
                         if (values.cnpj) {
@@ -181,10 +186,6 @@ module.exports = (controller) => {
                                 toastr.error(
                                     "É necessário que o nome da empresa seja preenchido caso haja CNPJ.",
                                     "Impossível continuar sem nome da empresa");
-                                isValid = false;
-                            }
-                            if (!documentValidator.CNPJ.isValid(values.cnpj)) {
-                                toastr.error("O CNPJ inserido não confere, verifique e tente novamente.");
                                 isValid = false;
                             }
                         }
@@ -230,6 +231,7 @@ module.exports = (controller) => {
                         "optional": false,
                         "placeholder": "Mínimo Consultas",
                         "labelText": "Mínimo Consultas",
+                        "mask": "0#",
                         "numeral": true
                     }]
                 ]

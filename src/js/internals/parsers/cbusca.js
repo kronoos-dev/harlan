@@ -35,7 +35,7 @@ module.exports = function (controller) {
 
             if (_.contains(addressElements, nodes["Endereço"]) ||
                     _.contains(cepElements, nodes.CEP) ||
-                    Math.max.apply(this, _.map(addressElements, function (value) {
+                    Math.max(..._.map(addressElements, function (value) {
                         return natural.JaroWinklerDistance(value, nodes["Endereço"]);
                     })) > 0.85) {
                 return;

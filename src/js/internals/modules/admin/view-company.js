@@ -3,7 +3,47 @@ var uniqid = require("uniqid");
 
 module.exports = (controller) => {
 
-    controller.registerCall("admin::viewCompany", function(companyNode, append) {
+    controller.registerCall("admin::remove::phone", (element, section, username, ddd, phone, pabx) => {
+        element.addClass("can-remove").click((e) => {
+            e.preventDefault();
+            controller.call("confirm", {
+                title: "Deseja realmente remover este telefone?"
+            }, () => {
+                controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'PHONE'", {
+                    data: {
+                        username: username,
+                        ddd: ddd,
+                        phone: phone,
+                        pabx: pabx
+                    },
+                    success: (response) => {
+                        controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
+                    }
+                });
+            });
+        });
+    });
+
+    controller.registerCall("admin::remove::email", (element, section, username, email) => {
+        element.addClass("can-remove").click((e) => {
+            e.preventDefault();
+            controller.call("confirm", {
+                title: "Deseja realmente remover este email?"
+            }, () => {
+                controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'EMAIL'", {
+                    data: {
+                        username: username,
+                        email: email
+                    },
+                    success: (response) => {
+                        controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
+                    }
+                });
+            });
+        });
+    });
+
+    controller.registerCall("admin::viewCompany", function(companyNode, element, method, minimized) {
 
         var company = $(companyNode);
 
@@ -11,12 +51,13 @@ module.exports = (controller) => {
             username = company.children("username").text(),
             cnpj = company.children("cnpj").text(),
             cpf = company.children("cpf").text(),
+            responsible = company.children("responsavel").text(),
             credits = parseInt(company.children("credits").text());
 
         var [section, results, actions] = controller.call("section",
             `Administração ${name || username}`,
             `Conta registrada para documento ${cnpj || cpf || username}`,
-            `Visualizar, editar e controlar o acesso do usuário ${username}`);
+            `Visualizar, editar e controlar o acesso do usuário ${username}`, false, minimized);
 
         section.addClass("admin-company");
 
@@ -25,31 +66,37 @@ module.exports = (controller) => {
         result.addItem("Assinante", name);
 
         if (cnpj) result.addItem("CNPJ", cnpj);
+        if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", cpf);
         if (credits) result.addItem("Créditos Sistema", numeral(credits / 100.).format('$0,0.00'));
 
-        var inputApiKey = result.addItem("Chave de API", companyNode.children("apiKey").text());
+        var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
         result.addItem("Usuário", username);
-        result.addItem("Contrato Aceito", companyNode.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
+        result.addItem("Contrato Aceito", company.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
 
         var isActive = company.children("status").text() === "1",
             activeLabel = result.addItem("Situação", isActive ? "Ativo" : "Bloqueado");
 
-        var phones = company.children("telefones").children("telefones");
+        if (!isActive) {
+            section.addClass("inactive");
+        }
+
+        var phones = company.children("telefone").children("telefone");
         if (phones.length) {
             result.addSeparator("Telefones",
                 "Lista de Telefones para Contato",
                 "O telefone deve ser usado apenas para emergências e tratativas comerciais.");
 
             var [ddd, phone, pabx, name, kind] = [
-                phones.children("telefones:eq(0)"),
-                phones.children("telefones:eq(1)"),
-                phones.children("telefones:eq(2)"),
-                phones.children("telefones:eq(3)"),
-                phones.children("telefones:eq(3)")
+                phones.children("telefone:eq(0)").text(),
+                phones.children("telefone:eq(1)").text(),
+                phones.children("telefone:eq(2)").text(),
+                phones.children("telefone:eq(3)").text(),
+                phones.children("telefone:eq(4)").text()
             ];
 
-            result.addItem(`${name} - ${kind}`, `(${ddd}) ${phone} ${pabx}`);
+            controller.call("admin::remove::phone", result.addItem(`${name} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
+                section, username, ddd, phone, pabx);
         }
 
         var endereco = company.children("endereco");
@@ -69,8 +116,8 @@ module.exports = (controller) => {
             appendAddressItem("Número", endereco.find("endereco:eq(1)").text());
             appendAddressItem("Complemento", endereco.find("endereco:eq(2)").text());
             appendAddressItem("Bairro", endereco.find("endereco:eq(3)").text());
-            appendAddressItem("Cidade", endereco.find("endereco:eq(4)").text());
-            appendAddressItem("CEP", endereco.find("endereco:eq(5)").text());
+            appendAddressItem("Cidade", endereco.find("endereco:eq(5)").text());
+            appendAddressItem("CEP", endereco.find("endereco:eq(4)").text());
             appendAddressItem("Estado", endereco.find("endereco:eq(6)").text());
 
         }
@@ -94,13 +141,18 @@ module.exports = (controller) => {
                 "As notificações geradas pelo sistema são enviadas para estes e-mails.");
 
             emails.each(function(idx, value) {
-                result.addItem($("email:eq(1)", value).text(), $("email:eq(0)", value).text());
+                var email = $("email:eq(0)", value).text();
+                controller.call("admin::remove::email", result.addItem($("email:eq(1)", value).text(), email),
+                    section, username, email);
             });
         }
 
         results.append(result.element());
 
-        (append || $(".app-content")).append(section);
+        if (element !== false) {
+            /* element can be undefined or null, false mean it will return only */
+            (element || $(".app-content"))[method || "append"](section);
+        }
 
         var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-lock" : "fa-unlock-alt"),
             lockProcess = false,
@@ -118,6 +170,7 @@ module.exports = (controller) => {
                         success: function() {
                             isActive = !isActive;
                             activeLabel.find(".value").text(isActive ? "Ativo" : "Bloqueado");
+                            section[isActive ? "removeClass" : "addClass"]("inactive");
                             lockSymbol
                                 .removeClass("fa-unlock-alt")
                                 .removeClass("fa-lock")
@@ -128,17 +181,17 @@ module.exports = (controller) => {
 
         controller.call("tooltip", actions, "Editar").append($("<i />").addClass("fa fa-edit")).click((e) => {
             e.preventDefault();
-            controller.call("admin::changeCompany");
+            controller.call("admin::changeCompany", companyNode, username, section);
         });
 
         controller.call("tooltip", actions, "Editar Contrato").append($("<i />").addClass("fa fa-briefcase")).click((e) => {
             e.preventDefault();
-            controller.call("admin::changeContract");
+            controller.call("admin::changeContract", companyNode, username, section);
         });
 
         controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map")).click((e) => {
             e.preventDefault();
-            controller.call("admin::changeAddress");
+            controller.call("admin::changeAddress", companyNode, username, section);
         });
 
         controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
@@ -161,9 +214,19 @@ module.exports = (controller) => {
         });
 
         controller.call("tooltip", actions, "Bloquear/Desbloquear").append(lockSymbol).click(doLocking);
-        
-        controller.call("tooltip", actions, "Editar E-mails").append($("<i />").addClass("fa fa-at"));
-        controller.call("tooltip", actions, "Editar Telefones").append($("<i />").addClass("fa fa-phone"));
+
+        controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at")).click((e) => {
+            e.preventDefault();
+            controller.call("admin::email", username, section);
+        });
+
+        controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone")).click((e) => {
+            e.preventDefault();
+            controller.call("admin::phone", username, section);
+        });
+
         controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks"));
+
+        return section;
     });
 };

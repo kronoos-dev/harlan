@@ -6,7 +6,7 @@ Gemfile.lock
 .netbeans.xml
 art/
 .sass-cache/
-nbproject/private
+nbproject/
 tmp/
 temp/
 node_modules/

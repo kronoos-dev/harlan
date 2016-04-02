@@ -103,12 +103,12 @@ module.exports = function (instance, controller) {
 
     this.cancelButton = function (text, onCancel) {
         return this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
+            e.preventDefault();
             if (onCancel) {
                 onCancel();
             } else {
                 instance.close();
             }
-            e.preventDefault();
         });
     };
 

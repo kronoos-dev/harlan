@@ -7,7 +7,7 @@ module.exports = function (controller) {
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "hammer");
         modal.title(parameters.title || "Você confirma essa operação?");
-        modal.subtitle(parameters.subtitle || "Uma vez que confirmar ela não poderá ser desfeita.");
+        modal.subtitle(parameters.subtitle || "Uma vez confirmado você não poderá desfazer esta operação.");
         if (parameters.paragraph) {
             modal.addParagraph(parameters.paragraph);
         }
