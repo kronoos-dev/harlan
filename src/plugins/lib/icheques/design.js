@@ -23,11 +23,10 @@ module.exports = function(controller) {
         "height": window.innerHeight
     });
 
-    $(".app .module-menu").hide();
     $("#action-show-modules").parent().parent().hide();
 
     /* única forma segura de sair do sistema e voltar a home */
-    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function() {
+    controller.registerTrigger("authentication::authenticate7d", "icheques::design::authentication::authenticated", function() {
         $(".logo, #action-logout").off().click(function(e) {
             e.preventDefault();
             window.location = "https://www.icheques.com.br/";
@@ -80,7 +79,6 @@ module.exports = function(controller) {
 
     controller.registerCall("loader::register", function() {
         if (!loaderUnregister && !loaderRegister) {
-            console.debug("register")
             loaderUnregister = $.bipbopLoader.register();
         }
         loaderRegister++;
@@ -94,7 +92,6 @@ module.exports = function(controller) {
         loaderRegister = 0;
 
         if (loaderUnregister) {
-            console.debug("unregister");
             loaderUnregister();
             loaderUnregister = null;
         }

@@ -156,7 +156,7 @@ module.exports = (controller) => {
             (element || $(".app-content"))[method || "append"](section);
         }
 
-        var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-lock" : "fa-unlock-alt"),
+        var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-unlock-alt" : "fa-lock"),
             lockProcess = false,
             doLocking = (e) => {
                 e.preventDefault();
@@ -176,7 +176,7 @@ module.exports = (controller) => {
                             lockSymbol
                                 .removeClass("fa-unlock-alt")
                                 .removeClass("fa-lock")
-                                .addClass(isActive ? "fa-lock" : "fa-unlock-alt");
+                                .addClass(isActive ? "fa-unlock-alt": "fa-lock");
                         }
                     })));
             };
