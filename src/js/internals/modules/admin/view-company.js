@@ -58,14 +58,14 @@ module.exports = (controller) => {
         var [section, results, actions] = controller.call("section",
             `Administração ${name || username}`,
             `Conta registrada para documento ${cnpj || cpf || username}`,
-            `Visualizar, editar e controlar o acesso do usuário ${username}`, false, minimized);
+            `Visualizar, editar e controlar`, false, minimized);
 
         section.addClass("admin-company");
 
         /* We live in citys we never seen in screen */
         var result = controller.call("result");
-        result.addItem("Assinante", name);
 
+        if (name) result.addItem("Assinante", name);
         if (cnpj) result.addItem("CNPJ", cnpj);
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", cpf);
@@ -183,7 +183,7 @@ module.exports = (controller) => {
 
         var showInterval = setInterval(() => {
             if (!document.contains(actions.get(0)) || !$(actions).is(':visible')) {
-                return; 
+                return;
             }
             clearInterval(showInterval);
 
@@ -238,6 +238,11 @@ module.exports = (controller) => {
                 var unregister = $.bipbopLoader.register();
                 controller.call("admin::report", (report) => {
                     report.gamification("lives");
+
+                    $('html, body').animate({
+                        scrollTop: report.element().offset().top
+                    }, 2000);
+
                     unregister();
                 }, results, username, undefined, undefined, undefined, "after", true);
             });

@@ -5,36 +5,37 @@ var animationEvent = "animationend animationend webkitAnimationEnd oanimationend
  * Criei essa caralha quando não havia ECMAScript 6!
  */
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
     var counter = 0;
     var animationElement = null;
     var animations = ["animated rotateIn", "animated rotateOut"];
 
-    controller.registerCall("loader::catchElement", function () {
+    controller.registerCall("loader::catchElement", function() {
         return $(".logo:visible span");
     });
 
-    var afterExecution = function () {
+    var afterExecution = function() {
         animationElement.removeClass(animations[counter++ % animations.length]);
         animationElement.addClass(animations[counter % animations.length]);
     };
 
     var loaderRegister = 0;
 
-    controller.registerCall("loader::register", function () {
-        loaderRegister++;
-
-        animationElement = controller.call("loader::catchElement");
-        if (!animationElement.length) {
-            $(".q").addClass("loading");
-            return;
+    controller.registerCall("loader::register", function() {
+        if (!loaderRegister) {
+            animationElement = controller.call("loader::catchElement");
+            if (!animationElement.length) {
+                $(".q").addClass("loading");
+                return;
+            }
+            animationElement.bind(animationEvent, afterExecution);
+            animationElement.addClass(animations[counter % animations.length]);
         }
-        animationElement.bind(animationEvent, afterExecution);
-        animationElement.addClass(animations[counter % animations.length]);
+        loaderRegister++;
     });
 
-    controller.registerCall("loader::unregister", function () {
+    controller.registerCall("loader::unregister", function() {
         if (--loaderRegister > 0) {
             return;
         }
@@ -50,17 +51,17 @@ module.exports = function (controller) {
         }
     });
 
-    controller.registerCall("loader::ajax", function (dict) {
+    controller.registerCall("loader::ajax", function(dict) {
         var beforeSend = dict.beforeSend;
         var complete = dict.complete;
 
-        dict.beforeSend = function (...ag) {
+        dict.beforeSend = function(...ag) {
             controller.call("loader::register");
             if (beforeSend)
                 beforeSend(...ag);
         };
 
-        dict.complete = function (jqXHR, textStatus, ...ag) {
+        dict.complete = function(jqXHR, textStatus, ...ag) {
             controller.call("loader::unregister");
             if (complete)
                 complete(jqXHR, textStatus, ...ag);

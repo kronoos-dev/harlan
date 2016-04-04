@@ -79,10 +79,11 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("loader::register", function() {
-        loaderRegister++;
-        if (!loaderUnregister) {
+        if (!loaderUnregister && !loaderRegister) {
+            console.debug("register")
             loaderUnregister = $.bipbopLoader.register();
         }
+        loaderRegister++;
     });
 
     controller.registerCall("loader::unregister", function() {
@@ -90,7 +91,10 @@ module.exports = function(controller) {
             loaderRegister--;
             return;
         }
+        loaderRegister = 0;
+
         if (loaderUnregister) {
+            console.debug("unregister");
             loaderUnregister();
             loaderUnregister = null;
         }
