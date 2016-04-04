@@ -1355,6 +1355,7 @@ input.link {
         right: 15px;
         top: 15px;
         font-size: 18px;
+        z-index: 9999;
         li {
             transition: color 200ms ease-in;
             color: rgb(147, 167, 216);
