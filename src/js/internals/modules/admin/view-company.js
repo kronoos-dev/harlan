@@ -225,7 +225,14 @@ module.exports = (controller) => {
             controller.call("admin::phone", username, section);
         });
 
-        controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks"));
+        controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click((e) => {
+            e.preventDefault();
+            var unregister = $.bipbopLoader.register();
+            controller.call("admin::report", (report) => {
+                report.gamification("lives");
+                unregister();
+            }, results, username, undefined, undefined, undefined, "after", true);
+        });
 
         return section;
     });

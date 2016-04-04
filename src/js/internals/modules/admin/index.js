@@ -23,6 +23,7 @@ module.exports = function(controller) {
         require("./change-company")(controller);
         require("./email")(controller);
         require("./phone")(controller);
+        require("./report")(controller);
 
         controller.registerCall("admin::index", () => {
             var report = controller.call("report", "Administrador da Conta", "Administre os usuários cadastrados no sistema.",
@@ -62,7 +63,12 @@ module.exports = function(controller) {
 
             report.gamification("accuracy");
             $(".app-content").append(report.element());
+
+            controller.call("admin::report", (graph) => {
+                graph.gamification("levelUp");
+            }, report.element());
         });
+
 
         controller.call("admin::index");
     });

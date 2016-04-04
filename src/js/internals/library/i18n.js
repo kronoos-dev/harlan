@@ -34,7 +34,7 @@ module.exports = function (locale, controller) {
         }
         args[0].format = validPikaday[language].format;
         args[0].i18n = validPikaday[language].i18n;
-        pikaday(...args);
+        return pikaday.apply(this, args);
     };
 
     try {

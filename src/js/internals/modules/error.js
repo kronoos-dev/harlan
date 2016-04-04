@@ -17,7 +17,7 @@ module.exports = function (controller) {
 
     controller.registerCall("error::ajax", function (dict) {
         var error = dict.error;
-        dict.error = function (jqXHR) {
+        dict.error = function (jqXHR, ...args) {
             var call = Array.from(arguments);
             try {
                 var xml = $.parseXML(jqXHR.responseText);
@@ -30,7 +30,7 @@ module.exports = function (controller) {
             }
 
             if (error) {
-                error(...arguments);
+                error(jqXHR, ...args);
             }
 
         };

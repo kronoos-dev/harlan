@@ -1,21 +1,20 @@
 /* global module */
 var gamificationIcons = require("./data/gamification-icons"),
-        Form = require("./lib/form");
+    Form = require("./lib/form");
 
-var ReportModel = function (closeable) {
-    var
-            universalContainer = $("<div />"),
-            elementNews = $("<div />").addClass("report"),
-            elementContainer = $("<div />").addClass("container"),
-            elementActions = $("<ul />").addClass("r-actions"),
-            elementContent = $("<div />").addClass("content"),
-            elementOpen = null;
+var ReportModel = function(closeable) {
+    var universalContainer = $("<div />"),
+        elementNews = $("<div />").addClass("report"),
+        elementContainer = $("<div />").addClass("container"),
+        elementActions = $("<ul />").addClass("r-actions"),
+        elementContent = $("<div />").addClass("content"),
+        elementOpen = null;
 
     universalContainer.append(elementNews.append(elementContainer
-            .append(elementActions)
-            .append(elementContent)));
+        .append(elementActions)
+        .append(elementContent)));
 
-    var buttonElement = function () {
+    var buttonElement = function() {
         if (!elementOpen) {
             elementOpen = $("<div />").addClass("open");
             elementContent.append(elementOpen);
@@ -23,29 +22,29 @@ var ReportModel = function (closeable) {
         return elementOpen;
     };
 
-    this.newContent = function () {
+    this.newContent = function() {
         elementContent = $("<div />").addClass("content");
         elementContainer.prepend(elementContent);
         return this;
     };
 
-    this.title = function (title) {
+    this.title = function(title) {
         elementContent.append($("<h2 />").text(title));
         return this;
     };
 
-    this.subtitle = function (subtitle) {
+    this.subtitle = function(subtitle) {
         elementContent.append($("<h3 />").text(subtitle));
         return this;
     };
 
-    this.label = function (content) {
+    this.label = function(content) {
         var span = $("<span />").addClass("label").text(content);
         elementContent.append(span);
         return span;
     };
 
-    this.canvas = function (width, height) {
+    this.canvas = function(width, height) {
         width = width || 250;
         height = height || 250;
         var canvas = $("<canvas />").attr({
@@ -56,30 +55,30 @@ var ReportModel = function (closeable) {
         return canvas.get(0);
     };
 
-    this.gamification = function (type) {
+    this.gamification = function(type) {
         this.newContent();
         var icon = $("<i />")
-                .addClass(gamificationIcons[type] || type)
-                .addClass("gamification");
+            .addClass(gamificationIcons[type] || type)
+            .addClass("gamification");
         elementContent.append(icon).addClass("container-gamification");
         return icon;
     };
 
-    this.paragraph = function (text) {
+    this.paragraph = function(text) {
         var p = $("<p />").text(text);
         elementContent.append(p);
         return p;
     };
 
-    this.form = function (controller) {
+    this.form = function(controller) {
         return new Form({
             element: this.content,
             close: this.close
         }, controller);
     };
 
-    this.button = function (name, action) {
-        var button = $("<button />").text(name).click(function (e) {
+    this.button = function(name, action) {
+        var button = $("<button />").text(name).click(function(e) {
             e.preventDefault();
             action();
         }).addClass("button");
@@ -87,23 +86,25 @@ var ReportModel = function (closeable) {
         return button;
     };
 
-    this.content = function () {
+    this.content = function() {
         return elementContent;
     };
 
-    this.element = function () {
+    this.element = function() {
         return universalContainer;
     };
 
-    this.newAction = function (icon, action) {
-        elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click(function (e) {
+    this.newAction = function(icon, action) {
+        elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click(function(e) {
             e.preventDefault();
             action();
         }));
         return this;
     };
 
-    this.close = function () {
+    this.action = this.newAction;
+
+    this.close = function() {
         if (this.onClose) {
             this.onClose();
         }
@@ -120,9 +121,9 @@ var ReportModel = function (closeable) {
     return this;
 };
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
-    controller.registerCall("report", function (title, subtitle, paragraph, closeable) {
+    controller.registerCall("report", function(title, subtitle, paragraph, closeable) {
         var model = new ReportModel(closeable);
         if (title) {
             model.title(title);

@@ -54,16 +54,16 @@ module.exports = function (controller) {
         var beforeSend = dict.beforeSend;
         var complete = dict.complete;
 
-        dict.beforeSend = function () {
+        dict.beforeSend = function (...ag) {
             controller.call("loader::register");
             if (beforeSend)
-                beforeSend(...Array.from(arguments));
+                beforeSend(...ag);
         };
 
-        dict.complete = function (jqXHR, textStatus) {
+        dict.complete = function (jqXHR, textStatus, ...ag) {
             controller.call("loader::unregister");
             if (complete)
-                complete(...Array.from(arguments));
+                complete(jqXHR, textStatus, ...ag);
         };
 
         return dict;
