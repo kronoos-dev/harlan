@@ -107,8 +107,15 @@ module.exports = function(controller) {
                     report.action("fa-filter", () => {
                         controller.call("admin::report::filter", username, report, callback, closeable);
                     })
-                    new ChartJS(canvas.getContext("2d")).Line(dataset);
                     callback(report);
+
+                    var showInterval = setInterval(() => {
+                        if (!document.contains(canvas) || !$(canvas).is(':visible')) {
+                            return;
+                        }
+                        clearInterval(showInterval);
+                        new ChartJS(canvas.getContext("2d")).Line(dataset);
+                    }, 200);
                 }
             })));
     });

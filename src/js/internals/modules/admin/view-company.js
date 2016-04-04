@@ -52,6 +52,7 @@ module.exports = (controller) => {
             cnpj = company.children("cnpj").text(),
             cpf = company.children("cpf").text(),
             responsible = company.children("responsavel").text(),
+            commercialReference = company.children("commercialReference").text(),
             credits = parseInt(company.children("credits").text());
 
         var [section, results, actions] = controller.call("section",
@@ -69,6 +70,7 @@ module.exports = (controller) => {
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", cpf);
         if (credits) result.addItem("Créditos Sistema", numeral(credits / 100.).format('$0,0.00'));
+        if (commercialReference) result.addItem("Referência Comercial", commercialReference);
 
         var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
         result.addItem("Usuário", username);
@@ -179,60 +181,67 @@ module.exports = (controller) => {
                     })));
             };
 
-        controller.call("tooltip", actions, "Editar").append($("<i />").addClass("fa fa-edit")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::changeCompany", companyNode, username, section);
-        });
+        var showInterval = setInterval(() => {
+            if (!document.contains(actions.get(0)) || !$(actions).is(':visible')) {
+                return; 
+            }
+            clearInterval(showInterval);
 
-        controller.call("tooltip", actions, "Editar Contrato").append($("<i />").addClass("fa fa-briefcase")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::changeContract", companyNode, username, section);
-        });
-
-        controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::changeAddress", companyNode, username, section);
-        });
-
-        controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
-            controller.call("confirm", {}, () => {
-                controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'APIKEY'",
-                    controller.call("error::ajax", controller.call("loader::ajax", {
-                        data: {
-                            username: username
-                        },
-                        success: function(ret) {
-                            inputApiKey.find(".value").text($("BPQL > body > apiKey", ret).text());
-                        }
-                    })));
+            controller.call("tooltip", actions, "Editar").append($("<i />").addClass("fa fa-edit")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::changeCompany", companyNode, username, section);
             });
-        });
 
-        controller.call("tooltip", actions, "Nova Senha").append($("<i />").addClass("fa fa-asterisk")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::changePassword", username);
-        });
+            controller.call("tooltip", actions, "Editar Contrato").append($("<i />").addClass("fa fa-briefcase")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::changeContract", companyNode, username, section);
+            });
 
-        controller.call("tooltip", actions, "Bloquear/Desbloquear").append(lockSymbol).click(doLocking);
+            controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::changeAddress", companyNode, username, section);
+            });
 
-        controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::email", username, section);
-        });
+            controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
+                controller.call("confirm", {}, () => {
+                    controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'APIKEY'",
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username
+                            },
+                            success: function(ret) {
+                                inputApiKey.find(".value").text($("BPQL > body > apiKey", ret).text());
+                            }
+                        })));
+                });
+            });
 
-        controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone")).click((e) => {
-            e.preventDefault();
-            controller.call("admin::phone", username, section);
-        });
+            controller.call("tooltip", actions, "Nova Senha").append($("<i />").addClass("fa fa-asterisk")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::changePassword", username);
+            });
 
-        controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click((e) => {
-            e.preventDefault();
-            var unregister = $.bipbopLoader.register();
-            controller.call("admin::report", (report) => {
-                report.gamification("lives");
-                unregister();
-            }, results, username, undefined, undefined, undefined, "after", true);
-        });
+            controller.call("tooltip", actions, "Bloquear/Desbloquear").append(lockSymbol).click(doLocking);
+
+            controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::email", username, section);
+            });
+
+            controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone")).click((e) => {
+                e.preventDefault();
+                controller.call("admin::phone", username, section);
+            });
+
+            controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click((e) => {
+                e.preventDefault();
+                var unregister = $.bipbopLoader.register();
+                controller.call("admin::report", (report) => {
+                    report.gamification("lives");
+                    unregister();
+                }, results, username, undefined, undefined, undefined, "after", true);
+            });
+        }, 200);
 
         return section;
     });

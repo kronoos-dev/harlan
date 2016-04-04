@@ -1,13 +1,13 @@
 /* global module */
 
 var loaderRegister = 0,
-        loaderUnregister = null;
+    loaderUnregister = null;
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
     var siteTemplate = require('../../templates/icheques-site.html.js'),
-            emailRegex = require("email-regex"),
-            installDatabase = require("../../sql/icheques.sql.js");
+        emailRegex = require("email-regex"),
+        installDatabase = require("../../sql/icheques.sql.js");
 
     installDatabase(controller);
 
@@ -27,27 +27,27 @@ module.exports = function (controller) {
     $("#action-show-modules").parent().parent().hide();
 
     /* única forma segura de sair do sistema e voltar a home */
-    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function () {
-        $(".logo, #action-logout").off().click(function (e) {
+    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function() {
+        $(".logo, #action-logout").off().click(function(e) {
             e.preventDefault();
             window.location = "https://www.icheques.com.br/";
         });
     });
 
-    $("body > .icheques-site .action-login").click(function () {
+    $("body > .icheques-site .action-login").click(function() {
         controller.interface.helpers.activeWindow(".login");
     });
 
-    controller.registerTrigger("authentication::authenticated", "welcomeScreen::authenticated", function (args, cb) {
+    controller.registerTrigger("authentication::authenticated", "welcomeScreen::authenticated", function(args, cb) {
         cb();
     });
 
-    controller.registerCall("default::page", function () {
+    controller.registerCall("default::page", function() {
         controller.interface.helpers.activeWindow(".icheques-site");
     });
 
     var emailInput = $("body > .icheques-site .email");
-    $("body > .icheques-site .form-trial").submit(function (e) {
+    $("body > .icheques-site .form-trial").submit(function(e) {
         e.preventDefault();
         if (!emailRegex().test(emailInput.val())) {
             emailInput.addClass("error");
@@ -57,18 +57,18 @@ module.exports = function (controller) {
         controller.call("icheques::newcheck");
     });
 
-    $(".icheques-site .action-buy").click(function (e) {
+    $(".icheques-site .action-buy").click(function(e) {
         e.preventDefault();
 
         var element = $(this);
 
-        controller.call("icheques::createAccount", function (data) {
+        controller.call("icheques::createAccount", function(data) {
             var modal = controller.call("modal");
             modal.title("Você completou sou cadastro no iCheques");
             modal.subtitle("Parabéns! Sua conta foi criada com sucesso.");
             modal.addParagraph("Esperamos que tenha uma ótima experiência com nosso produto, a partir de agora nunca mais se preocupe se seus cheques estão seguros em sua carteira.");
             var form = modal.createForm();
-            form.element().submit(function (e) {
+            form.element().submit(function(e) {
                 e.preventDefault();
                 modal.close();
             });
@@ -78,17 +78,22 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall("loader::register", function () {
+    controller.registerCall("loader::register", function() {
         loaderRegister++;
-        loaderUnregister = $.bipbopLoader.register();
+        if (!loaderUnregister) {
+            loaderUnregister = $.bipbopLoader.register();
+        }
     });
 
-    controller.registerCall("loader::unregister", function () {
-        if (--loaderRegister > 0) {
+    controller.registerCall("loader::unregister", function() {
+        if (loaderRegister - 1 > 0) {
+            loaderRegister--;
             return;
         }
-        if (loaderUnregister)
+        if (loaderUnregister) {
             loaderUnregister();
+            loaderUnregister = null;
+        }
     });
 
 };

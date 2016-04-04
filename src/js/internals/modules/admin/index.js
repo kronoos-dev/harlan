@@ -3,7 +3,7 @@ const MAX_RESULTS = 10;
 var _ = require("underscore");
 module.exports = function(controller) {
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::reference::websocket::authentication", function(data, callback) {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "admin::reference::websocket::authentication", function(data, callback) {
         callback();
 
         if (loaded || !data.adminOf || !data.adminOf.length) {
@@ -63,7 +63,6 @@ module.exports = function(controller) {
 
             report.gamification("accuracy");
             $(".app-content").append(report.element());
-
             controller.call("admin::report", (graph) => {
                 graph.gamification("levelUp");
             }, report.element());
