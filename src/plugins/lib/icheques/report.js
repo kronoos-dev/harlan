@@ -1,3 +1,4 @@
+/*jshint -W083 */
 /* global module */
 
 module.exports = function (controller) {
@@ -10,7 +11,7 @@ module.exports = function (controller) {
     };
 
     for (var i in dictReports) {
-        controller.registerCall(i, function (showAlert, closeable) {
+        controller.registerCall(i, (showAlert, closeable) => {
             var report = new dictReports[i].method(closeable);
             if (report.showable(showAlert)) {
                 $(".app-content").prepend(report.element());
@@ -18,13 +19,13 @@ module.exports = function (controller) {
             }
         });
     }
-    
+
     controller.registerTrigger("findDatabase::instantSearch", "icheques::report", function (args, callback) {
         callback();
         for (var i in dictReports) {
             if (!dictReports[i].findRegex.test(args[0]))
                 continue;
-            args[1].item("iCheques", "Relatório Geral de Cheques", "Acesso ao relatório geral de cheques").addClass("icheque").click(function (e) {
+            args[1].item("iCheques", "Relatório Geral de Cheques", "Acesso ao relatório geral de cheques").addClass("icheque").click((e)  => {
                 e.preventDefault();
                 controller.call(i, true, true);
             });

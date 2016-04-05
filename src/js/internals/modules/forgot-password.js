@@ -70,22 +70,22 @@ module.exports = function (controller) {
 
             if (/^\s*$/.test(secureCode)) {
                 inputSecureCode.addClass("error");
-                errors.push("Você deve preencher o código de segurança para poder\
-                             continuar.");
+                errors.push("Você deve preencher o código de segurança para poder" +
+                             " continuar.");
             } else {
                 inputSecureCode.removeClass("error");
             }
 
             if (!owasp.test(password).strong) {
                 inputPassword.addClass("error");
-                errors.push("A senha que você tenta configurar é muito fraca, tente\
-                             uma com 10 (dez) dígitos, números, caracteres maísculos,\
-                             minúsculos e especiais.");
+                errors.push("A senha que você tenta configurar é muito fraca, tente"  +
+                             " uma com 10 (dez) dígitos, números, caracteres maísculos," +
+                             " minúsculos e especiais.");
             } else if (password !== confirmPassword) {
                 inputPassword.addClass("error");
                 inputConfirmPassword.addClass("error");
-                errors.push("A senhas digitadas não conferem, certifique que a \
-                             senha escolhida pode ser memorizada.");
+                errors.push("A senhas digitadas não conferem, certifique que a " +
+                             " senha escolhida pode ser memorizada.");
             } else {
                 inputPassword.removeClass("error");
                 inputConfirmPassword.removeClass("error");

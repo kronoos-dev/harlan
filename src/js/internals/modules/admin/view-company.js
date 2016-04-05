@@ -69,7 +69,7 @@ module.exports = (controller) => {
         if (cnpj) result.addItem("CNPJ", cnpj);
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", cpf);
-        if (credits) result.addItem("Créditos Sistema", numeral(credits / 100.).format('$0,0.00'));
+        if (credits) result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);
 
         var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
@@ -89,7 +89,7 @@ module.exports = (controller) => {
                 "Lista de Telefones para Contato",
                 "O telefone deve ser usado apenas para emergências e tratativas comerciais.");
 
-            var [ddd, phone, pabx, name, kind] = [
+            var [ddd, phone, pabx, contactName, kind] = [
                 phones.children("telefone:eq(0)").text(),
                 phones.children("telefone:eq(1)").text(),
                 phones.children("telefone:eq(2)").text(),
@@ -97,22 +97,33 @@ module.exports = (controller) => {
                 phones.children("telefone:eq(4)").text()
             ];
 
-            controller.call("admin::remove::phone", result.addItem(`${name} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
+            controller.call("admin::remove::phone", result.addItem(`${contactName} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
                 section, username, ddd, phone, pabx);
         }
 
+        var generateSeparator = (separatorCall) => {
+            var separator = false;
+            return (item, value) => {
+                if (!value) {
+                    return null;
+                }
+
+                if (!separator) {
+                    separatorCall();
+                    separator = true;
+                }
+
+                return result.addItem(item, value);
+            };
+        };
+
         var endereco = company.children("endereco");
         if (endereco.length) {
-            result.addSeparator("Endereço",
-                "Endereço registrado para emissão de faturas",
-                "As notas fiscais e faturas são enviadas para este endereço cadastrado, se certifique que esteja atualizado.");
-
-            var appendAddressItem = (item, value) => {
-                if (value) {
-                    return result.addItem(item, value);
-                }
-                return null;
-            };
+            var appendAddressItem = generateSeparator(() => {
+                result.addSeparator("Endereço",
+                    "Endereço registrado para emissão de faturas",
+                    "As notas fiscais e faturas são enviadas para este endereço cadastrado, se certifique que esteja atualizado.");
+            });
 
             appendAddressItem("Endereço", endereco.find("endereco:eq(0)").text());
             appendAddressItem("Número", endereco.find("endereco:eq(1)").text());
@@ -123,18 +134,19 @@ module.exports = (controller) => {
             appendAddressItem("Estado", endereco.find("endereco:eq(6)").text());
 
         }
-
-        result.addSeparator("Contrato",
-            "Informações do Serviço Contratado",
-            "Informações referentes ao contrato comercial estabelecido entre as partes.");
+        var appendContractItem = generateSeparator(() => {
+            result.addSeparator("Contrato",
+                "Informações do Serviço Contratado",
+                "Informações referentes ao contrato comercial estabelecido entre as partes.");
+        });
 
         var contrato = company.children("contrato");
-        appendAddressItem("Dia Vencimento", contrato.find("contrato:eq(0)").text());
-        appendAddressItem("Valor", numeral(parseFloat(contrato.find("contrato:eq(1)").text())).format('$0,0.00'));
-        appendAddressItem("Pacote de Consultas", contrato.find("contrato:eq(2)").text());
-        appendAddressItem("Valor da Consulta Excedente", numeral(parseFloat(contrato.find("contrato:eq(3)").text())).format('$0,0.00'));
-        appendAddressItem("Tipo do Contrato", changeCase.titleCase(contrato.find("contrato:eq(4)").text()));
-        appendAddressItem("Criação", moment.unix(parseInt(contrato.find("contrato:eq(5)").text())).fromNow());
+        appendContractItem("Dia Vencimento", contrato.find("contrato:eq(0)").text());
+        appendContractItem("Valor", numeral(parseFloat(contrato.find("contrato:eq(1)").text())).format('$0,0.00'));
+        appendContractItem("Pacote de Consultas", contrato.find("contrato:eq(2)").text());
+        appendContractItem("Valor da Consulta Excedente", numeral(parseFloat(contrato.find("contrato:eq(3)").text())).format('$0,0.00'));
+        appendContractItem("Tipo do Contrato", changeCase.titleCase(contrato.find("contrato:eq(4)").text()));
+        appendContractItem("Criação", moment.unix(parseInt(contrato.find("contrato:eq(5)").text())).fromNow());
 
         var emails = company.children("email").children("email");
         if (emails.length) {
@@ -176,7 +188,7 @@ module.exports = (controller) => {
                             lockSymbol
                                 .removeClass("fa-unlock-alt")
                                 .removeClass("fa-lock")
-                                .addClass(isActive ? "fa-unlock-alt": "fa-lock");
+                                .addClass(isActive ? "fa-unlock-alt" : "fa-lock");
                         }
                     })));
             };

@@ -15,6 +15,7 @@ module.exports = function (controller) {
             return;
         }
 
+
         report = controller.call("report",
                 "Quem indicou a você o iCheques?",
                 "Nos diga quem foi bom samaritano que indicou a você o iCheques.",

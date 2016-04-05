@@ -84,7 +84,7 @@ var MoreResults = function(maxItems) {
     this.appendTo = function(element) {
         footer.appendTo(element);
         return this;
-    }
+    };
 
     this.element = function() {
         footer.show();

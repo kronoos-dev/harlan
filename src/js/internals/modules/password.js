@@ -51,9 +51,9 @@ module.exports = function (controller) {
 
             if (!owasp.test(password).strong) {
                 inputNewPassword.addClass("error");
-                errors.push("A senha que você tenta configurar é muito fraca, tente\
-                             uma com 10 (dez) dígitos, números, caracteres maísculos,\
-                             minúsculos e especiais.");
+                errors.push("A senha que você tenta configurar é muito fraca, tente" +
+                             " uma com 10 (dez) dígitos, números, caracteres maísculos," +
+                             " minúsculos e especiais.");
             } else if (password !== confirmPassword) {
                 inputNewPassword.addClass("error");
                 inputConfirmPassword.addClass("error");

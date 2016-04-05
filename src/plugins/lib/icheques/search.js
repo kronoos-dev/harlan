@@ -1,19 +1,20 @@
 /* global module */
 
 var squel = require("squel"),
-        sprintf = require("sprintf"),
-        changeCase = require("change-case"),
-        _ = require("underscore"),
-        CPF = require("cpf_cnpj").CPF,
-        CNPJ = require("cpf_cnpj").CNPJ,
-        StringMask = require("string-mask");
+    sprintf = require("sprintf"),
+    changeCase = require("change-case"),
+    _ = require("underscore"),
+    CPF = require("cpf_cnpj").CPF,
+    CNPJ = require("cpf_cnpj").CNPJ,
+    StringMask = require("string-mask");
 
 var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
-    controller.registerTrigger("findDatabase::instantSearch", "icheques::search::document", function (args, callback) {
-        var expr = squel.expr(), format;
+    controller.registerTrigger("findDatabase::instantSearch", "icheques::search::document", function(args, callback) {
+        var expr = squel.expr(),
+            format;
 
         if (CPF.isValid(args[0])) {
             expr.or("CPF = ?", CPF.strip(args[0]));
@@ -27,7 +28,7 @@ module.exports = function (controller) {
         }
 
         var query = squel.select().from("ICHEQUES_CHECKS").where(expr).toString(),
-                databaseResult = controller.call("icheques::resultDatabase", controller.database.exec(query)[0]);
+            databaseResult = controller.call("icheques::resultDatabase", controller.database.exec(query)[0]);
 
         if (!databaseResult.values.length) {
             callback();
@@ -35,20 +36,27 @@ module.exports = function (controller) {
         }
 
         args[1].item("iCheques", "Relatório Geral de Cheques", sprintf("Documento: %s", format))
-                .addClass("icheque")
-                .click(function (e) {
-                    e.preventDefault();
-                    controller.call("icheques::show", databaseResult.values, null, true);
-                });
+            .addClass("icheque")
+            .click(function(e) {
+                e.preventDefault();
+                controller.call("icheques::show", databaseResult.values, null, true);
+            });
 
         callback();
     });
 
-    controller.registerTrigger("findDatabase::instantSearch", "icheques::search", function (args, callback) {
+    controller.registerCall("icheques::resultClick", (result) => {
+        return (e) => {
+            e.preventDefault();
+            controller.call("icheques::show", [result], null, true);
+        };
+    });
+
+    controller.registerTrigger("findDatabase::instantSearch", "icheques::search", function(args, callback) {
 
         var searchString = sprintf("%s%%", args[0]),
-                query = squel.select()
-                .from("ICHEQUES_CHECKS").limit(3).where(squel.expr()
+            query = squel.select()
+            .from("ICHEQUES_CHECKS").limit(3).where(squel.expr()
                 .or("CPF LIKE ?", searchString)
                 .or("CMC LIKE ?", searchString)
                 .or("CNPJ LIKE ?", searchString)
@@ -61,16 +69,14 @@ module.exports = function (controller) {
         var databaseResult = controller.call("icheques::resultDatabase", controller.database.exec(query)[0]);
 
         for (var i in databaseResult.values) {
-            args[1].item("iCheques", "Relatório Geral de Cheques", sprintf("Documento: %s Cheque: %s", databaseResult.values[i].cpf ||
-                    databaseResult.values[i].cnpj, CMC7_MASK.apply(databaseResult.values[i].cmc))).addClass("icheque").click(function (e) {
-                e.preventDefault();
-                controller.call("icheques::show", [databaseResult.values[i]], null, true);
-            });
+            args[1].item("iCheques", "Relatório Geral de Cheques",
+                    sprintf("Documento: %s Cheque: %s", databaseResult.values[i].cpf || databaseResult.values[i].cnpj,
+                        CMC7_MASK.apply(databaseResult.values[i].cmc)))
+                .addClass("icheque")
+                .click(controller.call("icheques::resultClick", databaseResult.values[i]));
         }
 
         callback();
     });
-
-
 
 };

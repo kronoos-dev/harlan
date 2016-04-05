@@ -5,8 +5,8 @@ module.exports = (controller) => {
         var modal = controller.call("modal");
         modal.title("Nova Senha Usuário");
         modal.subtitle("Digite a nova senha de usuário.");
-        modal.addParagraph("Cuidado para não criar uma nova senha para estranhos, certifique que você está \
-                            passando a senha para um contato conhecido.");
+        modal.addParagraph("Cuidado para não criar uma nova senha para estranhos, certifique que você está" +
+                            " passando a senha para um contato conhecido.");
 
         var form = modal.createForm(),
             inputPassword = form.addInput("newpassword", "password", "Nova Senha"),
@@ -21,9 +21,9 @@ module.exports = (controller) => {
 
             if (!owasp.test(password).strong) {
                 inputPassword.addClass("error");
-                errors.push("A senha que você tenta configurar é muito fraca, tente\
-                             uma com 10 (dez) dígitos, números, caracteres maísculos,\
-                             minúsculos e especiais.");
+                errors.push("A senha que você tenta configurar é muito fraca, tente" +
+                             " uma com 10 (dez) dígitos, números, caracteres maísculos," +
+                             " minúsculos e especiais.");
             } else if (password !== confirmPassword) {
                 inputPassword.addClass("error");
                 inputConfirmPassword.addClass("error");
@@ -52,7 +52,7 @@ module.exports = (controller) => {
                         success: function() {
                             modal.close();
                         }
-                    })))
+                    })));
             });
         });
 

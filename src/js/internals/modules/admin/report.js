@@ -52,8 +52,7 @@ module.exports = function(controller) {
         var modal = controller.call("modal");
         modal.title("Filtros do Relatório");
         modal.subtitle("Modifique o Relatório");
-        modal.paragraph("Defina abaixo as características que deseja que sejam usadas para a geração \
-                         do relatório de consumo.");
+        modal.paragraph("Defina abaixo as características que deseja que sejam usadas para a geração do relatório de consumo.");
 
         var form = modal.createForm(),
             dateStart = form.addInput("dateStart", "text", "dd/mm/yyyy", null, "De", moment().subtract(2, 'months').format("DD/MM/YYYY")).pikaday(),
@@ -92,9 +91,9 @@ module.exports = function(controller) {
                     var report = controller.call("report",
                         "Relatório de Consumo",
                         "Visualize informações sobre o uso da API",
-                        "Com o recurso de relatório você consegue identificar os padrões de consumo do usuário, \
-                     identificando dias em que é mais ou menos intensivo. Pode ser utilizado também para geração \
-                     de faturas para clientes que não possuem esse processo automatizado.",
+                        "Com o recurso de relatório você consegue identificar os padrões de consumo do usuário, " +
+                        "identificando dias em que é mais ou menos intensivo. Pode ser utilizado também para geração " +
+                        "de faturas para clientes que não possuem esse processo automatizado.",
                         closeable);
                     var canvas = report.canvas(800, 250);
                     element[method || "append"](report.element());
@@ -102,11 +101,12 @@ module.exports = function(controller) {
                         report.label(dataset.datasets[i].label).css({
                             "background-color": dataset.datasets[i].strokeColor,
                             color: dataset.datasets[i].color.light() ? "#000" : "#fff"
-                        })
+                        });
                     }
                     report.action("fa-filter", () => {
                         controller.call("admin::report::filter", username, report, callback, closeable);
-                    })
+                    });
+
                     callback(report);
 
                     var showInterval = setInterval(() => {

@@ -13,7 +13,7 @@ module.exports = (controller) => {
             "avancado": "Avançado",
             "simples": "Simples"
         };
-    })
+    });
 
     controller.registerCall("admin::createAccount::formDescription", function() {
         return {
@@ -23,13 +23,20 @@ module.exports = (controller) => {
             "paragraph": "É muito importante que os dados estejam preenchidos de maneira correta para que seja mantido um cadastro saneado.",
             "screens": [{
                 "magicLabel": true,
-                "fields": [{
+                "fields": [
+                    [{
                         "name": "username",
                         "type": "text",
                         "placeholder": "Nome de Usuário",
                         "labelText": "Nome de Usuário",
                         "optional": false
-                    },
+                    }, {
+                        "name": "companyReference",
+                        "type": "text",
+                        "placeholder": "Referência Comercial",
+                        "labelText": "Referência Comercial",
+                        "optional": true
+                    }],
                     [{
                         "name": "password",
                         "type": "password",
@@ -140,6 +147,7 @@ module.exports = (controller) => {
                         validate: function(item) {
                             if (item.element.val())
                                 return CPF.isValid(item.element.val());
+                            return true;
                         }
                     }, {
                         "name": "cnpj",
@@ -154,6 +162,7 @@ module.exports = (controller) => {
                         validate: function(item) {
                             if (item.element.val())
                                 return CNPJ.isValid(item.element.val());
+                            return true;
                         }
                     }]
                 ],
@@ -165,13 +174,6 @@ module.exports = (controller) => {
                         }
 
                         var values = formManager.readValues();
-                        if (!values.cpf && !values.cnpj) {
-                            toastr.error(
-                                "É necessário ao menos um documento para emissão de documento fiscal.",
-                                "Impossível continuar sem CPF ou CNPJ");
-                            isValid = false;
-                        }
-
                         if (values.cpf) {
                             if (!values.name) {
                                 toastr.error(

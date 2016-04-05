@@ -1,11 +1,11 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 module.exports = function (controller) {
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::reference::websocket::authentication", function (data, callback) {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::contract::websocket::authentication", function (data, callback) {
         callback();
 
         if (controller.serverCommunication.freeKey() || data.contractAccepted) {

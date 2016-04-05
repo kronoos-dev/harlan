@@ -27,8 +27,8 @@ module.exports = function(controller) {
 
         controller.registerCall("admin::index", () => {
             var report = controller.call("report", "Administrador da Conta", "Administre os usuários cadastrados no sistema.",
-                "Altere dados cadastrais como CPF, CNPJ, telefones, emails e endereço, bloqueie, desbloqueie, crie \
-             novos usuários, verifique o consumo de seus clientes e quantos créditos eles possuem em suas contas.");
+                "Altere dados cadastrais como CPF, CNPJ, telefones, emails e endereço, bloqueie, desbloqueie, crie " +
+                " novos usuários, verifique o consumo de seus clientes e quantos créditos eles possuem em suas contas.");
 
             report.button("Criar Conta", () => {
                 controller.call("admin::createCompany");
@@ -55,8 +55,8 @@ module.exports = function(controller) {
                         controller.call("alert", {
                             title: "Infelizmente não há nenhuma empresa para exibir. ;(",
                             subtitle: "Experimente adicionar alguma empresa pois não há nenhuma cadastrada para exibição.",
-                            paragraph: "Você precisa cadastrar uma empresa para utilizar este recurso, verifique na sua página de usuário,\
-                                pelo botão de <a href=\"javascript:harlan.call('admin::createCompany');'>Criar Conta</strong>"
+                            paragraph: "Você precisa cadastrar uma empresa para utilizar este recurso, verifique na sua página de usuário," +
+                                " pelo botão de <a href=\"javascript:harlan.call('admin::createCompany');'>Criar Conta</strong>"
                         });
                 });
             });

@@ -51,18 +51,28 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall("loader::ajax", function(dict) {
-        var beforeSend = dict.beforeSend;
-        var complete = dict.complete;
-
+    controller.registerCall("loader::ajax", function(dict, bipbop = false) {
+        var beforeSend = dict.beforeSend,
+            complete = dict.complete,
+            bipbopRegister = null;
         dict.beforeSend = function(...ag) {
-            controller.call("loader::register");
+            if (bipbop) {
+                bipbopRegister = $.bipbopLoader.register();
+            } else {
+                controller.call("loader::register");
+            }
+            
             if (beforeSend)
                 beforeSend(...ag);
         };
 
         dict.complete = function(jqXHR, textStatus, ...ag) {
-            controller.call("loader::unregister");
+            if (bipbopRegister) {
+                bipbopRegister();
+                bipbopRegister = null;
+            } else {
+                controller.call("loader::unregister");
+            }
             if (complete)
                 complete(jqXHR, textStatus, ...ag);
         };
