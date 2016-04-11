@@ -9,6 +9,8 @@ module.exports = {
         endpoint: "https://js.kronoos.com/index.js",
         hosts: [
             "kronoos",
+            "kronoos.com",
+            "www.kronoos.com",
             "kronoos.com.br",
             "www.kronoos.com.br"
         ]
