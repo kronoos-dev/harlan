@@ -129,8 +129,8 @@ module.exports = (controller) => {
             appendAddressItem("Número", endereco.find("endereco:eq(1)").text());
             appendAddressItem("Complemento", endereco.find("endereco:eq(2)").text());
             appendAddressItem("Bairro", endereco.find("endereco:eq(3)").text());
-            appendAddressItem("Cidade", endereco.find("endereco:eq(5)").text());
-            appendAddressItem("CEP", endereco.find("endereco:eq(4)").text());
+            appendAddressItem("Cidade", endereco.find("endereco:eq(4)").text());
+            appendAddressItem("CEP", endereco.find("endereco:eq(5)").text());
             appendAddressItem("Estado", endereco.find("endereco:eq(6)").text());
 
         }

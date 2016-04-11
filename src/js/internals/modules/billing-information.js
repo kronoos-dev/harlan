@@ -92,7 +92,7 @@ module.exports = (controller) => {
                         "placeholder": "CEP",
                         "optional": false,
                         "labelText": "CEP",
-                        "value": endereco.find("endereco:eq(4)").text(),
+                        "value": endereco.find("endereco:eq(5)").text(),
                         "mask": "00000-000"
                     }],
                     [{
@@ -111,7 +111,7 @@ module.exports = (controller) => {
                     }],
                     [{
                         "name": "cidade",
-                        "value": endereco.find("endereco:eq(5)").text(),
+                        "value": endereco.find("endereco:eq(4)").text(),
                         "optional": false,
                         "type": "text",
                         "placeholder": "Cidade"
