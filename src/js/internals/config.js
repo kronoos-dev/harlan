@@ -5,7 +5,16 @@ module.exports = {
             "proshield.harlan.com.br"
         ]
     },
+    kronoos: {
+        endpoint: "https://js.kronoos.com/index.js",
+        hosts: [
+            "kronoos",
+            "kronoos.com.br",
+            "www.kronoos.com.br"
+        ]
+    },
     dive: {
+        endpoint: "https://js.dive.harlan.com.br/index.js",
         hosts: [
             "dive",
             "dive.harlan.com.br"

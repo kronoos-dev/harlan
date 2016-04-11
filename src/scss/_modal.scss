@@ -8,42 +8,36 @@
     background-color: darken(rgba(255,255,255,0.8), 10%);
     box-sizing: border-box;
     display: table;
-
-    h2, h3, h4 {
+    h2,
+    h3,
+    h4 {
         line-height: 23px;
         margin: 8px 0;
         &:first-child {
             margin-top: 0;
         }
     }
-
     & > div {
-
         display: table-cell;
         vertical-align: middle;
         position: relative;
-
         & > div {
-
             overflow: auto;
             position: relative;
-
             & > div {
                 position: relative;
                 box-sizing: border-box;
                 margin: auto;
-                box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.03);
+                box-shadow: 10px 10px 10px 0 rgba(0, 0, 0, 0.03);
                 background: #fff;
                 width: 100%;
                 @include border-radius(3px);
                 max-width: 600px;
                 padding: 38px;
-                border: #fff 1px solid
+                border: #fff 1px solid;
             }
-
         }
     }
-
     .actions {
         text-align: center;
         margin-top: 10px;
@@ -52,30 +46,24 @@
             padding-bottom: 0;
         }
     }
-
-
     input:last-child {
         margin-bottom: 0;
     }
-
     form ul.list {
         display: table;
         width: 100%;
-        margin: 15px 0;
         background-color: darken(#fff, 1%);
-
         &:empty {
             display: none;
         }
-
-        div, i {
+        div,
+        i {
             @include transition(background-color color 200ms ease-in);
             line-height: 120%;
             border-bottom: 1px lighten($color-background, 1%) solid;
             padding: 14px 8px;
             display: table-cell;
         }
-
         div {
             font-size: 12px;
             &:last-child {
@@ -83,18 +71,17 @@
                 width: 50%;
             }
         }
-
         i {
             text-align: center;
             width: 10%;
             color: $color-action;
         }
-
         li {
             cursor: pointer;
             display: table-row;
             &:hover {
-                div, i {
+                div,
+                i {
                     background-color: darken($color-background, 3%);
                 }
                 i {
@@ -103,23 +90,45 @@
             }
             &.unread {
                 background-color: lighten($color-action, 20%);
-
+            }
+        }
+    }
+    ul:not(.list,.actions) {
+        li {
+            margin: 5px 0;
+            line-height: 150%;
+            &:before {
+                content: "- ";
+                display: inline-block;
+                margin-right: 8px;
             }
         }
 
     }
-
+    ol {
+        counter-reset: m-counter;
+        li {
+            margin: 5px 0;
+            line-height: 150%;
+            &:before {
+                content: counter(m-counter) ".";
+                counter-increment: m-counter;
+                display: inline-block;
+                margin-right: 8px;
+            }
+        }
+    }
+    p {
+        margin: 14px auto;
+    }
 }
-
-
 .app-progress {
     width: 100%;
     background-color: #DEE6E8;
     /* padding: 20px 30px; */
     box-sizing: border-box;
     position: relative;
-    display: block;        
-
+    display: block;
     .perc {
         width: 15%;
         height: 100%;
@@ -127,7 +136,6 @@
         background-color: #3FB6DB;
         position: absolute;
     }
-
     span {
         padding: 20px;
         margin: auto;
@@ -136,12 +144,10 @@
         z-index: 1;
         position: relative;
         box-sizing: border-box;
-    }    
-
+    }
 }
-
 .cc-number {
-    background: url(../images/cc/blue-yellow-stripes.png);
+    background: url("../images/cc/blue-yellow-stripes.png");
     background-repeat: no-repeat;
     background-position: right center;
     /* padding-left: 65px; */

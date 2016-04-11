@@ -194,6 +194,7 @@ var Controller = function () {
     require("./modules/tooltip")(this);
     require("./modules/icheques")(this);
     require("./modules/dive")(this);
+    require("./modules/kronoos")(this);
     require("./modules/billing-information")(this);
     require("./modules/bipbop")(this);
     require("./modules/admin/index")(this);
