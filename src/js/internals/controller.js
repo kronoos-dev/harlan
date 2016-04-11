@@ -47,6 +47,10 @@ var Controller = function () {
 
     this.interface = new Interface(this);
 
+    this.unregisterTriggers = function (name) {
+        events[name] = {};
+    };
+
     this.registerTrigger = function (name, id, callback) {
         console.log(":: register trigger ::", name);
         if (!(name in events)) {
