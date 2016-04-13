@@ -8,12 +8,7 @@
     controller.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
     require("./styles/projuris.js");
 
-    $(".scroll-down .actions").hide();
-    $("#input-q").attr({
-        placeholder: "Qual processo você esta procurando?",
-        value: controller.serverCommunication.userHash().toString(),
-        disabled: "disabled"
-    });
+    $("#action-credits").hide();
 
     controller.registerCall("loader::catchElement", function () {
         return [];
