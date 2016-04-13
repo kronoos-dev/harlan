@@ -1,7 +1,7 @@
 /* global module */
 var _ = require("underscore");
 
-module.exports = function (element) {
+module.exports = function(element) {
 
     var list = $("<ul />").addClass("list");
     var container = $("<div />").addClass("list-container").append(list);
@@ -33,9 +33,15 @@ module.exports = function (element) {
     this.item = (icon, text) => {
         var item = $("<li />");
         list.append(item);
-        item.append($("<i />").addClass("fa " + icon));
+        if (icon instanceof Array) {
+            for (let idx in icon) {
+                item.append($("<i />").addClass("fa " + icon[idx]));
+            }
+        } else {
+            item.append($("<i />").addClass("fa " + icon));
+        }
         if (text instanceof Array) {
-            for (var idx in text) {
+            for (let idx in text) {
                 item.append($("<div />").text(text[idx]));
             }
         } else {

@@ -109,11 +109,21 @@ module.exports = function(controller) {
             var status = $("status", item).text() === "1",
                 cpf = $("cpf", item).text(),
                 cnpj = $("cnpj", item).text(),
-                username = $("username", item).text();
+                username = $("username", item).text(),
+                apiKey = $("apiKey", item).text();
             var iconStatus = function() {
-                return status ? "fa-check" : "fa-times";
+                return (status ? "fa-check" : "fa-times") + " block";
             };
-            var acc = list.add(iconStatus(), [cnpj, username]).click(function() {
+            var acc = list.add([iconStatus(), "fa-key"], [cnpj, username]);
+            acc.find(".fa-key").click(() => {
+                controller.call("alert", {
+                    icon: "locked",
+                    title: "Chave de API",
+                    subtitle: "Atenção! Manipule com segurança.",
+                    paragraph: `A chave de API <strong class="apiKey">${apiKey}</strong> do usuário ${username} deve ser manipulada com segurança absoluta, não devendo ser repassada a terceiros. Tenha certeza que você sabe o que está fazendo.`
+                });
+            });
+            acc.find(".block").click(() => {
                 var unregisterLoader = $.bipbopLoader.register();
                 controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'CHANGESTATUS'", {
                     data: {
@@ -121,7 +131,7 @@ module.exports = function(controller) {
                     },
                     success: function() {
                         status = !status;
-                        acc.find(".fa").removeClass("fa-check fa-times").addClass(iconStatus());
+                        acc.find(".block").removeClass("fa-check fa-times").addClass(iconStatus());
                     },
                     complete: function() {
                         unregisterLoader();

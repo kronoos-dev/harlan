@@ -121,6 +121,12 @@
     p {
         margin: 14px auto;
     }
+    strong {
+        font-weight: 700;
+    }
+    .apiKey {
+        word-break: break-all;
+    }
 }
 .app-progress {
     width: 100%;
