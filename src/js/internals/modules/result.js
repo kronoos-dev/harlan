@@ -88,13 +88,13 @@ module.exports = function (controller) {
             var widget = controller.interface.widgets.radialProject(itemValue, percent);
 
             var radial =  generateAlert(widget, percent, context);
-            
+
             var change = radial.change;
             radial.change = function (percent) {
                 change(percent);
                 generateAlert(radial, percent, context);
             };
-            
+
             return radial;
         };
 
@@ -107,7 +107,7 @@ module.exports = function (controller) {
             }
 
             if (typeof value !== typeof undefined) {
-                node.append($("<div />").addClass("value").text(value));
+                node.append($("<div />").addClass("value").html(value));
             }
 
             if (typeof name !== typeof undefined) {

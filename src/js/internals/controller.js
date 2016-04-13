@@ -47,8 +47,13 @@ var Controller = function () {
 
     this.interface = new Interface(this);
 
-    this.unregisterTriggers = function (name) {
-        events[name] = {};
+    this.unregisterTriggers = function (name, except = []) {
+        for (var i in events[name]) {
+            if (except.indexOf(i) != -1) {
+                continue;
+            }
+            delete events[name][i];
+        }
     };
 
     this.registerTrigger = function (name, id, callback) {
