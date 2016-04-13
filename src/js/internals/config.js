@@ -6,7 +6,7 @@ module.exports = {
         ]
     },
     kronoos: {
-        endpoint: "http://kronoos:3000/index.js",
+        endpoint: "https://js.kronoos.com/index.js",
         hosts: [
             "kronoos",
             "kronoos.com",
