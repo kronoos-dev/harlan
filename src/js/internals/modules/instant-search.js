@@ -25,7 +25,7 @@ module.exports = function (controller) {
             searchId = setTimeout(function () {
                 input.addClass("loading");
                 callback(search, autocomplete, function () {
-                    $(".q").removeClass("loading");
+                    input.removeClass("loading");
                 });
             }, controller.confs.instantSearchDelay);
         });

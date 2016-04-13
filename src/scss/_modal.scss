@@ -51,8 +51,10 @@
     }
     form ul.list {
         display: table;
+        table-layout: fixed;
         width: 100%;
         background-color: darken(#fff, 1%);
+        font-size: 15px;
         &:empty {
             display: none;
         }
@@ -63,13 +65,6 @@
             border-bottom: 1px lighten($color-background, 1%) solid;
             padding: 14px 8px;
             display: table-cell;
-        }
-        div {
-            font-size: 12px;
-            &:last-child {
-                font-size: 16px;
-                width: 50%;
-            }
         }
         i {
             text-align: center;
@@ -91,6 +86,12 @@
             &.unread {
                 background-color: lighten($color-action, 20%);
             }
+            & > * {
+                display: table-cell;
+                vertical-align: middle;
+                word-break: break-word;
+                overflow: hidden;
+            }
         }
     }
     ul:not(.list,.actions) {
@@ -103,7 +104,6 @@
                 margin-right: 8px;
             }
         }
-
     }
     ol {
         counter-reset: m-counter;

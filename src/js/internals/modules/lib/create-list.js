@@ -1,11 +1,36 @@
 /* global module */
+var _ = require("underscore");
 
 module.exports = function (element) {
-    
+
     var list = $("<ul />").addClass("list");
-    element.append(list);
-    
-    this.item = function (icon, text) {
+    var container = $("<div />").addClass("list-container").append(list);
+    element.append(container);
+
+    var elementCellCounter = (element) => {
+        return $(element).children().length;
+    };
+
+    var cellCounter = () => {
+        return _.max(_.map(list.children("li"), elementCellCounter));
+    };
+
+    var tableAjustment = () => {
+        var numChilds = cellCounter();
+        list.children("li").each((i, element) => {
+            element = $(element);
+            for (var i = 0; i < numChilds - elementCellCounter(element); i++) {
+                element.append("<div />");
+            }
+        });
+    };
+
+    this.empty = () => {
+        list.empty();
+        return this;
+    };
+
+    this.item = (icon, text) => {
         var item = $("<li />");
         list.append(item);
         item.append($("<i />").addClass("fa " + icon));
@@ -16,12 +41,14 @@ module.exports = function (element) {
         } else {
             item.append($("<div />").text(text));
         }
+
+        tableAjustment();
         return item;
     };
 
     this.add = this.item;
 
-    this.element = function () {
+    this.element = function() {
         return list;
     };
 
