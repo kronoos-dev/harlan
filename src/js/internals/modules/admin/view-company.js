@@ -74,7 +74,7 @@ module.exports = (controller) => {
 
         var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
         result.addItem("Usuário", username);
-        result.addItem("Contrato Aceito", company.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
+        var acceptedContract = result.addItem("Contrato Aceito", company.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
 
         var isActive = company.children("status").text() === "1",
             activeLabel = result.addItem("Situação", isActive ? "Ativo" : "Bloqueado");
@@ -212,6 +212,20 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map")).click((e) => {
                 e.preventDefault();
                 controller.call("admin::changeAddress", companyNode, username, section);
+            });
+
+            controller.call("tooltip", actions, "Revogar Contrato").append($("<i />").addClass("fa fa-hand-paper-o")).click((e) => {
+                controller.call("confirm", {}, () => {
+                    controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'contractAccepted'",
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username
+                            },
+                            success: function() {
+                                acceptedContract.remove();
+                            }
+                        })));
+                });
             });
 
             controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
