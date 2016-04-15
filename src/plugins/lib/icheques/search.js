@@ -58,7 +58,7 @@ module.exports = function(controller) {
             query = squel.select()
             .from("ICHEQUES_CHECKS").limit(3).where(squel.expr()
                 .or("CPF LIKE ?", searchString)
-                .or("CMC LIKE ?", searchString)
+                .or("CMC LIKE ?", sprintf("%%%s%%", searchString))
                 .or("CNPJ LIKE ?", searchString)
                 .or_begin()
                 .and("OBSERVATION IS NOT NULL")
