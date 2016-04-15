@@ -84,7 +84,7 @@ module.exports = function (controller) {
                 return;
             }
 
-            if (check.queryStatus) {
+            if (check.queryStatus && check.queryStatus !== 10) {
                 rescan();
                 
                 var elementClass = "success",
