@@ -94,5 +94,11 @@
   },
   "jshintConfig": {
     "esnext": true
+  },
+  "devDependencies": {
+    "babel-core": "^6.7.6",
+    "browser-sync": "^2.12.3",
+    "gulp-load-plugins": "^1.2.2",
+    "run-sequence": "^1.1.5"
   }
 }
