@@ -1,5 +1,14 @@
 $color: #feefc4;
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
+
 .header .alerts {
     display: none;
 }
@@ -37,8 +46,8 @@ $color: #feefc4;
         min-height: 580px;
         width: 100%;
         background-image: url('../images/icheques/texture.jpg');
-        background-size: 1020.25px 680px; 
-        background-position: 50% 50%; 
+        background-size: 1020.25px 680px;
+        background-position: 50% 50%;
         background-repeat: no-repeat;
         background-size: cover;
 
@@ -149,7 +158,7 @@ $color: #feefc4;
             height: 200px;
             width: 200px;
             border-radius: 100px;
-            margin: 30px auto; 
+            margin: 30px auto;
         }
 
 
@@ -176,7 +185,7 @@ $color: #feefc4;
                 .submit {
                     background-color: #fdad30;
                     &:hover {
-                        background-color: #f89802; 
+                        background-color: #f89802;
                     }
                 }
             }
@@ -278,15 +287,15 @@ $color: #feefc4;
 
         &:hover, &.selected  {
             background: #E2F9DC;
-        }    
+        }
 
-        .item-title { 
+        .item-title {
             text-transform: inherit;
         }
 
         .item-subtitle {
-            text-transform: inherit; 
-        }        
+            text-transform: inherit;
+        }
     }
 }
 
@@ -307,12 +316,12 @@ $color: #feefc4;
     & > header {
         background: url(../images/textures/brilliant.png),linear-gradient(180deg,#0033f7 -00%,#FFF 160%);
         color: #fff;
-        h2 { 
+        h2 {
             text-transform: inherit;
         }
 
         h3 {
-            text-transform: inherit; 
+            text-transform: inherit;
         }
     }
 }
@@ -333,11 +342,11 @@ $color: #feefc4;
 
     &.warning {
         & > header {
-            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);        
+            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);
 
             h2:before {
                 font-family: "FontAwesome";
-                content: "\f071"; 
+                content: "\f071";
                 margin-right: 8px;
                 font-size: 18px;
             }
@@ -351,9 +360,9 @@ $color: #feefc4;
 
             .actions {
                 &:after {
-                    animation: fa-spin infinite 2s linear;
+                    animation: spin infinite 2s linear;
                     font-family: "FontAwesome";
-                    content: "\f1ce"; 
+                    content: "\f1ce";
                 }
                 li {
                     display: none;

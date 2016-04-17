@@ -45,9 +45,17 @@ module.exports = function (controller) {
     });
 
     var showCheck = function (check, result, section) {
-        var separator = result.addSeparator("Verificação de Cheque",
+        var separatorData = {},
+            separator = result.addSeparator("Verificação de Cheque",
                 "Verificação de Dados do Cheque",
-                "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")));
+                "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")),
+                separatorData);
+
+        controller.call("tooltip", separatorData.menu, "Consumo").append($("<i />").addClass("fa fa-edit")).click((e) => {
+            e.preventDefault();
+            controller.call("icheques::item::edit", check);
+        });
+
         separator.addClass("external-source loading");
         var checkResult = controller.call("result");
         checkResult.element().insertAfter(separator);
@@ -86,18 +94,18 @@ module.exports = function (controller) {
 
             if (check.queryStatus && check.queryStatus !== 10) {
                 rescan();
-                
+
                 var elementClass = "success",
                     situation = check.situation,
                     display = check.display,
                     ocurrence = check.ocurrence;
-                    
+
                 if (check.queryStatus === 2) {
                     situation = "Uh-oh! Esse talão parece estar bloqueado.";
                     display = "Uh-oh! Esse talão parece estar bloqueado.  Recomendamos entrar em contato com o emissor (através de nossas informações ou do seu cadastro) e pedir o desbloqueio ou troca dos cheques.";
                     ocurrence = "Talão bloqueado (" + check.ocurrence +")";
                 }
-                
+
                 if (check.queryStatus !== 1) {
                     elementClass = "error";
                     section[0].addClass("warning");
