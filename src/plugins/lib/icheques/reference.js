@@ -36,9 +36,9 @@ module.exports = function (controller) {
             };
         };
 
-        autocomplete.item("Sites de Busca (aka. Google)", null, "Eu encontrei o iCheques através de um site de buscas.").click(fill("Google"));
-        autocomplete.item("E-mail Marketing (não SPAM)", null, "Eu recebi um e-mail marketing muito banaca de vocês.").click(fill("Google"));
-        autocomplete.item("Um Amigo Apresentou", null, "Um camarada meu apresentou o iCheques e agora virei fã.").click(fill("Amigo"));
+        autocomplete.item("Sites de Busca (aka. Google)", null, "Eu encontrei o iCheques através de um site de buscas.").click(fill("Buscador do Google"));
+        autocomplete.item("E-mail Marketing (não SPAM)", null, "Eu recebi um e-mail marketing muito banaca de vocês.").click(fill("E-mail Marketing"));
+        autocomplete.item("Um Amigo Apresentou", null, "Um camarada meu apresentou o iCheques e agora virei fã.").click(fill("Referência de um Amigo"));
 
         controller.call("instantSearch", samaritano, function (search, ac, cb) {
             controller.serverCommunication.call("SELECT FROM 'ICHEQUESAUTHENTICATION'.'ReferenceAutocomplete'", {
