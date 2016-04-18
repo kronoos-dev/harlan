@@ -30,6 +30,7 @@
     require("./lib/icheques/design")(controller);
     require("./lib/icheques/contract-accept")(controller);
     require("./lib/icheques/edit")(controller);
+    require("./lib/icheques/ban-generate")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
