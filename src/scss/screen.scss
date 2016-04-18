@@ -1251,12 +1251,11 @@ input.link {
         display: none;
     }
 }
+
 @import "readmore";
 @import "site";
 @import "widgets";
-.mdl-tooltip.is-active {
-    z-index: 100;
-}
+@import "animation";
 
 @media print {
     .actions, .alerts {

@@ -141,7 +141,7 @@ module.exports = function(controller) {
         });
     };
 
-    var updateList = (pageActions, results, pagination, list, limit = 5, skip = 0, text, callback, bipbopLoader = true) => {
+    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text, callback, bipbopLoader = true) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -158,6 +158,12 @@ module.exports = function(controller) {
                     var queryResults = parseInt($("BPQL > body count", data).text()),
                         currentPage = Math.floor(skip/limit) + 1,
                         pages = Math.ceil(queryResults/limit);
+
+                    if (!queryResults) {
+                        modal.close();
+                        controller.call("subaccount::create");
+                        return;
+                    }
 
                     pageActions.next[currentPage >= pages ? "hide" : "show"]();
                     pageActions.back[currentPage <= 1 ? "hide" : "show"]();
@@ -203,20 +209,20 @@ module.exports = function(controller) {
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
                 skip += 5;
-                updateList(pageActions, results, pagination, list, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, 5, skip, text);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
                 skip -= 5;
-                updateList(pageActions, results, pagination, list, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, 5, skip, text);
             }).hide()
         };
 
-        updateList(pageActions, results, pagination, list, 5, skip, text);
+        updateList(modal, pageActions, results, pagination, list, 5, skip, text);
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
             skip = 0;
-            updateList(pageActions, results, pagination, list, 5, skip, text, callback, false);
+            updateList(modal, pageActions, results, pagination, list, 5, skip, text, callback, false);
         });
     });
 

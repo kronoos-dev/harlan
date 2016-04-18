@@ -197,10 +197,7 @@
         return gulp.src("src/plugins/styles/**/*.css")
                 .pipe(autoprefixer())
                 .pipe(cssjoin())
-                .pipe(nano({
-                    reduceIdents: false,
-                    mergeIdents: false
-                }))
+                .pipe(nano())
                 .pipe(css2js())
                 .pipe(gulp.dest("src/plugins/styles/"));
     });
@@ -210,10 +207,7 @@
                 .pipe(sass())
                 .pipe(autoprefixer())
                 .pipe(cssjoin())
-                .pipe(nano({
-                    reduceIdents: false,
-                    mergeIdents: false
-                }))
+                .pipe(nano())
                 .pipe(css2js())
                 .pipe(gulp.dest("src/plugins/styles"));
     });
