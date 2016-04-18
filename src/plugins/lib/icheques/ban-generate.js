@@ -1,8 +1,8 @@
 import { BANFactory } from "./ban-factory.js";
 
-module.exports = function() {
+module.exports = function(controller) {
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::contract::websocket::authentication",
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::ban::register",
         function(company, callback) {
             callback();
             controller.registerCall("icheques::ban::generate", function(results) {
