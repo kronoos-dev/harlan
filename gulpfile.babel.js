@@ -164,7 +164,8 @@ gulp.task("build:plugins:css", () => {
     }))
     .pipe($.css2js())
     .pipe(gulp.dest(`${plugins}/styles/`))
-    .pipe($.size({title: ">>> build:plugins:css"}));
+    .pipe($.size({title: ">>> build:plugins:css"}))
+    .pipe(reload({stream: true}));
 });
 
 gulp.task("build:plugins:sass", () => {
@@ -178,7 +179,8 @@ gulp.task("build:plugins:sass", () => {
     }))
     .pipe($.css2js())
     .pipe(gulp.dest(`${plugins}/styles`))
-    .pipe($.size({title: ">>> build:plugins:sass"}));
+    .pipe($.size({title: ">>> build:plugins:sass"}))
+    .pipe(reload({stream: true}));
 });
 
 gulp.task("build:plugins:styles", ["build:plugins:sass", "build:plugins:css"]);
@@ -394,7 +396,8 @@ gulp.task("build:styles", () => {
         mergeIdents: false
     }))
     .pipe(gulp.dest(`${dist}/css`))
-    .pipe($.size({title: ">>> build:styles"}));
+    .pipe($.size({title: ">>> build:styles"}))
+    .pipe(reload({stream: true}));
 });
 
 gulp.task("build", [
@@ -422,13 +425,14 @@ gulp.task("default", cb => {
 gulp.task("watch", () => {
     browserSync({
         notify: true,
+        open: false,
         port: 3000,
         server: {
             baseDir: [dist]
         }
     });
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build:installer", "build:application", reload]);
-    gulp.watch(["src/scss/*", "src/scss/*.scss"], ["build:styles", reload]);
+    gulp.watch(["src/scss/*", "src/scss/*.scss"], ["build:styles"]);
     gulp.watch(["src/js/service-worker.js"], ["build:service-worker", reload]);
     gulp.watch([
         "src/js/*.js",
