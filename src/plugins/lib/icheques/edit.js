@@ -9,7 +9,7 @@ module.exports = function(controller) {
             form = controller.call("form", (parameters) => {
                 parameters.cmc = check.cmc;
                 controller.call("confirm", {}, () => {
-                    controller.serverCommunication.call("UPDATE 'ICHEQUES'.'CHECK'",
+                    controller.serverCommunication.call("UPDATE 'ICHEQUES'.'CHECKDATA'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: parameters,
                             success: () => {
