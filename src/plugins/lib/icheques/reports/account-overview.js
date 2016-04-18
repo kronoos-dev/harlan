@@ -49,7 +49,7 @@ var AccountOverview = function (closeable) {
             AccountOverview.prototype.about.title,
             AccountOverview.prototype.about.subtitle, null, closeable), timeout = null,
             labels = [], doughnut = null, lastDataset = null;
-    
+
     report.element().addClass("ichequesAccountOverview");
 
     var status = report.paragraph().html(messages.overall),
@@ -352,14 +352,14 @@ var AccountOverview = function (closeable) {
         });
 
         if (!_.without(datasetQueryStatus, 1).length) {
-//            manipulationItens.push(report.button("Antecipar Cheques", function () {
-//                controller.call("icheques::antecipate",
-//                        controller.call("icheques::resultDatabase", controller.database.exec(squel
-//                                .select()
-//                                .from('ICHEQUES_CHECKS')
-//                                .where(expression)
-//                                .toString())[0]));
-//            }).insertBefore(openButton));
+            manipulationItens.push(report.button("Exportar BAN", function () {
+                controller.call("icheques::ban::generate",
+                        controller.call("icheques::resultDatabase", controller.database.exec(squel
+                                .select()
+                                .from('ICHEQUES_CHECKS')
+                                .where(expression)
+                                .toString())[0]));
+            }).insertBefore(openButton));
             status.html(messages.noOcurrence);
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
