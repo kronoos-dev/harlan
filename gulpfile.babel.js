@@ -1,7 +1,6 @@
 "use strict";
 
 import babelify from "babelify";
-import browserify from "browserify";
 import browserSync from "browser-sync";
 import buffer from "vinyl-buffer";
 import crypto from "crypto";
@@ -11,6 +10,7 @@ import gulp from "gulp";
 import gulpLoadPlugins from "gulp-load-plugins";
 import merge from "merge-stream";
 import path from "path";
+import persistify from "persistify";
 import runSequence from "run-sequence";
 import source from "vinyl-source-stream";
 import stylish from "jshint-stylish";
@@ -60,12 +60,12 @@ function i18n(locale) {
     .pipe($.size({title: `>>> i18n-${locale}`}));
 }
 
-gulp.task("bower:swf", () => {
+gulp.task("swf", () => {
     return gulp.src([
         "bower_components/zeroclipboard/dist/ZeroClipboard.swf"
     ])
     .pipe(gulp.dest(`${dist}/assets`))
-    .pipe($.size({title: ">>> bower:swf"}));
+    .pipe($.size({title: ">>> swf"}));
 });
 
 gulp.task("legal", () => {
@@ -92,7 +92,7 @@ gulp.task("templates", () => {
     .pipe($.size({title: ">>> templates"}));
 });
 
-gulp.task("build:html", () => {
+gulp.task("html", () => {
     return gulp.src(`${src}/**/*.html`)
     .pipe($.fileInclude({
         prefix: "@@",
@@ -109,7 +109,7 @@ gulp.task("build:html", () => {
         removeComments: true
     }))
     .pipe(gulp.dest(dist))
-    .pipe($.size({title: ">>> build:html"}));
+    .pipe($.size({title: ">>> html"}));
 });
 
 gulp.task("i18n-en", () => {
@@ -195,7 +195,7 @@ gulp.task("build:plugins", [
 
     return merge(files.map((entry) => {
         entry = "./" + entry;
-        return browserify({
+        return persistify({
             entries: entry,
             debug: true
         })
@@ -229,7 +229,7 @@ gulp.task("jshint", () => {
 });
 
 gulp.task("build:tests", ["jshint"], () => {
-    return browserify({
+    return persistify({
         entries: `${src}/js/tests/index.js`,
         debug: true
     })
@@ -248,8 +248,8 @@ gulp.task("build:tests", ["jshint"], () => {
 
 });
 
-gulp.task("build:inflate", () => {
-    return browserify({
+gulp.task("inflate", () => {
+    return persistify({
         entries: `${src}/js/app-inflate.js`,
         debug: true
     })
@@ -262,11 +262,11 @@ gulp.task("build:inflate", () => {
     .pipe($.concat("app-inflate.js"))
     .pipe($.if(DEVEL, $.sourcemaps.write(".")))
     .pipe(gulp.dest(`${dist}/js`))
-    .pipe($.size({title: ">>> build:inflate"}));
+    .pipe($.size({title: ">>> inflate"}));
 });
 
-gulp.task("build:service-worker", () => {
-    return browserify({
+gulp.task("service-worker", () => {
+    return persistify({
         entries: `${src}/js/service-worker.js`,
         debug: true
     })
@@ -279,11 +279,11 @@ gulp.task("build:service-worker", () => {
     .pipe($.concat("service-worker.js"))
     .pipe($.if(DEVEL, $.sourcemaps.write(".")))
     .pipe(gulp.dest(dist))
-    .pipe($.size({title: ">>> build:service-worker"}));
+    .pipe($.size({title: ">>> service-worker"}));
 });
 
 gulp.task("build:installer", ["build:application"], () => {
-    return browserify({
+    return persistify({
         entries: `${src}/js/app-installer.js`,
         debug: true
     })
@@ -305,7 +305,7 @@ gulp.task("build:installer", ["build:application"], () => {
 });
 
 gulp.task("build:application", ["jshint", "i18n"], () => {
-    return browserify({
+    return persistify({
         entries: `${src}/js/app.js`,
         debug: true
     })
@@ -370,15 +370,15 @@ gulp.task("build:images:no-vector", () => {
 
 gulp.task("build:images", ["build:images:no-vector", "build:images:vector", "build:images:backgrounds"]);
 
-gulp.task("build:fonts", () => {
+gulp.task("fonts", () => {
     return gulp.src([
         `${vendors}/font-awesome/fonts/**/*`
     ])
     .pipe(gulp.dest(`${dist}/fonts`))
-    .pipe($.size({title: ">>> build:fonts"}));
+    .pipe($.size({title: ">>> fonts"}));
 });
 
-gulp.task("build:styles", () => {
+gulp.task("styles", () => {
     return gulp.src([
         `${src}/scss/screen.scss`
     ])
@@ -396,30 +396,32 @@ gulp.task("build:styles", () => {
         mergeIdents: false
     }))
     .pipe(gulp.dest(`${dist}/css`))
-    .pipe($.size({title: ">>> build:styles"}))
+    .pipe($.size({title: ">>> styles"}))
     .pipe(reload({stream: true}));
 });
 
-gulp.task("build", [
-    "build:service-worker",
-    "manifest",
-    "legal",
-    "jshint",
-    "build:plugins",
-    "build:fonts",
-    "build:application",
-    "bower:swf",
-    "build:styles",
-    "build:images",
-    "templates",
-    "build:html",
-    "build:tests",
-    "build:inflate",
-    "build:installer"
-]);
-
 gulp.task("default", cb => {
     return runSequence("build", "watch", cb);
+});
+
+gulp.task("build", cb => {
+    const leaves = [
+        "service-worker",
+        "manifest",
+        "legal",
+        "fonts",
+        "swf",
+        "styles",
+        "templates",
+        "html",
+        "inflate"
+    ];
+
+    return runSequence(
+        ["build:plugins", "build:installer", "build:tests", "build:images"],
+        leaves,
+        cb
+    );
 });
 
 gulp.task("watch", () => {
@@ -432,8 +434,8 @@ gulp.task("watch", () => {
         }
     });
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build:installer", "build:application", reload]);
-    gulp.watch(["src/scss/*", "src/scss/*.scss"], ["build:styles"]);
-    gulp.watch(["src/js/service-worker.js"], ["build:service-worker", reload]);
+    gulp.watch(["src/scss/*", "src/scss/*.scss"], ["styles"]);
+    gulp.watch(["src/js/service-worker.js"], ["service-worker", reload]);
     gulp.watch([
         "src/js/*.js",
         "src/js/internals/**/*.js",
@@ -442,10 +444,10 @@ gulp.task("watch", () => {
         "!src/js/app-inflate.js",
         "!src/js/internals/i18n/**/*.js"
     ], ["jshint", "build:application", "build:installer", reload]);
-    gulp.watch("src/js/app-inflate.js", ["jshint", "build:inflate", reload]);
+    gulp.watch("src/js/app-inflate.js", ["jshint", "inflate", reload]);
     gulp.watch("src/js/app-installer.js", ["jshint", "build:installer", reload]);
     gulp.watch("src/js/tests/**/*.js", ["jshint", "build:tests", reload]);
-    gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["build:html", "templates", reload]);
+    gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["html", "templates", reload]);
     gulp.watch([
         "src/plugins/styles/**/*.{css,scss}",
         "src/plugins/templates/**/*.html",
