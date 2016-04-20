@@ -1,6 +1,7 @@
 "use strict";
 
 import babelify from "babelify";
+import browserify from "browserify";
 import browserSync from "browser-sync";
 import buffer from "vinyl-buffer";
 import crypto from "crypto";
@@ -305,7 +306,7 @@ gulp.task("build:installer", ["build:application"], () => {
 });
 
 gulp.task("build:application", ["jshint", "i18n"], () => {
-    return persistify({
+    return browserify({
         entries: `${src}/js/app.js`,
         debug: true
     })
