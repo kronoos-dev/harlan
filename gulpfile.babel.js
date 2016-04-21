@@ -431,7 +431,7 @@ gulp.task("watch", () => {
         open: false,
         port: 3000,
         server: {
-            baseDir: [src, dist]
+            baseDir: [dist, src]
         }
     });
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build:installer", "build:application", reload]);
