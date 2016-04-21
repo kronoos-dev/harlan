@@ -4,6 +4,26 @@ import {
 
 module.exports = function(controller) {
 
+    controller.registerCall("icheques::item::add::time", (check) => {
+        controller.call("confirm", {
+            icon: "reload",
+            title: "Mais um mês de monitoramento.",
+            subtitle: "Confirme que deseja adicionar mais 30 dias de monitoramento.",
+            paragraph: "Ao custo de R$ 1,50 (um real e cinquenta centavos) monitore por mais 30 dias seus cheque e fique seguro na hora de depositar."
+        }, () => {
+            controller.call("credits::has", 150, () => {
+                controller.serverCommunication.call("UPDATE 'ICHEQUES'.'ONEMONTH'",
+                    controller.call("error::ajax", controller.call("loader::ajax", {
+                    data: check,
+                    success: () => {
+                        /* websocket updates =p */
+                        toastr.success("Um mês adicionado ao vencimento com sucesso.", "Dados atualizados com sucesso.");
+                    }
+                }, true)));
+            });
+        });
+    });
+
     controller.registerCall("icheques::item::edit", function(check) {
         var cmc7Data = new CMC7Parser(check.cmc),
             form = controller.call("form", (parameters) => {
