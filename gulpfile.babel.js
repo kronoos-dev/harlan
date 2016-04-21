@@ -196,7 +196,7 @@ gulp.task("build:plugins", [
 
     return merge(files.map((entry) => {
         entry = "./" + entry;
-        return persistify({
+        return browserify({
             entries: entry,
             debug: true
         })
@@ -230,7 +230,7 @@ gulp.task("jshint", () => {
 });
 
 gulp.task("build:tests", ["jshint"], () => {
-    return persistify({
+    return browserify({
         entries: `${src}/js/tests/index.js`,
         debug: true
     })
@@ -250,7 +250,7 @@ gulp.task("build:tests", ["jshint"], () => {
 });
 
 gulp.task("inflate", () => {
-    return persistify({
+    return browserify({
         entries: `${src}/js/app-inflate.js`,
         debug: true
     })
@@ -267,7 +267,7 @@ gulp.task("inflate", () => {
 });
 
 gulp.task("service-worker", () => {
-    return persistify({
+    return browserify({
         entries: `${src}/js/service-worker.js`,
         debug: true
     })
@@ -284,7 +284,7 @@ gulp.task("service-worker", () => {
 });
 
 gulp.task("build:installer", ["build:application"], () => {
-    return persistify({
+    return browserify({
         entries: `${src}/js/app-installer.js`,
         debug: true
     })
@@ -431,7 +431,7 @@ gulp.task("watch", () => {
         open: false,
         port: 3000,
         server: {
-            baseDir: [dist]
+            baseDir: [src, dist]
         }
     });
     gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build:installer", "build:application", reload]);
