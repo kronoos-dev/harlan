@@ -1,4 +1,5 @@
 import jDataView from 'jdataview';
+import { sprintf } from 'sprintf';
 
 const NON_NUMERIC = /[\D]/g,
       NON_WORD = /[\PL]/g,
@@ -24,7 +25,7 @@ export class BANFactory {
 
     _fillBuffer() {
         this.buffer.setString(0, new Array(this.size).join(' '));
-        for (var i = 0; i < this.size; i += ROW_SIZE) {
+        for (let i = 0; i < this.size; i += ROW_SIZE) {
             this.buffer.setString(i + ROW_SIZE - CRLF.length, CRLF);
         }
     }
@@ -37,10 +38,19 @@ export class BANFactory {
     _goToPosition(row, col) {
         if (row < 0) {
             // last row is (BUF_SIZE - ROW_SIZE) * MATH.ABS(-1)
-            var start = (this.size - ROW_SIZE) * Math.abs(row);
+            let start = (this.size - ROW_SIZE) * Math.abs(row);
             return start + col;
         }
         return (ROW_SIZE * row) + col;
+    }
+
+    _totalValue() {
+        let sum = 0;
+        for (let check of this.checks) {
+            let value = check.ammount === null ? 0 : check.ammount;
+            sum += value;
+        }
+        return sum;
     }
 
     generateHeader() {
@@ -54,12 +64,11 @@ export class BANFactory {
         // Nome do Cedente. de 17 a 56. 40.
         this.buffer.setString(16, this.company.nome.replace(NON_WORD, ' ').substring(0, 40));
         // Endereco. de 57 a 96. 40.
-        var endereco = [
+        let endereco = [
             this.company.endereco[0],
             this.company.endereco[1],
             this.company.endereco[2]
         ].join(' ');
-        console.log(endereco);
         this.buffer.setString(56, endereco.substring(0, 40));
         // Cidade. de 97 a 114. 18.
         this.buffer.setString(96, this.company.endereco[5].substring(0, 18));
@@ -88,8 +97,8 @@ export class BANFactory {
     }
 
     generateChecks() {
-        var currentRow = 1;
-        for (var check in this.checks) {
+        let currentRow = 1;
+        for (let check in this.checks) {
             /* DOCUMENTO */
             this.buffer.setString(this._goToPosition(currentRow, 0), '2');
             currentRow += 1;
@@ -101,6 +110,9 @@ export class BANFactory {
 
     generateFooter() {
         this.buffer.setString(this._goToPosition(-1, 0), '3');
-        this.buffer.setString(this._goToPosition(-1, 1), '23');
+        // Quantidade. de 2 até 7. 6.
+        this.buffer.setString(this._goToPosition(-1, 1), sprintf('%06d', this.checks.length).substring(0, 6));
+        // Valor Total. de 8 até 19. 12.
+        this.buffer.setString(this._goToPosition(-1, 7), sprintf('%012d', this._totalValue()).substring(0, 12));
     }
 }
