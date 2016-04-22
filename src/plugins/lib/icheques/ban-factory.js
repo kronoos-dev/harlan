@@ -1,5 +1,6 @@
 import jDataView from 'jdataview';
 import { sprintf } from 'sprintf';
+import { CMC7Parser } from './cmc7-parser';
 
 const NON_NUMERIC = /[\D]/g,
       NON_WORD = /[\PL]/g,
@@ -98,12 +99,42 @@ export class BANFactory {
 
     generateChecks() {
         let currentRow = 1;
-        for (let check in this.checks) {
+        for (let check of this.checks) {
+            let cmcParts = new CMC7Parser(check.cmc),
+                doc = check.cnpj || check.cpf,
+                ammount = check.ammount === null ? 0 : check.ammount;
+
             /* DOCUMENTO */
             this.buffer.setString(this._goToPosition(currentRow, 0), '2');
+            // Documento. de 2 até 7. 6.
+            this.buffer.setString(this._goToPosition(currentRow, 1), cmcParts.number.toString().substring(0, 6));
+            // CPF/CNPJ. de 18 até 31. 14.
+            this.buffer.setString(this._goToPosition(currentRow, 17), doc.replace(NON_NUMERIC, '').substring(0, 14));
+            // T:CPF/CNPJ. de 32 até 32. 1.
+            this.buffer.setString(this._goToPosition(currentRow, 31), check.cnpj ? '1' : '2');
+            // Vencimento. de 250 até 255. 6.
+            this.buffer.setString(this._goToPosition(currentRow, 249), moment(check.expire).format('DDMMYY'));
+            // Valor. de 256 até 267. 12.
+            this.buffer.setString(this._goToPosition(currentRow, 255), sprintf('%012d', ammount));
+            // Tipo. de 268 até 268. 1.
+            this.buffer.setString(this._goToPosition(currentRow, 267), '2');
+            // Emissão. de 301 até 306. 6.
+            this.buffer.setString(this._goToPosition(currentRow, 300), moment(check.creation * 1000).format('DDMMYY'));
+            // Float. de 357 até 358. 2.
+            this.buffer.setString(this._goToPosition(currentRow, 356), '00');
+            /* FIM DOCUMENTO */
             currentRow += 1;
             /* CHEQUE */
             this.buffer.setString(this._goToPosition(currentRow, 0), '8');
+            // Banco. de 2 a 4. 3.
+            this.buffer.setString(this._goToPosition(currentRow, 1), cmcParts.bank.toString().substring(0, 3));
+            // Agencia. de 5 até 10. 6.
+            this.buffer.setString(this._goToPosition(currentRow, 4), cmcParts.agency.toString().substring(0, 6));
+            // N do Cheque. de 21 até 30. 10.
+            this.buffer.setString(this._goToPosition(currentRow, 20), cmcParts.number.toString().substring(0, 10));
+            // CMC7. de 34 até 67. 34.
+            this.buffer.setString(this._goToPosition(currentRow, 33), check.cmc.toString().substring(0, 34));
+            /* FIM CHEQUE */
             currentRow += 1;
         }
     }
