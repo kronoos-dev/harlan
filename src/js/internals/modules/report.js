@@ -65,7 +65,7 @@ var ReportModel = function(closeable) {
     };
 
     this.paragraph = function(text) {
-        var p = $("<p />").text(text);
+        var p = $("<p />").html(text);
         elementContent.append(p);
         return p;
     };
