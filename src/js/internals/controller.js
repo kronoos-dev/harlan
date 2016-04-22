@@ -187,6 +187,7 @@ var Controller = function () {
     require("./modules/url-parameter")(this);
     require("./modules/result")(this);
     require("./modules/demonstrate")(this);
+    require("./modules/download")(this);
     require("./modules/form")(this);
     require("./modules/forgot-password")(this);
     require("./modules/iframe-embed")(this);

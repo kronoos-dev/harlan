@@ -6,6 +6,8 @@ module.exports = function(controller) {
         function(company, callback) {
             callback();
             controller.registerCall("icheques::ban::generate", function(results) {
+                console.log(company);
+                console.log(results.values);
                 var file = new BANFactory(results, company).generate();
                 controller.call("download", file);
             });
