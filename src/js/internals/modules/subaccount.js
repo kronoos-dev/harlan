@@ -1,6 +1,8 @@
 /* global module */
 
-var _ = require("underscore");
+var _ = require("underscore"),
+    sprintf = require("sprintf");
+
 var formDescription = {
     "title": "Criação de Subconta",
     "subtitle": "Preencha os dados abaixo.",
@@ -114,8 +116,9 @@ module.exports = function(controller) {
             var iconStatus = function() {
                 return (status ? "fa-check" : "fa-times") + " block";
             };
-            var acc = list.add([iconStatus(), "fa-key"], [cnpj, username]);
-            acc.find(".fa-key").click(() => {
+            var acc = list.add([iconStatus(), "fa-key", "fa-folder-open"], [cnpj, username]);
+            acc.find(".fa-key").click((e) => {
+                e.preventDefault();
                 controller.call("alert", {
                     icon: "locked",
                     title: "Chave de API",
@@ -123,7 +126,19 @@ module.exports = function(controller) {
                     paragraph: `A chave de API <strong class="apiKey">${apiKey}</strong> do usuário ${username} deve ser manipulada com segurança absoluta, não devendo ser repassada a terceiros. Tenha certeza que você sabe o que está fazendo.`
                 });
             });
-            acc.find(".block").click(() => {
+            acc.find(".fa-folder-open").click((e) => {
+                e.preventDefault();
+                controller.call("confirm", {
+                    icon: "powerUp",
+                    title: "Você deseja se conectar a essa subconta?",
+                    subtitle: "Você será redirecionado para uma conta derivada.",
+                    paragraph: "As contas derivadas podem ser administradas por você, a qualquer momento você pode as acessar e editar."
+                }, () => {
+                    document.location.href = `${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`
+                });
+            });
+            acc.find(".block").click((e) => {
+                e.preventDefault();
                 var unregisterLoader = $.bipbopLoader.register();
                 controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'CHANGESTATUS'", {
                     data: {
@@ -156,8 +171,8 @@ module.exports = function(controller) {
                 },
                 success: (data) => {
                     var queryResults = parseInt($("BPQL > body count", data).text()),
-                        currentPage = Math.floor(skip/limit) + 1,
-                        pages = Math.ceil(queryResults/limit);
+                        currentPage = Math.floor(skip / limit) + 1,
+                        pages = Math.ceil(queryResults / limit);
 
                     if (!queryResults) {
                         modal.close();
