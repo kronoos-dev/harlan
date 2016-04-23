@@ -133,7 +133,7 @@ export class BANFactory {
             // N do Cheque. de 21 até 30. 10.
             this.buffer.setString(this._goToPosition(currentRow, 20), cmcParts.number.toString().substring(0, 10));
             // CMC7. de 34 até 67. 34.
-            this.buffer.setString(this._goToPosition(currentRow, 33), check.cmc.toString().substring(0, 34));
+            this.buffer.setString(this._goToPosition(currentRow, 33), `<${cmcParts.c1}<${cmcParts.c2}>${cmcParts.c3}:`.substring(0, 34));
             /* FIM CHEQUE */
             currentRow += 1;
         }

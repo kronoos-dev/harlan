@@ -11,6 +11,10 @@ export class CMC7Parser {
         this.agency = execution[2];
         this.compensation = execution[3];
         this.number = execution[4];
+        this.c1 = code.toString().substring(0, 8);
+        this.c2 = code.toString().substring(8, 18);
+        this.c3 = code.toString().substring(18, 30);
+        this.account = code.toString().substring(22, 29);
     }
 
 }
