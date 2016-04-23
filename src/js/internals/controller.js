@@ -131,8 +131,8 @@ var Controller = function() {
         return data;
     };
 
-    this.serverCommunication = new ServerCommunication(this);
-    this.importXMLDocument = new ImportXMLDocument(this);
+    this.server = this.serverCommunication = new ServerCommunication(this);
+    this.xml = this.importXMLDocument = new ImportXMLDocument(this);
 
     this.store = new Store(this);
 
