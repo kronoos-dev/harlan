@@ -1,26 +1,26 @@
 var uniqid = require('uniqid'),
-        async = require("async"),
-        assert = require("assert"),
-        url = require('url'),
-        _ = require("underscore");
+    async = require("async"),
+    assert = require("assert"),
+    url = require('url'),
+    _ = require("underscore");
 
 var ServerCommunication = require("./library/server-communication"),
-        ImportXMLDocument = require("./library/import-xml-document"),
-        Interface = require("./library/interface.js"),
-        I18n = require("./library/i18n.js"),
-        Store = require("./library/store.js");
+    ImportXMLDocument = require("./library/import-xml-document"),
+    Interface = require("./library/interface.js"),
+    I18n = require("./library/i18n.js"),
+    Store = require("./library/store.js");
 
-var Controller = function () {
+var Controller = function() {
 
     this.database = new SQL.Database();
     this.confs = require("./config");
     var language = null;
 
     this.i18n = new I18n(localStorage.language ||
-            navigator.language ||
-            navigator.userLanguage || "pt", this);
+        navigator.language ||
+        navigator.userLanguage || "pt", this);
 
-    this.language = function () {
+    this.language = function() {
         return language;
     };
 
@@ -34,20 +34,20 @@ var Controller = function () {
      * List all possible calls
      * @returns {Array}
      */
-    this.listCalls = function () {
+    this.listCalls = function() {
         return Object.keys(calls);
     };
 
     this.query = url.parse(window.location.href, true).query;
 
-    this.registerBootstrap = function (name, callback) {
+    this.registerBootstrap = function(name, callback) {
         bootstrapCalls[name] = callback;
         return this;
     };
 
     this.interface = new Interface(this);
 
-    this.unregisterTriggers = function (name, except = []) {
+    this.unregisterTriggers = function(name, except = []) {
         for (var i in events[name]) {
             if (except.indexOf(i) != -1) {
                 continue;
@@ -56,7 +56,7 @@ var Controller = function () {
         }
     };
 
-    this.registerTrigger = function (name, id, callback) {
+    this.registerTrigger = function(name, id, callback) {
         console.log(":: register trigger ::", name);
         if (!(name in events)) {
             events[name] = {};
@@ -64,9 +64,9 @@ var Controller = function () {
         events[name][id] = callback;
     };
 
-    this.trigger = function (name, args, onComplete) {
+    this.trigger = function(name, args, onComplete) {
 
-        var run = function () {
+        var run = function() {
             if (onComplete) {
                 onComplete();
             }
@@ -84,7 +84,7 @@ var Controller = function () {
             return this;
         }
 
-        var runsAtEnd = function () {
+        var runsAtEnd = function() {
             if (!--submits) {
                 console.log(":: trigger :: end ::", name);
                 run();
@@ -101,14 +101,14 @@ var Controller = function () {
         return this;
     };
 
-    this.registerCall = function (name, callback) {
+    this.registerCall = function(name, callback) {
         console.log(":: register :: ", name);
         this.trigger("call::register::" + name);
         calls[name] = callback;
         return this;
     };
 
-    this.listCalls = function (regex) {
+    this.listCalls = function(regex) {
         regex = regex || /.*/;
         for (var key in calls) {
             if (regex.test(key)) {
@@ -117,7 +117,13 @@ var Controller = function () {
         }
     };
 
-    this.call = function (name, ...parameters) {
+    this.reference = function(name) {
+        return (...parameters) => {
+            this.call(name, ...parameters);
+        }
+    };
+
+    this.call = function(name, ...parameters) {
         console.log(":: call ::", name, parameters);
         assert.ok(name in calls);
         var data = calls[name](...parameters);
@@ -130,7 +136,7 @@ var Controller = function () {
 
     this.store = new Store(this);
 
-    this.run = function () {
+    this.run = function() {
         var calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
 
@@ -138,7 +144,7 @@ var Controller = function () {
 
         //debugDevil(calls, me);
 
-        async.auto(calls, function (err, results) {
+        async.auto(calls, function(err, results) {
             console.log(":: bootstrap ::", err, results);
             me.trigger("bootstrap::end");
         });
@@ -216,9 +222,9 @@ var Controller = function () {
      * Just listen to your voice
      */
 
-     return this;
+    return this;
 };
 
-module.exports = function () {
+module.exports = function() {
     return new Controller();
 };
