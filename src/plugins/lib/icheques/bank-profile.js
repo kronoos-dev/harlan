@@ -1,33 +1,51 @@
 /* global numeral */
 
-var formDescription = {
-    "title": "Cadastro de Banco",
-    "subtitle": "Realize o cadastro completo de sua empresa.",
-    "paragraph": "O cadastro completo permite a realização de operações de crédito.",
-    "gamification": "moneyBag",
-    "screens": [
-        {
-            "magicLabel": true,
-            "fields": [
-                {
-                    "name": "name",
-                    "type": "text",
-                    "placeholder": "Nome do Banco ou Factoring",
-                    "labelText": "Nome do Banco ou Factoring"
-                },
-                {
-                    "name": "actual-risk",
-                    "type": "text",
-                    "placeholder": "Risco Atual (R$)",
-                    "labelText": "Risco Atual (R$)",
-                    "mask": "000.000.000.000,00",
-                    "maskOptions": {
-                        "reverse": true
+module.exports = function(controller) {
+
+    controller.registerCall("icheques::form::bank::add", function(callback) {
+        var form = controller.call("form", function(formData) {
+            controller.serverCommunication.call("INSERT INTO 'ICHEQUESBANK'.'BANK'",
+                controller.call("error::ajax", {
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    success: function() {
+                        controller.call("alert", {
+                            icon: "pass",
+                            title: "Parabéns, cadastro atualizado!",
+                            subtitle: "Seu cadastro foi atualizado com sucesso.",
+                            paragraph: "Os dados cadastrais foram atualizados com sucesso.",
+                            confirmText: "Continuar"
+                        }, () => {
+                            callback();
+                        });
+                    }
+                }));
+        });
+        form.configure({
+            "title": "Cadastro de Banco",
+            "subtitle": "Realize o cadastro completo de sua empresa.",
+            "paragraph": "O cadastro completo permite a realização de operações de crédito.",
+            "gamification": "moneyBag",
+            "screens": [{
+                "magicLabel": true,
+                "fields": [{
+                        "name": "name",
+                        "type": "text",
+                        "placeholder": "Nome do Banco ou Factoring",
+                        "labelText": "Nome do Banco ou Factoring"
+                    }, {
+                        "name": "actual-risk",
+                        "type": "text",
+                        "placeholder": "Risco Atual (R$)",
+                        "labelText": "Risco Atual (R$)",
+                        "mask": "000.000.000.000,00",
+                        "maskOptions": {
+                            "reverse": true
+                        },
+                        "numeral": true
                     },
-                    "numeral": true
-                },
-                [
-                    {
+                    [{
                         "name": "tax",
                         "type": "text",
                         "placeholder": "Taxa (%)",
@@ -37,8 +55,7 @@ var formDescription = {
                             "reverse": true
                         },
                         "numeral": true
-                    },
-                    {
+                    }, {
                         "name": "account-limit",
                         "type": "text",
                         "placeholder": "Limite Disponível (R$)",
@@ -48,52 +65,26 @@ var formDescription = {
                             "reverse": true
                         },
                         "numeral": true
-                    }
+                    }]
                 ]
-            ]
-        }
-    ]
-};
-
-module.exports = function (controller) {
-
-    controller.registerCall("icheques::form::bank::add", function (callback) {
-        var form = controller.call("form", function (formData) {
-            controller.serverCommunication.call("INSERT INTO 'ICHEQUESBANK'.'BANK'", controller.call("error::ajax", {
-                method: "post",
-                contentType: "application/json",
-                data: JSON.stringify(formData),
-                success: function () {
-                    controller.call("alert", {
-                        icon: "pass",
-                        title: "Parabéns, cadastro atualizado!",
-                        subtitle: "Seu cadastro foi atualizado com sucesso.",
-                        paragraph: "Os dados cadastrais foram atualizados com sucesso.",
-                        confirmText: "Continuar"
-                    });
-                },
-                complete: function () {
-                    callback();
-                }
-            }));
+            }]
         });
-        form.configure(formDescription);
     });
 
     /* List Banks */
-    controller.registerCall("icheques::form::bank", function () {
+    controller.registerCall("icheques::form::bank", function() {
         controller.serverCommunication.call("SELECT FROM 'ICHEQUESBANK'.'BANKS'",
-                controller.call("loader::ajax", controller.call("error::ajax", {
-                    success: function (ret) {
-                        controller.call("icheques::form::bank::show", ret);
-                    }
-                })));
+            controller.call("loader::ajax", controller.call("error::ajax", {
+                success: function(ret) {
+                    controller.call("icheques::form::bank::show", ret);
+                }
+            })));
     });
 
     /**
      * Este é o formulário para antecipar cheques
      */
-    controller.registerCall("icheques::form::bank::show", function (data) {
+    controller.registerCall("icheques::form::bank::show", function(data) {
         var modal = controller.call("modal");
         modal.gamification("moneyBag");
         modal.title("Bancos e Factorings");
@@ -103,20 +94,20 @@ module.exports = function (controller) {
         var form = modal.createForm();
         var list = form.createList();
 
-        $("BPQL > body > banks > node", data).each(function (i, element) {
+        $("BPQL > body > banks > node", data).each(function(i, element) {
             var item = list.add("fa-times", [
                 $("name", element).text(),
                 $("actualRisk", element).text(),
                 numeral($("tax", element).text()).format("0%"),
                 numeral($("accountLimit", element).text()).format("$0,0.00")
-            ]).click(function (e) {
-                controller.call("confirm", {}, function () {
+            ]).click(function(e) {
+                controller.call("confirm", {}, function() {
                     e.preventDefault();
-                    controller.serverCommunication.call("DELETE FROM 'ICHEQUES'.'BANK'", {
+                    controller.serverCommunication.call("DELETE FROM 'ICHEQUESBANK'.'BANK'", {
                         data: {
                             id: $("id", element).text()
                         },
-                        success: function () {
+                        success: function() {
                             item.remove();
                         }
                     });
@@ -124,10 +115,10 @@ module.exports = function (controller) {
             });
         });
 
-        form.element().submit(function (e) {
+        form.element().submit(function(e) {
             e.preventDefault();
             modal.close();
-            controller.call("icheques::form::bank::add", function () {
+            controller.call("icheques::form::bank::add", function() {
                 controller.call("icheques::form::bank");
             });
         });
@@ -135,13 +126,13 @@ module.exports = function (controller) {
         form.addSubmit("newbank", "Adicionar Banco ou Factoring");
 
         var actions = modal.createActions();
-//        actions.add("Pesquisa Factoring").click(function (e) {
-//            e.preventDefault();
-//            modal.close();
-//            controller.call("icheques::factoring::search");
-//        });
+            actions.add("Pesquisa Factoring").click(function (e) {
+            e.preventDefault();
+            modal.close();
+            controller.call("icheques::factoring::search");
+        });
 
-        actions.add("Sair").click(function (e) {
+        actions.add("Sair").click(function(e) {
             e.preventDefault();
             modal.close();
         });
