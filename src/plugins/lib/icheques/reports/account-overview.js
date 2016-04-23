@@ -246,6 +246,16 @@ var AccountOverview = function (closeable) {
     };
 
     report.newAction("fa-folder-open", openDocuments);
+
+    report.newAction("fa-cloud-download", () => {
+        controller.call("icheques::ban::generate",
+                controller.call("icheques::resultDatabase", controller.database.exec(squel
+                        .select()
+                        .from('ICHEQUES_CHECKS')
+                        .where(expression)
+                        .toString())[0]));
+    });
+
     var openButton = report.button("Filtrar Cheques", modalFilter);
 
     report.newContent();
@@ -352,14 +362,6 @@ var AccountOverview = function (closeable) {
         });
 
         if (!_.without(datasetQueryStatus, 1).length) {
-            manipulationItens.push(report.button("Exportar BAN", function () {
-                controller.call("icheques::ban::generate",
-                        controller.call("icheques::resultDatabase", controller.database.exec(squel
-                                .select()
-                                .from('ICHEQUES_CHECKS')
-                                .where(expression)
-                                .toString())[0]));
-            }).insertBefore(openButton));
             status.html(messages.noOcurrence);
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
