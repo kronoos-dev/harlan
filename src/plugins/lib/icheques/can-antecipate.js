@@ -26,20 +26,20 @@ module.exports = (controller) => {
 
     controller.registerCall("icheques::canAntecipate", () => {
         var [ammount, count] = controller.database.exec(checkQuery)[0].values[0];
-        if (count < 4) {
+        if (!count) {
             if (element) element.remove();
             return;
         }
+
         var report = controller.call("report",
             "Parabéns! Você possui cheques bons para antecipação.",
             "Receba o dinheiro antes, descontamos depois para sua comodidade.", !ammount ?
-            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> cheques através de uma das nossas antecipadoras de cheques. Clique no botão abaixo para iniciar o processo.` :
-            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> cheques que somam <strong>${numeral(ammount/100).format('$0,0.00')}<\/strong> através de uma das nossas antecipadoras de cheques. Clique no botão abaixo para iniciar o processo.`);
+            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> ${count == 1 ? "cheque" : "cheques"} através de uma das nossas antecipadoras de cheques. Clique no botão abaixo para iniciar o processo.` :
+            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> ${count == 1 ? "cheque" : "cheques"} que somam <strong>${numeral(ammount/100).format('$0,0.00')}<\/strong> através de uma das nossas antecipadoras de cheques. Clique no botão abaixo para iniciar o processo.`);
 
         report.button("Solicitar Antecipação", () => {
-            controller.call("icheques::antecipate",
-                controller.call("icheques::resultDatabase",
-                    controller.database.exec(obtainChecks)[0]));
+            var checks = controller.call("icheques::resultDatabase", controller.database.exec(obtainChecks)[0]).values;
+            controller.call("icheques::antecipate", checks);
         });
 
         report.gamification("checkPoint");
@@ -48,7 +48,7 @@ module.exports = (controller) => {
             element.replaceWith(report.element())
         }
         element = report.element();
-        $(".app-content").append(element);
+        $(".app-content").prepend(element);
     });
 
     controller.registerTrigger("serverCommunication::websocket::ichequeUpdate",
