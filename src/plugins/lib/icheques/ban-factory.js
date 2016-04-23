@@ -63,7 +63,7 @@ export class BANFactory {
         // T:CPF/CNPJ. de 16 a 16. 1.
         this.buffer.setString(15, this.company.cnpj ? '1' : '2');
         // Nome do Cedente. de 17 a 56. 40.
-        this.buffer.setString(16, this.company.nome.replace(NON_WORD, ' ').substring(0, 40));
+        this.buffer.setString(16, (this.company.nome || this.company.responsavel).replace(NON_WORD, ' ').substring(0, 40));
         // Endereco. de 57 a 96. 40.
         let endereco = [
             this.company.endereco[0],
