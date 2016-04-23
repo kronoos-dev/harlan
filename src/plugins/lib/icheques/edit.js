@@ -9,9 +9,9 @@ module.exports = function(controller) {
             icon: "reload",
             title: "Mais um mês de monitoramento.",
             subtitle: "Confirme que deseja adicionar mais 30 dias de monitoramento.",
-            paragraph: "Ao custo de R$ 1,50 (um real e cinquenta centavos) monitore por mais 30 dias seus cheque e fique seguro na hora de depositar."
+            paragraph: "Ao custo de R$ 0,30 (um real e cinquenta centavos) monitore por mais 30 dias seus cheque e fique seguro na hora de depositar."
         }, () => {
-            controller.call("credits::has", 150, () => {
+            controller.call("credits::has", 30, () => {
                 controller.serverCommunication.call("UPDATE 'ICHEQUES'.'ONEMONTH'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
                     data: check,
