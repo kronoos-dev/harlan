@@ -128,8 +128,8 @@ module.exports = (controller) => {
                 var scale = 150 / size[size.height > size.width ? "height" : "width"],
                     fileReader = new FileReader();
 
-                canvas.height = 150;
                 var canvas = document.createElement('canvas');
+                canvas.height = 150;
                 canvas.width = 150;
 
                 var canvasContext = canvas.getContext("2d"),
@@ -153,6 +153,13 @@ module.exports = (controller) => {
         form.addSubmit("send", "Continuar");
         form.element().submit((e) => {
             e.preventDefault();
+
+            if (!logoImage || bio.val().replace(/s+/, " ").length < 100) {
+                toastr.warning("O campo história da empresa deve ter ao menos 100 caracteres e o logo deve estar preenchido.",
+                    "Verifique o formulário e tente novamente.");
+                return;
+            }
+
             modal.close();
             controller.call("confirm", {
                 title: "Você aceita com o contrato de serviço?",
@@ -184,39 +191,71 @@ module.exports = (controller) => {
         modal.createActions().cancel();
     });
 
-    controller.registerTrigger("admin", "icheques", () => {
-        controller.registerCall("icheques::fidc::approve", () => {
-            controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'", {
-                data: {
-                    approved: "false"
-                },
-                success: (ret) => {
-                    controller.call("icheques::fidc::report::xml", ret);
-                }
-            })
+    controller.registerTrigger("admin", "icheques", (args, callback) => {
+
+
+        controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'", {
+            data: {
+                approved: "false"
+            },
+            success: (ret) => {
+                controller.call("icheques::fidc::enable::xml", ret);
+            }
         });
 
-        controller.registerCall("icheques::fidc::report::xml", (ret) => {
+        controller.registerCall("icheques::fidc::enable::xml", (ret) => {
             var elements = [];
 
-            $("fidc", ret).each((idx) => {
-                elements.push(controller.call("icheques::fidc::report", {
-                    "": $("", ret)
+            $("fidc", ret).each((idx, node) => {
+                elements.push(controller.call("icheques::fidc::enable", {
+                    "bio": $(node).children("bio").text(),
+                    "_id": $(node).children("_id").text(),
+                    "logo": $(node).children("logo").text(),
+                    "name": $("company nome", node).text() || $("company reponsabel", ret).text(),
+                    "creation": moment.unix(parseInt($(node).children("creation").text())),
+                    "responsible": $(node).children("bio"),
                 }));
             });
 
             return elements;
         });
 
-        controller.registerCall("icheques::fidc::report", (dict) => {
-            controller.call("report",
-                `Deseja habilitar a empresa? ${dict.companyName}`,
-                `Ao habilitar a empresa você`,
-                "");
+        controller.registerCall("icheques::fidc::enable", (dict) => {
+            var report = controller.call("report",
+                `Deseja habilitar a empresa?`,
+                `Ao habilitar a empresa você permite que todos os clientes iCheques possam enviar suas operações.`,
+                dict.bio);
+            report.label(`Empresa: ${dict.name}`);
+            report.button("Habilitar Fundo", () => {
+                controller.call("confirm", {}, () => {
+                    controller.server.call("UPDATE 'IChequesFIDC'.'Approve'",
+                        controller.call("loader::ajax", controller.call("error::ajax", {
+                            data: {
+                                fidc: dict._id
+                            },
+                            success: (ret) => {
+                                controller.call("alert", {
+                                    icon: "pass",
+                                    title: "Antecipadora aprovada com sucesso.",
+                                    subtitle: "A antecipadora foi aprovada e já pode ser utilizada pelos clientes e parceiros iCheques.",
+                                    paragraph: "Um e-mail foi enviado avisando da aprovação, também foram debitados os R$ 500,00 (quinhentos reais), referentes ao primeiro mês de uso."
+                                });
+                                report.close();
+                            }
+                        }), true));
+                });
+            });
+            report.gamification("pass").css({
+                "background": `url(${dict.logo}) no-repeat center`
+            });
+            $(".app-content").prepend(report.element());
+            return report;
         });
 
-        controller.registerTrigger("serverCommunication::websocket::ichequeFIDC", "update", (data, cb) => {
-
+        controller.registerTrigger("serverCommunication::websocket::ichequeFIDC::admin", "admin", (data, cb) => {
+            data.name = data.company.nome || data.company.responsavel;
+            controller.call("icheques::fidc::enable", data);
         });
+
     });
 };
