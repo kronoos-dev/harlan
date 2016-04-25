@@ -112,6 +112,10 @@ export class BANFactory {
             this.buffer.setString(this._goToPosition(currentRow, 17), doc.replace(NON_NUMERIC, '').substring(0, 14));
             // T:CPF/CNPJ. de 32 até 32. 1.
             this.buffer.setString(this._goToPosition(currentRow, 31), check.cnpj ? '1' : '2');
+            // Nome do sacado. de 33 até 72. 40.
+            this.buffer.setString(this._goToPosition(currentRow, 32), '0');
+            // Endereco. de 73 até 112. 40.
+            this.buffer.setString(this._goToPosition(currentRow, 72), '0');
             // Vencimento. de 250 até 255. 6.
             this.buffer.setString(this._goToPosition(currentRow, 249), moment(check.expire).format('DDMMYY'));
             // Valor. de 256 até 267. 12.
@@ -130,8 +134,12 @@ export class BANFactory {
             this.buffer.setString(this._goToPosition(currentRow, 1), cmcParts.bank.toString().substring(0, 3));
             // Agencia. de 5 até 10. 6.
             this.buffer.setString(this._goToPosition(currentRow, 4), cmcParts.agency.toString().substring(0, 6));
+            // Conta. de 11 até 20. 10.
+            this.buffer.setString(this._goToPosition(currentRow, 10), cmcParts.account.toString().substring(0, 10));
             // N do Cheque. de 21 até 30. 10.
             this.buffer.setString(this._goToPosition(currentRow, 20), cmcParts.number.toString().substring(0, 10));
+            // Praça. de 31 até 33. 3.
+            this.buffer.setString(this._goToPosition(currentRow, 30), '018');
             // CMC7. de 34 até 67. 34.
             this.buffer.setString(this._goToPosition(currentRow, 33), `<${cmcParts.c1}<${cmcParts.c2}>${cmcParts.c3}:`.substring(0, 34));
             /* FIM CHEQUE */
