@@ -2,7 +2,7 @@
 
 module.exports = function (controller) {
 
-    controller.registerCall("confirm", function (parameters, onConfirm, onCancel) {
+    controller.registerCall("confirm", controller.confirm = function (parameters, onConfirm, onCancel) {
         parameters = parameters || {};
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "hammer");
@@ -38,7 +38,7 @@ module.exports = function (controller) {
         };
     });
 
-    controller.registerCall("alert", function (parameters, action) {
+    controller.registerCall("alert", controller.alert = function (parameters, action) {
         parameters = parameters || {};
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "fail");
