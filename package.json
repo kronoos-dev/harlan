@@ -97,6 +97,7 @@
     "esnext": true
   },
   "devDependencies": {
+    "browser-image-size": "^1.1.0",
     "babel-core": "^6.7.6",
     "browser-sync": "^2.12.3",
     "gulp-load-plugins": "^1.2.2",
