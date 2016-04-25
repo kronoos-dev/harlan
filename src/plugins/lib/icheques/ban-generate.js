@@ -17,7 +17,7 @@ module.exports = function(controller) {
         let file = new BANFactory(results, myCompany).generate(),
             name = removeDiacritics(myCompany.nome || myCompany.responsavel).replace(SPACES, "-").toUpperCase();
 
-        controller.call("download", file, `${moment().format("YYYY-MM-DD")}-${name}.ban`);
+        controller.call("download", file, `iwba_00000_${moment().format("DDMMYYhhmmss")}.ban`);
     });
 
 
