@@ -13,9 +13,9 @@ module.exports = function (controller) {
         }
 
         controller.call("confirm", {
-            title: "Você aceita com os termos de uso?",
-            subtitle: "Para continuar é necessário que você aceite os termos de uso desta ferramenta.",
-            paragraph: "Os termos de uso estão disponíveis <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf' title='Termos de Uso'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
+            title: "Você aceita com o contrato de serviço?",
+            subtitle: "Para continuar é necessário que você aceite o contrato de serviço desta ferramenta.",
+            paragraph: "O contrato de serviço está disponível <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
             confirmText: "Aceitar"
         }, function () {
             controller.serverCommunication.call("SELECT FROM 'iCheques'.'contractAccepted'");
