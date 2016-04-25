@@ -199,6 +199,13 @@ module.exports = (controller) => {
             }
             clearInterval(showInterval);
 
+            controller.trigger("admin::viewCompany", {
+                actions,
+                companyNode,
+                username,
+                section
+            });
+
             controller.call("tooltip", actions, "Editar").append($("<i />").addClass("fa fa-edit")).click((e) => {
                 e.preventDefault();
                 controller.call("admin::changeCompany", companyNode, username, section);
