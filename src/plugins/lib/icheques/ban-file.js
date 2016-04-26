@@ -96,7 +96,7 @@ module.exports = function (controller) {
             storage.push(data);
         }
 
-        console.debug(storage);
+        
         controller.call("icheques::checkout", storage);
     };
 

@@ -7,7 +7,7 @@ var assert = require("assert"),
 
 module.exports = (controller) => {
 
-    var GenerateForm = function(callback) {
+    var GenerateForm = function(callback, onCancel) {
 
         var currentScreen = 0;
         var configuration = null;
@@ -48,7 +48,7 @@ module.exports = (controller) => {
                     if (camelCase(field.name) === name) {
                         field.value = value;
                         if (field.element) {
-                            field.element.val(v);
+                            field.element.val(value);
                         }
                     }
                 });
@@ -230,6 +230,7 @@ module.exports = (controller) => {
 
             /* Cancelar */
             actions.add(controller.i18n.system.cancel()).click((e) => {
+                if (onCancel) onCancel();
                 e.preventDefault();
                 modal.close();
             });
@@ -287,8 +288,8 @@ module.exports = (controller) => {
     };
 
 
-    controller.registerCall("form", (parameters) => {
-        return new GenerateForm(parameters);
+    controller.registerCall("form", (...parameters) => {
+        return new GenerateForm(...parameters);
     });
 
 };

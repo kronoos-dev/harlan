@@ -12,7 +12,7 @@ module.exports = (controller) => {
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
                     success: (response) => {
-                        console.debug("argh!");
+                        
                         controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     }
                 })));

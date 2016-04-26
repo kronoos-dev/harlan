@@ -51,9 +51,14 @@ module.exports = function (controller) {
                 "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")),
                 separatorData);
 
-        controller.call("tooltip", separatorData.menu, "Consumo").append($("<i />").addClass("fa fa-edit")).click((e) => {
+        controller.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => {
             e.preventDefault();
             controller.call("icheques::item::edit", check);
+        });
+
+        controller.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
+            e.preventDefault();
+            controller.call("icheques::item::add::time", check);
         });
 
         separator.addClass("external-source loading");
@@ -63,8 +68,9 @@ module.exports = function (controller) {
             checkResult.addItem("Valor", numeral(check.ammount / 100).format("$0,0.00"));
         }
 
+        var expiration;
         if (check.expire) {
-            checkResult.addItem("Expiração", moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
+            expiration = checkResult.addItem("Expiração", moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
         }
 
         if (check.observation) {
@@ -90,6 +96,10 @@ module.exports = function (controller) {
                     nodes.push(checkResult.addItem("Erro", check.exceptionMessage));
                 }
                 return;
+            }
+
+            if (check.expire && expiration) {
+                expiration.find(".value").text(moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
             }
 
             if (check.queryStatus && check.queryStatus !== 10) {

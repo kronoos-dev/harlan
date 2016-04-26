@@ -77,7 +77,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("admin::report", function(callback, element, username, start, end, interval = "P1W", method = "append", closeable = false) {
-        controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'",
+        controller.serverCommunication.call(controller.endpoint.adminReport,
             controller.call("loader::ajax", controller.call("error::ajax", {
                 cache: true,
                 data: {

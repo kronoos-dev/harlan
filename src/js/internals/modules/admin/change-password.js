@@ -35,7 +35,7 @@ module.exports = (controller) => {
 
             if (errors.length) {
                 for (var i in errors) {
-                    console.debug(errors[i]);
+                    
                     toastr.error(errors[i], "Não foi possível prosseguir devido a um erro.");
                 }
                 return;

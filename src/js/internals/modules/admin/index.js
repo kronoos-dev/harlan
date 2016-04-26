@@ -3,6 +3,8 @@ const MAX_RESULTS = 10;
 var _ = require("underscore");
 module.exports = function(controller) {
 
+    controller.endpoint.adminReport = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
+
     controller.registerTrigger("serverCommunication::websocket::authentication", "admin::reference::websocket::authentication", function(data, callback) {
         callback();
 
@@ -70,5 +72,7 @@ module.exports = function(controller) {
 
 
         controller.call("admin::index");
+
+        controller.trigger("admin");
     });
 };
