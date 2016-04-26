@@ -80,19 +80,27 @@ export class BANFactory {
         // Data de operação. de 180 a 185. 6.
         this.buffer.setString(179, moment().format('DDMMYY'));
         // Fator da operação. de 186 a 192. 7.
-        this.buffer.setString(185, '0000000');
+        this.buffer.setString(185, sprintf('%07d', 0));
         // Tx efetiva min. de 193 a 199. 7.
-        this.buffer.setString(192, '0000000');
+        this.buffer.setString(192, sprintf('%07d', 0));
         // Tx serviço. de 200 a 206. 7.
-        this.buffer.setString(199, '0000000');
+        this.buffer.setString(199, sprintf('%07d', 0));
         // Tx ISS. de 207 a 213. 7.
-        this.buffer.setString(206, '0000000');
+        this.buffer.setString(206, sprintf('%07d', 0));
         // Tarifa por título. de 214 a 220. 7.
-        this.buffer.setString(213, '0000000');
+        this.buffer.setString(213, sprintf('%07d', 0));
+        // Tx IOF. de 221 até 227. 7.
+        this.buffer.setString(220, sprintf('%07d', 0));
+        // Tarifa Esporádica. de 230 até 239. 10.
+        this.buffer.setString(229, sprintf('%010d', 0));
+        // Valor de Repesse para Promotora. de 241 até 250. 10.
+        this.buffer.setString(240, sprintf('%010d', 0));
         // Tarifa por cheque. de 251 até 257. 7.
-        this.buffer.setString(250, '0000000');
+        this.buffer.setString(250, sprintf('%07d', 0));
+        // Tx CPMF. de 258 até 264. 7.
+        this.buffer.setString(257, sprintf('%07d', 0));
         // Tx Serviço Trustee. de 265 até 271. 7.
-        this.buffer.setString(264, '0000000');
+        this.buffer.setString(264, sprintf('%07d', 0));
         // 02.7. de 397 a 400. 4.
         this.buffer.setString(396, BAN_VERSION);
     }
@@ -126,8 +134,11 @@ export class BANFactory {
             this.buffer.setString(this._goToPosition(currentRow, 300), moment(check.creation * 1000).format('DDMMYY'));
             // Float. de 357 até 358. 2.
             this.buffer.setString(this._goToPosition(currentRow, 356), '00');
+            // Desconto. de 370 até 381. 12.
+            this.buffer.setString(this._goToPosition(currentRow, 369), sprintf('%012d', 0));
             /* FIM DOCUMENTO */
             currentRow += 1;
+
             /* CHEQUE */
             this.buffer.setString(this._goToPosition(currentRow, 0), '8');
             // Banco. de 2 a 4. 3.
