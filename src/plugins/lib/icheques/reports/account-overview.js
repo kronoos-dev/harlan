@@ -248,17 +248,47 @@ var AccountOverview = function (closeable) {
     report.newAction("fa-folder-open", openDocuments);
 
     report.newAction("fa-cloud-download", () => {
-        controller.call("icheques::ban::generate",
-                controller.call("icheques::resultDatabase", controller.database.exec(squel
-                        .select()
-                        .from('ICHEQUES_CHECKS')
-                        .where(expression)
-                        .toString())[0]));
+        controller.call("icheques::ban::nominate");
     });
 
     var openButton = report.button("Filtrar Cheques", modalFilter);
 
     report.newContent();
+
+    controller.registerCall("icheques::ban::nominate", () => {
+        var modal = controller.call("modal");
+
+        modal.title("Identificação do Cliente");
+        modal.subtitle("Preencha o campo abaixo com sua identificação de cliente");
+
+        var form = modal.createForm();
+
+        var inputClientId = form.addInput("client-id", "text", "00000", {}, "ID de Cliente");
+
+        form.element().submit(function (e) {
+            e.preventDefault();
+
+            var clientId = inputClientId.val().trim();
+
+            controller.call("icheques::ban::generate",
+                clientId,
+                controller.call("icheques::resultDatabase", controller.database.exec(squel
+                    .select()
+                    .from('ICHEQUES_CHECKS')
+                    .where(expression)
+                    .toString())[0]
+                )
+            );
+
+            modal.close();
+        });
+        form.addSubmit("ban-generate", "Gerar .ban");
+
+        modal.createActions().add("Sair").click(function(e) {
+            e.preventDefault();
+            modal.close();
+        });
+    });
 
     var canvas = report.canvas(250, 250);
 
