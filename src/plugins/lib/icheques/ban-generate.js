@@ -12,12 +12,13 @@ module.exports = function(controller) {
         company = currentCompany;
     });
 
-    controller.registerCall("icheques::ban::generate", (results, myCompany = null) => {
+    controller.registerCall("icheques::ban::generate", (clientId, results, myCompany = null) => {
         myCompany = myCompany || company;
+        clientId = clientId || '00000';
         let file = new BANFactory(results, myCompany).generate(),
             name = removeDiacritics(myCompany.nome || myCompany.responsavel).replace(SPACES, "-").toUpperCase();
 
-        controller.call("download", file, `iwba_00000_${moment().format("DDMMYYhhmmss")}.ban`);
+        controller.call("download", file, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
     });
 
 
