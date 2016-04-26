@@ -14,8 +14,6 @@ module.exports = function(controller) {
             return !obj.ammount;
         });
 
-
-
         if (noAmmountChecks.length) {
             controller.call("confirm", {
                 icon: "fail",
@@ -27,7 +25,6 @@ module.exports = function(controller) {
                 var q = queue(controller.reference("icheques::item::setAmmount"), 1);
 
                 q.push(noAmmountChecks, (err) => {
-
                     if (err) {
                         q.kill();
                     }
@@ -67,9 +64,8 @@ module.exports = function(controller) {
         }
 
         var modal = controller.call("modal");
-        modal.gamification("moneyBag");
         modal.title("Factorings iCheques");
-        modal.subtitle("Relação de Factorings iCheques Habilitadas");
+        modal.subtitle("Relação de Factorings iCheques");
         modal.addParagraph("Selecione a Factoring iCheque que deseja enviar sua carteira de cheques.");
 
         var form = modal.createForm(),
@@ -78,9 +74,10 @@ module.exports = function(controller) {
         banks.each(function(i, element) {
             list.add("fa-share", [
                 $("name", element).text(),
-                $("actualRisk", element).text(),
-                numeral($("tax", element).text()).format("0%"),
-                numeral($("accountLimit", element).text()).format("$0,0.00")
+                $("bio", element).text(),
+                $("cep", element).text(),
+                $("address address:item(0)", element).text(),
+                $("address address:item(0)", element).text(),
             ]).click(function(e) {
                 controller.call("confirm", {
                     title: "Você deseja realmente antecipar estes títulos?",
@@ -91,11 +88,10 @@ module.exports = function(controller) {
                     controller.serverCommunication.call("INSERT INTO 'ICHEQUES'.'ANTECIPATE'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             method: "post",
-                            contentType: "application/json",
-                            data: JSON.stringify({
+                            data: {
                                 factoring: $("id", element),
-                                checks: checks
-                            }),
+                                checks: _.pluck(checks, "cmc").join(",")
+                            },
                             success: function() {
                                 controller.call("alert", {
                                     icon: "pass",
