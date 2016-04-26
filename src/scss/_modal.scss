@@ -8,6 +8,24 @@
     background-color: darken(rgba(255,255,255,0.8), 10%);
     box-sizing: border-box;
     display: table;
+
+    .map {
+        display: block;
+        height: 200px;
+        /* vertical-align: middle; */
+        margin: 20px 0;
+        box-sizing: border-box;
+        border-radius: 3px;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .emails, .phones, .address {
+        display: block;
+        clear: both;
+        margin: 20px 0;
+        font-weight: 600;
+    }
+
     h2,
     h3,
     h4 {
@@ -94,6 +112,7 @@
             }
         }
     }
+
     ul:not(.list,.actions) {
         li {
             margin: 5px 0;
@@ -124,7 +143,8 @@
     strong {
         font-weight: 700;
     }
-    .apiKey, .break {
+    .apiKey,
+    .break {
         word-break: break-all;
     }
 }
