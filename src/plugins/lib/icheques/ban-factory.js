@@ -1,6 +1,7 @@
 import jDataView from 'jdataview';
 import { sprintf } from 'sprintf';
 import { CMC7Parser } from './cmc7-parser';
+import async from 'async';
 
 const NON_NUMERIC = /[\D]/g,
       NON_WORD = /[\PL]/g,
@@ -10,7 +11,8 @@ const NON_NUMERIC = /[\D]/g,
       CRLF = '\r\n';
 
 export class BANFactory {
-    constructor(results, company) {
+    constructor(call, results, company) {
+        this.call = call;
         this.checks = results.values;
         this.company = company;
         this.size = this._fileLength();
@@ -23,9 +25,9 @@ export class BANFactory {
         this.generateChecks();
         this.generateFooter();
 
-        var tasks = async.queue(function (check, callback) {
+        var tasks = async.queue((check, callback) => {
             async.parallel([(callback) => {
-                controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
+                this.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
                         this.buffer.setString(this._goToPosition(check.row, 32),
@@ -34,7 +36,7 @@ export class BANFactory {
                     complete: () => { callback(); }
                 });
             }, (callback) => {
-                controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
+                this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
                         /* olha como o chrome faz a chamada */

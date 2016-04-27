@@ -1,4 +1,6 @@
-import { BANFactory } from "./ban-factory.js";
+import {
+    BANFactory
+} from "./ban-factory.js";
 
 const SPACES = /\s+/;
 var company = null;
@@ -10,10 +12,23 @@ module.exports = function(controller) {
         company = currentCompany;
     });
 
-    controller.registerCall("icheques::ban::generate", (clientId, results, myCompany = null) => {
+    controller.registerCall("icheques::ban::generate", (results, myCompany = null) => {
         myCompany = myCompany || company;
-        clientId = clientId || '00000';
-        new BANFactory(results, myCompany).generate(...controller.call("icheques::ban::refining"));
+        var modal = controller.call("modal");
+        modal.title("Código do Cliente BAN");
+        modal.subtitle("Digite o código de cliente.");
+        modal.paragraph("O código do cliente esta geralmente cadastrado no ERP da empresa, caso não esteja preencha com o nome da empresa.");
+        var form = modal.createForm(),
+            clientName = form.addInput("name", "text", "Código ou Nome de Cliente");
+        form.addSubmit("submit", "Nomear Arquivo");
+        form.element().submit((e) => {
+            e.preventDefault();
+            modal.close();
+            var clientId = clientName.val().replace(/\s+/, ' ').trim() || '00000';
+            new BANFactory(controller.server.call, results, myCompany)
+                .generate(...controller.call("icheques::ban::refining", clientId, results, myCompany));
+        });
+        modal.createActions().cancel();
     });
 
     controller.registerCall("icheques::ban::refining", (clientId, results, myCompany = null) => {

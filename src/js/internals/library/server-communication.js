@@ -29,7 +29,7 @@ module.exports = function (controller) {
      * @param {WebSocket Data} data
      * @returns {undefined}
      */
-    var defaultCallback = function (data, event) {
+    var defaultCallback = (data, event) => {
         controller.trigger("serverCommunication::websocket::event", event);
         if (data.method) {
             controller.trigger("serverCommunication::websocket::" + data.method, data.data);
@@ -37,20 +37,20 @@ module.exports = function (controller) {
     };
 
     /* BIPBOP WebSocket */
-    this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, function (ws) {
+    this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, (ws) => {
         controller.trigger("serverCommunication::websocket::open", ws);
     });
 
-    this.freeKey = function () {
+    this.freeKey = () => {
         return bipbopApiKey === BIPBOP_FREE;
     };
 
-    this.userHash = function () {
+    this.userHash = () => {
         return SHA256(bipbopApiKey);
     };
 
     /* BIPBOP API Key */
-    this.apiKey = function (apiKey) {
+    this.apiKey = (apiKey) => {
         if (apiKey && bipbopApiKey !== apiKey) {
             bipbopApiKey = apiKey;
             this.webSocket(apiKey);
@@ -59,7 +59,7 @@ module.exports = function (controller) {
     };
 
     /* Retorna o XHR da requisição AJAX */
-    this.call = function (query, configuration) {
+    this.call = (query, configuration) => {
         controller.trigger("serverCommunication::call", [query, configuration]);
         return $.bipbop(query, bipbopApiKey, configuration);
     };
