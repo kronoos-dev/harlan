@@ -151,16 +151,17 @@ module.exports = function(controller) {
                 e.preventDefault();
                 controller.serverCommunication.call("INSERT INTO 'ICHEQUES'.'ANTECIPATE'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
-                        method: "post",
+                        method: "POST",
                         data: {
-                            factoring: $("id", element),
+                            factoring: $("company > username", element).text(),
                             checks: _.pluck(checks, "cmc").join(",")
                         },
                         success: function() {
                             controller.call("alert", {
                                 icon: "pass",
-                                title: "Seus cheques foram enviados",
-                                subtitle: "Aguarde a resposta do fundo em sua caixa eletrônica"
+                                title: "Seus cheques foram enviados.",
+                                subtitle: "Aguarde a resposta do fundo em seu e-mail.",
+                                paragraph: "Os cheques continuarão em sua carteira do iCheques até que a antecipadora de cheques aceite a operação."
                             });
                         }
                     })));
