@@ -131,7 +131,7 @@ module.exports = function (controller) {
         return this;
     };
 
-    controller.registerCall("modal", function () {
+    controller.registerCall("modal", controller.modal = function () {
         return new Modal();
     });
 
