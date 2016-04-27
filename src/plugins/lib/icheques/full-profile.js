@@ -154,7 +154,7 @@ var formDescription = {
                     "name": "own-property",
                     "type": "checkbox",
                     "placeholder": "Concentrado",
-                    "labelText": "Concetrado",
+                    "labelText": "Concentrado",
                     "optional": true
                 },
                 {
