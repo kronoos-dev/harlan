@@ -29,7 +29,7 @@ module.exports = function(controller) {
         form.element().submit((e) => {
             e.preventDefault();
             modal.close();
-            var clientId = clientName.val().replace(/\s+/, ' ').trim();
+            var clientId = clientName.val().replace(/\s+/g, ' ').trim();
             localStorage.setItem(`banId_${myCompany.username}`, clientId);
             new BANFactory(controller.server.call, results, myCompany)
                 .generate(...controller.call("icheques::ban::refining", results, myCompany));
