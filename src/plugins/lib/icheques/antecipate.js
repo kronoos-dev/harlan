@@ -151,9 +151,9 @@ module.exports = function(controller) {
                 e.preventDefault();
                 controller.serverCommunication.call("INSERT INTO 'ICHEQUES'.'ANTECIPATE'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
-                        method: "post",
+                        method: "POST",
                         data: {
-                            factoring: $("id", element),
+                            factoring: $("company > username", element).text(),
                             checks: _.pluck(checks, "cmc").join(",")
                         },
                         success: function() {
