@@ -40,7 +40,7 @@ module.exports = function(controller) {
         var setProgress = modal.addProgress();
 
         return [modal, setProgress, (blob) => {
-            controller.call("download", file, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
+            controller.call("download", blob, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
         }];
     });
 

@@ -48,6 +48,11 @@ export class BANFactory {
             });
         }, MAX_THREADS);
 
+        tasks.drain = () => {
+            complete();
+            modal.close();
+        };
+
         var i = 0;
         tasks.push(this.checks, () => {
             progressUpdate(++i / this.checks.length);
@@ -58,10 +63,6 @@ export class BANFactory {
             complete = () => {}; /* evita duas chamadas */
         };
 
-        tasks.drain(() => {
-            complete();
-            modal.close();
-        });
 
         modal.createActions().cancel(() => {
             tasks.kill();
