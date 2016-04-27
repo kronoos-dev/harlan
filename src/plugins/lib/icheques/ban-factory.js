@@ -6,6 +6,7 @@ const NON_NUMERIC = /[\D]/g,
       NON_WORD = /[\PL]/g,
       ROW_SIZE = 502,
       BAN_VERSION = '02.7',
+      MAX_THREADS = 2,
       CRLF = '\r\n';
 
 export class BANFactory {
@@ -16,12 +17,55 @@ export class BANFactory {
         this.buffer = new jDataView(new ArrayBuffer(this.size));
     }
 
-    generate() {
+    generate(modal, progressUpdate, callback) {
         this._fillBuffer();
         this.generateHeader();
         this.generateChecks();
         this.generateFooter();
-        return new Blob([this.buffer.getString(this.size, 0)], {type: 'application/octet-binary'});
+
+        var tasks = async.queue(function (check, callback) {
+            async.parallel([(callback) => {
+                controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
+                    data : {documento : check.cpf || check.cnpj },
+                    success : (ret) => {
+                        this.buffer.setString(this._goToPosition(check.row, 32),
+                            $("BPQL > body > nome", ret).text().substring(0, 40));
+                    },
+                    complete: () => { callback(); }
+                });
+            }, (callback) => {
+                controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
+                    data : {documento : check.cpf || check.cnpj },
+                    success : (ret) => {
+                        /* olha como o chrome faz a chamada */
+                    },
+                    complete: () => { callback(); }
+                });
+            }], () => {
+                callback();
+            });
+        }, MAX_THREADS);
+
+        var i = 0;
+        tasks.push(this.checks, () => {
+            progressUpdate(++i / this.checks.length);
+        });
+
+        var complete = () => {
+            callback(new Blob([this.buffer.getString(this.size, 0)], {type: 'application/octet-binary'}));
+            complete = () => {}; /* evita duas chamadas */
+        };
+
+        tasks.drain(() => {
+            complete();
+            modal.close();
+        });
+
+        modal.createActions().cancel(() => {
+            tasks.kill();
+            complete();
+        });
+
     }
 
     _fillBuffer() {
@@ -112,6 +156,7 @@ export class BANFactory {
                 doc = check.cnpj || check.cpf,
                 ammount = check.ammount === null ? 0 : check.ammount;
 
+            check.row = currentRow;
             /* DOCUMENTO */
             this.buffer.setString(this._goToPosition(currentRow, 0), '2');
             // Documento. de 2 até 7. 6.

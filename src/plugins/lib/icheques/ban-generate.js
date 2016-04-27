@@ -1,8 +1,6 @@
 import { BANFactory } from "./ban-factory.js";
 
 const SPACES = /\s+/;
-
-var removeDiacritics = require('diacritics').remove;
 var company = null;
 
 module.exports = function(controller) {
@@ -15,17 +13,20 @@ module.exports = function(controller) {
     controller.registerCall("icheques::ban::generate", (clientId, results, myCompany = null) => {
         myCompany = myCompany || company;
         clientId = clientId || '00000';
-        let file = new BANFactory(results, myCompany).generate(),
-            name = removeDiacritics(myCompany.nome || myCompany.responsavel).replace(SPACES, "-").toUpperCase();
-
-        controller.call("download", file, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
+        new BANFactory(results, myCompany).generate(...controller.call("icheques::ban::refining"));
     });
 
     controller.registerCall("icheques::ban::refining", (clientId, results, myCompany = null) => {
         var modal = controller.call("modal");
 
-        modal.title("Refinando os dados");
-        modal.subtitle("Aguarde, estamos refinando os dados para gerar o melhor .ban para você!");
+        modal.title("Refinando os Dados");
+        modal.subtitle("Aguarde, estamos refinando os dados para gerar o melhor .ban para você.");
+        modal.paragraph("Estamos neste momento capturando as informações dos cheques e seus titulares para a geração do arquivo BAN.");
+        var setProgress = modal.addProgress();
+
+        return [modal, setProgress, (blob) => {
+            controller.call("download", file, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
+        }];
     });
 
 
