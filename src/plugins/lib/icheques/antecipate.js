@@ -159,8 +159,9 @@ module.exports = function(controller) {
                         success: function() {
                             controller.call("alert", {
                                 icon: "pass",
-                                title: "Seus cheques foram enviados",
-                                subtitle: "Aguarde a resposta do fundo em sua caixa eletrônica"
+                                title: "Seus cheques foram enviados.",
+                                subtitle: "Aguarde a resposta do fundo em seu e-mail.",
+                                paragraph: "Os cheques continuarão em sua carteira do iCheques até que a antecipadora de cheques aceite a operação."
                             });
                         }
                     })));
