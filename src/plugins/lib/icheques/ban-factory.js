@@ -39,7 +39,12 @@ export class BANFactory {
                 this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
-                        /* olha como o chrome faz a chamada */
+                        var endereco = [];
+                        $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
+                            endereco.push($(el).text());
+                        });
+                        // Endereco completo. de 73 até 112. 40.
+                        this.buffer.setString(this._goToPosition(check.row, 72), endereco.join(' ').trim().substring(0, 40));
                     },
                     complete: () => { callback(); }
                 });
