@@ -153,8 +153,8 @@ var formDescription = {
                 {
                     "name": "own-property",
                     "type": "checkbox",
-                    "placeholder": "Concentrado? (mesmo dia)",
-                    "labelText": "Concetrado? (mesmo dia)",
+                    "placeholder": "Concentrado",
+                    "labelText": "Concetrado",
                     "optional": true
                 },
                 {
@@ -170,10 +170,10 @@ var formDescription = {
                 },
                 {
                     "name": "own-send",
-                    "type": "checkbox",
-                    "placeholder": "Transportadora Própria",
-                    "labelText": "Transportadora Própria",
-                    "optional": true
+                    "type": "select",
+                    "labelText": "Opção de Transportadora",
+                    "optional": true,
+                    "list": ["Sem Transportadora", "Transportadora Própria", "Transportadora Terceirizada"]
                 }
             ]
         }
