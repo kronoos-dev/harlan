@@ -270,7 +270,7 @@ var AccountOverview = function (closeable) {
 
             var clientId = inputClientId.val().trim();
 
-            controller.call("icheques::ban::generate",
+            controller.call("icheques::ban::refining",
                 clientId,
                 controller.call("icheques::resultDatabase", controller.database.exec(squel
                     .select()
