@@ -41,7 +41,6 @@ export class BANFactory {
                     success : (ret) => {
                         $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
                             var val = $(el).text();
-                            console.log(val);
                             switch (i) {
                                 case 1:
                                     // endereco. de 391 até 430. 40.
