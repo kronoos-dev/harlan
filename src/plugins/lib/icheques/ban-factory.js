@@ -39,12 +39,39 @@ export class BANFactory {
                 this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
-                        var endereco = [];
                         $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
-                            endereco.push($(el).text());
+                            var val = $(el).text();
+                            console.log(val);
+                            switch (i) {
+                                case 1:
+                                    // endereco. de 391 até 430. 40.
+                                    this.buffer.setString(this._goToPosition(check.row, 390), val.trim().substring(0, 40));
+                                    break;
+                                case 2:
+                                    // numero. de 431 até 435. 5.
+                                    this.buffer.setString(this._goToPosition(check.row, 430), val.trim().substring(0, 5));
+                                    break;
+                                case 3:
+                                    // cep. de 172 até 179. 8.
+                                    this.buffer.setString(this._goToPosition(check.row, 171), val.trim().substring(0, 8));
+                                    break;
+                                case 4:
+                                    // bairro. de 113 até 127. 15.
+                                    this.buffer.setString(this._goToPosition(check.row, 112), val.trim().substring(0, 15));
+                                    break;
+                                case 5:
+                                    // cidade. de 152 até 169. 18.
+                                    this.buffer.setString(this._goToPosition(check.row, 151), val.trim().substring(0, 18));
+                                    break;
+                                case 6:
+                                    // estado. de 170 até 171. 2.
+                                    this.buffer.setString(this._goToPosition(check.row, 169), val.trim().substring(0, 2));
+                                    break;
+                                case 7:
+                                    // complemento. de 436 até 465. 30.
+                                    this.buffer.setString(this._goToPosition(check.row, 435), val.trim().substring(0, 30));
+                            }
                         });
-                        // Endereco completo. de 73 até 112. 40.
-                        this.buffer.setString(this._goToPosition(check.row, 72), endereco.join(' ').trim().substring(0, 40));
                     },
                     complete: () => { callback(); }
                 });
@@ -74,6 +101,15 @@ export class BANFactory {
             complete();
         });
 
+    }
+
+    /**
+     * Retorna o logradouro abreviado
+     * @param  {string} logradouro
+     * @return {string}
+     */
+    _getLogradouroAbrev(logradouro) {
+        return logradouro;
     }
 
     _fillBuffer() {
