@@ -185,7 +185,7 @@ var AccountOverview = function (closeable) {
 //            filterLabels.push(report.label("Cheques Processados"));
         }
         else if (f.filter === "2") {
-            expression.and("(QUERY_STATUS IS NULL OR QUERY_STATUS == 10)");
+            expression.and("(QUERY_STATUS IS NULL OR QUERY_STATUS = 10)");
 //            filterLabels.push(report.label("Cheques em Processamento"));
         }
         else if (f.filter === "3") {
@@ -365,6 +365,9 @@ var AccountOverview = function (closeable) {
 
         if (!_.without(datasetQueryStatus, 1).length) {
             status.html(messages.noOcurrence);
+            manipulationItens.push(report.button("Antecipar Cheques", function () {
+                controller.call("icheques::antecipate", dataset);
+            }).insertBefore(openButton));
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
         } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {
