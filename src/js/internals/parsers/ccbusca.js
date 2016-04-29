@@ -7,7 +7,7 @@ module.exports = function (controller) {
 
 
     var setAddress = function (result, jdocument) {
-        var init = "BPQL > body > addresses > address";
+        var init = "BPQL > body enderecos > endereco";
 
         var addressElements = [];
         var cepElements = [];
@@ -15,13 +15,14 @@ module.exports = function (controller) {
         jdocument.find(init).each(function (i, node) {
 
             var nodes = {
-                "Endereço": "address",
-                "Número": "number",
-                "Complemento": "address-complement",
-                "CEP": "zipcode",
-                "Bairro": "neighborhood",
-                "Cidade": "city",
-                "Estado": "state"
+                "Tipo" : "tipo",
+                "Endereço": "logradouro",
+                "Número": "numero",
+                "Complemento": "complemento",
+                "CEP": "cep",
+                "Bairro": "bairro",
+                "Cidade": "cidade",
+                "Estado": "estado"
             }, jnode = $(node), address = [];
 
             for (var idx in nodes) {
@@ -55,7 +56,7 @@ module.exports = function (controller) {
 
             jnode.find("*").each(function (idx, node) {
                 var jnode = $(node);
-                if (!/address-complement/i.test(jnode.prop("tagName"))) {
+                if (!/complemento/i.test(jnode.prop("tagName"))) {
                     address.push(jnode.text());
                 }
             });
@@ -83,12 +84,12 @@ module.exports = function (controller) {
         var phones = [];
         var emails = [];
 
-        jdocument.find("BPQL > body > phones > phone:lt(3)").each(function (idx, node) {
+        jdocument.find("BPQL > body telefone").each(function (idx, node) {
             var jnode = $(node);
-            phones.push("(" + jnode.find("area-code").text() + ") " + jnode.find("number").text());
+            phones.push("(" + jnode.find("ddd").text() + ") " + jnode.find("numero").text());
         });
 
-        jdocument.find("BPQL > body email:lt(3), BPQL > body > RFB > email").each(function (idx, node) {
+        jdocument.find("BPQL > body email, BPQL > body > RFB > email").each(function (idx, node) {
             emails.push($(node).text());
         });
 
@@ -116,10 +117,11 @@ module.exports = function (controller) {
         var result = controller.call("result");
 
         var nodes = {
-            "Nome": "name"
+            "Nome": "nome",
+            "Nome da Mãe" : "nomemae"
         };
 
-        var init = "BPQL > body > ";
+        var init = "BPQL > body > xml > cadastro > ";
         for (var idx in nodes) {
             var data = jdocument.find(init + nodes[idx]).text();
             if (/^\**$/.test(data))
