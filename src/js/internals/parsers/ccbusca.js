@@ -121,7 +121,7 @@ module.exports = function (controller) {
                 nodes = {
                     "Empresa": "nome",
                     "CNPJ": "cnpj",
-                    "Qualidade": "quali"
+                    "Participação": "quali"
                 };
 
             result.addSeparator("Quadro Societário", "Empresa", "Empresa a qual faz parte.");
