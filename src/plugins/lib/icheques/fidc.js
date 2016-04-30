@@ -61,6 +61,77 @@ module.exports = (controller) => {
                 "background": `url(${dict.logo}) no-repeat center`
             });
 
+            controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'OPERATIONS'",
+                controller.call("error::ajax", controller.call("loader::ajax", {
+                    success: (ret) => {
+                        $("BPQL > body > antecipate", ret).each((idx, node) => {
+                            var args = {
+                                cmcs: [],
+                                company: {
+                                    _id: $("company > _id").text(),
+                                    username: $("company > username", node).text(),
+                                    cpf: $("company > cpf", node).text(),
+                                    cnpj: $("company > cnpj", node).text(),
+                                    status: $("company > status", node).text(),
+                                    approved: $("approved", node).text(),
+                                    contractAccepted: $("company > contractAccepted", node).text() == "true",
+                                    status: parseInt($("company > status", node).text()),
+                                    responsavel: $("company > responsavel", node).text(),
+                                    contrato: [
+                                        $("company > contrato > node:eq(0)", node).text(),
+                                        $("company > contrato > node:eq(1)", node).text(),
+                                        $("company > contrato > node:eq(2)", node).text(),
+                                        $("company > contrato > node:eq(3)", node).text(),
+                                        $("company > contrato > node:eq(4)", node).text(),
+                                        $("company > contrato > node:eq(5)", node).text(),
+                                    ],
+                                    endereco: [
+                                        $("company > endereco > node:eq(0)", node).text(),
+                                        $("company > endereco > node:eq(1)", node).text(),
+                                        $("company > endereco > node:eq(2)", node).text(),
+                                        $("company > endereco > node:eq(3)", node).text(),
+                                        $("company > endereco > node:eq(4)", node).text(),
+                                        $("company > endereco > node:eq(5)", node).text(),
+                                        $("company > endereco > node:eq(6)", node).text(),
+                                    ],
+                                    email: [],
+                                    telefone: []
+                                },
+                                created: moment.unix(parseInt($(node).children("created").text()))
+                            };
+
+                            $("cmcs node", node).each((idx, cmc) => {
+                                args.cmcs.push($(cmc).text());
+                            });
+
+                            $("company telefone node", node).each((idx, phone) => {
+                                args.company.telefone.push([
+                                    $("node:eq(0)", phone).text(),
+                                    $("node:eq(1)", phone).text(),
+                                    $("node:eq(2)", phone).text(),
+                                    $("node:eq(3)", phone).text(),
+                                    $("node:eq(4)", phone).text(),
+                                ]);
+                            });
+
+                            $("company email node", node).each((idx, email) => {
+                                args.company.email.push([
+                                    $("node:eq(0)", email).text(),
+                                    $("node:eq(1)", email).text()
+                                ]);
+                            });
+
+                            controller.call("icheques::fidc::operation::decision", args);
+                        });
+                    }
+                })));
+
+            controller.registerTrigger("serverCommunication::websocket::ichequesFIDCOperation", (args, call) => {
+                call();
+                args.created = moment.unix(args.created);
+                controller.call("icheques::fidc::operation::decision", args);
+            });
+
         } else {
             report.title("Seu cadastro de antecipador ainda não foi aprovado.");
             report.subtitle("Infelizmente ainda não é possível receber carteiras de cheques.");
@@ -258,4 +329,82 @@ module.exports = (controller) => {
         });
 
     });
+
+    controller.registerCall("icheques::fidc::operation::decision", (args) => {
+        var report = controller.call("report");
+        report.title("Carteira de Antecipação");
+        report.subtitle("Visualização da Carteira Recebida");
+        report.paragraph("Você recebeu uma carteira de cheques para antecipação. " +
+            "Para aceitar os cheques você deve encaminhar um arquivo .iTIT para geração de fatura e conclusão.");
+
+        report.label(`Usuário\: ${args.company.username}`);
+        report.label(`Documento\: ${args.company.cnpj || args.company.cpf}`);
+        report.label(`Nome\: ${args.company.nome || args.company.responsavel}`);
+        report.label(`Cheques\: ${args.cmcs.length}`);
+
+        report.newAction("fa-cloud-download", () => {
+            controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {
+                data: {
+                    id: args._id
+                },
+                success: function(ret) {
+                    var storage = [];
+                    $(ret).find("check").each(function() {
+                        storage.push(controller.call("icheques::parse::element", this));
+                    });
+                    controller.call("icheques::ban::generate", {values:storage}, args.company);
+                }
+            }));
+        });
+
+        report.newAction("fa-folder-open", () => {
+            controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {
+                data: {
+                    id: args._id
+                },
+                success: function(ret) {
+                    var storage = [];
+                    $(ret).find("check").each(function() {
+                        storage.push(controller.call("icheques::parse::element", this));
+                    });
+                    controller.call("icheques::show", storage, null, report.element());
+                }
+            }));
+        });
+
+        var sendAccept = (accept) => {
+            controller.confirm({}, (cmcs) => {
+                controller.server.call("UPDATE 'iChequesFIDC'.'Operation'",
+                    controller.call("error::ajax", controller.call("loader::ajax", {
+                        data: $.extend({
+                            id: args._id,
+                            approved: accept
+                        }, cmcs),
+                        success: () => {
+                            toastr.success("A operação foi aceita com sucesso, agora os cheques fazem parte de sua carteira.", "Cheques adicionados a carteira.");
+                            report.close();
+                        }
+                    }, true)));
+            });
+        };
+
+        let accept = (accept) => {
+            return () => {
+
+                if (accept) {
+
+                }
+
+            };
+        };
+        report.newAction("fa-user", () => {
+
+        });
+        report.button("Recusar Operação", accept(false));
+        report.button("Aceitar Operação", accept(true));
+        report.gamification("sword");
+
+        $(".app-content").append(report.element());
+    });
+
 };

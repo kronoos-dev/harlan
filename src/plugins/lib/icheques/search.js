@@ -39,7 +39,7 @@ module.exports = function(controller) {
             .addClass("icheque")
             .click(function(e) {
                 e.preventDefault();
-                controller.call("icheques::show", databaseResult.values, null, true);
+                controller.call("icheques::show", databaseResult.values);
             });
 
         callback();
@@ -48,7 +48,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::resultClick", (result) => {
         return (e) => {
             e.preventDefault();
-            controller.call("icheques::show", [result], null, true);
+            controller.call("icheques::show", [result]);
         };
     });
 
