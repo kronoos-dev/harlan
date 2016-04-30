@@ -160,6 +160,7 @@ var Controller = function() {
     require("./parsers/placas-wiki")(this);
     require("./parsers/junta-empresa")(this);
     require("./parsers/cbusca")(this);
+    require("./parsers/ccbusca")(this);
 
     /* Forms */
     require("./forms/receita-certidao")(this);
