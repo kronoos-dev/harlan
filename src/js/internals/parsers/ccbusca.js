@@ -111,6 +111,29 @@ module.exports = function (controller) {
 
     };
 
+    var setSociety = (result, jdocument) => {
+        let $empresas = jdocument.find("BPQL > body parsocietaria > empresa");
+
+        if ($empresas.length == 0) return;
+
+        for (let node of $empresas) {
+            let $node = $(node),
+                nodes = {
+                    "Empresa": "nome",
+                    "CNPJ": "cnpj",
+                    "Qualidade": "quali"
+                };
+
+            result.addSeparator("Quadro Societário", "Empresa", "Empresa a qual faz parte.");
+            for (var idx in nodes) {
+                var data = $node.find(nodes[idx]).text();
+                nodes[idx] = (/^\**$/.test(data)) ? "" : data;
+                result.addItem(idx, nodes[idx]);
+            }
+
+        }
+    };
+
     var parserConsultas = function (document) {
         var jdocument = $(document);
 
@@ -131,6 +154,7 @@ module.exports = function (controller) {
 
         setAddress(result, jdocument);
         setContact(result, jdocument);
+        setSociety(result, jdocument);
 
         return result.element();
     };
