@@ -180,7 +180,7 @@ module.exports = function(controller) {
         section[0].addClass("icheque loading");
         showChecks(task[1], result, section);
         callback(null, section);
-        controller.serverCommunication.call("SELECT FROM 'CBUSCA'.'CONSULTA'", {
+        controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
             cache: true,
             data: {
                 documento: task[0]
