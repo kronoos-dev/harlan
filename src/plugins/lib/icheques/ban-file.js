@@ -24,7 +24,7 @@ module.exports = function (controller) {
 
         var modal = controller.call("modal");
 
-        modal.title("iCheque");
+        modal.title("iCheques");
         modal.subtitle("Safekeeping para Carteiras de Cheque");
         modal.addParagraph("Para realizar a verificação de cheques em tempo real será necessário que você selecione o arquivo abaixo.");
 
@@ -96,7 +96,7 @@ module.exports = function (controller) {
             storage.push(data);
         }
 
-        
+
         controller.call("icheques::checkout", storage);
     };
 

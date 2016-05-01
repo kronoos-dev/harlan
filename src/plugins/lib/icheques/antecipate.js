@@ -175,8 +175,4 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerTrigger("serverCommunication::websocket::ichequesFIDCDecision", (args, call) => {
-
-    });
-
 };

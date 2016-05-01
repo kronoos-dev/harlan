@@ -1,7 +1,13 @@
-const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
-
 import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
+import fileReaderStream from "filereader-stream";
+import concat from "concat-stream";
+import {
+    CMC7Parser
+} from './cmc7-parser';
+
+const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
+const TEST_ITIT_EXTENSION = /\.itit/i;
 
 module.exports = (controller) => {
 
@@ -66,9 +72,9 @@ module.exports = (controller) => {
                     success: (ret) => {
                         $("BPQL > body > antecipate", ret).each((idx, node) => {
                             var args = {
+                                _id: $(node).children("_id").text(),
                                 cmcs: [],
                                 company: {
-                                    _id: $("company > _id").text(),
                                     username: $("company > username", node).text(),
                                     cpf: $("company > cpf", node).text(),
                                     cnpj: $("company > cnpj", node).text(),
@@ -330,6 +336,80 @@ module.exports = (controller) => {
 
     });
 
+    var getFile = function(inputFile) {
+        var files = inputFile.get(0).files;
+        if (!files.length) {
+            throw "Selecione um arquivo!";
+        }
+
+        var file = files.item(0);
+        if (!TEST_ITIT_EXTENSION.test(file.name)) {
+            throw "A extensão recebida do arquivo não confere!";
+        }
+        return file;
+    };
+
+    var parseReceipt = (args, file, cb) => {
+        fileReaderStream(file).pipe(concat(function(buffer) {
+            let obj = {
+                    file: buffer.toString(),
+                    checkNumbers: []
+                },
+                lines = buffer.toString().split("\r\n");
+            for (let line of lines) {
+                let data = line.split(";");
+                switch (data[0]) {
+                    case 'B':
+                        obj.operation = data[4];
+                        break;
+                    case 'C':
+                        obj.equity = data[14];
+                        obj.taxes = data[21];
+                        break;
+                    case 'T':
+                        for (let idx in args.cmcs) {
+                            let cmc = args.cmcs[idx];
+                            if (!cmc) {
+                                continue;
+                            }
+                            if (new CMC7Parser(cmc).number == data[2]) {
+                                obj.checkNumbers.push(cmc);
+                                args.cmcs[idx] = null;
+                                break;
+                            }
+                        }
+                        break;
+                }
+            }
+            obj.checkNumbers = obj.checkNumbers.join(",");
+            cb(obj);
+        }));
+    };
+
+    var askReceipt = (data, cb) => {
+        var modal = controller.call("modal");
+
+        modal.title("iCheques");
+        modal.subtitle("Apresentação de Recibo da Operação");
+        modal.addParagraph("Para finalizar a operação é necessário que você apresente o recibo no formato iTit (WBA).");
+
+        var form = modal.createForm();
+        var inputFile = form.addInput("fidc-file", "file", "Selecionar arquivo.", {}, "Arquivo de Fundo FIDC");
+
+        form.addSubmit("submit", "Enviar").click(function(e) {
+            e.preventDefault();
+            try {
+                parseReceipt(data, getFile(inputFile), cb);
+                modal.close();
+            } catch (exception) {
+                toastr.warning(exception);
+                inputFile.addClass("error");
+            }
+        });
+        modal.createActions().cancel();
+    };
+
+
     controller.registerCall("icheques::fidc::operation::decision", (args) => {
         var report = controller.call("report");
         report.title("Carteira de Antecipação");
@@ -342,7 +422,7 @@ module.exports = (controller) => {
         report.label(`Nome\: ${args.company.nome || args.company.responsavel}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 
-        report.newAction("fa-cloud-download", () => {
+        report.newAction("fa-cloud-download", function() {
             controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {
                 data: {
                     id: args._id
@@ -352,12 +432,14 @@ module.exports = (controller) => {
                     $(ret).find("check").each(function() {
                         storage.push(controller.call("icheques::parse::element", this));
                     });
-                    controller.call("icheques::ban::generate", {values:storage}, args.company);
+                    controller.call("icheques::ban::generate", {
+                        values: storage
+                    }, args.company);
                 }
             }));
         });
 
-        report.newAction("fa-folder-open", () => {
+        report.newAction("fa-folder-open", function() {
             controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {
                 data: {
                     id: args._id
@@ -372,14 +454,15 @@ module.exports = (controller) => {
             }));
         });
 
-        var sendAccept = (accept) => {
-            controller.confirm({}, (cmcs) => {
+        var sendAccept = (accept, obj) => {
+            controller.confirm({}, () => {
                 controller.server.call("UPDATE 'iChequesFIDC'.'Operation'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
                         data: $.extend({
                             id: args._id,
                             approved: accept
-                        }, cmcs),
+                        }, obj),
+                        method: "POST",
                         success: () => {
                             toastr.success("A operação foi aceita com sucesso, agora os cheques fazem parte de sua carteira.", "Cheques adicionados a carteira.");
                             report.close();
@@ -390,13 +473,16 @@ module.exports = (controller) => {
 
         let accept = (accept) => {
             return () => {
-
                 if (accept) {
-
+                    askReceipt(args, (obj) => {
+                        sendAccept(true, obj);
+                    });
+                    return;
                 }
-
+                sendAccept(false);
             };
         };
+
         report.newAction("fa-user", () => {
 
         });

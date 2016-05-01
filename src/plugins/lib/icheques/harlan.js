@@ -25,6 +25,11 @@ module.exports = function(controller) {
             }, 1000);
 
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
+            data: {
+                'q[0]' : "SELECT FROM 'ICHEQUES'.'CHECKS'",
+                'q[1]' : "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
+                'approved' : 'true'
+            },
             error: function() {
                 callback(Array.from(arguments));
             },
@@ -157,7 +162,7 @@ module.exports = function(controller) {
         };
 
         documentUpdate(check);
-        separator.attr("id", "pushid-" + check.pushId);
+        separator.addClass("pushid-" + check.pushId);
         separator.addClass("cmc-" + check.cmc);
         separator.data("upgrade", documentUpdate);
         separator.data("delete", documentDelete);
@@ -271,7 +276,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::item::upgrade", function(item) {
-        var node = $("#pushid-" + item.pushId);
+        var node = $(".pushid-" + item.pushId);
         if (!node.length) {
             return;
         }
