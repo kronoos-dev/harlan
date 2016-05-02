@@ -2,9 +2,8 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import {
-    CMC7Parser
-} from './cmc7-parser';
+import { CMC7Parser } from './cmc7-parser';
+import { titleCase } from 'change-case';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -12,6 +11,39 @@ const TEST_ITIT_EXTENSION = /\.itit/i;
 module.exports = (controller) => {
 
     var globalReport = null;
+
+    var companyData = (paragraph, company) => {
+        var phones = $("<ul />").addClass("phones");
+        _.each(company.telefone, (phone) => {
+            if (!phone[0])
+                return;
+            var phoneNumber = `Telefone: (${phone[0]}) ${phone[1]}${phone[2].length ? "#" + phone[2] : ""} - ${titleCase(phone[4])}`;
+            phones.append($("<li />").text(phoneNumber));
+        });
+
+        var emails = $("<ul />").addClass("emails");
+        _.each(company.email, (node) => {
+            if (!node[0])
+                return;
+            var emailAddress = `E-mail: ${node[0]} - ${titleCase(node[1])}`;
+            emails.append($("<li />").text(emailAddress));
+        });
+
+        var address = `${company.endereco[0]} ${company.endereco[1]} ${company.endereco[2]} ${company.endereco[3]} - ${company.endereco[5]} ${company.endereco[4]} ${company.endereco[6]} `;
+
+        var addressNode = $("<p />").text(address).addClass("address").append($("<a />").attr({
+            href: `http\:\/\/maps.google.com\?q\=${encodeURI(address)}`,
+            target: '_blank'
+        }).append(
+            $("<div />").addClass("map").css({
+                "background-image": `url(http\:\/\/maps.googleapis.com/maps/api/staticmap?center=${encodeURI(address)}&zoom=13&scale=false&size=600x200&maptype=roadmap&format=png&visual_refresh=true)`
+            })
+        ));
+
+        paragraph.append(emails).append(phones).append(addressNode);
+        return [emails, phones, addressNode];
+    };
+
 
     controller.registerTrigger("call::authentication::loggedin", "icheques::fidc", function(args, callback) {
         controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'STATUS'", {
@@ -484,7 +516,13 @@ module.exports = (controller) => {
         };
 
         report.newAction("fa-user", () => {
-
+            var modal = controller.modal();
+            modal.gamification("moneyBag");
+            modal.title(args.company.nome || args.company.responsavel);
+            modal.subtitle(args.company.cnpj || args.company.cpf);
+            var paragraph = modal.paragraph("Dados cadastrais registrados sobre a empresa no sistema iCheques.");
+            companyData(paragraph, args.company);
+            modal.createActions().cancel();
         });
         report.button("Recusar Operação", accept(false));
         report.button("Aceitar Operação", accept(true));
