@@ -366,7 +366,19 @@ var AccountOverview = function (closeable) {
         if (!_.without(datasetQueryStatus, 1).length) {
             status.html(messages.noOcurrence);
             manipulationItens.push(report.button("Antecipar Cheques", function () {
-                controller.call("icheques::antecipate", dataset);
+                var querystr = squel
+                        .select()
+                        .from('ICHEQUES_CHECKS')
+                        .where(expression)
+                        .toString();
+
+                var query = controller.database.exec(querystr)[0];
+                if (!query || !query.values) {
+                    return;
+                }
+
+                controller.call("icheques::resultDatabase", query);                
+                controller.call("icheques::antecipate", query.values);
             }).insertBefore(openButton));
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
