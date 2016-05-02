@@ -158,7 +158,7 @@ var AccountOverview = function (closeable) {
                 title: "Encontramos alguns resultados já abertos.",
                 subtitle: "Você tem certeza que deseja abrir mais estes?"
             }, function () {
-                controller.call("icheques::show::query", query);
+                controller.call("icheques::show::query", query, report.element());
             });
         }
     };
