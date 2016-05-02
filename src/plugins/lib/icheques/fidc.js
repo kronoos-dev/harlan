@@ -488,7 +488,7 @@ module.exports = (controller) => {
         });
         report.button("Recusar Operação", accept(false));
         report.button("Aceitar Operação", accept(true));
-        report.gamification("sword");
+        report.gamification("moneyBag");
 
         $(".app-content").append(report.element());
     });
