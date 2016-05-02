@@ -74,7 +74,7 @@ module.exports = function (controller) {
             report.close();
         });
 
-        report.gamification("moneyBag");
+        report.gamification("crown");
 
         $(".app-content").prepend(report.element());
     });

@@ -151,14 +151,14 @@ var AccountOverview = function (closeable) {
         if (!$("section.icheque, footer.load-more").length) {
             controller.call("icheques::show::query", query, function () {
                 $(window).scrollTop($("section.icheque, .footer.load-more").first().offset().top);
-            });
+            }, report.element());
         } else {
             $(window).scrollTop($("section.icheque, .footer.load-more").first().offset().top);
             controller.call("confirm", {
                 title: "Encontramos alguns resultados já abertos.",
                 subtitle: "Você tem certeza que deseja abrir mais estes?"
             }, function () {
-                controller.call("icheques::show::query", query, report.element());
+                controller.call("icheques::show::query", query, null, report.element());
             });
         }
     };
