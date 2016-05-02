@@ -496,7 +496,6 @@ module.exports = (controller) => {
                         }, obj),
                         method: "POST",
                         success: () => {
-                            toastr.success("A operação foi aceita com sucesso, agora os cheques fazem parte de sua carteira.", "Cheques adicionados a carteira.");
                             report.close();
                         }
                     }, true)));
