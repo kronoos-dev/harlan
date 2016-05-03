@@ -215,6 +215,7 @@ var Controller = function() {
     require("./modules/billing-information")(this);
     require("./modules/bipbop")(this);
     require("./modules/admin/index")(this);
+    require("./modules/email-activation")(this);
 
     /**
      * From day to night and night to day

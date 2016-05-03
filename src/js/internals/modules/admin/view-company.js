@@ -69,7 +69,8 @@ module.exports = (controller) => {
         if (cnpj) result.addItem("CNPJ", cnpj);
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", cpf);
-        if (credits) result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
+        var creditsInput = null;
+        if (credits) creditsInput = result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);
 
         var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
@@ -259,6 +260,41 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at")).click((e) => {
                 e.preventDefault();
                 controller.call("admin::email", username, section);
+            });
+
+            controller.call("tooltip", actions, "Alterar Créditos").append($("<i />").addClass("fa fa-money")).click((e) => {
+                e.preventDefault();
+                let modal = controller.modal();
+                modal.gamification("moneyBag");
+                modal.title("Alterar Créditos");
+                modal.subtitle("Alteração de Créditos do Usuário");
+                modal.paragraph("Ao submeter o usuário terá de recarregar a página para verificar as mudanças em sua conta, oriente o usuário a recarregar a página.");
+
+                let form = modal.createForm();
+                var input = form.addInput("Créditos", "text", "Créditos (R$)")
+                    .mask('#.##0,00', {
+                        reverse: true
+                    })
+                    .val(numeral(credits / 100.0).format('0,0.00'));
+
+                form.addSubmit("change-credits", "Alterar Créditos");
+                form.element().submit((e) => {
+                    e.preventDefault();
+                    var ammount = Math.ceil(numeral().unformat(input.val()) * 100);
+                    controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
+                        controller.call("loader::ajax", controller.call("error::ajax", {
+                            data: {
+                                ammount: ammount
+                            },
+                            success: () => {
+                                if (creditsInput) {
+                                    creditsInput.find(".value").text(numeral(ammount / 100.0).format('$0,0.00'));
+                                }
+                                modal.close();
+                            }
+                        })), true);
+                });
+                modal.createActions().cancel();
             });
 
             controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone")).click((e) => {
