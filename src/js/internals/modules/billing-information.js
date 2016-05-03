@@ -82,7 +82,7 @@ module.exports = (controller) => {
                         validate: (item) => {
                             return CNPJ.isValid(item.element.val()) || CPF.isValid(item.element.val());
                         },
-                        validateAsync: function(callback, item, screen, configuration, form) {
+                        validateAsync: function(callback, item, screen, configuration) {
                             callback(true);
                             controller.serverCommunication.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
                                 data: {
@@ -91,9 +91,6 @@ module.exports = (controller) => {
                                 },
                                 success: function(response) {
                                     form.setValue('name', $("BPQL > body nome", response).text());
-                                },
-                                error: function() {
-                                    usernameElement.addClass("error");
                                 }
                             });
                         }
