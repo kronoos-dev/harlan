@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { CMC7Parser } from './cmc7-parser';
 import {
     queue
 } from 'async';
@@ -49,7 +50,7 @@ module.exports = function(controller) {
                         approved: "true"
                     },
                     success: function(ret) {
-                        controller.call("icheques::antecipate::show", ret, checks);
+                        controller.call("icheques::antecipate::filter", ret, checks);
                     }
                 })));
         }, (ret) => {
@@ -62,6 +63,46 @@ module.exports = function(controller) {
         });
     });
 
+    controller.registerCall("icheques::antecipate::filter", (data, checks) => {
+        let modal = controller.call("modal");
+        modal.title("Cheques para Antecipar");
+        modal.subtitle("Seleção de Cheques para Antecipação");
+        modal.addParagraph("Selecione quais cheques você gostaria de solicitar antecipação");
+
+        let form = modal.createForm(),
+            list = form.createList();
+
+        $(checks).each((i, element) => {
+            let check = new CMC7Parser(element.cmc),
+                doc = element.cnpj ? element.cnpj : element.cpf;
+            list.add("fa-trash", [
+                // Número do Cheque
+                `Nº do cheque: ${check.number}`,
+                // Banco
+                `Banco: ${check.bank}`,
+                // CPF,
+                `Documento: ${doc}`,
+                // Valor
+                `Valor: ${numeral(parseFloat(element.ammount/100)).format('$ 0,0.00')}`
+            ]).click(function(e) {
+                let i = $(this).index();
+                checks.splice(i, 1);
+                $(this).hide();
+            });
+        });
+
+        form.addSubmit("filter", "Enviar Cheques");
+        form.element().submit((e) => {
+            e.preventDefault();
+            controller.call("icheques::antecipate::show", data, checks);
+            modal.close();
+        });
+
+        modal.createActions().add("Sair").click(function(e) {
+            e.preventDefault();
+            modal.close();
+        });
+    });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks) {
         var banks = $("BPQL > body > fidc", data);
