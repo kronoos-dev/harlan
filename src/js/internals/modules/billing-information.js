@@ -6,17 +6,34 @@ module.exports = (controller) => {
 
     var billingInformation;
 
-    controller.registerCall("billingInformation::need", function(callback) {
+    controller.registerCall("billingInformation::need", function(callback, validator) {
         controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
             controller.call("error::ajax", controller.call("loader::ajax", {
                 success: (response) => {
-                    if (!$("BPQL > body > has", response).length) {
-                        controller.call("billingInformation::changeAddress", callback, response);
+                    if ((validator && !validator(response)) || !$("BPQL > body > has", response).length) {
+                        controller.call("billingInformation::changeAddress", () => {
+                            controller.call("billingInformation::need", callback, validator);
+                        }, response);
                         return;
                     }
                     callback();
                 }
             })));
+    });
+
+    controller.registerBootstrap("billingInformation", (cb) => {
+        cb();
+        controller.interface.helpers.menu.add("Empresa", "user").nodeLink.click((e) => {
+            e.preventDefault();
+            controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
+                controller.call("error::ajax", controller.call("loader::ajax", {
+                    success: (response) => {
+                        controller.call("billingInformation::changeAddress", () => {
+                            toastr.success("Os dados inseridos foram alterados com sucesso.", "Seus dados foram alterados com sucesso.");
+                        }, response);
+                    }
+                })));
+        });
     });
 
     controller.registerCall("billingInformation::changeAddress", (callback, response) => {
@@ -25,14 +42,14 @@ module.exports = (controller) => {
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
                     success: () => {
-                        callback();
+                        if (callback) callback();
                     }
                 }, true)));
         });
 
         var endereco = $("BPQL > body > company > endereco", response),
             document = $("BPQL > body > company > cnpj", response).text() ||
-                $("BPQL > body > company > cpf", response).text();
+            $("BPQL > body > company > cpf", response).text();
         form.configure({
             "title": "Dados de Faturamento",
             "subtitle": "Preencha os dados de faturamento para emissão de nota fiscal.",
@@ -58,26 +75,27 @@ module.exports = (controller) => {
                         },
                         "name": "document",
                         "placeholder": "CPF ou CNPJ de faturamento",
-                        "mask": document.replace(/[^0-9]/, '').length <= 11 ? "000.000.000-00" : '00.000.000/0000-00',
+                        "mask": document.replace(/[^0-9]/g, '').length <= 11 ? "000.000.000-00" : '00.000.000/0000-00',
                         "optional": false,
-                        "value": document,
+                        "disabled" : CNPJ.isValid(document),
+                        "value": document.replace(/[^0-9]/g, ''),
                         validate: (item) => {
                             return CNPJ.isValid(item.element.val()) || CPF.isValid(item.element.val());
                         },
-                        validateAsync: function(callback, item, screen,configuration, form) {
+                        validateAsync: function(callback, item, screen, configuration, form) {
                             callback(true);
                             controller.serverCommunication.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
-                                    data: {
-                                        apiKey: BIPBOP_FREE,
-                                        documento: item.element.val()
-                                    },
-                                    success: function(response) {
-                                        form.setValue('name', $("BPQL > body nome", response).text());
-                                    },
-                                    error: function() {
-                                        usernameElement.addClass("error");
-                                    }
-                                });
+                                data: {
+                                    apiKey: BIPBOP_FREE,
+                                    documento: item.element.val()
+                                },
+                                success: function(response) {
+                                    form.setValue('name', $("BPQL > body nome", response).text());
+                                },
+                                error: function() {
+                                    usernameElement.addClass("error");
+                                }
+                            });
                         }
                     }],
                     [{
@@ -151,13 +169,12 @@ module.exports = (controller) => {
                             "SP": "São Paulo",
                             "TO": "Tocantins"
                         }
-                    }],
-                    {
+                    }], {
                         "name": "email",
                         "optional": false,
                         "type": "text",
                         "value": $("BPQL > body > company email", response).filter((idx, element) => {
-                            return $(element).children("email:eq(1)") == "financeiro";
+                            return $(element).children("email:eq(1)").text() == "financeiro";
                         }).children("email:eq(0)").text(),
                         "placeholder": "Endereço de E-mail do Financeiro",
                         "validate": (item) => {

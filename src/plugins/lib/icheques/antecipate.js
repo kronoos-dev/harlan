@@ -1,6 +1,10 @@
 import _ from 'underscore';
-import { queue } from 'async';
-import { titleCase } from 'change-case';
+import {
+    queue
+} from 'async';
+import {
+    titleCase
+} from 'change-case';
 
 /* global module, numeral */
 
@@ -8,46 +12,54 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
-
-        var noAmmountChecks = _.filter(checks, (obj) => {
-            return !obj.ammount;
-        });
-
-        if (noAmmountChecks.length) {
-            controller.call("confirm", {
-                icon: "fail",
-                title: "Você não preencheu o valor de alguns cheques.",
-                subtitle: `Você precisa configurar o valor de ${noAmmountChecks.length}
-                    ${noAmmountChecks.length == 1 ? "cheque" : "cheques"} para poder continuar.`,
-                paragraph: "Tudo que precisar ser editado com o valor será aberto para que você possa repetir esta operação, edite e tente novamente.",
-            }, () => {
-                var q = queue(controller.reference("icheques::item::setAmmount"), 1);
-
-                q.push(noAmmountChecks, (err) => {
-                    /* pass */
-                });
-
-                q.drain = () => {
-                    controller.call("icheques::antecipate", _.filter(checks, (obj) => {
-                         return obj.ammount;
-                    }));
-                };
-
-                controller.call("icheques::show", noAmmountChecks);
-
+        controller.call("billingInformation::need", () => {
+            var noAmmountChecks = _.filter(checks, (obj) => {
+                return !obj.ammount;
             });
-            return;
-        }
 
-        controller.serverCommunication.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'",
-            controller.call("loader::ajax", controller.call("error::ajax", {
-                data: {
-                    approved: "true"
-                },
-                success: function(ret) {
-                    controller.call("icheques::antecipate::show", ret, checks);
-                }
-            })));
+            if (noAmmountChecks.length) {
+                controller.call("confirm", {
+                    icon: "fail",
+                    title: "Você não preencheu o valor de alguns cheques.",
+                    subtitle: `Você precisa configurar o valor de ${noAmmountChecks.length}
+                    ${noAmmountChecks.length == 1 ? "cheque" : "cheques"} para poder continuar.`,
+                    paragraph: "Tudo que precisar ser editado com o valor será aberto para que você possa repetir esta operação, edite e tente novamente.",
+                }, () => {
+                    var q = queue(controller.reference("icheques::item::setAmmount"), 1);
+
+                    q.push(noAmmountChecks, (err) => {
+                        /* pass */
+                    });
+
+                    q.drain = () => {
+                        controller.call("icheques::antecipate", _.filter(checks, (obj) => {
+                            return obj.ammount;
+                        }));
+                    };
+
+                    controller.call("icheques::show", noAmmountChecks);
+
+                });
+                return;
+            }
+
+            controller.serverCommunication.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'",
+                controller.call("loader::ajax", controller.call("error::ajax", {
+                    data: {
+                        approved: "true"
+                    },
+                    success: function(ret) {
+                        controller.call("icheques::antecipate::show", ret, checks);
+                    }
+                })));
+        }, (ret) => {
+            if (!$("BPQL > body > company > cnpj").text().length) {
+                toastr.warning("É necessário um CNPJ de faturamento para poder continuar.",
+                    "Você não possui um CNPJ no cadastro.");
+                return false;
+            }
+            return true;
+        });
     });
 
 

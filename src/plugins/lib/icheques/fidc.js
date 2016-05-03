@@ -2,8 +2,12 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import { CMC7Parser } from './cmc7-parser';
-import { titleCase } from 'change-case';
+import {
+    CMC7Parser
+} from './cmc7-parser';
+import {
+    titleCase
+} from 'change-case';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -214,90 +218,99 @@ module.exports = (controller) => {
     });
 
     controller.registerCall("fidc::configure", () => {
-        var modal = controller.call("modal"),
-            gamification = modal.gamification("moneyBag"),
-            logoImage = null;
+        controller.call("billingInformation::need", () => {
+            var modal = controller.call("modal"),
+                gamification = modal.gamification("moneyBag"),
+                logoImage = null;
 
-        modal.title("Configurar Antecipadora");
-        modal.subtitle("Comece já a receber títulos do iCheques");
-        modal.paragraph("Configurando sua antecipadora você passa a receber cheques de nossos clientes e parceiros, seu perfil estará sujeito a avaliação cadastral.");
-        var form = modal.createForm(),
-            logo = form.addInput("logo", "file", "Logomarca - 150x150"),
-            bio = form.addTextarea("about", "História da Empresa (200 caracteres)").attr({
-                "maxlength": 200
-            });
+            modal.title("Configurar Antecipadora");
+            modal.subtitle("Comece já a receber títulos do iCheques");
+            modal.paragraph("Configurando sua antecipadora você passa a receber cheques de nossos clientes e parceiros, seu perfil estará sujeito a avaliação cadastral.");
+            var form = modal.createForm(),
+                logo = form.addInput("logo", "file", "Logomarca - 150x150"),
+                bio = form.addTextarea("about", "História da Empresa (200 caracteres)").attr({
+                    "maxlength": 200
+                });
 
-        logo.on('change', () => {
-            var file = event.target.files[0];
-            if (!file.type.match(/image/)) {
-                toastr.warning(`O arquivo ${file.name} não é uma imagem.`, `A extensão enviada é ${file.type}.`);
-                return;
-            }
-            browserImageSize(file).then((size) => {
-                var scale = 150 / size[size.height > size.width ? "height" : "width"],
-                    fileReader = new FileReader();
+            logo.on('change', () => {
+                var file = event.target.files[0];
+                if (!file.type.match(/image/)) {
+                    toastr.warning(`O arquivo ${file.name} não é uma imagem.`, `A extensão enviada é ${file.type}.`);
+                    return;
+                }
+                browserImageSize(file).then((size) => {
+                    var scale = 150 / size[size.height > size.width ? "height" : "width"],
+                        fileReader = new FileReader();
 
-                var canvas = document.createElement('canvas');
-                canvas.height = 150;
-                canvas.width = 150;
+                    var canvas = document.createElement('canvas');
+                    canvas.height = 150;
+                    canvas.width = 150;
 
-                var canvasContext = canvas.getContext("2d"),
-                    reader = new FileReader();
+                    var canvasContext = canvas.getContext("2d"),
+                        reader = new FileReader();
 
-                reader.onload = function(e) {
-                    var image = new Image();
-                    image.onload = function() {
-                        canvasContext.drawImage(image, 0, 0, size.width * scale, size.height * scale);
-                        logoImage = canvas.toDataURL("image/png");
-                        gamification.css({
-                            "background": `url(${logoImage}) no-repeat center`
-                        });
+                    reader.onload = function(e) {
+                        var image = new Image();
+                        image.onload = function() {
+                            canvasContext.drawImage(image, 0, 0, size.width * scale, size.height * scale);
+                            logoImage = canvas.toDataURL("image/png");
+                            gamification.css({
+                                "background": `url(${logoImage}) no-repeat center`
+                            });
+                        };
+                        image.src = e.target.result;
                     };
-                    image.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                    reader.readAsDataURL(file);
+                });
             });
-        });
 
-        form.addSubmit("send", "Continuar");
-        form.element().submit((e) => {
-            e.preventDefault();
+            form.addSubmit("send", "Continuar");
+            form.element().submit((e) => {
+                e.preventDefault();
 
-            if (!logoImage || bio.val().replace(/s+/, " ").length < 100) {
-                toastr.warning("O campo história da empresa deve ter ao menos 100 caracteres e o logo deve estar preenchido.",
-                    "Verifique o formulário e tente novamente.");
-                return;
-            }
+                if (!logoImage || bio.val().replace(/s+/, " ").length < 100) {
+                    toastr.warning("O campo história da empresa deve ter ao menos 100 caracteres e o logo deve estar preenchido.",
+                        "Verifique o formulário e tente novamente.");
+                    return;
+                }
 
-            modal.close();
-            controller.call("confirm", {
-                title: "Você aceita com o contrato de serviço?",
-                subtitle: "Para continuar é necessário que você aceite o contrato de serviço desta ferramenta.",
-                paragraph: "o contrato de serviço estão disponíveis <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__ANTECIPADORA_DE_CHEQUES.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
-                confirmText: "Aceitar"
-            }, () => {
-                controller.call("credits::has", 50000, () => {
-                    controller.call("billingInformation::need", () => {
-                        controller.server.call("INSERT INTO 'ICHEQUESFIDC'.'COMPANY'", controller.call("error::ajax", controller.call("loader::ajax", {
-                            method: "POST",
-                            data: {
-                                bio: bio.val(),
-                                logo: logoImage
-                            },
-                            success: () => {
-                                controller.call("alert", {
-                                    icon: "pass",
-                                    title: "Parabéns! Aguarde seu e-mail pela nossa aprovação.",
-                                    subtitle: "Assim que aprovado seu cadastro você já poderá transacionar com nossos clientes e parceiros.",
-                                    paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes. Certifique de manter pelo menos R$ 500 reais de créditos para poder começar a trabalhar com as operações."
-                                });
-                            }
-                        }, true)));
+                modal.close();
+                controller.call("confirm", {
+                    title: "Você aceita com o contrato de serviço?",
+                    subtitle: "Para continuar é necessário que você aceite o contrato de serviço desta ferramenta.",
+                    paragraph: "o contrato de serviço estão disponíveis <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__ANTECIPADORA_DE_CHEQUES.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
+                    confirmText: "Aceitar"
+                }, () => {
+                    controller.call("credits::has", 50000, () => {
+                        controller.call("billingInformation::need", () => {
+                            controller.server.call("INSERT INTO 'ICHEQUESFIDC'.'COMPANY'", controller.call("error::ajax", controller.call("loader::ajax", {
+                                method: "POST",
+                                data: {
+                                    bio: bio.val(),
+                                    logo: logoImage
+                                },
+                                success: () => {
+                                    controller.call("alert", {
+                                        icon: "pass",
+                                        title: "Parabéns! Aguarde seu e-mail pela nossa aprovação.",
+                                        subtitle: "Assim que aprovado seu cadastro você já poderá transacionar com nossos clientes e parceiros.",
+                                        paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes. Certifique de manter pelo menos R$ 500 reais de créditos para poder começar a trabalhar com as operações."
+                                    });
+                                }
+                            }, true)));
+                        });
                     });
                 });
             });
+            modal.createActions().cancel();
+        }, (ret) => {
+            if (!$("BPQL > body > company > cnpj").text().length) {
+                toastr.warning("É necessário um CNPJ de faturamento para poder continuar.",
+                    "Você não possui um CNPJ no cadastro.");
+                return false;
+
+            }
         });
-        modal.createActions().cancel();
     });
 
     controller.registerTrigger("admin", "icheques", (args, callback) => {
