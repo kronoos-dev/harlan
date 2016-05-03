@@ -490,7 +490,7 @@ AccountOverview.prototype.about = {
 module.exports = function (c) {
     controller = c;
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "ichequeUpdate::draw::serverCommunication::websocket", function (obj, cb) {
+    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "draw::accountOverview", function (obj, cb) {
         async.parallel(updateRegister, cb);
     });
 

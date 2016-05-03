@@ -52,7 +52,7 @@ module.exports = (controller) => {
     });
 
     controller.registerTrigger("serverCommunication::websocket::ichequeUpdate",
-        "ichequeUpdate::draw::serverCommunication::websocket", (obj, cb) => {
+        "canAntecipate", (obj, cb) => {
             cb();
             controller.call("icheques::canAntecipate");
         });
