@@ -53,7 +53,7 @@ module.exports = function(controller) {
                     }
                 })));
         }, (ret) => {
-            if (!$("BPQL > body > company > cnpj").text().length) {
+            if (!$("BPQL > body > company > cnpj", ret).text().length) {
                 toastr.warning("É necessário um CNPJ de faturamento para poder continuar.",
                     "Você não possui um CNPJ no cadastro.");
                 return false;
