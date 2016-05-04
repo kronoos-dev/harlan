@@ -168,7 +168,7 @@ module.exports = (controller) => {
                     }
                 })));
 
-            controller.registerTrigger("serverCommunication::websocket::ichequesFIDCOperation", (args, call) => {
+            controller.registerTrigger("serverCommunication::websocket::ichequesFIDCOperation", "open", (args, call) => {
                 call();
                 args.created = moment.unix(args.created);
                 controller.call("icheques::fidc::operation::decision", args);
