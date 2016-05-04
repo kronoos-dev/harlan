@@ -18,7 +18,7 @@ module.exports = {
         ]
     },
     dive: {
-        endpoint: "https://js.dive.harlan.com.br/index.js",
+        endpoint: "https://cdn-dive.harlan.com.br/index.js",
         hosts: [
             "dive",
             "dive.harlan.com.br"
