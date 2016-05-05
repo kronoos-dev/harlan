@@ -1,0 +1,36 @@
+.timeline {
+    text-align: left;
+    display: block;
+    li {
+        display: block;
+    }
+    .details {
+        display: none;
+    }
+    .expand {
+        width: 40px;
+        text-align: center;
+        font-size: 20px;
+    }
+    .time {
+        font-size: 12px;
+        margin: 0 12px;
+    }
+    .actions {
+        margin-left: 12px;
+    }
+    .header {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        & > * {
+            vertical-align: middle;
+            display: inline-block;
+        }
+    }
+    .actions {
+        li {
+            display: inline-block;
+        }
+    }
+}
