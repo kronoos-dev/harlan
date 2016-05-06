@@ -1,13 +1,11 @@
 import _ from 'underscore';
-import {
-    CMC7Parser
-} from './cmc7-parser';
-import {
-    queue
-} from 'async';
-import {
-    titleCase
-} from 'change-case';
+import { CMC7Parser } from './cmc7-parser';
+import { queue } from 'async';
+import { titleCase } from 'change-case';
+import { CPF } from 'cpf_cnpj';
+import { CNPJ } from 'cpf_cnpj';
+
+const PAGINATE_FILTER = 7;
 
 /* global module, numeral */
 
@@ -15,6 +13,12 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
+        // Adicionando as propriedades vindas do CMC7Parser
+        checks = checks.map((check) => {
+            return Object.assign({}, check, new CMC7Parser(check.cmc));
+        });
+        // Ordenando pelo número do cheque
+        checks = _.sortBy(checks, "number");
         controller.call("billingInformation::need", () => {
             var noAmmountChecks = _.filter(checks, (obj) => {
                 return !obj.ammount;
@@ -65,7 +69,7 @@ module.exports = function(controller) {
         });
     });
 
-    var updateList = (modal, pageActions, results, pagination, list, checks, limit = 5, skip = 0, text) => {
+    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -77,13 +81,12 @@ module.exports = function(controller) {
             pages = Math.ceil(queryResults / limit);
 
         _.each(checks.slice(skip, skip + limit), (element) => {
-            let check = new CMC7Parser(element.cmc),
-                doc = element.cnpj ? element.cnpj : element.cpf; /* aplica mascara quando nao tiver*/
+            let doc = element.cnpj ? CNPJ.format(element.cnpj) : CPF.format(element.cpf); /* aplica mascara quando nao tiver*/
             list.add("fa-trash", [
                 // Número do Cheque
-                `Nº do cheque: ${check.number}`,
+                `Nº do cheque: ${element.number}`,
                 // Banco
-                `Banco: ${check.bank}`,
+                `Banco: ${element.bank}`,
                 // CPF,
                 `Documento: ${doc}`,
                 // Valor
@@ -131,16 +134,16 @@ module.exports = function(controller) {
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
                 skip += 5;
-                updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
                 skip -= 5;
-                updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
             }).hide()
         };
 
-        updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
+        updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
     });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks) {
