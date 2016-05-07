@@ -1,5 +1,7 @@
 import _ from 'underscore';
-import { CMC7Parser } from './cmc7-parser';
+import {
+    CMC7Parser
+} from './cmc7-parser';
 import {
     queue
 } from 'async';
@@ -63,18 +65,20 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::antecipate::filter", (data, checks) => {
-        let modal = controller.call("modal");
-        modal.title("Cheques para Antecipar");
-        modal.subtitle("Seleção de Cheques para Antecipação");
-        modal.addParagraph("Selecione quais cheques você gostaria de solicitar antecipação");
+    var updateList = (modal, pageActions, results, pagination, list, checks, limit = 5, skip = 0, text) => {
+        if (!text || /^\s*$/.test(text)) {
+            text = undefined;
+        }
 
-        let form = modal.createForm(),
-            list = form.createList();
+        list.empty();
 
-        $(checks).each((i, element) => {
+        var queryResults = checks.length,
+            currentPage = Math.floor(skip / limit) + 1,
+            pages = Math.ceil(queryResults / limit);
+
+        _.each(checks.slice(skip, skip + limit), (element) => {
             let check = new CMC7Parser(element.cmc),
-                doc = element.cnpj ? element.cnpj : element.cpf;
+                doc = element.cnpj ? element.cnpj : element.cpf; /* aplica mascara quando nao tiver*/
             list.add("fa-trash", [
                 // Número do Cheque
                 `Nº do cheque: ${check.number}`,
@@ -85,23 +89,58 @@ module.exports = function(controller) {
                 // Valor
                 `Valor: ${numeral(parseFloat(element.ammount/100)).format('$ 0,0.00')}`
             ]).click(function(e) {
-                let i = $(this).index();
-                checks.splice(i, 1);
-                $(this).hide();
+                checks.splice(checks.indexOf(element), 1);
+                updateList(modal, pageActions, results, pagination, list, checks, limit, skip, text);
             });
         });
 
-        form.addSubmit("filter", "Enviar Cheques");
+
+        pageActions.next[currentPage >= pages ? "hide" : "show"]();
+        pageActions.back[currentPage <= 1 ? "hide" : "show"]();
+
+        results.text(`Página ${currentPage} de ${pages}`);
+        pagination.text(`Resultados ${queryResults}`);
+    };
+
+    controller.registerCall("icheques::antecipate::filter", (data, checks) => {
+        let modal = controller.call("modal");
+        modal.title("Cheques para Antecipar");
+        modal.subtitle("Seleção de Cheques para Antecipação");
+        modal.addParagraph("Selecione quais cheques você gostaria de solicitar antecipação");
+
+        let form = modal.createForm(),
+            list = form.createList(),
+            actions = modal.createActions(),
+            skip = 0,
+            text = null;
+
         form.element().submit((e) => {
             e.preventDefault();
             controller.call("icheques::antecipate::show", data, checks);
             modal.close();
         });
-
-        modal.createActions().add("Sair").click(function(e) {
+        form.addSubmit("filter", "Enviar Cheques");
+        actions.add("Sair").click(function(e) {
             e.preventDefault();
             modal.close();
         });
+
+        let results = actions.observation(),
+            pagination = actions.observation();
+
+        var pageActions = {
+            next: actions.add("Próxima Página").click(() => {
+                skip += 5;
+                updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
+            }).hide(),
+
+            back: actions.add("Página Anterior").click(() => {
+                skip -= 5;
+                updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
+            }).hide()
+        };
+
+        updateList(modal, pageActions, results, pagination, list, checks, 5, skip, text);
     });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks) {
