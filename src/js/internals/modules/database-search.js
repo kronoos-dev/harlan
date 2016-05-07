@@ -14,7 +14,7 @@ module.exports = function (controller) {
             var loader = section.find(".display-loader");
             e.preventDefault();
             var formdata = form.serialize();
-            controller.serverCommunication.call("SELECT FROM '" + database + "'.'" + table + "'", {
+            controller.serverCommunication.call(`SELECT FROM '${database}'.'${table}'`, {
                 data: formdata,
                 success: function (doc) {
                     var args = [].concat(doc, database, table, databaseJNode, tableJNode, section, form);

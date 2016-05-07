@@ -93,15 +93,6 @@ module.exports = function (controller) {
                 type: "submit"
             }).addClass("submit")));
 
-        if (tableJNode.attr("harlanPush") === "enabled")
-            inputLine.append($("<div />").addClass("input-wrapper").append($("<input />").attr({
-                value: "Acompanhar",
-                type: "submit"
-            }).addClass("submit").click(function (e) {
-                e.preventDefault();
-                controller.call("save::follow", [form, tableJNode, databaseJNode, section]);
-            })));
-
         form.find(".content-filters").append(inputLine);
 
         form.submit(controller.call("databaseSearch::submit", [form, tableJNode, databaseJNode, section]));

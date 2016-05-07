@@ -49,10 +49,5 @@ var Timeline = function() {
 module.exports = (controller) => {
     controller.registerCall("timeline", () => {
         return new Timeline();
-
-        tie.add(1462416333, "Ana Maria dos Santos recebeu Restituição", "A API do sistema detectou uma mudança na condição do imposto de renda.", [
-            ["fa-search", () => {}],
-            ["fa-times", () => {}],
-            ["fa-check", () => {}]])
     });
 };
