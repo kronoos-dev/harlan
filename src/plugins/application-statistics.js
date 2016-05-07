@@ -18,7 +18,7 @@
     };
 
     var parserConsultas = function (document) {
-        var result = harlan.call("generateResult");
+        var result = harlan.call("result");
         var graph = [];
 
         var jdocument = $(document);
