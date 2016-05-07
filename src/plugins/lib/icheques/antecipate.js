@@ -8,8 +8,25 @@ import { CNPJ } from 'cpf_cnpj';
 const PAGINATE_FILTER = 7;
 
 /* global module, numeral */
-
 module.exports = function(controller) {
+
+    function modalChecksIsEmpty(){
+        let modal = controller.call("modal");
+
+        modal.title("Você não selecionou nenhum cheque");
+        modal.subtitle("Seleção de Cheques para Antecipação");
+        modal.addParagraph("É necessário selecionar pelo menos um cheque para solicitar antecipação");
+
+        let form = modal.createForm();
+
+        form.addSubmit("close", "Ok");
+        form.element().submit((e) => {
+            e.preventDefault();
+            modal.close();
+        });
+    }
+
+    controller.registerCall("icheques::antecipate::checksIsEmpty", modalChecksIsEmpty);
 
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
@@ -131,7 +148,10 @@ module.exports = function(controller) {
 
         form.element().submit((e) => {
             e.preventDefault();
-            controller.call("icheques::antecipate::show", data, checks);
+            if (checks.length)
+                controller.call("icheques::antecipate::show", data, checks);
+            else
+                controller.call("icheques::antecipate::checksIsEmpty");
             modal.close();
         });
         form.addSubmit("filter", "Enviar Cheques");
