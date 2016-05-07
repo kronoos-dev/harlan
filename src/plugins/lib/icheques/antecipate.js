@@ -119,7 +119,7 @@ module.exports = function(controller) {
         let form = modal.createForm(),
             list = form.createList(),
             actions = modal.createActions(),
-            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque"),
+            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar"),
             skip = 0,
             text = null;
 
