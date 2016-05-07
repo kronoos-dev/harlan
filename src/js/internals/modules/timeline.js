@@ -4,20 +4,27 @@ var Timeline = function() {
     this.add = (time, header, details, actions, obj = {}) => {
         obj.item = $("<li />");
 
-        obj.header = $("<div />").addClass("header");
-        obj.details = $("<div />").addClass("details").html(details);
+        obj.header = $("<div />").addClass("timeline-header");
+        obj.details = $("<div />").addClass("timeline-details").html(details);
 
         if (!moment.isMoment(time)) {
             time = moment.unix(time);
         }
 
-        obj.expansion = $("<span />").addClass("expand").append($("<i />").addClass("fa fa-angle-down")).click((e) => {
+        obj.expansionIcon = $("<i />").addClass("fa fa-angle-down");
+        obj.expansion = $("<span />").addClass("timeline-expand").append(obj.expansionIcon).click((e) => {
             e.preventDefault();
-            item[item.hasClass("expanded") ? "removeClass" : "addClass"]("expanded");
+            if (obj.item.hasClass("expanded")) {
+                obj.item.removeClass("expanded");
+                obj.expansionIcon.removeClass("fa-angle-up").addClass("fa-angle-down");
+            } else {
+                obj.item.addClass("expanded");
+                obj.expansionIcon.addClass("fa-angle-up").removeClass("fa-angle-down");
+            }
         });
 
-        obj.time = $("<span />").addClass("time").text(time.fromNow());
-        obj.headerContent = $("<span />").addClass("header-content").text(header);
+        obj.time = $("<span />").addClass("timeline-time").text(time.fromNow());
+        obj.headerContent = $("<span />").addClass("timeline-header-content").text(header);
         obj.actions = $("<ul />").addClass("actions");
 
         for (let [icon, action] of actions) {
@@ -27,10 +34,14 @@ var Timeline = function() {
             }));
         }
 
+        obj.meta = $("<div />").addClass("timeline-meta");
+        obj.meta.append(obj.time);
+        obj.meta.append(obj.actions);
+
+        obj.header.append(obj.meta);
         obj.header.append(obj.expansion);
         obj.header.append(obj.headerContent);
-        obj.header.append(obj.time);
-        obj.header.append(obj.actions);
+        obj.header.append($("<div />").addClass("clear"));
 
         obj.item.append(obj.header);
         obj.item.append(obj.details);
