@@ -78,9 +78,6 @@ module.exports = function(controller) {
             text = undefined;
         }
 
-        console.log("\n>>> text\n\n");
-        console.log(text);
-
         list.empty();
 
         var queryResults = checks.length,
