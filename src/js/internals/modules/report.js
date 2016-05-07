@@ -2,7 +2,7 @@
 var gamificationIcons = require("./data/gamification-icons"),
     Form = require("./lib/form");
 
-var ReportModel = function(closeable) {
+var ReportModel =function (closeable) {
     var universalContainer = $("<div />"),
         elementNews = $("<div />").addClass("report"),
         elementContainer = $("<div />").addClass("container"),
@@ -14,7 +14,7 @@ var ReportModel = function(closeable) {
         .append(elementActions)
         .append(elementContent)));
 
-    var buttonElement = function() {
+    var buttonElement = () => {
         if (!elementOpen) {
             elementOpen = $("<div />").addClass("open");
             elementContent.append(elementOpen);
@@ -22,29 +22,29 @@ var ReportModel = function(closeable) {
         return elementOpen;
     };
 
-    this.newContent = function() {
+    this.newContent = () => {
         elementContent = $("<div />").addClass("content");
         elementContainer.prepend(elementContent);
         return this;
     };
 
-    this.title = function(title) {
+    this.title = (title) => {
         elementContent.append($("<h2 />").text(title));
         return this;
     };
 
-    this.subtitle = function(subtitle) {
+    this.subtitle = (subtitle) => {
         elementContent.append($("<h3 />").text(subtitle));
         return this;
     };
 
-    this.label = function(content) {
+    this.label = (content) => {
         var span = $("<span />").addClass("label").text(content);
         elementContent.append(span);
         return span;
     };
 
-    this.canvas = function(width, height) {
+    this.canvas = (width, height) => {
         width = width || 250;
         height = height || 250;
         var canvas = $("<canvas />").attr({
@@ -55,7 +55,7 @@ var ReportModel = function(closeable) {
         return canvas.get(0);
     };
 
-    this.gamification = function(type) {
+    this.gamification = (type) => {
         this.newContent();
         var icon = $("<i />")
             .addClass(gamificationIcons[type] || type)
@@ -64,21 +64,27 @@ var ReportModel = function(closeable) {
         return icon;
     };
 
-    this.paragraph = function(text) {
+    this.paragraph = (text) => {
         var p = $("<p />").html(text);
         elementContent.append(p);
         return p;
     };
 
-    this.form = function(controller) {
+    this.timeline = (text) => {
+        var timeline = controller.call("timeline");
+        this.content.append(timeline.element());
+        return timeline;
+    };
+
+    this.form = (controller) => {
         return new Form({
             element: this.content,
             close: this.close
         }, controller);
     };
 
-    this.button = function(name, action) {
-        var button = $("<button />").text(name).click(function(e) {
+    this.button = (name, action) => {
+        var button = $("<button />").text(name).click((e) => {
             e.preventDefault();
             action();
         }).addClass("button");
@@ -86,16 +92,16 @@ var ReportModel = function(closeable) {
         return button;
     };
 
-    this.content = function() {
+    this.content = () => {
         return elementContent;
     };
 
-    this.element = function() {
+    this.element = () => {
         return universalContainer;
     };
 
-    this.newAction = function(icon, action) {
-        elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click(function(e) {
+    this.newAction = (icon, action) => {
+        elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
             e.preventDefault();
             action();
         }));
@@ -104,7 +110,7 @@ var ReportModel = function(closeable) {
 
     this.action = this.newAction;
 
-    this.close = function() {
+    this.close = () => {
         if (this.onClose) {
             this.onClose();
         }
@@ -121,9 +127,9 @@ var ReportModel = function(closeable) {
     return this;
 };
 
-module.exports = function(controller) {
+module.exports = (controller) => {
 
-    controller.registerCall("report", function(title, subtitle, paragraph, closeable) {
+    controller.registerCall("report", (title, subtitle, paragraph, closeable) => {
         var model = new ReportModel(closeable);
         if (title) {
             model.title(title);
