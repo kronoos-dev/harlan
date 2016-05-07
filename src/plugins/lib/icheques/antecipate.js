@@ -14,9 +14,7 @@ module.exports = function(controller) {
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
         // Adicionando as propriedades vindas do CMC7Parser
-        checks = checks.map((check) => {
-            return Object.assign({}, check, new CMC7Parser(check.cmc));
-        });
+        checks = checks.map((check) => Object.assign({}, check, new CMC7Parser(check.cmc)));
         // Ordenando pelo número do cheque
         checks = _.sortBy(checks, "number");
         controller.call("billingInformation::need", () => {
@@ -69,10 +67,19 @@ module.exports = function(controller) {
         });
     });
 
-    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text) => {
-        if (!text || /^\s*$/.test(text)) {
+    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text, callback) => {
+        if (text) {
+            text = text.trim();
+            checks = _.filter(checks, (check) => {
+                let doc = check.cnpj ? CNPJ.format(check.cnpj) : CPF.format(check.cpf);
+                return doc.toString().includes(text) || check.number.toString().includes(text);
+            });
+        } else if (/\D/.test(text)) {
             text = undefined;
         }
+
+        console.log("\n>>> text\n\n");
+        console.log(text);
 
         list.empty();
 
@@ -97,12 +104,13 @@ module.exports = function(controller) {
             });
         });
 
-
         pageActions.next[currentPage >= pages ? "hide" : "show"]();
         pageActions.back[currentPage <= 1 ? "hide" : "show"]();
 
         results.text(`Página ${currentPage} de ${pages}`);
         pagination.text(`Resultados ${queryResults}`);
+
+        if (callback) callback();
     };
 
     controller.registerCall("icheques::antecipate::filter", (data, checks) => {
@@ -114,8 +122,15 @@ module.exports = function(controller) {
         let form = modal.createForm(),
             list = form.createList(),
             actions = modal.createActions(),
+            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque"),
             skip = 0,
             text = null;
+
+        controller.call("instantSearch", search, (query, autocomplete, callback) => {
+            text = query;
+            skip = 0;
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
+        });
 
         form.element().submit((e) => {
             e.preventDefault();
