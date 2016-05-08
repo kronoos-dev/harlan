@@ -79,7 +79,7 @@ gulp.task("legal", () => {
 
 gulp.task("manifest", () => {
     return gulp.src([
-        "manifest.json",
+        "manifest*.json",
         "CNAME",
         `${src}/robots.txt`
     ])
