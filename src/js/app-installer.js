@@ -1,27 +1,30 @@
 /* global Buffer */
 
-(function (path, size, compressedSize, encode) {
+(function(path, size, compressedSize, encode) {
 
     'use strict';
 
     var
-            contentIndex = 0,
-            content = new Buffer(size),
-            streamHttp = require("stream-http"),
-            domReady = require("domready"),
-            inflateWorker = new Worker("js/app-inflate.js"),
-            downloadedSize = 0,
-            totalSize = compressedSize + size,
-            decompressedSize = 0,
-            updateInterfaceProgress = function () {
-                console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "% Downloaded");
-            };
+        contentIndex = 0,
+        content = new Buffer(size),
+        streamHttp = require("stream-http"),
+        domReady = require("domready"),
+        inflateWorker = new Worker("js/app-inflate.js"),
+        downloadedSize = 0,
+        totalSize = compressedSize + size,
+        decompressedSize = 0,
+        updateInterfaceProgress = function() {
+            console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "% Downloaded");
+        };
 
-    domReady(function () {
-        var interfaceProgress = document.getElementById("loader-progress"),
-                interfaceLogo = document.getElementById("loader-logo");
+    domReady(function() {
+        var installScreen = document.getElementById("install-screen"),
+            interfaceProgress = document.getElementById("loader-progress"),
+            interfaceLogo = document.getElementById("loader-logo");
 
-        updateInterfaceProgress = function () {
+        installScreen.className = installScreen.className.replace(/(\s|^)hide(\s|$)/g, '');
+
+        updateInterfaceProgress = function() {
             var progress = (downloadedSize + decompressedSize) / totalSize;
             if (progress > 80) {
                 interfaceLogo.className = "fa-spin";
@@ -30,7 +33,7 @@
         };
     });
 
-    inflateWorker.onmessage = function (message) {
+    inflateWorker.onmessage = function(message) {
         if (message.data === null) {
             try {
                 (new Function(content.toString(encode)))();
@@ -50,8 +53,8 @@
         updateInterfaceProgress();
     };
 
-    streamHttp.get(path, function (pipe) {
-        pipe.on('data', function (data) {
+    streamHttp.get(path, function(pipe) {
+        pipe.on('data', function(data) {
             downloadedSize += data.length;
             inflateWorker.postMessage([data, downloadedSize < compressedSize ? false : true]);
             updateInterfaceProgress();
