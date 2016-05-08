@@ -1,3 +1,5 @@
+import uniqid from 'uniqid';
+
 var Timeline = function() {
     var timeline = $("<ul />").addClass("timeline");
 
@@ -27,11 +29,24 @@ var Timeline = function() {
         obj.headerContent = $("<span />").addClass("timeline-header-content").text(header);
         obj.actions = $("<ul />").addClass("actions");
 
-        for (let [icon, action] of actions) {
-            obj.actions.append($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
-                e.preventDefault();
-                action();
-            }));
+        for (let [icon, label, action] of actions) {
+            let id = uniqid(),
+                item = obj.actions.append($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
+                    e.preventDefault();
+                    action(obj);
+                }).attr({
+                    id: id
+                })),
+                materialTip = $('<div />').addClass('mdl-tooltip').attr("for", id).text(label).append(item);
+
+            var componentVisible = setInterval(() => {
+                if (!materialTip.is(':visible') || item.is(':visible')) {
+                    return;
+                }
+                componentHandler.upgradeElement(materialTip.get(0), "MaterialTooltip");
+                clearInterval(componentVisible);
+            }, 300);
+
         }
 
         obj.meta = $("<div />").addClass("timeline-meta");

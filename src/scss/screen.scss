@@ -15,7 +15,7 @@
 @import "compass/reset/utilities";
 @import "variables";
 @import "mixins";
-@import "keyframes"; 
+@import "keyframes";
 input {
     @include input-placeholder {
         color: rgb(169, 169, 169);
