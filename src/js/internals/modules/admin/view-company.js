@@ -275,7 +275,10 @@ module.exports = (controller) => {
                     .mask('#.##0,00', {
                         reverse: true
                     })
-                    .val(numeral(credits / 100.0).format('0,0.00'));
+
+                if (credits) {
+                    input.val(numeral(credits / 100.0).format('0,0.00'));
+                }
 
                 form.addSubmit("change-credits", "Alterar Créditos");
                 form.element().submit((e) => {
