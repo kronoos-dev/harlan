@@ -287,11 +287,14 @@ module.exports = (controller) => {
                     controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
                         controller.call("loader::ajax", controller.call("error::ajax", {
                             data: {
-                                ammount: ammount
+                                ammount: ammount,
+                                username: username
                             },
                             success: () => {
                                 if (creditsInput) {
                                     creditsInput.find(".value").text(numeral(ammount / 100.0).format('$0,0.00'));
+                                } else {
+                                    creditsInput = result.addItem("Créditos Sistema", numeral(ammount / 100.0).format('$0,0.00')).insertAfter(inputApiKey);
                                 }
                                 modal.close();
                             }
