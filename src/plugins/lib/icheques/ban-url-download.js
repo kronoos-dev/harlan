@@ -17,7 +17,7 @@ module.exports = function(controller) {
                 });
                 controller.call("icheques::ban::generate", {
                     values: storage
-                }, args.company);
+                }, ret.company);
             }
         })
     );
