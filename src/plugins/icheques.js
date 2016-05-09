@@ -36,6 +36,7 @@
     require("./lib/icheques/ban-generate")(controller);
     require("./lib/icheques/can-antecipate")(controller);
     require("./lib/icheques/fidc")(controller);
+    require("./lib/icheques/ban-url-download")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
