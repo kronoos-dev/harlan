@@ -13,7 +13,7 @@ module.exports = function(controller) {
                 activationCode: controller.query.activationCode
             },
             success: () => {
-                toastr.success("Seu e-mail foi válidado, a partir de agora o Harlan já pode ser utilizado.", "Sua conta foi ativada com sucesso.");
+                toastr.success("Seu e-mail foi válidado, a partir de agora o programa já pode ser utilizado.", "Sua conta foi ativada com sucesso.");
             },
             complete: () => {
                 cb();
