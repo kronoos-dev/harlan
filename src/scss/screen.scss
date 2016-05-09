@@ -175,6 +175,7 @@ label {
     }
     &.loading .icon {
         animation: spin 1s infinite;
+        display: inline-block;
         cursor: wait;
         &:after {
             content: "\f110";
@@ -350,6 +351,7 @@ label {
                 background-size: 400% 400%;
                 animation: url(../images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
                 .content:before {
+                    display: inline-block;
                     animation: fa-spin 2s linear infinite;
                     content: "\f013";
                 }

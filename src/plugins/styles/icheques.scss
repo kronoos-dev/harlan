@@ -361,6 +361,7 @@ $color: #feefc4;
 
             .actions {
                 &:after {
+                    display: inline-block;
                     animation: spin infinite 2s linear;
                     font-family: "FontAwesome";
                     content: "\f1ce";

@@ -134,9 +134,9 @@ module.exports = function(controller) {
         modal.addParagraph("Selecione quais cheques você gostaria de solicitar antecipação");
 
         let form = modal.createForm(),
+            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar"),
             list = form.createList(),
             actions = modal.createActions(),
-            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar"),
             skip = 0,
             text = null;
 
