@@ -129,7 +129,7 @@ module.exports = function (controller) {
         inputPassword = inputPassword || $("#input-password");
 
         if (/^\s*$/.test(inputUsername.val()) || inputPassword.val() === "") {
-            toastr.error("Para acessar o Harlan você precisa inserir seu usuário e senha.", "Insira seu nome de usuário e senha.");
+            toastr.error("Para acessar o sistema você precisa inserir seu usuário e senha.", "Insira seu nome de usuário e senha.");
             onError();
             return;
         }
