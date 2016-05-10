@@ -70,9 +70,9 @@ var ReportModel =function (closeable) {
         return p;
     };
 
-    this.timeline = (text) => {
+    this.timeline = (controller) => {
         var timeline = controller.call("timeline");
-        this.content.append(timeline.element());
+        elementContent.append(timeline.element());
         return timeline;
     };
 
