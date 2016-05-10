@@ -131,10 +131,10 @@ module.exports = function(controller) {
         let modal = controller.call("modal");
         modal.title("Cheques para Antecipar");
         modal.subtitle("Seleção de Cheques para Antecipação");
-        modal.addParagraph("Selecione quais cheques você gostaria de solicitar antecipação");
+        modal.addParagraph("Selecione, da relação abaixo, os cheques que NÃO gostaria de antecipar. Serão eliminados da lista");
 
         let form = modal.createForm(),
-            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar"),
+            search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar", {}, "Documento ou nº do cheque"),
             list = form.createList(),
             actions = modal.createActions(),
             skip = 0,

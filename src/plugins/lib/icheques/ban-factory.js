@@ -48,7 +48,7 @@ export class BANFactory {
                                     break;
                                 case 2:
                                     // numero. de 431 até 435. 5.
-                                    this.buffer.setString(this._goToPosition(check.row, 430), val.trim().substring(0, 5));
+                                    this.buffer.setString(this._goToPosition(check.row, 430), val.trim().replace(/^0+/, "").substring(0, 5));
                                     break;
                                 case 3:
                                     // cep. de 172 até 179. 8.
