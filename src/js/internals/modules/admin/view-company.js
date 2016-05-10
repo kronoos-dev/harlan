@@ -90,16 +90,18 @@ module.exports = (controller) => {
                 "Lista de Telefones para Contato",
                 "O telefone deve ser usado apenas para emergências e tratativas comerciais.");
 
-            var [ddd, phone, pabx, contactName, kind] = [
-                phones.children("telefone:eq(0)").text(),
-                phones.children("telefone:eq(1)").text(),
-                phones.children("telefone:eq(2)").text(),
-                phones.children("telefone:eq(3)").text(),
-                phones.children("telefone:eq(4)").text()
-            ];
-
-            controller.call("admin::remove::phone", result.addItem(`${contactName} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
-                section, username, ddd, phone, pabx);
+            phones.each((idx, phoneNode) => {
+                var $phoneNode = $(phoneNode);
+                var [ddd, phone, pabx, contactName, kind] = [
+                    $phoneNode.children("telefone:eq(0)").text(),
+                    $phoneNode.children("telefone:eq(1)").text(),
+                    $phoneNode.children("telefone:eq(2)").text(),
+                    $phoneNode.children("telefone:eq(3)").text(),
+                    $phoneNode.children("telefone:eq(4)").text()
+                ];
+                controller.call("admin::remove::phone", result.addItem(`${contactName} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
+                    section, username, ddd, phone, pabx);
+            });
         }
 
         var generateSeparator = (separatorCall) => {
