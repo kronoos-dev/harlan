@@ -26,27 +26,43 @@ var Timeline = function() {
         });
 
         obj.time = $("<span />").addClass("timeline-time").text(time.fromNow());
+        var interval = setInterval(function() {
+            obj.time.text(time.fromNow());
+        }, 60000);
+
+        obj.time.on('remove', () => {
+            clearInterval(interval);
+        });
+
+
         obj.headerContent = $("<span />").addClass("timeline-header-content").text(header);
         obj.actions = $("<ul />").addClass("actions");
 
-        for (let [icon, label, action] of actions) {
-            let id = uniqid(),
-                item = obj.actions.append($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
-                    e.preventDefault();
-                    action(obj);
-                }).attr({
-                    id: id
-                })),
-                materialTip = $('<div />').addClass('mdl-tooltip').attr("for", id).text(label).append(item);
+        for (let idx in actions) {
+            (function() {
+                var [icon, label, action] = actions[idx];
 
-            var componentVisible = setInterval(() => {
-                if (!materialTip.is(':visible') || item.is(':visible')) {
-                    return;
-                }
-                componentHandler.upgradeElement(materialTip.get(0), "MaterialTooltip");
-                clearInterval(componentVisible);
-            }, 300);
+                var componentVisible = setInterval(function() {
+                    if (!obj.actions.is(':visible')) {
+                        return;
+                    }
 
+                    var id = uniqid(),
+                        item = $("<li />").append($("<i />").addClass("fa " + icon)).click(function(e) {
+                            e.preventDefault();
+                            action(obj);
+                        }).attr({
+                            id: id
+                        }),
+                        materialTip = $('<div />').addClass('mdl-tooltip').attr("for", id).text(label);
+
+                    item.append(materialTip);
+                    obj.actions.append(item);
+
+                    componentHandler.upgradeElement(materialTip.get(0), "MaterialTooltip");
+                    clearInterval(componentVisible);
+                }, 300);
+            })();
         }
 
         obj.meta = $("<div />").addClass("timeline-meta");
@@ -64,6 +80,10 @@ var Timeline = function() {
         timeline.append(obj.item.data("object", obj));
 
         return obj.item;
+    };
+
+    this.length = () => {
+        return timeline.find("li").length;
     };
 
     this.element = () => {
