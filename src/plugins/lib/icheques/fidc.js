@@ -465,7 +465,7 @@ module.exports = (controller) => {
 
         report.label(`Usuário\: ${args.company.username}`);
         report.label(`Documento\: ${args.company.cnpj || args.company.cpf}`);
-        report.label(`Nome\: ${args.company.nome || args.company.responsavel}`);
+        report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 
         report.newAction("fa-cloud-download", function() {
