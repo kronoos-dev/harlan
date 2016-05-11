@@ -111,6 +111,7 @@ module.exports = (controller) => {
                                 _id: $(node).children("_id").text(),
                                 cmcs: [],
                                 company: {
+                                    nome: $("company > nome", node).text(),
                                     username: $("company > username", node).text(),
                                     cpf: $("company > cpf", node).text(),
                                     cnpj: $("company > cnpj", node).text(),
