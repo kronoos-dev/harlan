@@ -57,7 +57,7 @@ var AccountOverview = function(closeable) {
     report.element().addClass("ichequesAccountOverview");
 
     var status = report.paragraph().html(messages.overall),
-        //            mainLabel = report.label("Visão Geral"),
+        mainLabel = report.label("Visão Geral"),
         i = this,
         expression = squel.expr();
 
@@ -203,7 +203,9 @@ var AccountOverview = function(closeable) {
         expression = squel.expr();
 
 
-        if (f.filter === "1") {
+        if (f.filter === "0") {
+            //            filterLabels.push(report.label("Cheques Processados"));
+        } else if (f.filter === "1") {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10)");
             //            filterLabels.push(report.label("Cheques Processados"));
         } else if (f.filter === "2") {
@@ -260,11 +262,26 @@ var AccountOverview = function(closeable) {
             //            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
 
+        generateSum();
+
         _.each(filterLabels, function(e) {
-            //            e.insertAfter(mainLabel);
+            e.insertAfter(mainLabel);
         });
 
         i.draw();
+    };
+
+
+    var generateSum = () => {
+        var totalAmmount = controller.database.exec(squel
+            .select()
+            .from("ICHEQUES_CHECKS")
+            .field("sum(AMMOUNT)")
+            .where(expression).toString());
+
+        if (totalAmmount && totalAmmount[0] && totalAmmount[0].values && totalAmmount[0].values[0]) {
+            filterLabels.push(report.label(`Valor Total: ${numeral(totalAmmount[0].values[0] / 100.0).format('$0,0.00')}`));
+        }
     };
 
     report.newAction("fa-folder-open", openDocuments);
@@ -396,7 +413,7 @@ var AccountOverview = function(closeable) {
                 var querystr = squel
                     .select()
                     .from('ICHEQUES_CHECKS')
-                    .where(expression)
+                    .where(expression.and("EXPIRE >= ?", moment().format("YYYYMMDD")))
                     .toString();
 
                 var query = controller.database.exec(querystr)[0];
@@ -418,7 +435,6 @@ var AccountOverview = function(closeable) {
             status.html(messages.overall);
         }
     };
-
 
     var drawDoughnut = function(dataset) {
 

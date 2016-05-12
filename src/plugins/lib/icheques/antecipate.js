@@ -10,7 +10,7 @@ const PAGINATE_FILTER = 7;
 /* global module, numeral */
 module.exports = function(controller) {
 
-    function modalChecksIsEmpty(){
+    function modalChecksIsEmpty() {
         let modal = controller.call("modal");
 
         modal.title("Você não selecionou nenhum cheque");
@@ -30,10 +30,32 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
+        var expired = [];
+        checks = _.filter(checks, (check) => {
+            var booleanExpiration = moment().diff(check.expire, 'days') < 0;
+            if (!booleanExpiration) {
+                toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias nós abrimos os mesmos abaixo.");
+                expired.push(check);
+            }
+            return booleanExpiration;
+        });
+
+        if (expired.length) {
+            controller.call("icheques::show", expired);
+        }
+
+        if (!checks.length) {
+            toastr.error("Não há cheques bons para antecipação, verifique e tente novamente.", "Não há cheques em seja possível a antecipação.");
+            return;
+        }
+
         // Adicionando as propriedades vindas do CMC7Parser
         checks = checks.map((check) => Object.assign({}, check, new CMC7Parser(check.cmc)));
+
         // Ordenando pelo número do cheque
         checks = _.sortBy(checks, "number");
+
+
         controller.call("billingInformation::need", () => {
             var noAmmountChecks = _.filter(checks, (obj) => {
                 return !obj.ammount;

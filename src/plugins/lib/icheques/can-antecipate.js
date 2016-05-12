@@ -10,7 +10,7 @@ const checkQuery = squel
 const obtainChecks = squel
     .select()
     .from('ICHEQUES_CHECKS')
-    .where("(QUERY_STATUS = 1)")
+    .where("(QUERY_STATUS = 1) AND (EXPIRE >= ?)", moment().format("YYYYMMDD"))
     .toString();
 
 module.exports = (controller) => {
