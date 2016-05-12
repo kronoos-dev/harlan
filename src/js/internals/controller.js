@@ -202,7 +202,7 @@ var Controller = function() {
     require("./modules/placas-wiki")(this);
     require("./modules/credits")(this);
     require("./modules/alert")(this);
-    require("./modules/push-notification")(this);
+    //require("./modules/push-notification")(this);
     require("./modules/password")(this);
     require("./modules/progress")(this);
     require("./modules/subaccount")(this);
