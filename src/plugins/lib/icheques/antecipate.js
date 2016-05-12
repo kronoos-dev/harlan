@@ -84,7 +84,7 @@ module.exports = function(controller) {
         });
     });
 
-    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text, callback) => {
+    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text, checksSum, callback) => {
         if (text) {
             text = text.trim();
             checks = _.filter(checks, (check) => {
@@ -93,6 +93,14 @@ module.exports = function(controller) {
             });
         } else if (/\D/.test(text)) {
             text = undefined;
+        }
+
+        if (checks.length) {
+            checksSum.text(numeral(_.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
+                return memo + num;
+            }) / 100.0).format("$0,0.00"));
+        } else {
+            checksSum.text("Sem Saldo");
         }
 
         list.empty();
@@ -114,7 +122,7 @@ module.exports = function(controller) {
                 `Valor: ${numeral(parseFloat(element.ammount/100)).format('$ 0,0.00')}`
             ]).click(function(e) {
                 checks.splice(checks.indexOf(element), 1);
-                updateList(modal, pageActions, results, pagination, list, checks, limit, skip, text);
+                updateList(modal, pageActions, results, pagination, list, checks, limit, skip, text, checksSum);
             });
         });
 
@@ -161,7 +169,8 @@ module.exports = function(controller) {
         });
 
         let results = actions.observation(),
-            pagination = actions.observation();
+            pagination = actions.observation(),
+            checksSum = actions.observation();
 
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
@@ -175,7 +184,7 @@ module.exports = function(controller) {
             }).hide()
         };
 
-        updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
+        updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
     });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks) {
