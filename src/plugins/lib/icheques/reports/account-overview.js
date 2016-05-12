@@ -307,7 +307,7 @@ var AccountOverview = function (closeable) {
                 .select()
                 .from('ICHEQUES_CHECKS')
                 .field('SITUATION, QUERY_STATUS, SUM(AMMOUNT), COUNT(1)')
-                .group('SITUATION, QUERY_STATUS')
+                .group('SITUATION')
                 .order('4', false)
                 .where(expression)
                 .toString();
@@ -377,7 +377,7 @@ var AccountOverview = function (closeable) {
                     return;
                 }
 
-                controller.call("icheques::resultDatabase", query);                
+                controller.call("icheques::resultDatabase", query);
                 controller.call("icheques::antecipate", query.values);
             }).insertBefore(openButton));
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
