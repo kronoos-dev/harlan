@@ -59,7 +59,7 @@ var AccountOverview = function(closeable) {
     var status = report.paragraph().html(messages.overall),
         mainLabel = report.label("Visão Geral"),
         i = this,
-        expression = squel.expr();
+        expression = squel.expr().and("(EXPIRE >= ?)", moment().format("YYYYMMDD"));
 
     var modalFilter = function() {
         /* How deep is your love? */
@@ -134,6 +134,8 @@ var AccountOverview = function(closeable) {
             "4": "Cheques com ocorrências"
         }, _.object(situations, keys)));
 
+        var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
+
         form.element().submit(function(e) {
             e.preventDefault();
             reportFilter({
@@ -143,7 +145,8 @@ var AccountOverview = function(closeable) {
                 endCreation: parseDate(endCreation.val()),
                 initAmmount: parseValue(initAmmount.val()),
                 endAmmount: parseValue(endAmmount.val()),
-                filter: filter.val()
+                filter: filter.val(),
+                expired : expiredInput.is(":checked")
             });
             modal.close();
         });
@@ -219,6 +222,12 @@ var AccountOverview = function(closeable) {
             //            filterLabels.push(report.label("Cheques com Ocorrência"));
         } else {
             expression.and("(SITUATION = ?)", f.filter);
+        }
+
+        if (f.expired) {
+
+        } else {
+            expression.and("(EXPIRE >= ?)", moment().format("YYYYMMDD"));
         }
 
 

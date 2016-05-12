@@ -21,18 +21,24 @@ module.exports = (controller) => {
             })));
     });
 
+    controller.registerCall("billingInformation::force", (callback) => {
+        controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
+            controller.call("error::ajax", controller.call("loader::ajax", {
+                success: (response) => {
+                    controller.call("billingInformation::changeAddress", () => {
+                        if (callback) callback();
+                        else
+                            toastr.success("Os dados inseridos foram alterados com sucesso.", "Seus dados foram alterados com sucesso.");
+                    }, response);
+                }
+            })));
+    });
+
     controller.registerBootstrap("billingInformation", (cb) => {
         cb();
         controller.interface.helpers.menu.add("Empresa", "user").nodeLink.click((e) => {
             e.preventDefault();
-            controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
-                controller.call("error::ajax", controller.call("loader::ajax", {
-                    success: (response) => {
-                        controller.call("billingInformation::changeAddress", () => {
-                            toastr.success("Os dados inseridos foram alterados com sucesso.", "Seus dados foram alterados com sucesso.");
-                        }, response);
-                    }
-                })));
+            controller.call("billingInformation::force");
         });
     });
 
@@ -77,7 +83,7 @@ module.exports = (controller) => {
                         "placeholder": "CPF ou CNPJ de faturamento",
                         "mask": document.replace(/[^0-9]/g, '').length <= 11 ? "000.000.000-00" : '00.000.000/0000-00',
                         "optional": false,
-                        "disabled" : CNPJ.isValid(document),
+                        "disabled": CNPJ.isValid(document),
                         "value": document.replace(/[^0-9]/g, ''),
                         validate: (item) => {
                             return CNPJ.isValid(item.element.val()) || CPF.isValid(item.element.val());
