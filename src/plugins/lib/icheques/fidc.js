@@ -111,6 +111,7 @@ module.exports = (controller) => {
                                 _id: $(node).children("_id").text(),
                                 cmcs: [],
                                 company: {
+                                    nome: $("company > nome", node).text(),
                                     username: $("company > username", node).text(),
                                     cpf: $("company > cpf", node).text(),
                                     cnpj: $("company > cnpj", node).text(),
@@ -464,7 +465,7 @@ module.exports = (controller) => {
 
         report.label(`Usuário\: ${args.company.username}`);
         report.label(`Documento\: ${args.company.cnpj || args.company.cpf}`);
-        report.label(`Nome\: ${args.company.nome || args.company.responsavel}`);
+        report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 
         report.newAction("fa-cloud-download", function() {
