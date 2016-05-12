@@ -134,7 +134,7 @@ module.exports = function(controller) {
                     subtitle: "Você será redirecionado para uma conta derivada.",
                     paragraph: "As contas derivadas podem ser administradas por você, a qualquer momento você pode as acessar e editar."
                 }, () => {
-                    document.location.href = `${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`
+                    window.open(`${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`);
                 });
             });
             acc.find(".block").click((e) => {

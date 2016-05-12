@@ -4,7 +4,7 @@ const checkQuery = squel
     .select()
     .from('ICHEQUES_CHECKS')
     .field('SUM(AMMOUNT), COUNT(1)')
-    .where("(QUERY_STATUS = 1)")
+    .where("(QUERY_STATUS = 1) AND (EXPIRE >= ?)", moment().format("YYYYMMDD"))
     .toString();
 
 const obtainChecks = squel
