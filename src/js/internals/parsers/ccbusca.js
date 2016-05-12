@@ -5,6 +5,14 @@ var _ = require("underscore"),
 
 module.exports = function (controller) {
 
+    function hasAddressSeparator(nodes) {
+        for (let idx in nodes) {
+            if (/^\**$/.test(nodes[idx])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     var setAddress = function (result, jdocument) {
         var init = "BPQL > body enderecos > endereco";
@@ -30,12 +38,12 @@ module.exports = function (controller) {
                 nodes[idx] = (/^\**$/.test(data)) ? "" : data;
             }
 
-            if (!nodes["Endereço"] || !nodes.CEP) {
+            if (!nodes["Endereço"] || !nodes["CEP"]) {
                 return;
             }
 
             if (_.contains(addressElements, nodes["Endereço"]) ||
-                    _.contains(cepElements, nodes.CEP) ||
+                    _.contains(cepElements, nodes["CEP"]) ||
                     Math.max(..._.map(addressElements, function (value) {
                         return natural.JaroWinklerDistance(value, nodes["Endereço"]);
                     })) > 0.85) {
@@ -43,10 +51,11 @@ module.exports = function (controller) {
             }
 
             addressElements.push(nodes["Endereço"]);
-            cepElements.push(nodes.CEP);
+            cepElements.push(nodes["CEP"]);
 
-            result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
+            if (hasAddressSeparator(nodes)) result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
 
+            // Adiciona o item caso o endereço esteja completo
             for (idx in nodes) {
                 if (/^\**$/.test(nodes[idx])) {
                     return;
