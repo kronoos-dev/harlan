@@ -1,25 +1,26 @@
 /* global module, numeral, require, moment */
 
 var TIMEOUT = 5000;
-
+var AVOID_FILTER = /sem ocorrência/;
 var Harmonizer = require("color-harmony").Harmonizer,
-        Color = require("color"),
-        sprintf = require("sprintf"),
-        _ = require("underscore"),
-        hashObject = require('hash-object'),
-        ChartJS = require("chart.js"),
-        squel = require("squel"),
-        changeCase = require('change-case');
+    Color = require("color"),
+    sprintf = require("sprintf"),
+    _ = require("underscore"),
+    hashObject = require('hash-object'),
+    ChartJS = require("chart.js"),
+    squel = require("squel"),
+    changeCase = require('change-case');
 
 var controller;
 var updateRegister = [];
 var async = require("async");
 var harmonizer = new Harmonizer();
-var colorMix = "neutral", colors = {
-    error: harmonizer.harmonize("#ff1a53", colorMix),
-    warning: harmonizer.harmonize("#ffe500", colorMix),
-    success: harmonizer.harmonize("#00ff6b", colorMix)
-};
+var colorMix = "neutral",
+    colors = {
+        error: harmonizer.harmonize("#ff1a53", colorMix),
+        warning: harmonizer.harmonize("#ffe500", colorMix),
+        success: harmonizer.harmonize("#00ff6b", colorMix)
+    };
 
 var messages = {
     overall: require('../../../markdown/icheques/default.report.html.js'),
@@ -28,7 +29,7 @@ var messages = {
     processing: require('../../../markdown/icheques/processing.report.html.js')
 };
 
-var parseDate = function (val, format) {
+var parseDate = function(val, format) {
     if (/^\s*$/.test(val))
         return null;
 
@@ -39,25 +40,28 @@ var parseDate = function (val, format) {
     return d.isValid() ? d.format(format) : null;
 };
 
-var parseValue = function (val) {
+var parseValue = function(val) {
     return /^\s*$/.test(val) ? null : numeral(val)._value;
 };
 
-var AccountOverview = function (closeable) {
+var AccountOverview = function(closeable) {
 
     var report = controller.call("report",
             AccountOverview.prototype.about.title,
-            AccountOverview.prototype.about.subtitle, null, closeable), timeout = null,
-            labels = [], doughnut = null, lastDataset = null;
+            AccountOverview.prototype.about.subtitle, null, closeable),
+        timeout = null,
+        labels = [],
+        doughnut = null,
+        lastDataset = null;
 
     report.element().addClass("ichequesAccountOverview");
 
     var status = report.paragraph().html(messages.overall),
-//            mainLabel = report.label("Visão Geral"),
-            i = this,
-            expression = squel.expr();
+        //            mainLabel = report.label("Visão Geral"),
+        i = this,
+        expression = squel.expr();
 
-    var modalFilter = function () {
+    var modalFilter = function() {
         /* How deep is your love? */
 
         var modal = controller.call("modal");
@@ -66,52 +70,71 @@ var AccountOverview = function (closeable) {
         var form = modal.createForm();
 
         var multiFieldCreation = form.multiField(),
-                multiFieldExpire = form.multiField(),
-                multiFieldValue = form.multiField().addClass("double-margin"),
-                initExpiration = form.addInput("init-expire", "text", "00/00/00", {
-                    append: multiFieldExpire,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Expiração").mask("00/00/0000"),
-                endExpiration = form.addInput("end-expire", "text", "00/00/00", {
-                    append: multiFieldExpire,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Expiração até").mask("00/00/0000"),
-                initCreation = form.addInput("init-creation", "text", "00/00/00", {
-                    append: multiFieldCreation,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Criação").mask("00/00/0000"),
-                endCreation = form.addInput("end-creation", "text", "00/00/00", {
-                    append: multiFieldCreation,
-                    labelPosition: "before",
-                    class: "labelShow"
-                }, "Criação Até").mask("00/00/0000"),
-                initAmmount = form.addInput("init-ammount", "text", "Valor", {
-                    append: multiFieldValue,
-                    class: "money",
-                    labelPosition: "before"
-                }, "R$").mask('000.000.000.000.000,00', {reverse: true}),
-                endAmmount = form.addInput("end-ammount", "text", "Valor Até", {
-                    append: multiFieldValue,
-                    class: "money",
-                    labelPosition: "before"
-                }, "R$").mask('000.000.000.000.000,00', {reverse: true});
+            multiFieldExpire = form.multiField(),
+            multiFieldValue = form.multiField().addClass("double-margin"),
+            initExpiration = form.addInput("init-expire", "text", "00/00/00", {
+                append: multiFieldExpire,
+                labelPosition: "before",
+                class: "labelShow"
+            }, "Expiração").mask("00/00/0000"),
+            endExpiration = form.addInput("end-expire", "text", "00/00/00", {
+                append: multiFieldExpire,
+                labelPosition: "before",
+                class: "labelShow"
+            }, "Expiração até").mask("00/00/0000"),
+            initCreation = form.addInput("init-creation", "text", "00/00/00", {
+                append: multiFieldCreation,
+                labelPosition: "before",
+                class: "labelShow"
+            }, "Criação").mask("00/00/0000"),
+            endCreation = form.addInput("end-creation", "text", "00/00/00", {
+                append: multiFieldCreation,
+                labelPosition: "before",
+                class: "labelShow"
+            }, "Criação Até").mask("00/00/0000"),
+            initAmmount = form.addInput("init-ammount", "text", "Valor", {
+                append: multiFieldValue,
+                class: "money",
+                labelPosition: "before"
+            }, "R$").mask('000.000.000.000.000,00', {
+                reverse: true
+            }),
+            endAmmount = form.addInput("end-ammount", "text", "Valor Até", {
+                append: multiFieldValue,
+                class: "money",
+                labelPosition: "before"
+            }, "R$").mask('000.000.000.000.000,00', {
+                reverse: true
+            });
 
-        _.each([initCreation, endCreation, initExpiration, endExpiration], function (e) {
+        _.each([initCreation, endCreation, initExpiration, endExpiration], function(e) {
             e.pikaday();
         });
 
-        var filter = form.addSelect("filter-overview", "Cheques", [
-            "Todos os tipos de cheque",
-            "Cheques processados",
-            "Cheques em processamento",
-            "Cheques sem ocorrências",
-            "Cheques com ocorrências"
-        ]);
 
-        form.element().submit(function (e) {
+        var situations = _.pluck(generateDataset(squel.expr()), "situation");
+
+        situations = _.filter(situations, (situation) => {
+            return !AVOID_FILTER.test(situation);
+        });
+
+        var keys = _.map(situations, (obj) => {
+            if (/Cheque enviado/i.test(obj))
+                return "Talão bloqueado";
+            else if (/outras ocorrências/i.test(obj))
+                return 'Cheques com "outras ocorrências"';
+            return obj;
+        });
+
+        var filter = form.addSelect("filter-overview", "Cheques", $.extend({
+            "0": "Todos os tipos de cheque",
+            "1": "Cheques processados",
+            "2": "Cheques em processamento",
+            "3": "Cheques sem ocorrências",
+            "4": "Cheques com ocorrências"
+        }, _.object(situations, keys)));
+
+        form.element().submit(function(e) {
             e.preventDefault();
             reportFilter({
                 initExpiration: parseDate(initExpiration.val(), "YYYYMMDD"),
@@ -127,7 +150,7 @@ var AccountOverview = function (closeable) {
 
         form.addSubmit("filter", "Filtrar");
 
-        modal.createActions().add("Cancelar").click(function (e) {
+        modal.createActions().add("Cancelar").click(function(e) {
             e.preventDefault();
             modal.close();
         });
@@ -136,12 +159,12 @@ var AccountOverview = function (closeable) {
 
 
     var filterLabels = [];
-    var openDocuments = function () {
+    var openDocuments = function() {
         var querystr = squel
-                .select()
-                .from('ICHEQUES_CHECKS')
-                .where(expression)
-                .toString();
+            .select()
+            .from('ICHEQUES_CHECKS')
+            .where(expression)
+            .toString();
 
         var query = controller.database.exec(querystr)[0];
         if (!query || !query.values) {
@@ -149,7 +172,7 @@ var AccountOverview = function (closeable) {
         }
 
         if (!$("section.icheque, footer.load-more").length) {
-            controller.call("icheques::show::query", query, function () {
+            controller.call("icheques::show::query", query, function() {
                 $(window).scrollTop($("section.icheque, .footer.load-more").first().offset().top);
             }, report.element());
         } else {
@@ -157,15 +180,15 @@ var AccountOverview = function (closeable) {
             controller.call("confirm", {
                 title: "Encontramos alguns resultados já abertos.",
                 subtitle: "Você tem certeza que deseja abrir mais estes?"
-            }, function () {
+            }, function() {
                 controller.call("icheques::show::query", query, null, report.element());
             });
         }
     };
 
 
-    var reportFilter = function (f) {
-        _.each(filterLabels, function (e) {
+    var reportFilter = function(f) {
+        _.each(filterLabels, function(e) {
             e.remove();
         });
 
@@ -182,64 +205,63 @@ var AccountOverview = function (closeable) {
 
         if (f.filter === "1") {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10)");
-//            filterLabels.push(report.label("Cheques Processados"));
-        }
-        else if (f.filter === "2") {
+            //            filterLabels.push(report.label("Cheques Processados"));
+        } else if (f.filter === "2") {
             expression.and("(QUERY_STATUS IS NULL OR QUERY_STATUS = 10)");
-//            filterLabels.push(report.label("Cheques em Processamento"));
-        }
-        else if (f.filter === "3") {
+            //            filterLabels.push(report.label("Cheques em Processamento"));
+        } else if (f.filter === "3") {
             expression.and("(QUERY_STATUS = 1)");
-//            filterLabels.push(report.label("Cheques sem Ocorrência"));
-        }
-        else if (f.filter === "4") {
+            //            filterLabels.push(report.label("Cheques sem Ocorrência"));
+        } else if (f.filter === "4") {
             expression.and("(QUERY_STATUS NOT NULL AND QUERY_STATUS != 10 AND QUERY_STATUS != 1)");
-//            filterLabels.push(report.label("Cheques com Ocorrência"));
+            //            filterLabels.push(report.label("Cheques com Ocorrência"));
+        } else {
+            expression.and("(SITUATION = ?)", f.filter);
         }
 
 
         if (f.endExpiration) {
             expression.and("EXPIRE <= ?", f.endExpiration);
-//            filterLabels.push(report.label("Expira até " + moment(f.endExpiration, "YYYYMMDD").format("DD/MM/YYYY")));
+            //            filterLabels.push(report.label("Expira até " + moment(f.endExpiration, "YYYYMMDD").format("DD/MM/YYYY")));
         }
 
         if (f.initExpiration && f.endExpiration) {
             expression.and("EXPIRE >= ?", f.initExpiration);
-//            filterLabels.push((report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
+            //            filterLabels.push((report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         } else if (f.initExpiration) {
             expression.and("EXPIRE = ?", f.initExpiration);
-//            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
+            //            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         }
 
         if (f.endCreation) {
             expression.and("CREATION <= ?", f.endCreation.second(59).minute(59).hour(23).unix());
-//            filterLabels.push(report.label("Criado até " + f.endCreation.format("DD/MM/YYYY")));
+            //            filterLabels.push(report.label("Criado até " + f.endCreation.format("DD/MM/YYYY")));
         }
 
         if (f.initCreation && f.endCreation) {
             expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
-//            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
+            //            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
         } else if (f.initCreation) {
             expression.and("CREATION >= ?", f.initCreation.second(0).minute(0).hour(0).unix());
             expression.and("CREATION <= ?", f.initCreation.second(59).minute(59).hour(23).unix());
-//            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
+            //            filterLabels.push(report.label("Criado em " + f.initCreation.format("DD/MM/YYYY")));
         }
 
         if (f.endAmmount) {
             expression.and("AMMOUNT <= ?", f.endAmmount * 100);
-//            filterLabels.push(report.label("Valor até " + numeral(f.initAmmount / 100).format("$0,0.00")));
+            //            filterLabels.push(report.label("Valor até " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
 
         if (f.initAmmount && f.endAmmount) {
             expression.and("AMMOUNT >= ?", f.initAmmount * 100);
-//            filterLabels.push(report.label("Valor de " + numeral(f.initAmmount / 100).format("$0,0.00")));
+            //            filterLabels.push(report.label("Valor de " + numeral(f.initAmmount / 100).format("$0,0.00")));
         } else if (f.initAmmount) {
             expression.and("AMMOUNT = ?", f.initAmmount * 100);
-//            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
+            //            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
 
-        _.each(filterLabels, function (e) {
-//            e.insertAfter(mainLabel);
+        _.each(filterLabels, function(e) {
+            //            e.insertAfter(mainLabel);
         });
 
         i.draw();
@@ -253,8 +275,7 @@ var AccountOverview = function (closeable) {
                 .select()
                 .from('ICHEQUES_CHECKS')
                 .where(expression)
-                .toString())[0]
-            )
+                .toString())[0])
         );
     });
 
@@ -269,23 +290,25 @@ var AccountOverview = function (closeable) {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = function (data) {
+    var reduceDataset = function(data) {
 
-        var sum = _.reduce(data, function (a, b) {
-            return {value: a.value + b.value};
+        var sum = _.reduce(data, function(a, b) {
+            return {
+                value: a.value + b.value
+            };
         });
 
         sum = sum && sum.value ? sum.value : 0;
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, function (item) {
+        return _.map(_.values(_.groupBy(data, function(item) {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), function (value) {
-            return _.reduce(value, function (a, b) {
+        })), function(value) {
+            return _.reduce(value, function(a, b) {
                 a.value += b.value;
                 a.color = "#93A7D8";
                 a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
@@ -301,16 +324,16 @@ var AccountOverview = function (closeable) {
      * Generate Dataset
      * @returns {Array|AccountOverview.generateDataset.data}
      */
-    var generateDataset = function () {
+    var generateDataset = function(expr) {
 
         var query = squel
-                .select()
-                .from('ICHEQUES_CHECKS')
-                .field('SITUATION, QUERY_STATUS, SUM(AMMOUNT), COUNT(1)')
-                .group('SITUATION')
-                .order('4', false)
-                .where(expression)
-                .toString();
+            .select()
+            .from('ICHEQUES_CHECKS')
+            .field('SITUATION, QUERY_STATUS, SUM(AMMOUNT), COUNT(1)')
+            .group('SITUATION')
+            .order('4', false)
+            .where(expr || expression)
+            .toString();
 
         var queryResult = controller.database.exec(query)[0];
 
@@ -321,7 +344,11 @@ var AccountOverview = function (closeable) {
         queryResult = queryResult.values;
 
         var data = [],
-                iteratorColors = {error: 0, warning: 0, success: 0};
+            iteratorColors = {
+                error: 0,
+                warning: 0,
+                success: 0
+            };
 
         for (var i in queryResult) {
 
@@ -353,24 +380,24 @@ var AccountOverview = function (closeable) {
 
     var manipulationItens = [];
 
-    var manipulateDataset = function (dataset) {
+    var manipulateDataset = function(dataset) {
 
-        _.each(manipulationItens, function (e) {
+        _.each(manipulationItens, function(e) {
             e.remove(); /* remove elements */
         });
 
-        var datasetQueryStatus = _.map(dataset, function (obj) {
+        var datasetQueryStatus = _.map(dataset, function(obj) {
             return obj.queryStatus;
         });
 
         if (!_.without(datasetQueryStatus, 1).length) {
             status.html(messages.noOcurrence);
-            manipulationItens.push(report.button("Antecipar Cheques", function () {
+            manipulationItens.push(report.button("Antecipar Cheques", function() {
                 var querystr = squel
-                        .select()
-                        .from('ICHEQUES_CHECKS')
-                        .where(expression)
-                        .toString();
+                    .select()
+                    .from('ICHEQUES_CHECKS')
+                    .where(expression)
+                    .toString();
 
                 var query = controller.database.exec(querystr)[0];
                 if (!query || !query.values) {
@@ -383,7 +410,7 @@ var AccountOverview = function (closeable) {
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
         } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {
-            manipulationItens.push(report.button("Abrir Documentos", function () {
+            manipulationItens.push(report.button("Abrir Documentos", function() {
                 openDocuments();
             }).insertBefore(openButton));
             status.html(messages.ocurrence);
@@ -393,18 +420,18 @@ var AccountOverview = function (closeable) {
     };
 
 
-    var drawDoughnut = function (dataset) {
+    var drawDoughnut = function(dataset) {
 
         if (doughnut) {
             doughnut.clear();
             doughnut = null;
         }
 
-        _.each(labels, function (i) {
+        _.each(labels, function(i) {
             i.remove();
         });
 
-        labels = _.map(dataset, function (element) {
+        labels = _.map(dataset, function(element) {
             var color = new Color(element.color);
             return report.label(sprintf("%s: %d", element.situation, element.value)).css({
                 "background-color": color.hslString(),
@@ -415,7 +442,7 @@ var AccountOverview = function (closeable) {
         doughnut = new ChartJS(canvas.getContext("2d")).Doughnut(reduceDataset(dataset));
     };
 
-    this.draw = function () {
+    this.draw = function() {
 
         var dataset = generateDataset();
 
@@ -435,7 +462,7 @@ var AccountOverview = function (closeable) {
 
         if (timeout) {
             clearTimeout(timeout);
-            timeout = setTimeout(function () {
+            timeout = setTimeout(function() {
                 drawDoughnut(dataset);
             });
         } else {
@@ -443,7 +470,7 @@ var AccountOverview = function (closeable) {
         }
     };
 
-    this.showable = function (showAlert, dataset, title, subtitle, paragraph) {
+    this.showable = function(showAlert, dataset, title, subtitle, paragraph) {
         if ((dataset || generateDataset()).length) {
             return true;
         }
@@ -459,17 +486,17 @@ var AccountOverview = function (closeable) {
         return false;
     };
 
-    this.element = function () {
+    this.element = function() {
         return report.element();
     };
 
     var selfie = this;
-    var draw = function () {
+    var draw = function() {
         selfie.draw();
     };
 
     updateRegister.push(draw);
-    report.onClose = function () {
+    report.onClose = function() {
         var idx = updateRegister.indexOf(draw);
         if (idx !== -1)
             delete updateRegister[idx];
@@ -485,12 +512,10 @@ AccountOverview.prototype.about = {
     description: "Verifique os principais motivos dos cheques estarem ruins na sua carteira, sejam por sustação, cadastro incorreto e demais."
 };
 
-
-
-module.exports = function (c) {
+module.exports = function(c) {
     controller = c;
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "draw::accountOverview", function (obj, cb) {
+    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "draw::accountOverview", function(obj, cb) {
         async.parallel(updateRegister, cb);
     });
 

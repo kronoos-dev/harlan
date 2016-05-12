@@ -6,6 +6,8 @@ var async = require("async"),
     squel = require("squel"),
     changeCase = require('change-case');
 
+import { CMC7Parser } from "./cmc7-parser.js";
+
 var SEARCH_REGEX = /cheq?u?e?/i,
     FIDC = /fid?c?/i,
     LIMIT = 3;
@@ -90,6 +92,8 @@ module.exports = function(controller) {
         if (check.ammount) {
             checkResult.addItem("Valor", numeral(check.ammount / 100).format("$0,0.00"));
         }
+
+        checkResult.addItem("Número do Cheque", new CMC7Parser(check.cmc).number);
 
         var expiration;
         if (check.expire) {

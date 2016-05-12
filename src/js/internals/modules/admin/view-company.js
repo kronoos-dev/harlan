@@ -73,7 +73,8 @@ module.exports = (controller) => {
         if (credits) creditsInput = result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);
 
-        var inputApiKey = result.addItem("Chave de API", company.children("apiKey").text());
+        var apiKey;
+        var inputApiKey = result.addItem("Chave de API", apiKey = company.children("apiKey").text());
         result.addItem("Usuário", username);
         var acceptedContract = result.addItem("Contrato Aceito", company.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
 
@@ -217,6 +218,11 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Editar Contrato").append($("<i />").addClass("fa fa-briefcase")).click((e) => {
                 e.preventDefault();
                 controller.call("admin::changeContract", companyNode, username, section);
+            });
+
+            controller.call("tooltip", actions, "Abrir Conta").append($("<i />").addClass("fa fa-folder-open")).click((e) => {
+                e.preventDefault();
+                window.open(`${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`);
             });
 
             controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map")).click((e) => {
