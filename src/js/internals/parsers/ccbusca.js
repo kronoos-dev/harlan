@@ -99,7 +99,9 @@ module.exports = function (controller) {
         });
 
         jdocument.find("BPQL > body email, BPQL > body > RFB > email").each(function (idx, node) {
-            emails.push($(node).text());
+            let email = $(node).text().trim();
+            if (_.contains(emails, email)) return;
+            emails.push(email);
         });
 
         if (!phones.length && !emails.length) {
