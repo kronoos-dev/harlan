@@ -298,6 +298,7 @@ module.exports = function(controller) {
             .where("CMC = ?", data));
 
         controller.call("icheques::item::delete", data);
+        controller.trigger("icheques::deleted", data);
     });
 
     controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {

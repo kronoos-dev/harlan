@@ -51,6 +51,13 @@ module.exports = (controller) => {
         $(".app-content").prepend(element);
     });
 
+    controller.registerTrigger("icheques::deleted",
+        "canAntecipate", (obj, cb) => {
+            cb();
+            controller.call("icheques::canAntecipate");
+        });
+
+
     controller.registerTrigger("serverCommunication::websocket::ichequeUpdate",
         "canAntecipate", (obj, cb) => {
             cb();
