@@ -19,6 +19,19 @@ export class BANFactory {
         this.buffer = new jDataView(new ArrayBuffer(this.size));
     }
 
+    getFirstAddress(doc) {
+        debugger;
+        let addressElements = [],
+            addressValues = [],
+            cepElements = [];
+
+        return $(doc).find("BPQL > body > xml > enderecos > endereco").map((val) => {
+            console.log("\n>>>\n\n");
+            console.log(val);
+            return false;
+        });
+    }
+
     generate(modal, progressUpdate, callback) {
         this._fillBuffer();
         this.generateHeader();
