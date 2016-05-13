@@ -218,6 +218,7 @@ var Controller = function() {
     require("./modules/email-activation")(this);
     require("./modules/timeline")(this);
     require("./modules/data-company")(this);
+    require("./modules/ccbusca")(this);
 
     /**
      * From day to night and night to day

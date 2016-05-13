@@ -2,7 +2,13 @@
 
 module.exports = function(controller) {
 
-    controller.registerCall("icheques::form::bank::add", function(callback) {
+    controller.registerCall("icheques::form::bank::add", (callback) => {
+        controller.call("billingInformation::force", () => {
+            controller.call("icheques::form::bank::add::master", callback);
+        })
+    });
+
+    controller.registerCall("icheques::form::bank::add::master", function(callback) {
         var form = controller.call("form", function(formData) {
             controller.serverCommunication.call("INSERT INTO 'ICHEQUESBANK'.'BANK'",
                 controller.call("error::ajax", {
