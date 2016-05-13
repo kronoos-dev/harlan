@@ -19,19 +19,6 @@ export class BANFactory {
         this.buffer = new jDataView(new ArrayBuffer(this.size));
     }
 
-    getFirstAddress(doc) {
-        debugger;
-        let addressElements = [],
-            addressValues = [],
-            cepElements = [];
-
-        return $(doc).find("BPQL > body > xml > enderecos > endereco").map((val) => {
-            console.log("\n>>>\n\n");
-            console.log(val);
-            return false;
-        });
-    }
-
     generate(modal, progressUpdate, callback) {
         this._fillBuffer();
         this.generateHeader();
@@ -52,6 +39,11 @@ export class BANFactory {
                 this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
+                        // telefone. de 128 até 139. 12.
+                        this.buffer.setString(this._goToPosition(check.row, 127), this.getFirstPhone(ret).trim().substring(0, 12));
+                        // email. de 180 até 219. 40.
+                        this.buffer.setString(this._goToPosition(check.row, 179), this.getFirstEmail(ret).trim().substring(0, 40));
+                        // partes do endereço
                         $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
                             var val = $(el).text();
                             switch (i) {
@@ -113,6 +105,18 @@ export class BANFactory {
             complete();
         });
 
+    }
+
+    getFirstEmail(doc) {
+        let $emailNode = $(doc).find("BPQL > body > xml > emails > email").first(),
+            email = $emailNode.find("email").text();
+        return email;
+    }
+
+    getFirstPhone(doc) {
+        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone").first(),
+            phone = $phoneNode.find("ddd").text() + $phoneNode.find("numero").text();
+        return phone;
     }
 
     /**
