@@ -30,7 +30,7 @@ module.exports = (controller) =>  {
         controller.call("authentication::need", () => {
             var modal = controller.call("modal"),
                 missing = companyCredits - needed,
-                form, actions;
+                form, actions; 
 
             if (missing < 0) {
                 modal.title("Você precisa de créditos!");
