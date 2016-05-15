@@ -85,12 +85,12 @@ module.exports = (controller) =>  {
         callback();
     });
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "credits::update::serverCommunication::websocket::authentication", (data, callback) =>  {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "credits", (data, callback) =>  {
         changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });
 
-    controller.registerTrigger("serverCommunication::websocket::credits", "credits::update::serverCommunication::websocket::credits", (data, callback) =>  {
+    controller.registerTrigger("serverCommunication::websocket::credits", "credits", (data, callback) =>  {
         changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });

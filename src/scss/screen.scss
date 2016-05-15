@@ -236,6 +236,10 @@ label {
         display: inline-block;
         @include border-bottom-left-radius(3px);
         padding: 0 15px;
+        &.user {
+            background: rgb(240, 248, 255);
+            line-height: 34px;
+        }
         &.credits {
             cursor: pointer;
             letter-spacing: 0.19em;
