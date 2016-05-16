@@ -26,9 +26,13 @@ module.exports = function(controller) {
 
     $("#action-show-modules").parent().parent().hide();
 
+    $(".logo").click(() => {
+        $("section.group-type,footer.load-more").remove();
+    }).css("cursor", "pointer");
+
     /* única forma segura de sair do sistema e voltar a home */
     controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function() {
-        $(".logo, #action-logout").off().click(function(e) {
+        $("#action-logout").off().click(function(e) {
             e.preventDefault();
             window.location = "https://www.icheques.com.br/";
         });
