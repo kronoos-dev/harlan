@@ -413,6 +413,9 @@ module.exports = (controller) => {
                         obj.taxes = data[21];
                         break;
                     case 'T':
+                        if (data[1] == "") {
+                            break;
+                        }
                         for (let idx in args.cmcs) {
                             let cmc = args.cmcs[idx];
                             if (!cmc) {
