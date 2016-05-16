@@ -21,7 +21,7 @@ module.exports = (controller) => {
             })));
     });
 
-    controller.registerCall("billingInformation::force", (callback) => {
+    controller.registerCall("billingInformation::force", (callback, next) => {
         controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
             controller.call("error::ajax", controller.call("loader::ajax", {
                 success: (response) => {
@@ -29,7 +29,7 @@ module.exports = (controller) => {
                         if (callback) callback();
                         else
                             toastr.success("Os dados inseridos foram alterados com sucesso.", "Seus dados foram alterados com sucesso.");
-                    }, response);
+                    }, response, next);
                 }
             })));
     });
@@ -42,7 +42,7 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("billingInformation::changeAddress", (callback, response) => {
+    controller.registerCall("billingInformation::changeAddress", (callback, response, next) => {
         var form = controller.call("form", (opts) => {
             controller.serverCommunication.call("UPDATE 'HARLAN'.'billingInformation'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
@@ -62,6 +62,7 @@ module.exports = (controller) => {
             "gamification": "magicWand",
             "paragraph": "É muito importante que os dados estejam preenchidos de maneira correta para que seja a nota seja emitida corretamente.",
             "screens": [{
+                "nextButton" : next || undefined,
                 "magicLabel": true,
                 "fields": [
                     [{
