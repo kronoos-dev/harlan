@@ -2,6 +2,8 @@ import jDataView from 'jdataview';
 import { sprintf } from 'sprintf';
 import { CMC7Parser } from './cmc7-parser';
 import async from 'async';
+import { CPF } from "cpf_cnpj";
+import { CNPJ } from "cpf_cnpj";
 
 const NON_NUMERIC = /[\D]/g,
       NON_WORD = /[\PL]/g,
@@ -34,6 +36,22 @@ export class BANFactory {
                             $("BPQL > body > nome", ret).text().substring(0, 40));
                     },
                     complete: () => { callback(); }
+                });
+            }, (callback) => {
+                let doc = CPF.strip(check.cpf) || CNPJ.strip(check.cnpj),
+                    soma = 0;
+                this.call(`SELECT FROM 'CCF'.'CONSULTA' WHERE 'DOC' = '${doc}'`, {
+                    success: (ret) => {
+                        $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
+                            let $el = $(el),
+                                tag = $el.prop("tagName");
+                            if (!tag.includes("aline")) return;
+                            soma += parseInt($el.text(), 10);
+                        });
+                        // Contato. de 220 até 249. 30.
+                        this.buffer.setString(this._goToPosition(check.row, 219), soma.toString().substring(0, 30));
+                    },
+                    complete: () => callback()
                 });
             }, (callback) => {
                 this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
