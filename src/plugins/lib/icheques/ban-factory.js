@@ -49,7 +49,9 @@ export class BANFactory {
                             soma += parseInt($el.text(), 10);
                         });
                         // Contato. de 220 até 249. 30.
-                        this.buffer.setString(this._goToPosition(check.row, 219), soma.toString().substring(0, 30));
+                        if (soma > 0) {
+                            this.buffer.setString(this._goToPosition(check.row, 219), `CCF(${soma.toString().substring(0, 30)})`);
+                        }
                     },
                     complete: () => callback()
                 });
