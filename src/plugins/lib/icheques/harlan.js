@@ -140,12 +140,6 @@ module.exports = function(controller) {
                     display = check.display,
                     ocurrence = check.ocurrence;
 
-                if (check.queryStatus === 2) {
-                    situation = "Uh-oh! Esse talão parece estar bloqueado.";
-                    display = "Uh-oh! Esse talão parece estar bloqueado.  Recomendamos entrar em contato com o emissor (através de nossas informações ou do seu cadastro) e pedir o desbloqueio ou troca dos cheques.";
-                    ocurrence = "Talão bloqueado (" + check.ocurrence + ")";
-                }
-
                 if (check.queryStatus !== 1) {
                     elementClass = "error";
                     section[0].addClass("warning");
