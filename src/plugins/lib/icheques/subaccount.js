@@ -2,7 +2,7 @@
 
 module.exports = function (controller) {
 
-    controller.endpoint.subaccountCreate = "INSERT INTO 'DatabaseIChequesProfile'.'SUBACCOUNT'";
+    controller.endpoint.subaccountCreate = "INSERT INTO 'IChequesProfile'.'SUBACCOUNT'";
 
     controller.call("subaccount::formDescription", {
         "title": "Criação de Subconta",

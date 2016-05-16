@@ -46,6 +46,13 @@ module.exports = (controller) => {
             _.each(configuration.screens, (v) => {
                 _.each(_.flatten(v.fields), (field) => {
                     if (camelCase(field.name) === name) {
+                        if (field.type == "checkbox") {
+                            field.checked = value;
+                            if (field.element) {
+                                field.element.attr("checked", value);
+                            }
+                            return;
+                        }
                         field.value = value;
                         if (field.element) {
                             field.element.val(value);

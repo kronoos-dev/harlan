@@ -25,7 +25,8 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true) {
-        var cmc7Data = new CMC7Parser(check.cmc),
+
+        var xhr, cmc7Data = new CMC7Parser(check.cmc),
             form = controller.call("form", (parameters) => {
                 parameters.cmc = check.cmc;
                 parameters.ammount = Math.floor(parameters.ammount * 100);
@@ -34,6 +35,7 @@ module.exports = function(controller) {
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: parameters,
                             error: function() {
+                                if (xhr) xhr.abort();
                                 if (callback) callback("ajax failed", check);
                             },
                             success: () => {
@@ -48,6 +50,7 @@ module.exports = function(controller) {
                     controller.call("icheques::item::edit", check, callback, optionalAmmount);
                 });
             }, () => {
+                if (xhr) xhr.abort();
                 if (callback) callback("can't edit", check);
             });
 
@@ -109,7 +112,7 @@ module.exports = function(controller) {
             }]
         });
 
-        controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
+        xhr = controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
             data: {
                 documento: check.cpf || check.cnpj
             },
