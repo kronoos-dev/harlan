@@ -293,7 +293,7 @@ module.exports = function(controller) {
         controller.database.exec(squel
             .delete()
             .from("ICHEQUES_CHECKS")
-            .where("CMC = ?", data));
+            .where("CMC = ?", data).toString());
 
         controller.call("icheques::item::delete", data);
         controller.trigger("icheques::deleted", data);
