@@ -30,7 +30,7 @@ module.exports = (controller) =>  {
         controller.call("authentication::need", () => {
             var modal = controller.call("modal"),
                 missing = companyCredits - needed,
-                form, actions;
+                form, actions; 
 
             if (missing < 0) {
                 modal.title("Você precisa de créditos!");
@@ -85,12 +85,12 @@ module.exports = (controller) =>  {
         callback();
     });
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "credits::update::serverCommunication::websocket::authentication", (data, callback) =>  {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "credits", (data, callback) =>  {
         changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });
 
-    controller.registerTrigger("serverCommunication::websocket::credits", "credits::update::serverCommunication::websocket::credits", (data, callback) =>  {
+    controller.registerTrigger("serverCommunication::websocket::credits", "credits", (data, callback) =>  {
         changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });
