@@ -77,11 +77,9 @@ module.exports = function(controller) {
 
                     q.drain = () => {
                         controller.call("icheques::antecipate", _.filter(checks, (obj) => {
-                            return obj.ammount;
+                            return obj.ammount > 0;
                         }));
                     };
-
-                    controller.call("icheques::show", noAmmountChecks);
 
                 });
                 return;
@@ -117,10 +115,11 @@ module.exports = function(controller) {
             text = undefined;
         }
 
+        var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
+            return memo + num;
+        });
         if (checks.length) {
-            checksSum.text(numeral(_.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
-                return memo + num;
-            }) / 100.0).format("$0,0.00"));
+            checksSum.text(numeral(totalAmmount / 100.0).format("$0,0.00"));
         } else {
             checksSum.text("Sem Saldo");
         }
@@ -178,10 +177,16 @@ module.exports = function(controller) {
 
         form.element().submit((e) => {
             e.preventDefault();
-            if (checks.length)
+
+            var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
+                return memo + num;
+            })
+
+            if (checks.length || totalAmmount <= 0) {
                 controller.call("icheques::antecipate::show", data, checks);
-            else
+            } else {
                 controller.call("icheques::antecipate::checksIsEmpty");
+            }
             modal.close();
         });
         form.addSubmit("filter", "Enviar Cheques");
@@ -197,12 +202,12 @@ module.exports = function(controller) {
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
                 skip += 5;
-                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
+                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
                 skip -= 5;
-                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text);
+                updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide()
         };
 
