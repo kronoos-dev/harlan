@@ -1,3 +1,7 @@
+import {
+    paramCase
+} from 'change-case';
+
 var formDescription = {
     "title": "Cadastro Completo",
     "subtitle": "Realize o cadastro completo de sua empresa.",
@@ -129,7 +133,7 @@ var formDescription = {
                 "reverse": true
             }
         }, {
-            "name": "own-property",
+            "name": "bulk",
             "type": "checkbox",
             "placeholder": "Concentrado",
             "labelText": "Concentrado",
@@ -159,24 +163,50 @@ module.exports = function(controller) {
      * Este é o formulário para antecipar cheques
      */
     controller.registerCall("icheques::form::company", function() {
-        controller.call("billingInformation::force", () => {
-            var form = controller.call("form", function(formData) {
-                controller.serverCommunication.call("INSERT INTO 'ICHEQUESPROFILE'.'PROFILE'", controller.call("error::ajax", {
-                    method: "post",
-                    contentType: "application/json",
-                    data: JSON.stringify(formData),
-                    success: function() {
-                        controller.call("alert", {
-                            icon: "pass",
-                            title: "Parabéns, cadastro atualizado!",
-                            subtitle: "Seu cadastro foi atualizado com sucesso.",
-                            paragraph: "Os dados cadastrais foram atualizados com sucesso.",
-                            confirmText: "Continuar"
-                        });
-                    }
-                }));
-            });
-            form.configure(formDescription);
+        var form = controller.call("form", function(formData) {
+            controller.serverCommunication.call("INSERT INTO 'ICHEQUESPROFILE'.'PROFILE'", controller.call("error::ajax", {
+                method: "post",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function() {
+                    controller.call("alert", {
+                        icon: "pass",
+                        title: "Parabéns, cadastro atualizado!",
+                        subtitle: "Seu cadastro foi atualizado com sucesso.",
+                        paragraph: "Os dados cadastrais foram atualizados com sucesso.",
+                        confirmText: "Continuar"
+                    });
+                }
+            }));
         });
+
+        var lastData = {};
+        controller.call("billingInformation::force", () => {
+            controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
+                dataType: "json",
+                success: (ret) => {
+                    lastData = ret;
+                },
+                complete: () => {
+                    form.configure(formDescription);
+                    for (let idx in lastData) {
+                        switch (idx) {
+                            case 'preBilling':
+                            case 'totalPayroll':
+                            case 'locationValue':
+                            case 'monthCheckAmmount':
+                            case 'avgCheckAmmount':
+                            case 'revenue':
+                                lastData[idx] *= 100;
+                                break;
+                            case 'checkLiquidity':
+                                lastData[idx] *= 10000;
+                                break;
+                        }
+                        form.setValue(paramCase(idx), lastData[idx]);
+                    }
+                }
+            });
+        }, "Próximo");
     });
 };
