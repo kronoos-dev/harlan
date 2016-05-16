@@ -11,7 +11,7 @@ var SAFARI_HACK_REFRESH_RATE = 500;
 /**
  * Inicializa um modal
  */
-module.exports = function (controller) {
+module.exports = (controller) =>  {
 
     var Modal = function () {
         var modal = $("<div />").addClass("modal-content");
@@ -22,7 +22,7 @@ module.exports = function (controller) {
         $("body").append(modalContainer);
 
 
-        var webkitIOSandSafariHack = function () {
+        var webkitIOSandSafariHack = () =>  {
             var modalHeight = modal.outerHeight();
             modal.parent().css("height", window.innerHeight > modalHeight ?
                     modal.outerHeight() : window.innerHeight);
@@ -31,30 +31,30 @@ module.exports = function (controller) {
         $(window).resize(webkitIOSandSafariHack);
         var interval = setInterval(webkitIOSandSafariHack, SAFARI_HACK_REFRESH_RATE);
 
-        modal.on("remove", function () {
+        modal.on("remove", () =>  {
             clearInterval(interval);
         });
 
-        this.gamification = function (type) {
+        this.gamification = (type) =>  {
             var image = $("<div />")
                     .addClass("gamification").addClass(gamificationIcons[type]);
             modal.append(image);
             return image;
         };
 
-        this.title = function (content) {
+        this.title = (content) =>  {
             var h2 = $("<h2 />").text(content);
             modal.append(h2);
             return h2;
         };
 
-        this.subtitle = function (content) {
+        this.subtitle = (content) =>  {
             var h3 = $("<h3 />").text(content);
             modal.append(h3);
             return h3;
         };
 
-        this.paragraph = function (content) {
+        this.paragraph = (content) =>  {
             var p = $("<p />").html(content);
             modal.append(p);
             return p;
@@ -62,15 +62,15 @@ module.exports = function (controller) {
 
         this.addParagraph = this.paragraph;
 
-        this.addProgress = function (initProgress) {
+        this.addProgress = (initProgress) =>  {
             var progress = controller.call("progress::init", initProgress);
             modal.append(progress.element);
-            return function (perc) {
+            return (perc) =>  {
                 controller.call("progress::update", progress, perc);
             };
         };
 
-        this.imageParagraph = function (image, content, imageTitle, imageAlternative) {
+        this.imageParagraph = (image, content, imageTitle, imageAlternative) =>  {
             var wizard = $("<div />").addClass("wizard")
                     .append($("<div />").addClass("item")
                             .append($("<div />").addClass("icon").append($("<img />").attr({
@@ -83,25 +83,30 @@ module.exports = function (controller) {
             return wizard;
         };
 
-        this.createForm = function () {
+        this.createForm = () =>  {
             return new Form(this, controller);
         };
 
-        this.element = function () {
+        this.element = () =>  {
             return modal;
         };
 
-        this.modal = function () {
+        this.modal = () =>  {
             return modalContainer;
         };
 
-        this.close = function () {
+        this.onClose = null;
+
+        this.close = () => {
+            if (this.onClose) {
+                this.onClose();
+            }
             modalContainer.remove();
         };
 
         var close = this.close;
 
-        this.createActions = function () {
+        this.createActions = () =>  {
             var actions = $("<ul />").addClass("actions");
             modal.append(actions);
             var add = (name) => {
@@ -112,14 +117,14 @@ module.exports = function (controller) {
             };
             return {
                 add: add,
-                cancel: function (onExit, text) {
+                cancel: (onExit, text) =>  {
                     add(text || controller.i18n.system.cancel()).click((e) => {
                         e.preventDefault();
                         if (onExit) onExit();
                         close();
                     });
                 },
-                observation: function (name) {
+                observation: (name) =>  {
                     var item = $("<li> /").text(name);
                     actions.append(item);
                     return item;
@@ -131,7 +136,7 @@ module.exports = function (controller) {
         return this;
     };
 
-    controller.registerCall("modal", controller.modal = function () {
+    controller.registerCall("modal", controller.modal = () =>  {
         return new Modal();
     });
 
