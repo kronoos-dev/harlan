@@ -26,7 +26,8 @@ var messages = {
     overall: require('../../../markdown/icheques/default.report.html.js'),
     noOcurrence: require('../../../markdown/icheques/no-ocurrence.report.html.js'),
     ocurrence: require('../../../markdown/icheques/ocurrence.report.html.js'),
-    processing: require('../../../markdown/icheques/processing.report.html.js')
+    processing: require('../../../markdown/icheques/processing.report.html.js'),
+    canceled: require('../../../markdown/icheques/canceled.report.html.js'),
 };
 
 var parseDate = (val, format) =>  {
@@ -411,9 +412,7 @@ var AccountOverview = function (closeable)  {
             e.remove(); /* remove elements */
         });
 
-        var datasetQueryStatus = _.map(dataset, (obj) =>  {
-            return obj.queryStatus;
-        });
+        var datasetQueryStatus = _.pluck(dataset, "queryStatus");
 
         if (!_.without(datasetQueryStatus, 1).length) {
             status.html(messages.noOcurrence);
@@ -438,7 +437,12 @@ var AccountOverview = function (closeable)  {
             manipulationItens.push(report.button("Abrir Documentos", () =>  {
                 openDocuments();
             }).insertBefore(openButton));
-            status.html(messages.ocurrence);
+            let situations = _.pluck(dataset, "situation");
+            if (situations.length === 1 && /(sustado|revogado)/i.test(situations[0])) {
+                status.html(messages.canceled);
+            } else {
+                status.html(messages.ocurrence);
+            }
         } else {
             status.html(messages.overall);
         }
