@@ -21,6 +21,80 @@ export class BANFactory {
         this.buffer = new jDataView(new ArrayBuffer(this.size));
     }
 
+    _fillBuffer() {
+        this.buffer.setString(0, new Array(this.size).join(' '));
+        for (let i = 0; i < this.size; i += ROW_SIZE) {
+            this.buffer.setString(i + ROW_SIZE - CRLF.length, CRLF);
+        }
+    }
+
+    _fileLength() {
+        // ROW_SIZE * (1HEADER + 1FOOTER + NCHECKS)
+        return ROW_SIZE * (2 + this.checks.length * 2);
+    }
+
+    _getFirstCellPhone(doc) {
+        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone"),
+            ret = "";
+        $phoneNode.each((i, el) => {
+            let ddd = $(el).find("ddd").text(),
+                phoneNumber = $(el).find("numero").text();
+            if (this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
+        });
+        return ret;
+    }
+
+    _getFirstEmail(doc) {
+        let $emailNode = $(doc).find("BPQL > body > xml > emails > email").first(),
+            email = $emailNode.find("email").text();
+        return email;
+    }
+
+    _getFirstPhone(doc) {
+        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone"),
+            ret = "";
+        $phoneNode.each((i, el) => {
+            let ddd = $(el).find("ddd").text(),
+                phoneNumber = $(el).find("numero").text();
+            if (!this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
+        });
+        return ret;
+    }
+
+    /**
+     * Retorna o logradouro abreviado
+     * @param  {string} logradouro
+     * @return {string}
+     */
+    _getLogradouroAbrev(logradouro) {
+        return logradouro;
+    }
+
+    _goToPosition(row, col) {
+        if (row < 0) {
+            // last row is (BUF_SIZE - ROW_SIZE) * MATH.ABS(-1)
+            let start = (this.size - ROW_SIZE) * Math.abs(row);
+            return start + col;
+        }
+        return (ROW_SIZE * row) + col;
+    }
+
+    _isCellPhone(tel) {
+        if (parseInt(tel.charAt(0), 10) >= 6) {
+            return true;
+        }
+        return false;
+    }
+
+    _totalValue() {
+        let sum = 0;
+        for (let check of this.checks) {
+            let value = check.ammount === null ? 0 : check.ammount;
+            sum += value;
+        }
+        return sum;
+    }
+
     generate(modal, progressUpdate, callback) {
         this._fillBuffer();
         this.generateHeader();
@@ -60,9 +134,11 @@ export class BANFactory {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
                         // telefone. de 128 até 139. 12.
-                        this.buffer.setString(this._goToPosition(check.row, 127), this.getFirstPhone(ret).trim().substring(0, 12));
+                        this.buffer.setString(this._goToPosition(check.row, 127), this._getFirstPhone(ret).trim().substring(0, 12));
+                        // celular. de 486 até 497. 12.
+                        this.buffer.setString(this._goToPosition(check.row, 485), this._getFirstCellPhone(ret).trim().substring(0, 12));
                         // email. de 180 até 219. 40.
-                        this.buffer.setString(this._goToPosition(check.row, 179), this.getFirstEmail(ret).trim().substring(0, 40));
+                        this.buffer.setString(this._goToPosition(check.row, 179), this._getFirstEmail(ret).trim().substring(0, 40));
                         // partes do endereço
                         $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
                             var val = $(el).text();
@@ -125,57 +201,6 @@ export class BANFactory {
             complete();
         });
 
-    }
-
-    getFirstEmail(doc) {
-        let $emailNode = $(doc).find("BPQL > body > xml > emails > email").first(),
-            email = $emailNode.find("email").text();
-        return email;
-    }
-
-    getFirstPhone(doc) {
-        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone").first(),
-            phone = $phoneNode.find("ddd").text() + $phoneNode.find("numero").text();
-        return phone;
-    }
-
-    /**
-     * Retorna o logradouro abreviado
-     * @param  {string} logradouro
-     * @return {string}
-     */
-    _getLogradouroAbrev(logradouro) {
-        return logradouro;
-    }
-
-    _fillBuffer() {
-        this.buffer.setString(0, new Array(this.size).join(' '));
-        for (let i = 0; i < this.size; i += ROW_SIZE) {
-            this.buffer.setString(i + ROW_SIZE - CRLF.length, CRLF);
-        }
-    }
-
-    _fileLength() {
-        // ROW_SIZE * (1HEADER + 1FOOTER + NCHECKS)
-        return ROW_SIZE * (2 + this.checks.length * 2);
-    }
-
-    _goToPosition(row, col) {
-        if (row < 0) {
-            // last row is (BUF_SIZE - ROW_SIZE) * MATH.ABS(-1)
-            let start = (this.size - ROW_SIZE) * Math.abs(row);
-            return start + col;
-        }
-        return (ROW_SIZE * row) + col;
-    }
-
-    _totalValue() {
-        let sum = 0;
-        for (let check of this.checks) {
-            let value = check.ammount === null ? 0 : check.ammount;
-            sum += value;
-        }
-        return sum;
     }
 
     generateHeader() {
