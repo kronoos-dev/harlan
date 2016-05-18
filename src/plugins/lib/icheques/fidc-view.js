@@ -1,4 +1,6 @@
 import { paramCase } from 'change-case';
+import { CPF } from 'cpf_cnpj';
+import { CNPJ } from 'cpf_cnpj';
 
 module.exports = function(controller) {
     controller.registerCall("icheques::fidc::company::view", function(lastData) {
@@ -262,6 +264,9 @@ module.exports = function(controller) {
                     break;
                 case 'checkLiquidity':
                     lastData[idx] *= 10000;
+                    break;
+                case 'document':
+                    lastData[idx] = CNPJ.isValid(lastData[idx]) ? CNPJ.format(lastData[idx]) : CPF.format(lastData[idx]);
                     break;
             }
             form.setValue(paramCase(idx), lastData[idx]);
