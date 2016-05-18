@@ -77,7 +77,7 @@ var Timeline = function() {
         obj.item.append(obj.header);
         obj.item.append(obj.details);
 
-        timeline.append(obj.item.data("object", obj));
+        timeline.prepend(obj.item.data("object", obj));
 
         return obj.item;
     };

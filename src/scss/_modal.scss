@@ -107,7 +107,7 @@
             & > * {
                 display: table-cell;
                 vertical-align: middle;
-                word-break: break-word;
+                word-break: normal;
                 overflow: hidden;
             }
         }

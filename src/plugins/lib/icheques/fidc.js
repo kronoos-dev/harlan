@@ -2,12 +2,8 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import {
-    CMC7Parser
-} from './cmc7-parser';
-import {
-    titleCase
-} from 'change-case';
+import { CMC7Parser } from './cmc7-parser';
+import { titleCase } from 'change-case';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -99,6 +95,82 @@ module.exports = (controller) => {
             report.title("Seu cadastro de antecipador está perfeito.");
             report.subtitle("Essa conta está habilitada para receber carteiras de cheques.");
             report.paragraph(dict.bio);
+
+            var timeline = report.timeline(controller);
+
+            var showing = {};
+
+            var show = (value) => {
+                if (showing[value.company.username]) {
+                    showing[value.company.username].remove();
+                }
+
+                if (value.approved === false) {
+                    return;
+                }
+
+                var emails = _.filter(value.company.email, (element) => {
+                    return element[1] == "financeiro";
+                });
+
+                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`,
+                    !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
+                        ["fa-user", "Informações", () => {
+                            controller.call("icheques::fidc::company::view", $.extend({
+                                name: value.company.nome || value.company.responsavel || value.company.username,
+                                document: value.company.cnpj || value.company.cpf,
+                                endereco: value.company.endereco[0],
+                                zipcode:value.company.endereco[5],
+                                numero: value.company.endereco[1],
+                                complemento: value.company.endereco[2],
+                                estado: value.company.endereco[6],
+                                cidade: value.company.endereco[4],
+                                email: emails.length ? emails[0][0] : 0,
+                            }, value.profile));
+                        }],
+                        [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
+                            controller.confirm({}, () => {
+                                controller.call("icheques::fidc::allowedCompany::edit", value, t);
+                            });
+                        }],
+                        ["fa-times", "Recusar", () => {
+                            controller.confirm({}, () => {
+                                controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                                    dataType: "json",
+                                    data: {
+                                        id: value._id,
+                                        approved: false,
+                                        interest: 0,
+                                        limit: 0
+                                    },
+                                    success: () => {
+                                        t.remove();
+                                    }
+                                });
+                            });
+                        }],
+                    ]);
+                showing[value.company.username] = t;
+            };
+
+            controller.registerTrigger("serverCommunication::websocket::ichequesFIDCPermissionUpdate", "fidc", (data, cb) => {
+                cb();
+                show(data);
+            });
+            controller.registerTrigger("serverCommunication::websocket::ichequesFIDCPermission", "fidc", (data, cb) => {
+                cb();
+                show(data);
+            });
+
+            controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                dataType: "json",
+                success: (ret) => {
+                    _.each(ret, (value) => {
+                        show(value);
+                    });
+                }
+            });
+
             report.gamification("pass").css({
                 "background": `url(${dict.logo}) no-repeat center`
             });
@@ -545,6 +617,61 @@ module.exports = (controller) => {
         report.gamification("moneyBag");
 
         $(".app-content").append(report.element());
+    });
+
+    controller.registerCall("icheques::fidc::allowedCompany::edit", (value, t) => {
+        var form = controller.call("form", function(formData) {
+            formData.limit = Math.ceil(formData.limit * 100);
+            controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                dataType: "json",
+                data: $.extend({
+                    id: value._id,
+                    approved: true
+                }, formData),
+                success: () => {
+                    t.remove();
+                }
+            });
+        });
+
+        form.configure({
+            "title": "Cadastro Completo",
+            "subtitle": "Realize o cadastro completo de sua empresa.",
+            "paragraph": "O cadastro completo permite a realização de operações de crédito.",
+            "gamification": "star",
+            "screens": [{
+                "magicLabel": true,
+                "fields": [{
+                    "value": value.limit,
+                    "name": "limit",
+                    "type": "text",
+                    "placeholder": "Limite (R$)",
+                    "labelText": "Limite (R$)",
+                    "mask": "000.000.000.000.000,00",
+                    "maskOptions": {
+                        "reverse": true
+                    },
+                    "numeral": true,
+                    validate: function(item) {
+                        return numeral().unformat(item.element.val()) > 0;
+                    }
+                }, {
+                    "value": value.interest * 100,
+                    "name": "interest",
+                    "type": "text",
+                    "placeholder": "Taxa (%)",
+                    "labelText": "Taxa (%)",
+                    "mask": "##0,00%",
+                    "maskOptions": {
+                        "reverse": true
+                    },
+                    "numeral": true,
+                    validate: function(item) {
+                        return numeral().unformat(item.element.val()) > 0;
+                    }
+                }]
+            }]
+        });
     });
 
 };

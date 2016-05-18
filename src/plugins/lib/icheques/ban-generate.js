@@ -1,6 +1,4 @@
-import {
-    BANFactory
-} from "./ban-factory.js";
+import { BANFactory } from "./ban-factory.js";
 
 const SPACES = /\s+/,
       DEFAULT_CLIENT_ID = '00000';

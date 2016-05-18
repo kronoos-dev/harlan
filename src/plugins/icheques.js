@@ -27,7 +27,6 @@
     require("./lib/icheques/search")(controller);
     require("./lib/icheques/buy-reader")(controller);
     require("./lib/icheques/full-profile")(controller);
-    require("./lib/icheques/bank-profile")(controller);
     require("./lib/icheques/antecipate")(controller);
     require("./lib/icheques/contact")(controller);
     require("./lib/icheques/logout")(controller);
@@ -38,6 +37,7 @@
     require("./lib/icheques/ban-generate")(controller);
     require("./lib/icheques/can-antecipate")(controller);
     require("./lib/icheques/fidc")(controller);
+    require("./lib/icheques/fidc-view")(controller);
     require("./lib/icheques/ban-url-download")(controller);
 
     /*

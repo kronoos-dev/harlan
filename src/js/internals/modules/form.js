@@ -79,7 +79,7 @@ module.exports = (controller) => {
             } else {
                 item.element = form.addInput(item.name, item.type, item.placeholder, item, item.labelText, item.value);
 
-                if (screen.magicLabel || item.magicLabel) {
+                if (screen.magicLabel || item.magicLabel || configuration.magicLabel) {
                     item.element.magicLabel(item.label);
                 }
 
@@ -112,7 +112,7 @@ module.exports = (controller) => {
 
             });
 
-            if (item.disabled) {
+            if (item.disabled || screen.disabled || configuration.disabled) {
                 item.element.attr("disabled", "disabled").addClass("uinput-disabled");
             }
 
@@ -269,7 +269,7 @@ module.exports = (controller) => {
                     return;
                 }
 
-                if (!item.optional) {
+                if (!item.optional && !configuration.readOnly) {
                     if (item.element.attr("type") === "checkbox") {
                         if (!item.element.is(":checked")) {
                             $("label[for='" + item.element.attr("id") + "']").addClass("error");

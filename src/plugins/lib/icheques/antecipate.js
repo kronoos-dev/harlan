@@ -215,7 +215,11 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks) {
-        var banks = $("BPQL > body > fidc", data);
+        var banks = $("BPQL > body > fidc", data).filter((i, element) => {
+            var approved = $(element).children("approvedCustomer").text() == "true";
+            var ask = $(element).children("ask").text() == "true";
+            return !ask || approved;
+        });
 
         if (!banks.length) {
             controller.call("alert", {
@@ -234,18 +238,27 @@ module.exports = function(controller) {
             list = form.createList();
 
         banks.each(function(i, element) {
+            var approved = $(element).children("approvedCustomer").text() === "true";
+
             list.add("fa-share", [
                 $("company > nome", element).text() || $("company > responsavel", element).text() || $("company > username", element).text(),
+                !approved ?
+                "Solicitar Aprovação" :
+                `${numeral(parseFloat($(element).children("interest").text().replace(',', '.'))).format('0.00%')} / ${numeral(parseInt($(element).children("limit").text()) / 100).format('$0,0.00')}`,
                 `${$("company > endereco > node:eq(4)", element).text()} / ${$("company > endereco > node:eq(6)", element).text()}`,
                 $(element).children("bio").text(),
             ]).click(function(e) {
-                controller.call("icheques::antecipate::fidc", data, element, checks);
+                if (!approved) {
+                    controller.call("icheques::antecipate::allow", data, element);
+                } else {
+                    controller.call("icheques::antecipate::fidc", data, element, checks);
+                }
                 modal.close();
             });
         });
 
         list.element().find("li:first div:last").css({
-            width: "250px"
+            width: "185px"
         });
 
         modal.createActions().add("Sair").click(function(e) {
@@ -289,6 +302,41 @@ module.exports = function(controller) {
         paragraph.append(emails).append(phones).append(addressNode);
         return [emails, phones, addressNode];
     };
+
+    controller.registerCall("icheques::antecipate::allow", (data, element) => {
+        var modal = controller.modal();
+        modal.gamification("sword").css({
+            "background": `url(${$(element).children("logo").text()}) no-repeat center`
+        });
+        modal.title($("company > nome", element).text() || $("company > responsavel", element).text());
+        modal.subtitle($("company > cnpj", element).text() || $("company > cpf", element).text());
+        var paragraph = modal.paragraph($(element).children("bio").text());
+        modal.paragraph("A liberação da antecipadora pode ocorrer em até 7 dias úteis.");
+        companyData(paragraph, element);
+        var form = modal.createForm();
+        form.element().submit((e) => {
+            e.preventDefault();
+            controller.server.call("INSERT INTO 'ICHEQUES'.'FIDC'",
+                controller.call("error::ajax", {
+                    data: {
+                        username: $("company > username", element).text()
+                    },
+                    success: () => {
+                        controller.alert({
+                            icon: "pass",
+                            title: "Seu cadastro foi enviado a antecipadora!",
+                            subtitle: "O cadastro deve ser aprovado em até 7 dias.",
+                            paragraph: "Você receberá um e-mail em sua caixa de entrada indicando a decisão do fundo."
+                        })
+                    },
+                    complete: () => {
+                        modal.close();
+                    }
+                }));
+        });
+        form.addSubmit("send", "Solicitar Aprovação");
+        modal.createActions().cancel();
+    });
 
     controller.registerCall("icheques::antecipate::fidc", (data, element, checks) => {
         var modal = controller.modal();

@@ -19,7 +19,7 @@ module.exports = function(controller) {
     require("../../styles/icheques.js");
     $("body").append(siteTemplate);
     $("#input-q").attr("placeholder", "Pesquise por um CPF/CNPJ ou número de cheque cadastrado.");
-
+    $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(11) 3661-4657 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
     $("body > .icheques-site .call-to-action").css({
         "height": window.innerHeight
     });

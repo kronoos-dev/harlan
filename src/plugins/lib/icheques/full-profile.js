@@ -1,6 +1,4 @@
-import {
-    paramCase
-} from 'change-case';
+import { paramCase } from 'change-case';
 
 var formDescription = {
     "title": "Cadastro Completo",

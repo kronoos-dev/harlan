@@ -236,6 +236,16 @@ label {
         display: inline-block;
         @include border-bottom-left-radius(3px);
         padding: 0 15px;
+        &.support-phone {
+            i {
+                vertical-align: middle;
+                margin-right: 5px;                
+            }
+            background: rgb(215, 243, 214);
+            line-height: 34px;
+            letter-spacing: .04em;
+            font-weight: 200;
+        }
         &.user {
             background: rgb(225, 234, 255);
             line-height: 34px;
