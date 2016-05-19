@@ -4,7 +4,9 @@ const EMPTY_REGEX = /^\s*$/;
 
 import assert from "assert";
 import _ from "underscore";
-import { camelCase } from 'change-case';
+import {
+    camelCase
+} from 'change-case';
 import async from "async";
 
 module.exports = (controller) => {
@@ -13,6 +15,7 @@ module.exports = (controller) => {
 
         var currentScreen = 0;
         var configuration = null;
+        var modal = null;
 
         var next = () => {
             assert(configuration !== null, "configuration required");
@@ -40,6 +43,7 @@ module.exports = (controller) => {
         };
 
         this.setValue = (name, value) => {
+            debugger;
             if (!value || EMPTY_REGEX.test(value)) {
                 return;
             }
@@ -61,7 +65,7 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
-                            field.element.val(field.mask && field.element.masked ? field.element.masked(masked) : value);
+                            field.element.val(field.mask && field.element.masked ? field.element.masked(value) : value);
                         }
                     }
                 });
@@ -178,7 +182,7 @@ module.exports = (controller) => {
             if (typeof setScreen !== "undefined") {
                 currentScreen = setScreen;
             }
-            var modal = controller.call("modal");
+            modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
 
             var gamification = screen.gamification || configuration.gamification;
@@ -247,16 +251,17 @@ module.exports = (controller) => {
                 this.close();
             });
 
-            this.actions = () => {
-                return actions;
-            };
+            this.actions = actions;
 
             return this;
         };
 
         this.close = (defaultAction = true) => {
             if (onCancel && defaultAction) onCancel();
-            modal.close();
+            if (this.onClose) this.onClose();
+            if (modal) {
+                modal.close();
+            }
         };
 
         this.defaultScreenValidation = (callback, configuration, screen) => {

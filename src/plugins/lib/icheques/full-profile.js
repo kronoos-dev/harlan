@@ -197,9 +197,6 @@ module.exports = function(controller) {
                             case 'revenue':
                                 lastData[idx] *= 100;
                                 break;
-                            case 'checkLiquidity':
-                                lastData[idx] *= 10000;
-                                break;
                         }
                         form.setValue(paramCase(idx), lastData[idx]);
                     }

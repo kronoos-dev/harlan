@@ -31,17 +31,17 @@ module.exports = function(controller) {
     /* List Banks */
     controller.registerCall("icheques::antecipate", function(checks) {
         var expired = [];
+
         checks = _.filter(checks, (check) => {
             var booleanExpiration = moment().diff(check.expire, 'days') < 0;
             if (!booleanExpiration) {
-                toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias nós abrimos os mesmos abaixo.");
                 expired.push(check);
             }
             return booleanExpiration;
         });
 
         if (expired.length) {
-            controller.call("icheques::show", expired);
+            toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
         }
 
         if (!checks.length) {
@@ -69,11 +69,23 @@ module.exports = function(controller) {
                     ${noAmmountChecks.length == 1 ? "cheque" : "cheques"} para poder continuar.`,
                     paragraph: "Tudo que precisar ser editado com o valor será aberto para que você possa repetir esta operação, edite e tente novamente.",
                 }, () => {
-                    var q = queue(controller.reference("icheques::item::setAmmount"), 1);
+                    var q = queue((check, cb) => {
+                        controller.call("icheques::item::setAmmount", check, cb, (form) => {
+                            form.actions.add("Parar Edição").click((e) => {
+                                form.close(false);
+                                cb("stop", check);
+                            });
+                        });
+                    }, 1);
 
                     q.push(noAmmountChecks, (err) => {
-                        /* pass */
-                    });
+                        if (err == "stop") {
+                            q.kill();
+                            controller.call("icheques::antecipate", _.filter(checks, (obj) => {
+                                return obj.ammount > 0;
+                            }));
+                        }
+                   });
 
                     q.drain = () => {
                         controller.call("icheques::antecipate", _.filter(checks, (obj) => {
