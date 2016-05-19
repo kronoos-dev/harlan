@@ -61,7 +61,7 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
-                            field.element.val(field.mask && field.element.masked ? field.element.masked(masked) : value);
+                            field.element.val(field.mask && field.element.masked ? field.element.masked(value) : value);
                         }
                     }
                 });
