@@ -131,9 +131,9 @@ module.exports = function(controller) {
             return memo + num;
         });
         if (checks.length) {
-            checksSum.text(numeral(totalAmmount / 100.0).format("$0,0.00"));
+            $(checksSum).text(numeral(totalAmmount / 100.0).format("$0,0.00"));
         } else {
-            checksSum.text("Sem Saldo");
+            $(checksSum).text("Sem Saldo");
         }
 
         list.empty();
