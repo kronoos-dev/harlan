@@ -64,7 +64,6 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
-                            debugger;
                             field.element.val(field.mask && field.element.masked ? field.element.masked(value) : value);
                         }
                     }
