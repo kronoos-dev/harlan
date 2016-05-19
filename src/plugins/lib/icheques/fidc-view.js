@@ -262,9 +262,6 @@ module.exports = function(controller) {
                 case 'revenue':
                     lastData[idx] *= 100;
                     break;
-                case 'checkLiquidity':
-                    lastData[idx] *= 10000;
-                    break;
                 case 'document':
                     lastData[idx] = CNPJ.isValid(lastData[idx]) ? CNPJ.format(lastData[idx]) : CPF.format(lastData[idx]);
                     break;
