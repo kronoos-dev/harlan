@@ -237,9 +237,9 @@ label {
         @include border-bottom-left-radius(3px);
         padding: 0 15px;
         &.support-phone {
-            i {
+            i { 
                 vertical-align: middle;
-                margin-right: 5px;                
+                margin-right: 5px;
             }
             background: rgb(215, 243, 214);
             line-height: 34px;
