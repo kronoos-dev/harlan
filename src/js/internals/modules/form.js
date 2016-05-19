@@ -1,9 +1,11 @@
 /* global module, numeral */
 
-var assert = require("assert"),
-    _ = require("underscore"),
-    camelCase = require('change-case').camelCase,
-    async = require("async");
+const EMPTY_REGEX = /^\s*$/;
+
+import assert from "assert";
+import _ from "underscore";
+import { camelCase } from 'change-case';
+import async from "async";
 
 module.exports = (controller) => {
 
@@ -38,6 +40,10 @@ module.exports = (controller) => {
         };
 
         this.setValue = (name, value) => {
+            if (!value || EMPTY_REGEX.test(value)) {
+                return;
+            }
+
             name = camelCase(name);
             if (!configuration) {
                 return;
@@ -55,7 +61,7 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
-                            field.element.val(value);
+                            field.element.val(field.mask && field.element.masked ? field.element.masked(masked) : value);
                         }
                     }
                 });

@@ -50,7 +50,7 @@ module.exports = function (controller) {
         if (checkAlreadyExists(data) || _.findIndex(storage, function (compare) {
             return compare.cmc === data.cmc;
         }) !== -1) {
-            toastr.warning("O cheque informado já foi cadastrado.", "Efeture uma busca no sistema.");
+            toastr.warning("O cheque informado já foi cadastrado.", "Efetue uma busca no sistema.");
             return;
         }
 
