@@ -43,7 +43,6 @@ module.exports = (controller) => {
         };
 
         this.setValue = (name, value) => {
-            debugger;
             if (!value || EMPTY_REGEX.test(value)) {
                 return;
             }

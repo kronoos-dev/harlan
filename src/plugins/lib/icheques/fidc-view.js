@@ -147,7 +147,7 @@ module.exports = function(controller) {
                         "type": "text",
                         "placeholder": "Liquidez dos Cheques (%)",
                         "labelText": "Liquidez dos Cheques (%)",
-                        "mask": "##0,00%",
+                        "mask": "##0,99",
                         "maskOptions": {
                             "reverse": true
                         },
@@ -261,9 +261,6 @@ module.exports = function(controller) {
                 case 'avgCheckAmmount':
                 case 'revenue':
                     lastData[idx] *= 100;
-                    break;
-                case 'checkLiquidity':
-                    lastData[idx] *= 10000;
                     break;
                 case 'document':
                     lastData[idx] = CNPJ.isValid(lastData[idx]) ? CNPJ.format(lastData[idx]) : CPF.format(lastData[idx]);
