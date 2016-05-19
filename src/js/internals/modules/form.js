@@ -15,7 +15,7 @@ module.exports = (controller) => {
         var next = () => {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
-            display();
+            this.display();
             return this;
         };
 
@@ -23,7 +23,7 @@ module.exports = (controller) => {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
-            display();
+            this.display();
             return this;
         };
 
@@ -33,7 +33,7 @@ module.exports = (controller) => {
             assert(c.screens.length > 0);
             configuration = c;
             currentScreen = 0;
-            display();
+            this.display();
             return this;
         };
 
@@ -237,16 +237,21 @@ module.exports = (controller) => {
 
             /* Cancelar */
             actions.add(controller.i18n.system.cancel()).click((e) => {
-                if (onCancel) onCancel();
                 e.preventDefault();
-                modal.close();
+                this.close();
             });
+
+            this.actions = () => {
+                return actions;
+            };
 
             return this;
         };
 
-        var display = this.display;
-
+        this.close = (defaultAction = true) => {
+            if (onCancel && defaultAction) onCancel();
+            modal.close();
+        };
 
         this.defaultScreenValidation = (callback, configuration, screen) => {
             var ret = true;
