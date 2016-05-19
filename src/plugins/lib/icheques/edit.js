@@ -24,10 +24,11 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true) {
+    controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true, edit = null) {
 
         var xhr, cmc7Data = new CMC7Parser(check.cmc),
             form = controller.call("form", (parameters) => {
+                if (xhr) xhr.abort();
                 parameters.cmc = check.cmc;
                 parameters.ammount = Math.floor(parameters.ammount * 100);
                 controller.call("confirm", {}, () => {
@@ -35,7 +36,6 @@ module.exports = function(controller) {
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: parameters,
                             error: function() {
-                                if (xhr) xhr.abort();
                                 if (callback) callback("ajax failed", check);
                             },
                             success: () => {
@@ -47,13 +47,15 @@ module.exports = function(controller) {
                             }
                         }, true)));
                 }, () => {
-                    controller.call("icheques::item::edit", check, callback, optionalAmmount);
+                    controller.call("icheques::item::edit", check, callback, optionalAmmount, edit);
                 });
             }, () => {
                 if (xhr) xhr.abort();
                 if (callback) callback("can't edit", check);
             });
-
+        form.onClose = () => {
+            if (xhr) xhr.abort();
+        };
         form.configure({
             title: "Edição de Cheque",
             subtitle: "Correção e inserção de dados do cheque.",
@@ -112,6 +114,10 @@ module.exports = function(controller) {
             }]
         });
 
+        if (edit) {
+            edit(form);
+        }
+
         xhr = controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
             data: {
                 documento: check.cpf || check.cnpj
@@ -123,8 +129,8 @@ module.exports = function(controller) {
 
     });
 
-    controller.registerCall("icheques::item::setAmmount", function(check, callback) {
-        controller.call("icheques::item::edit", check, callback, false);
+    controller.registerCall("icheques::item::setAmmount", function(check, callback, edit = null) {
+        controller.call("icheques::item::edit", check, callback, false, edit);
     });
 
 };

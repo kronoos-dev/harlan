@@ -4,13 +4,13 @@ const checkQuery = squel
     .select()
     .from('ICHEQUES_CHECKS')
     .field('SUM(AMMOUNT), COUNT(1)')
-    .where("(QUERY_STATUS = 1) AND (EXPIRE >= ?)", moment().format("YYYYMMDD"))
+    .where("(QUERY_STATUS = 1) AND (EXPIRE > ?)", moment().format("YYYYMMDD"))
     .toString();
 
 const obtainChecks = squel
     .select()
     .from('ICHEQUES_CHECKS')
-    .where("(QUERY_STATUS = 1) AND (EXPIRE >= ?)", moment().format("YYYYMMDD"))
+    .where("(QUERY_STATUS = 1) AND (EXPIRE > ?)", moment().format("YYYYMMDD"))
     .toString();
 
 module.exports = (controller) => {
@@ -35,7 +35,7 @@ module.exports = (controller) => {
             "Parabéns! Você possui cheques bons para antecipação.",
             "Receba o dinheiro antes, descontamos depois para sua comodidade.", !ammount ?
             `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> ${count == 1 ? "cheque" : "cheques"} através de uma das nossas antecipadoras. Clique no botão abaixo para iniciar o processo.` :
-            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> ${count == 1 ? "cheque" : "cheques"} que somam <strong>${numeral(ammount/100).format('$0,0.00')}<\/strong> através de uma das nossas antecipadoras. Clique no botão abaixo para iniciar o processo.`);
+            `Com o iCheques você pode solicitar a antecipação dos seus <strong>${count}</strong> ${count == 1 ? "cheque de valor" : "cheques que somam"} <strong>${numeral(ammount/100).format('$0,0.00')}<\/strong> através de uma das nossas antecipadoras. Clique no botão abaixo para iniciar o processo.`);
 
         report.button("Solicitar Antecipação", () => {
             var checks = controller.call("icheques::resultDatabase", controller.database.exec(obtainChecks)[0]).values;

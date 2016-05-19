@@ -1,9 +1,13 @@
 /* global module, numeral */
 
-var assert = require("assert"),
-    _ = require("underscore"),
-    camelCase = require('change-case').camelCase,
-    async = require("async");
+const EMPTY_REGEX = /^\s*$/;
+
+import assert from "assert";
+import _ from "underscore";
+import {
+    camelCase
+} from 'change-case';
+import async from "async";
 
 module.exports = (controller) => {
 
@@ -11,11 +15,12 @@ module.exports = (controller) => {
 
         var currentScreen = 0;
         var configuration = null;
+        var modal = null;
 
         var next = () => {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
-            display();
+            this.display();
             return this;
         };
 
@@ -23,7 +28,7 @@ module.exports = (controller) => {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
-            display();
+            this.display();
             return this;
         };
 
@@ -33,11 +38,15 @@ module.exports = (controller) => {
             assert(c.screens.length > 0);
             configuration = c;
             currentScreen = 0;
-            display();
+            this.display();
             return this;
         };
 
         this.setValue = (name, value) => {
+            if (!value || EMPTY_REGEX.test(value)) {
+                return;
+            }
+
             name = camelCase(name);
             if (!configuration) {
                 return;
@@ -55,7 +64,8 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
-                            field.element.val(value);
+                            debugger;
+                            field.element.val(field.mask && field.element.masked ? field.element.masked(value) : value);
                         }
                     }
                 });
@@ -172,7 +182,7 @@ module.exports = (controller) => {
             if (typeof setScreen !== "undefined") {
                 currentScreen = setScreen;
             }
-            var modal = controller.call("modal");
+            modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
 
             var gamification = screen.gamification || configuration.gamification;
@@ -237,16 +247,22 @@ module.exports = (controller) => {
 
             /* Cancelar */
             actions.add(controller.i18n.system.cancel()).click((e) => {
-                if (onCancel) onCancel();
                 e.preventDefault();
-                modal.close();
+                this.close();
             });
+
+            this.actions = actions;
 
             return this;
         };
 
-        var display = this.display;
-
+        this.close = (defaultAction = true) => {
+            if (onCancel && defaultAction) onCancel();
+            if (this.onClose) this.onClose();
+            if (modal) {
+                modal.close();
+            }
+        };
 
         this.defaultScreenValidation = (callback, configuration, screen) => {
             var ret = true;
