@@ -49,7 +49,7 @@ var formDescription = {
                 "type": "text",
                 "placeholder": "Liquidez dos Cheques (%)",
                 "labelText": "Liquidez dos Cheques (%)",
-                "mask": "##0,99",
+                "mask": "##0,99%",
                 "maskOptions": {
                     "reverse": true
                 },
