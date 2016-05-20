@@ -123,10 +123,10 @@ var formDescription = {
         "fields": [{
             "name": "month-check-ammount",
             "type": "text",
-            "placeholder": "* Quanto Desconta ao Mês (R$)",
+            "placeholder": "Quanto Desconta ao Mês (R$)",
             "numeral": true,
-            "optional": true
-            "labelText": "* R$",
+            "optional": true,
+            "labelText": "R$",
             "mask": "000.000.000.000.000,00",
             "maskOptions": {
                 "reverse": true
