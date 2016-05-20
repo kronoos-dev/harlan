@@ -6,8 +6,8 @@ module.exports = function (controller) {
 
         var report = controller.call("report",
                 "Seja bem vindo ao iCheques",
-                "Se proteja contra fraudes em sua carteira de cheques.",
-                "O iCheques é uma ferramenta desenvolvida para você evitar golpes em sua carteira de cheques, saiba da situação de um cheque sempre antes de aceitar e enquanto ele estiver com você.",
+                "Cheque sem susto.",
+                "O iCheques é uma ferramenta desenvolvida para você evitar inadimplencia em sua carteira de cheques e tambem possibilita a antecipação com seus parceiros financeiros.",
                 false);
 
         report.button("Adicionar Cheque", function () {
