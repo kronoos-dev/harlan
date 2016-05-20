@@ -38,7 +38,7 @@
             }
 
             result.addItem("Créditos Contratados", numeral(credits).format('0,')).addClass("center");
-            result.addItem("Créditos Utlizados", numeral(usedCredits).format('0,')).addClass("center");
+            result.addItem("Créditos Utilizados", numeral(usedCredits).format('0,')).addClass("center");
 
             var radial = controller.interface.widgets.radialProject(result.addItem(null, "").addClass("center").find(".value"), perc);
 

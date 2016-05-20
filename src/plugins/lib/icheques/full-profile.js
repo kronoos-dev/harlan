@@ -49,7 +49,7 @@ var formDescription = {
                 "type": "text",
                 "placeholder": "Liquidez dos Cheques (%)",
                 "labelText": "Liquidez dos Cheques (%)",
-                "mask": "##0,99",
+                "mask": "##0,99%",
                 "maskOptions": {
                     "reverse": true
                 },
@@ -101,10 +101,10 @@ var formDescription = {
                 }
             }], {
                 "name": "own-property",
-                "type": "checkbox",
-                "placeholder": "Imóvel Próprio?",
-                "labelText": "Imóvel Próprio?",
-                "optional": true
+                "type": "select",
+                "labelText": "Imóvel Próprio ou Alugado?",
+                "optional": false,
+                "list": ["Próprio", "Alugado"]
             }, {
                 "name": "location-value",
                 "type": "text",
@@ -123,25 +123,27 @@ var formDescription = {
         "fields": [{
             "name": "month-check-ammount",
             "type": "text",
-            "placeholder": "Quanto Desconta ao Mês (R$)",
+            "placeholder": "* Quanto Desconta ao Mês (R$)",
             "numeral": true,
-            "labelText": "R$",
+            "optional": true
+            "labelText": "* R$",
             "mask": "000.000.000.000.000,00",
             "maskOptions": {
                 "reverse": true
             }
         }, {
             "name": "bulk",
-            "type": "checkbox",
-            "placeholder": "Concentrado",
-            "labelText": "Concentrado",
-            "optional": true
+            "type": "select",
+            "labelText": "Cheques concentrados ou pulverizados?",
+            "optional": false,
+            "list": ["Concentrados", "Pulverizados", "Mistura de ambos"]
         }, {
             "name": "avg-check-ammount",
             "type": "text",
             "placeholder": "Valor Médio do Cheque (R$)",
             "labelText": "Valor Médio do Cheque (R$)",
             "numeral": true,
+            "optional": false,
             "mask": "000.000.000.000.000,00",
             "maskOptions": {
                 "reverse": true
@@ -149,9 +151,9 @@ var formDescription = {
         }, {
             "name": "own-send",
             "type": "select",
-            "labelText": "Opção de Transportadora",
+            "labelText": "Transportadora",
             "optional": true,
-            "list": ["Sem Transportadora", "Transportadora Própria", "Transportadora Terceirizada"]
+            "list": ["Não Possuo", "Própria", "Terceirizada", "Própia e Terceirizada"]
         }]
     }]
 };
