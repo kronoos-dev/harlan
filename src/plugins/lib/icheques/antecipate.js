@@ -28,8 +28,26 @@ module.exports = function(controller) {
 
     controller.registerCall("icheques::antecipate::checksIsEmpty", modalChecksIsEmpty);
 
+    controller.registerCall("icheques::antecipate", function (checks) {
+        controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
+            dataType: "json",
+            success : () => {
+                controller.call("icheques::antecipate::init", checks);
+            },
+            error: () => {
+                controller.alert({
+                    title: "Informações cadastrais são necessárias",
+                    subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
+                    paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
+                }, () => {
+                    controller.call("icheques::form::company");
+                });
+            }
+        });
+    });
+
     /* List Banks */
-    controller.registerCall("icheques::antecipate", function(checks) {
+    controller.registerCall("icheques::antecipate::init", function(checks) {
         var expired = [];
 
         checks = _.filter(checks, (check) => {

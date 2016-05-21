@@ -1,8 +1,8 @@
 /* global module */
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
-    controller.registerCall("confirm", controller.confirm = function (parameters, onConfirm, onCancel) {
+    controller.registerCall("confirm", controller.confirm = function(parameters, onConfirm, onCancel) {
         parameters = parameters || {};
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "hammer");
@@ -13,7 +13,7 @@ module.exports = function (controller) {
         }
 
         var form = modal.createForm();
-        form.element().submit(function (e) {
+        form.element().submit(function(e) {
             e.preventDefault();
             modal.close();
             if (onConfirm)
@@ -24,7 +24,7 @@ module.exports = function (controller) {
 
         var actions = modal.createActions();
 
-        actions.add(controller.i18n.system.cancel()).click(function (e) {
+        actions.add(controller.i18n.system.cancel()).click(function(e) {
             e.preventDefault();
             if (onCancel)
                 onCancel();
@@ -38,7 +38,7 @@ module.exports = function (controller) {
         };
     });
 
-    controller.registerCall("alert", controller.alert = function (parameters, action) {
+    controller.registerCall("alert", controller.alert = function(parameters, action) {
         parameters = parameters || {};
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "fail");
@@ -49,7 +49,12 @@ module.exports = function (controller) {
         }
 
         var form = modal.createForm();
-        form.cancelButton(controller.i18n.system.ok() || parameters.okText, action);
+        form.cancelButton(controller.i18n.system.ok() || parameters.okText, () => {
+            if (action) {
+                action();
+            }
+            modal.close();
+        });
 
         return {
             modal: modal,
