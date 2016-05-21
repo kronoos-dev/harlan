@@ -86,7 +86,7 @@ module.exports = function(controller) {
                     }
                 })));
         });
-    }
+    };
 
     var parseMessages = (list, messages) => {
         list.empty();
@@ -95,7 +95,7 @@ module.exports = function(controller) {
         });
     };
 
-    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text, callback, bipbopLoader = true) => {
+    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text = null, callback = null, bipbopLoader = true) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -116,7 +116,7 @@ module.exports = function(controller) {
                         controller.call("alert", {
                             title: "Não foram encontradas mensagens.",
                             subtitle: "Aguarde até que mensagens sejam enviadas para poder usar esta funcionalidade."
-                        })
+                        });
                         modal.close();
                         return;
                     }

@@ -156,7 +156,7 @@ module.exports = function(controller) {
         });
     };
 
-    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text, callback, bipbopLoader = true) => {
+    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text = null, callback = null, bipbopLoader = true) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -192,7 +192,7 @@ module.exports = function(controller) {
                     }
                 }
             }, bipbopLoader));
-    }
+    };
 
     controller.registerCall("subaccount::list", function() {
         var modal = controller.call("modal");

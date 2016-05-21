@@ -38,12 +38,12 @@ module.exports = function (controller) {
                 nodes[idx] = (/^\**$/.test(data)) ? "" : data;
             }
 
-            if (!nodes["Endereço"] || !nodes["CEP"]) {
+            if (!nodes["Endereço"] || !nodes.CEP) {
                 return;
             }
 
             if (_.contains(addressElements, nodes["Endereço"]) ||
-                    _.contains(cepElements, nodes["CEP"]) ||
+                    _.contains(cepElements, nodes.CEP) ||
                     Math.max(..._.map(addressElements, function (value) {
                         return natural.JaroWinklerDistance(value, nodes["Endereço"]);
                     })) > 0.85) {
@@ -51,7 +51,7 @@ module.exports = function (controller) {
             }
 
             addressElements.push(nodes["Endereço"]);
-            cepElements.push(nodes["CEP"]);
+            cepElements.push(nodes.CEP);
 
             if (hasAddressSeparator(nodes)) result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
 
@@ -125,7 +125,7 @@ module.exports = function (controller) {
     var setSociety = (result, jdocument) => {
         let $empresas = jdocument.find("BPQL > body parsocietaria > empresa");
 
-        if ($empresas.length == 0) return;
+        if ($empresas.length === 0) return;
 
         for (let node of $empresas) {
             let $node = $(node),

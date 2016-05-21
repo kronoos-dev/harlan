@@ -19,7 +19,7 @@ module.exports = function(element) {
         var numChilds = cellCounter();
         list.children("li").each((i, element) => {
             element = $(element);
-            for (var i = 0; i < numChilds - elementCellCounter(element); i++) {
+            for (let it = 0; it < numChilds - elementCellCounter(element); it++) {
                 element.append("<div />");
             }
         });

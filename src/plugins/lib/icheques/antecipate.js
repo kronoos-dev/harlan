@@ -116,7 +116,7 @@ module.exports = function(controller) {
         });
     });
 
-    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text, checksSum, callback) => {
+    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
         if (text) {
             text = text.trim();
             checks = _.filter(checks, (check) => {
@@ -192,7 +192,7 @@ module.exports = function(controller) {
 
             var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
                 return memo + num;
-            })
+            });
 
             if (checks.length || totalAmmount <= 0) {
                 controller.call("icheques::antecipate::show", data, checks);
@@ -339,7 +339,7 @@ module.exports = function(controller) {
                             title: "Seu cadastro foi enviado a antecipadora!",
                             subtitle: "O cadastro deve ser aprovado em até 7 dias.",
                             paragraph: "Você receberá um e-mail em sua caixa de entrada indicando a decisão do fundo."
-                        })
+                        });
                     },
                     complete: () => {
                         modal.close();

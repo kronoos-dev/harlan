@@ -45,7 +45,7 @@ module.exports = (controller) => {
         report.gamification("checkPoint");
 
         if (element) {
-            element.replaceWith(report.element())
+            element.replaceWith(report.element());
         }
         element = report.element();
         $(".app-content").prepend(element);

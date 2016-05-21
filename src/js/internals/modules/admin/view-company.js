@@ -284,7 +284,7 @@ module.exports = (controller) => {
                 var input = form.addInput("Créditos", "text", "Créditos (R$)")
                     .mask('#.##0,00', {
                         reverse: true
-                    })
+                    });
 
                 if (credits) {
                     input.val(numeral(credits / 100.0).format('0,0.00'));

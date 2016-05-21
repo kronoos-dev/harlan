@@ -224,8 +224,8 @@ gulp.task("jshint", () => {
         `!${src}/js/internals/i18n/**/*`,
         `${plugins}/**/*.js`
     ])
-    .pipe($.if(PRODUCTION, $.jshint({esnext: true})))
-    .pipe($.if(PRODUCTION, $.jshint.reporter(stylish)))
+    .pipe($.jshint({esnext: true}))
+    .pipe($.jshint.reporter(stylish))
     .pipe($.size({title: ">>> jshint"}));
 });
 

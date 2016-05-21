@@ -120,7 +120,7 @@ var Controller = function() {
     this.reference = function(name) {
         return (...parameters) => {
             this.call(name, ...parameters);
-        }
+        };
     };
 
     this.call = function(name, ...parameters) {

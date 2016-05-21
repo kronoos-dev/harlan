@@ -90,7 +90,7 @@ var Timeline = function() {
         return timeline;
     };
 
-}
+};
 
 module.exports = (controller) => {
     controller.registerCall("timeline", () => {

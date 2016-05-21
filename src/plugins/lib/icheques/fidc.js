@@ -52,7 +52,7 @@ module.exports = (controller) => {
                 if (!id.length) {
                     if (globalReport) globalReport.element().remove();
                     return;
-                };
+                }
                 var expireNode = $("BPQL > body > fidc > expire", ret),
                     expire = expireNode.length ? moment.unix(parseInt(expireNode.text())) : null;
 
@@ -85,7 +85,7 @@ module.exports = (controller) => {
                                     title: "Pronto! Agora você pode operar por mais 1 mês.",
                                     subtitle: "Seu usuário já pode receber novos arquivos para antecipação.",
                                     paragraph: "Parabéns! Você renovou por mais 1 (um) mês a assinatura para fundos de antecipação iCheques."
-                                })
+                                });
                             }
                         }, true)));
                 });
@@ -187,9 +187,8 @@ module.exports = (controller) => {
                                     username: $("company > username", node).text(),
                                     cpf: $("company > cpf", node).text(),
                                     cnpj: $("company > cnpj", node).text(),
-                                    status: $("company > status", node).text(),
                                     approved: $("approved", node).text(),
-                                    contractAccepted: $("company > contractAccepted", node).text() == "true",
+                                    contractAccepted: $("company > contractAccepted", node).text() === "true",
                                     status: parseInt($("company > status", node).text()),
                                     responsavel: $("company > responsavel", node).text(),
                                     contrato: [
@@ -268,7 +267,7 @@ module.exports = (controller) => {
         if (data.expire) {
             data.expire = moment.unix(data.expire);
         }
-        data.expired = data.expire ? moment().diff(data.expire) > 0 : true
+        data.expired = data.expire ? moment().diff(data.expire) > 0 : true;
         controller.call("icheques::fidc::status", data);
     });
 
@@ -485,7 +484,7 @@ module.exports = (controller) => {
                         obj.taxes = data[21];
                         break;
                     case 'T':
-                        if (data[1] == "") {
+                        if (data[1] === "") {
                             break;
                         }
                         for (let idx in args.cmcs) {
