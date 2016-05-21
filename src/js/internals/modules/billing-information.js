@@ -57,10 +57,10 @@ module.exports = (controller) => {
             document = $("BPQL > body > company > cnpj", response).text() ||
             $("BPQL > body > company > cpf", response).text();
         form.configure({
-            "title": "Dados de Faturamento",
+            "title": "Dados para NF-e",
             "subtitle": "Preencha os dados de faturamento para emissão de nota fiscal.",
             "gamification": "magicWand",
-            "paragraph": "É muito importante que os dados estejam preenchidos de maneira correta para que seja a nota seja emitida corretamente.",
+            "paragraph": "É muito importante que os dados estejam preenchidos de maneira correta para que seja a NF-e seja emitida corretamente.",
             "screens": [{
                 "nextButton" : next || undefined,
                 "magicLabel": true,
@@ -71,7 +71,7 @@ module.exports = (controller) => {
                         "type": "text",
                         "value": $("BPQL > body > company > nome", response).text() ||
                             $("BPQL > body > company > responsavel", response).text(),
-                        "placeholder": "Nome da Empresa ou Próprio",
+                        "placeholder": "Nome (PJ / PF)",
                     }, {
                         "maskOptions": {
                             onKeyPress: (input, e, field, options) => {
@@ -81,7 +81,7 @@ module.exports = (controller) => {
                             }
                         },
                         "name": "document",
-                        "placeholder": "CPF ou CNPJ de faturamento",
+                        "placeholder": "CPF / CNPJ",
                         "mask": document.replace(/[^0-9]/g, '').length <= 11 ? "000.000.000-00" : '00.000.000/0000-00',
                         "optional": false,
                         "disabled": CNPJ.isValid(document),
@@ -165,12 +165,12 @@ module.exports = (controller) => {
                             "PI": "Piauí",
                             "RJ": "Rio de Janeiro",
                             "RN": "Rio Grande do Norte",
-                            "RO": "Rondônia",
                             "RS": "Rio Grande do Sul",
+                            "RO": "Rondônia",
                             "RR": "Roraima",
                             "SC": "Santa Catarina",
-                            "SE": "Sergipe",
                             "SP": "São Paulo",
+                            "SE": "Sergipe",
                             "TO": "Tocantins"
                         }
                     }], {
@@ -180,7 +180,7 @@ module.exports = (controller) => {
                         "value": $("BPQL > body > company email", response).filter((idx, element) => {
                             return $(element).children("email:eq(1)").text() == "financeiro";
                         }).children("email:eq(0)").text(),
-                        "placeholder": "Endereço de E-mail do Financeiro",
+                        "placeholder": "E-mail do Financeiro",
                         "validate": (item) => {
                             return emailRegex().test(item.element.val());
                         }
