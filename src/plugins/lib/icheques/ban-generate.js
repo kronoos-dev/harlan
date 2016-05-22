@@ -20,10 +20,10 @@ module.exports = function(controller) {
         var modal = controller.call("modal");
         modal.title("Código do Cliente BAN");
         modal.subtitle("Digite o código de cliente.");
-        modal.paragraph("O código do cliente esta geralmente cadastrado no ERP da empresa, caso não esteja preencha com o nome da empresa.");
+        modal.paragraph("O código do cliente esta geralmente cadastrado no ERP da empresa, caso não saiba deixe em branco.");
         var form = modal.createForm(),
             clientName = form.addInput("name", "text", "Código ou Nome de Cliente", {}, "", clientId);
-        form.addSubmit("submit", "Nomear Arquivo");
+        form.addSubmit("submit", "Gerar .BAN");
         form.element().submit((e) => {
             e.preventDefault();
             modal.close();
