@@ -4,6 +4,8 @@ import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
 import { CMC7Parser } from './cmc7-parser';
 import { titleCase } from 'change-case';
+import { CPF } from 'cpf_cnpj';
+import { CNPJ } from 'cpf_cnpj';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -29,7 +31,7 @@ module.exports = (controller) => {
             emails.append($("<li />").text(emailAddress));
         });
 
-        var address = `${company.endereco[0]} ${company.endereco[1]} ${company.endereco[2]} ${company.endereco[3]} - ${company.endereco[5]} ${company.endereco[4]} ${company.endereco[6]} `;
+        var address = `${company.endereco[0] || ""} ${company.endereco[1] || ""} ${company.endereco[2] || ""} ${company.endereco[3] || ""} - ${company.endereco[5] || ""} ${company.endereco[4] || ""} ${company.endereco[6] || ""}`;
 
         var addressNode = $("<p />").text(address).addClass("address").append($("<a />").attr({
             href: `http\:\/\/maps.google.com\?q\=${encodeURI(address)}`,
@@ -606,7 +608,7 @@ module.exports = (controller) => {
             var modal = controller.modal();
             modal.gamification("moneyBag");
             modal.title(args.company.nome || args.company.responsavel);
-            modal.subtitle(args.company.cnpj || args.company.cpf);
+            modal.subtitle(args.company.cnpj ? "CNPJ " + CNPJ.format(args.company.cnpj) : "CPF " + CPF.format(args.company.cpf));
             var paragraph = modal.paragraph("Dados cadastrais registrados sobre a empresa no sistema iCheques.");
             companyData(paragraph, args.company);
             modal.createActions().cancel();

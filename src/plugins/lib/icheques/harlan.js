@@ -307,7 +307,7 @@ module.exports = function(controller) {
             .from("ICHEQUES_CHECKS")
             .where("PUSH_ID = ?", data.pushId).toString());
 
-        if (!dbResponse[0].values[0]) {
+        if (!dbResponse.length) {
             controller.call("icheques::insertDatabase", data);
             return;
         }

@@ -411,7 +411,10 @@ module.exports = function(controller) {
             "background": `url(${$(element).children("logo").text()}) no-repeat center`
         });
         modal.title($("company > nome", element).text() || $("company > responsavel", element).text());
-        modal.subtitle("CNPJ " + CNPJ.format($("company > cnpj", element).text()) || "CPF " + CPF.format($("company > cpf", element).text()));
+        modal.subtitle($("company > cnpj", element).text() ?
+            "CNPJ " + CNPJ.format($("company > cnpj", element).text()) :
+            "CPF " + CPF.format($("company > cpf", element).text()));
+
         var paragraph = modal.paragraph($(element).children("bio").text());
 
         companyData(paragraph, element);
