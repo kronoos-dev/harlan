@@ -110,7 +110,7 @@ module.exports = (controller) =>  {
             var actions = $("<ul />").addClass("actions");
             modal.append(actions);
             var add = (name) => {
-                var link = $("<a />").attr("href", "#").text(name),
+                var link = $("<a />").attr("href", "#").html(name),
                         item = $("<li> /").append(link);
                 actions.append(item);
                 return item;
@@ -125,7 +125,7 @@ module.exports = (controller) =>  {
                     });
                 },
                 observation: (name) =>  {
-                    var item = $("<li> /").text(name);
+                    var item = $("<li> /").html(name);
                     actions.append(item);
                     return item;
                 }

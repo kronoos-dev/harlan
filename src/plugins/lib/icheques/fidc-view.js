@@ -263,6 +263,7 @@ module.exports = function(controller) {
                 case 'monthCheckAmmount':
                 case 'avgCheckAmmount':
                 case 'revenue':
+                case 'checkLiquidity':
                     lastData[idx] *= 100;
                     break;
                 case 'document':

@@ -1,163 +1,5 @@
 import { paramCase } from 'change-case';
 
-var formDescription = {
-    "title": "Cadastro Completo",
-    "subtitle": "Realize o cadastro completo de sua empresa.",
-    "paragraph": "O cadastro completo permite a realização de operações de crédito.",
-    "gamification": "star",
-    "screens": [{
-        "magicLabel": true,
-        "fields": [{
-            "name": "name",
-            "type": "text",
-            "placeholder": "Nome do Responsável",
-            "labelText": "Nome do Responsável"
-        }, {
-            "name": "email",
-            "type": "text",
-            "placeholder": "E-mail do Responsável",
-            "labelText": "E-mail do Responsável"
-        }, {
-            "name": "phone",
-            "type": "text",
-            "placeholder": "Telefone do Responsável",
-            "labelText": "Telefone do Responsável",
-            "mask": "(00) 0000-00009"
-        }]
-    }, {
-        "magicLabel": true,
-        "fields": [{
-                "name": "revenue",
-                "type": "text",
-                "placeholder": "Faturamento (R$)",
-                "labelText": "Faturamento (R$)",
-                "mask": "000.000.000.000.000,00",
-                "maskOptions": {
-                    "reverse": true
-                },
-                "numeral": true
-            },
-            [{
-                "name": "medium-term-sale",
-                "type": "text",
-                "placeholder": "Prazo Médio de Venda (dias)",
-                "labelText": "Prazo Médio de Venda (dias)",
-                "mask": "999",
-                "numeral": true
-            }, {
-                "name": "check-liquidity",
-                "type": "text",
-                "placeholder": "Liquidez dos Cheques (%)",
-                "labelText": "Liquidez dos Cheques (%)",
-                "mask": "##0,99%",
-                "maskOptions": {
-                    "reverse": true
-                },
-                "numeral": true
-            }],
-            [{
-                "name": "pre-billing",
-                "type": "text",
-                "placeholder": "* Pré-Faturamento (R$)",
-                "labelText": "* Pré-Faturamento (R$)",
-                "optional": true,
-                "mask": "000.000.000.000.000,00",
-                "maskOptions": {
-                    "reverse": true
-                },
-                "numeral": true
-            }, {
-                "name": "pre-billing-days",
-                "type": "text",
-                "placeholder": "* Quantos dias?",
-                "labelText": "* Quantos dias?",
-                "optional": true,
-                "mask": "999",
-                "numeral": true
-            }]
-        ]
-    }, {
-        "magicLabel": true,
-        "fields": [
-            [{
-                "name": "number-employees",
-                "type": "text",
-                "placeholder": "Total de Funcionários",
-                "labelText": "Total de Funcionários",
-                "mask": "000.000.000.000.000",
-                "maskOptions": {
-                    "reverse": true
-                },
-                "numeral": true
-            }, {
-                "name": "total-payroll",
-                "type": "text",
-                "placeholder": "Total da Folha de Pagto. (R$)",
-                "labelText": "Total da Folha de Pagto. (R$)",
-                "numeral": true,
-                "mask": "000.000.000.000.000,00",
-                "maskOptions": {
-                    "reverse": true
-                }
-            }], {
-                "name": "own-property",
-                "type": "select",
-                "labelText": "Imóvel Próprio ou Alugado?",
-                "optional": false,
-                "list": ["Próprio", "Alugado"]
-            }, {
-                "name": "location-value",
-                "type": "text",
-                "placeholder": "* Valor da Locação (R$)",
-                "labelText": "* Valor da Locação (R$)",
-                "optional": true,
-                "numeral": true,
-                "mask": "000.000.000.000.000,00",
-                "maskOptions": {
-                    "reverse": true
-                }
-            }
-        ]
-    }, {
-        "magicLabel": true,
-        "fields": [{
-            "name": "month-check-ammount",
-            "type": "text",
-            "placeholder": "Quanto Desconta ao Mês (R$)",
-            "numeral": true,
-            "optional": true,
-            "labelText": "R$",
-            "mask": "000.000.000.000.000,00",
-            "maskOptions": {
-                "reverse": true
-            }
-        }, {
-            "name": "bulk",
-            "type": "select",
-            "labelText": "Cheques concentrados ou pulverizados?",
-            "optional": false,
-            "list": ["Concentrados", "Pulverizados", "Mistura de ambos"]
-        }, {
-            "name": "avg-check-ammount",
-            "type": "text",
-            "placeholder": "Valor Médio do Cheque (R$)",
-            "labelText": "Valor Médio do Cheque (R$)",
-            "numeral": true,
-            "optional": false,
-            "mask": "000.000.000.000.000,00",
-            "maskOptions": {
-                "reverse": true
-            }
-        }, {
-            "name": "own-send",
-            "type": "select",
-            "labelText": "Transportadora",
-            "optional": true,
-            "list": ["Não Possuo", "Própria", "Terceirizada", "Própia e Terceirizada"]
-        }]
-    }]
-};
-
 module.exports = function(controller) {
     /**
      * Este é o formulário para antecipar cheques
@@ -188,7 +30,163 @@ module.exports = function(controller) {
                     lastData = ret;
                 },
                 complete: () => {
-                    form.configure(formDescription);
+                    form.configure({
+                        "title": "Cadastro Completo",
+                        "subtitle": "Realize o cadastro completo de sua empresa.",
+                        "paragraph": "O cadastro completo permite a realização de operações de crédito.",
+                        "gamification": "star",
+                        "screens": [{
+                            "magicLabel": true,
+                            "fields": [{
+                                "name": "name",
+                                "type": "text",
+                                "placeholder": "Nome do Responsável",
+                                "labelText": "Nome do Responsável"
+                            }, {
+                                "name": "email",
+                                "type": "text",
+                                "placeholder": "E-mail do Responsável",
+                                "labelText": "E-mail do Responsável"
+                            }, {
+                                "name": "phone",
+                                "type": "text",
+                                "placeholder": "Telefone do Responsável",
+                                "labelText": "Telefone do Responsável",
+                                "mask": "(00) 0000-00009"
+                            }]
+                        }, {
+                            "magicLabel": true,
+                            "fields": [{
+                                    "name": "revenue",
+                                    "type": "text",
+                                    "placeholder": "Faturamento (R$)",
+                                    "labelText": "Faturamento (R$)",
+                                    "mask": "000.000.000.000.000,00",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    },
+                                    "numeral": true
+                                },
+                                [{
+                                    "name": "medium-term-sale",
+                                    "type": "text",
+                                    "placeholder": "Prazo Médio de Venda (dias)",
+                                    "labelText": "Prazo Médio de Venda (dias)",
+                                    "mask": "999",
+                                    "numeral": true
+                                }, {
+                                    "name": "check-liquidity",
+                                    "type": "text",
+                                    "placeholder": "Liquidez dos Cheques (%)",
+                                    "labelText": "Liquidez dos Cheques (%)",
+                                    "mask": "##0,99%",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    },
+                                    "numeral": true
+                                }],
+                                [{
+                                    "name": "pre-billing",
+                                    "type": "text",
+                                    "placeholder": "* Pré-Faturamento (R$)",
+                                    "labelText": "* Pré-Faturamento (R$)",
+                                    "optional": true,
+                                    "mask": "000.000.000.000.000,00",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    },
+                                    "numeral": true
+                                }, {
+                                    "name": "pre-billing-days",
+                                    "type": "text",
+                                    "placeholder": "* Quantos dias?",
+                                    "labelText": "* Quantos dias?",
+                                    "optional": true,
+                                    "mask": "999",
+                                    "numeral": true
+                                }]
+                            ]
+                        }, {
+                            "magicLabel": true,
+                            "fields": [
+                                [{
+                                    "name": "number-employees",
+                                    "type": "text",
+                                    "placeholder": "Total de Funcionários",
+                                    "labelText": "Total de Funcionários",
+                                    "mask": "000.000.000.000.000",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    },
+                                    "numeral": true
+                                }, {
+                                    "name": "total-payroll",
+                                    "type": "text",
+                                    "placeholder": "Total da Folha de Pagto. (R$)",
+                                    "labelText": "Total da Folha de Pagto. (R$)",
+                                    "numeral": true,
+                                    "mask": "000.000.000.000.000,00",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    }
+                                }], {
+                                    "name": "own-property",
+                                    "type": "select",
+                                    "labelText": "Imóvel Próprio ou Alugado?",
+                                    "optional": false,
+                                    "list": ["Próprio", "Alugado"]
+                                }, {
+                                    "name": "location-value",
+                                    "type": "text",
+                                    "placeholder": "* Valor da Locação (R$)",
+                                    "labelText": "* Valor da Locação (R$)",
+                                    "optional": true,
+                                    "numeral": true,
+                                    "mask": "000.000.000.000.000,00",
+                                    "maskOptions": {
+                                        "reverse": true
+                                    }
+                                }
+                            ]
+                        }, {
+                            "magicLabel": true,
+                            "fields": [{
+                                "name": "month-check-ammount",
+                                "type": "text",
+                                "placeholder": "Quanto Desconta ao Mês (R$)",
+                                "numeral": true,
+                                "optional": true,
+                                "labelText": "R$",
+                                "mask": "000.000.000.000.000,00",
+                                "maskOptions": {
+                                    "reverse": true
+                                }
+                            }, {
+                                "name": "bulk",
+                                "type": "select",
+                                "labelText": "Cheques concentrados ou pulverizados?",
+                                "optional": false,
+                                "list": ["Concentrados", "Pulverizados", "Mistura de ambos"]
+                            }, {
+                                "name": "avg-check-ammount",
+                                "type": "text",
+                                "placeholder": "Valor Médio do Cheque (R$)",
+                                "labelText": "Valor Médio do Cheque (R$)",
+                                "numeral": true,
+                                "optional": false,
+                                "mask": "000.000.000.000.000,00",
+                                "maskOptions": {
+                                    "reverse": true
+                                }
+                            }, {
+                                "name": "own-send",
+                                "type": "select",
+                                "labelText": "Transportadora",
+                                "optional": true,
+                                "list": ["Não Possuo", "Própria", "Terceirizada", "Própia e Terceirizada"]
+                            }]
+                        }]
+                    });
                     for (let idx in lastData) {
                         switch (idx) {
                             case 'preBilling':
@@ -197,6 +195,7 @@ module.exports = function(controller) {
                             case 'monthCheckAmmount':
                             case 'avgCheckAmmount':
                             case 'revenue':
+                            case 'checkLiquidity':
                                 lastData[idx] *= 100;
                                 break;
                         }

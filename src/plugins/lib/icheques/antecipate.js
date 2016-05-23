@@ -317,10 +317,21 @@ module.exports = function(controller) {
             width: "185px"
         });
 
-        modal.createActions().add("Sair").click(function(e) {
+        var actions = modal.createActions();
+
+        actions.add("Sair").click(function(e) {
             e.preventDefault();
             modal.close();
         });
+
+        if (validBankReferences.length) {
+            actions.observation("Opera com mais algum fundo? <br />Entre em contato com o suporte.").css({
+                display: 'block',
+                'font-size': '12px',
+                'line-height': '14px'
+            });
+        }
+
     });
 
     var companyData = (paragraph, element) => {
