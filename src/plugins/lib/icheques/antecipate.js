@@ -10,6 +10,8 @@ const PAGINATE_FILTER = 7;
 /* global module, numeral */
 module.exports = function(controller) {
 
+    var commercialReference = null;
+
     function modalChecksIsEmpty() {
         let modal = controller.call("modal");
 
@@ -28,10 +30,10 @@ module.exports = function(controller) {
 
     controller.registerCall("icheques::antecipate::checksIsEmpty", modalChecksIsEmpty);
 
-    controller.registerCall("icheques::antecipate", function (checks) {
+    controller.registerCall("icheques::antecipate", function(checks) {
         controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
             dataType: "json",
-            success : () => {
+            success: () => {
                 controller.call("icheques::antecipate::init", checks);
             },
             error: () => {
@@ -44,6 +46,11 @@ module.exports = function(controller) {
                 });
             }
         });
+    });
+
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::commercialReference", (data, callback) => {
+        commercialReference = data.commercialReference;
+        callback();
     });
 
     /* List Banks */
@@ -103,7 +110,7 @@ module.exports = function(controller) {
                                 return obj.ammount > 0;
                             }));
                         }
-                   });
+                    });
 
                     q.drain = () => {
                         controller.call("icheques::antecipate", _.filter(checks, (obj) => {
@@ -244,8 +251,28 @@ module.exports = function(controller) {
         updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
     });
 
-    controller.registerCall("icheques::antecipate::show", function(data, checks) {
-        var banks = $("BPQL > body > fidc", data).filter((i, element) => {
+    controller.registerCall("icheques::antecipate::show", function(data, checks, filterReference = true) {
+        var banks = $("BPQL > body > fidc", data);
+
+        /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
+        if (filterReference) {
+            var validBankReferences = $();
+            _.each(commercialReference.split(","), (reference) => {
+                banks.each(function(i, element) {
+                    if ($("username", element).text() == reference ||
+                        $("cnpj", element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
+                        validBankReferences.push(element);
+                        return false; /* loop break */
+                    }
+                });
+            });
+            if (validBankReferences.length) {
+                banks = validBankReferences;
+            }
+        }
+
+
+        banks = banks.filter((i, element) => {
             var approved = $(element).children("approvedCustomer").text() == "true";
             var ask = $(element).children("ask").text() == "true";
             return !ask || approved;
@@ -271,8 +298,7 @@ module.exports = function(controller) {
             var approved = $(element).children("approvedCustomer").text() === "true";
 
             list.add("fa-share", [
-                $("company > nome", element).text() || $("company > responsavel", element).text() || $("company > username", element).text(),
-                !approved ?
+                $("company > nome", element).text() || $("company > responsavel", element).text() || $("company > username", element).text(), !approved ?
                 "Solicitar Aprovação" :
                 `${numeral(parseFloat($(element).children("interest").text().replace(',', '.'))).format('0.00%')} / ${numeral(parseInt($(element).children("limit").text()) / 100).format('$0,0.00')}`,
                 `${$("company > endereco > node:eq(4)", element).text()} / ${$("company > endereco > node:eq(6)", element).text()}`,
@@ -374,7 +400,7 @@ module.exports = function(controller) {
             "background": `url(${$(element).children("logo").text()}) no-repeat center`
         });
         modal.title($("company > nome", element).text() || $("company > responsavel", element).text());
-        modal.subtitle($("company > cnpj", element).text() || $("company > cpf", element).text());
+        modal.subtitle("CNPJ " + CNPJ.format($("company > cnpj", element).text()) || "CPF " + CPF.format($("company > cpf", element).text()));
         var paragraph = modal.paragraph($(element).children("bio").text());
 
         companyData(paragraph, element);

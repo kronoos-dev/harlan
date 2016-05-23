@@ -660,7 +660,7 @@ module.exports = (controller) => {
                     "type": "text",
                     "placeholder": "Taxa (%)",
                     "labelText": "Taxa (%)",
-                    "mask": "##0,00",
+                    "mask": "##0,00%",
                     "maskOptions": {
                         "reverse": true
                     },
