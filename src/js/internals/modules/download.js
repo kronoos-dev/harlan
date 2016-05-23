@@ -6,7 +6,7 @@ module.exports = (controller) => {
         callback();
         link = document.createElement("a");
         document.body.appendChild(link);
-        link.style = "display: none";
+        $(link).css("display", "none");
     });
 
     controller.registerCall("download", (blob, filename = "harlan.dat") => {
