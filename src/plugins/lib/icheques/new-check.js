@@ -97,7 +97,7 @@ module.exports = function (controller) {
             e.preventDefault();
             controller.call("icheques::newcheck");
         });
-        form.addSubmit("checkout", "Acompanhar").click(function (e) {
+        form.addSubmit("checkout", "Enviar para Monitoramento").click(function (e) {
             e.preventDefault();
             newCheckWrapper = null;
             controller.call("icheques::checkout", storage);
