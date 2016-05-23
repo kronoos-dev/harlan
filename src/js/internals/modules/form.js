@@ -94,6 +94,9 @@ module.exports = (controller) => {
 
                 if (item.mask) {
                     item.element.mask(item.mask, item.maskOptions);
+                    if (item.value) {
+                        item.element.val(item.element.masked(item.value));
+                    }
                 }
 
                 if (item.pikaday) {
