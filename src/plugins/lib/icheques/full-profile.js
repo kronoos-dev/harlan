@@ -10,7 +10,7 @@ var formDescription = {
         "fields": [{
             "name": "name",
             "type": "text",
-            "placeholder": "Nome do Responsábel",
+            "placeholder": "Nome do Responsável",
             "labelText": "Nome do Responsável"
         }, {
             "name": "email",
