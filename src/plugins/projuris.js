@@ -10,8 +10,6 @@
     controller.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
     require("./styles/projuris.js");
 
-    $("#action-credits").hide();
-
     controller.registerCall("loader::catchElement", function() {
         return [];
     });
