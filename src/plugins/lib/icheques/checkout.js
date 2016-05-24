@@ -1,17 +1,42 @@
 /* global moment, module, toastr */
 
+const DATABASE_KEYS = [
+    'id',
+    'creation',
+    'cmc',
+    'cpf',
+    'cnpj',
+    'expire',
+    'ammount',
+    'status',
+    'pushId',
+    'observation',
+    'company',
+    'document',
+    'queryStatus',
+    'ocurrenceCode',
+    'situation',
+    'display',
+    'ocurrence',
+    'lastUpdate'
+];
+
 var squel = require("squel"),
-        changeCase = require('change-case'),
-        async = require("async"),
-        _ = require("underscore"),
-        validCheck = require("./data/valid-check");
+    changeCase = require('change-case'),
+    async = require("async"),
+    _ = require("underscore"),
+    validCheck = require("./data/valid-check");
 
-module.exports = function (controller) {
+module.exports = function(controller) {
 
-    var databaseObject = function (obj, type) {
+    var databaseObject = (obj, type) => {
+
         type = type || "constantCase";
         var n = {};
         for (var i in obj) {
+            if (DATABASE_KEYS.indexOf(changeCase.camelCase(i)) < 0) {
+                continue;
+            }
             n[changeCase[type](i)] = obj[i];
         }
         return n;
@@ -19,31 +44,22 @@ module.exports = function (controller) {
 
     controller.registerCall("icheques::databaseObject", databaseObject);
 
-    var insertDatabase = function (check) {
-        var fields = null,
-                sql = null;
-        try {
-            if (Array.isArray(check)) {
-                if (check.length <= 0)
-                    return;
-                fields = _.map(databaseObject(check), function (check) {
-                    return databaseObject(check);
-                });
-                sql = squel.insert().into("ICHEQUES_CHECKS").setFieldsRows(fields).toString();
-                controller.database.exec(sql);
-            } else {
-                fields = databaseObject(check);
-                sql = squel.insert().into("ICHEQUES_CHECKS").setFields(fields).toString();
-                controller.database.exec(sql);
-            }
-        } catch (e) {
-            console.error(e, [fields, sql ? sql.toString() : null]);
+    var insertDatabase = function(check) {
+        if (Array.isArray(check)) {
+            if (check.length <= 0)
+                return;
+            _.map(check, function(check) {
+                return insertDatabase(check);
+            });
+            return;
         }
+
+        controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
     };
 
     controller.registerCall("icheques::insertDatabase", insertDatabase);
 
-    var calculateCheck = function (check) {
+    var calculateCheck = function(check) {
         if (!validCheck(check.cmc)) {
             return 0;
         }
@@ -60,7 +76,7 @@ module.exports = function (controller) {
         return controller.confs.icheques.price + ((months - 5) * controller.confs.icheques.moreMonths);
     };
 
-    var newCheck = function (check, callback) {
+    var newCheck = function(check, callback) {
         if (!validCheck(check.cmc)) {
             callback();
             return false;
@@ -68,11 +84,11 @@ module.exports = function (controller) {
 
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
             data: check,
-            success: function (ret) {
+            success: function(ret) {
                 $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
                 insertDatabase(check);
             },
-            complete: function () {
+            complete: function() {
                 callback();
             }
         });
@@ -82,7 +98,7 @@ module.exports = function (controller) {
     controller.registerCall("icheques::newCheck", newCheck);
     controller.registerCall("icheques::calculateCheckValue", calculateCheck);
 
-    controller.registerCall("icheques::checkout", function (storage) {
+    controller.registerCall("icheques::checkout", function(storage) {
         if (!storage.length) {
             return;
         }
@@ -90,15 +106,15 @@ module.exports = function (controller) {
         for (var i in storage) {
             if (!validCheck(storage[i].cmc)) {
                 toastr.warning("Alguns cheques não poderão ser processados.",
-                        "Instituição bancária não integrada ao iCheques.");
+                    "Instituição bancária não integrada ao iCheques.");
                 break;
             }
         }
 
-        controller.call("icheques::calculateBill", storage, function () {
+        controller.call("icheques::calculateBill", storage, function() {
             var q = async.queue(newCheck);
             var loaderUnregister = $.bipbopLoader.register();
-            q.drain = function () {
+            q.drain = function() {
                 loaderUnregister();
                 controller.call("icheques::show", storage);
             };
@@ -109,7 +125,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall("icheques::calculateBill", function (checks, callback) {
+    controller.registerCall("icheques::calculateBill", function(checks, callback) {
         var total = 0;
         for (var i in checks) {
             if (!validCheck(checks[i].cmc)) {
