@@ -1,26 +1,26 @@
-var uniqid = require('uniqid'),
-    async = require("async"),
-    assert = require("assert"),
-    url = require('url'),
-    _ = require("underscore");
+import uniqid from 'uniqid';
+import async from 'async';
+import assert from 'assert';
+import url from 'url';
+import _ from 'underscore';
 
-var ServerCommunication = require("./library/server-communication"),
-    ImportXMLDocument = require("./library/import-xml-document"),
-    Interface = require("./library/interface.js"),
-    I18n = require("./library/i18n.js"),
-    Store = require("./library/store.js");
+import ServerCommunication from './library/server-communication';
+import ImportXMLDocument from './library/import-xml-document';
+import Interface from './library/interface.js';
+import I18n from './library/i18n.js';
+import Store from './library/store.js';
 
 var Controller = function() {
 
     this.database = new SQL.Database();
-    this.confs = require("./config");
+    this.confs = require('./config');
     var language = null;
 
     this.i18n = new I18n(localStorage.language ||
         navigator.language ||
-        navigator.userLanguage || "pt", this);
+        navigator.userLanguage || 'pt', this);
 
-    this.language = function() {
+    this.language = () => {
         return language;
     };
 
@@ -34,21 +34,21 @@ var Controller = function() {
      * List all possible calls
      * @returns {Array}
      */
-    this.listCalls = function() {
+    this.listCalls = () => {
         return Object.keys(calls);
     };
 
     this.query = url.parse(window.location.href, true).query;
 
-    this.registerBootstrap = function(name, callback) {
+    this.registerBootstrap = (name, callback) => {
         bootstrapCalls[name] = callback;
         return this;
     };
 
     this.interface = new Interface(this);
 
-    this.unregisterTriggers = function(name, except = []) {
-        for (var i in events[name]) {
+    this.unregisterTriggers = (name, except = []) => {
+        for (let i in events[name]) {
             if (except.indexOf(i) != -1) {
                 continue;
             }
@@ -56,23 +56,29 @@ var Controller = function() {
         }
     };
 
-    this.registerTrigger = function(name, id, callback) {
-        console.log(":: register trigger ::", name);
+    this.unregisterTrigger = (name, ...list) => {
+        for (let e of list) {
+            delete events[name][e];
+        }
+    }
+
+    this.registerTrigger = (name, id, callback) => {
+        console.log(':: register trigger ::', name);
         if (!(name in events)) {
             events[name] = {};
         }
         events[name][id] = callback;
     };
 
-    this.trigger = function(name, args, onComplete) {
+    this.trigger = (name, args, onComplete) => {
 
-        var run = function() {
+        var run = () => {
             if (onComplete) {
                 onComplete();
             }
         };
 
-        console.log(":: trigger ::", name, args);
+        console.log(':: trigger ::', name, args);
         if (!(name in events)) {
             run();
             return this;
@@ -84,47 +90,51 @@ var Controller = function() {
             return this;
         }
 
-        var runsAtEnd = function() {
+        var runsAtEnd = () => {
             if (!--submits) {
-                console.log(":: trigger :: end ::", name);
+                console.log(':: trigger :: end ::', name);
                 run();
             }
         };
 
-        console.log(":: trigger :: init ::", name);
+        console.log(':: trigger :: init ::', name);
 
-        for (var triggerName in events[name]) {
-            console.log(name + " executing " + triggerName);
+        for (let triggerName in events[name]) {
+            if (!events[name][triggerName]) {
+                submits--;
+                continue;
+            }
+            console.log(`${name} executing ${triggerName}`);
             events[name][triggerName](args, runsAtEnd);
         }
 
         return this;
     };
 
-    this.registerCall = function(name, callback) {
-        console.log(":: register :: ", name);
-        this.trigger("call::register::" + name);
+    this.registerCall = (name, callback) => {
+        console.log(':: register :: ', name);
+        this.trigger(`call::register::${name}`);
         calls[name] = callback;
         return this;
     };
 
-    this.listCalls = function(regex) {
+    this.listCalls = (regex) => {
         regex = regex || /.*/;
-        for (var key in calls) {
+        for (let key in calls) {
             if (regex.test(key)) {
                 console.log(`harlan.call('${key}')`, calls[key]);
             }
         }
     };
 
-    this.reference = function(name) {
+    this.reference = (name) => {
         return (...parameters) => {
             this.call(name, ...parameters);
         };
     };
 
-    this.call = function(name, ...parameters) {
-        console.log(":: call ::", name, parameters);
+    this.call = (name, ...parameters) => {
+        console.log(':: call ::', name, parameters);
         assert.ok(name in calls);
         var data = calls[name](...parameters);
         this.trigger(`call::${name}`, parameters);
@@ -136,7 +146,7 @@ var Controller = function() {
 
     this.store = new Store(this);
 
-    this.run = function() {
+    this.run = () => {
         var calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
 
@@ -144,81 +154,81 @@ var Controller = function() {
 
         //debugDevil(calls, me);
 
-        async.auto(calls, function(err, results) {
-            console.log(":: bootstrap ::", err, results);
-            me.trigger("bootstrap::end");
+        async.auto(calls, (err, results) => {
+            console.log(':: bootstrap ::', err, results);
+            me.trigger('bootstrap::end');
         });
     };
 
     /* Service Worker */
-    require("./modules/service-worker")(this);
+    require('./modules/service-worker')(this);
 
     /* Web3 */
-    require("./modules/web3");
+    require('./modules/web3');
 
     /* Parsers */
-    require("./parsers/placas-wiki")(this);
-    require("./parsers/junta-empresa")(this);
-    require("./parsers/cbusca")(this);
-    require("./parsers/ccbusca")(this);
+    require('./parsers/placas-wiki')(this);
+    require('./parsers/junta-empresa')(this);
+    require('./parsers/cbusca')(this);
+    require('./parsers/ccbusca')(this);
 
     /* Forms */
-    require("./forms/receita-certidao")(this);
+    require('./forms/receita-certidao')(this);
 
     /* Modules */
-    require("./modules/analytics/google-analytics")(this);
-    require("./modules/security/antiphishing")(this);
-    require("./modules/i18n")(this);
-    require("./modules/autocomplete")(this);
-    require("./modules/find-database")(this);
-    require("./modules/loader")(this);
-    require("./modules/error")(this);
-    require("./modules/endpoint")(this);
-    require("./modules/database-search")(this);
-    require("./modules/modal")(this);
-    require("./modules/welcome-screen")(this);
-    require("./modules/authentication")(this);
-    require("./modules/report")(this);
-    require("./modules/module")(this);
-    require("./modules/selected-results")(this);
-    require("./modules/search-junta-empresa")(this);
-    require("./modules/find-company")(this);
-    require("./modules/find-document")(this);
-    require("./modules/xml-document")(this);
-    require("./modules/section")(this);
-    require("./modules/iugu")(this);
-    require("./modules/database-error")(this);
-    require("./modules/messages")(this);
-    require("./modules/main-search")(this);
-    require("./modules/oauth-io")(this);
-    require("./modules/url-parameter")(this);
-    require("./modules/result")(this);
-    require("./modules/demonstrate")(this);
-    require("./modules/download")(this);
-    require("./modules/form")(this);
-    require("./modules/forgot-password")(this);
-    require("./modules/iframe-embed")(this);
-    require("./modules/site")(this);
-    require("./modules/placas-wiki")(this);
-    require("./modules/credits")(this);
-    require("./modules/alert")(this);
-    //require("./modules/push-notification")(this);
-    require("./modules/password")(this);
-    require("./modules/progress")(this);
-    require("./modules/subaccount")(this);
-    require("./modules/more-results")(this);
-    require("./modules/instant-search")(this);
-    require("./modules/tooltip")(this);
-    require("./modules/icheques")(this);
-    require("./modules/dive")(this);
-    require("./modules/kronoos")(this);
-    require("./modules/billing-information")(this);
-    require("./modules/bipbop")(this);
-    require("./modules/admin/index")(this);
-    require("./modules/email-activation")(this);
-    require("./modules/timeline")(this);
-    require("./modules/data-company")(this);
-    require("./modules/ccbusca")(this);
+    require('./modules/analytics/google-analytics')(this);
+    require('./modules/security/antiphishing')(this);
+    require('./modules/i18n')(this);
+    require('./modules/autocomplete')(this);
+    require('./modules/find-database')(this);
+    require('./modules/loader')(this);
+    require('./modules/error')(this);
+    require('./modules/endpoint')(this);
+    require('./modules/database-search')(this);
+    require('./modules/modal')(this);
+    require('./modules/welcome-screen')(this);
+    require('./modules/authentication')(this);
+    require('./modules/report')(this);
+    require('./modules/module')(this);
+    require('./modules/selected-results')(this);
+    require('./modules/search-junta-empresa')(this);
+    require('./modules/find-company')(this);
+    require('./modules/find-document')(this);
+    require('./modules/xml-document')(this);
+    require('./modules/section')(this);
+    require('./modules/iugu')(this);
+    require('./modules/database-error')(this);
+    require('./modules/messages')(this);
+    require('./modules/main-search')(this);
+    require('./modules/oauth-io')(this);
+    require('./modules/url-parameter')(this);
+    require('./modules/result')(this);
+    require('./modules/demonstrate')(this);
+    require('./modules/download')(this);
+    require('./modules/form')(this);
+    require('./modules/forgot-password')(this);
+    require('./modules/iframe-embed')(this);
+    require('./modules/site')(this);
+    require('./modules/placas-wiki')(this);
+    require('./modules/credits')(this);
+    require('./modules/alert')(this);
+    //require('./modules/push-notification')(this);
+    require('./modules/password')(this);
+    require('./modules/progress')(this);
+    require('./modules/subaccount')(this);
+    require('./modules/more-results')(this);
+    require('./modules/instant-search')(this);
+    require('./modules/tooltip')(this);
+    require('./modules/icheques')(this);
+    require('./modules/dive')(this);
+    require('./modules/kronoos')(this);
+    require('./modules/billing-information')(this);
+    require('./modules/bipbop')(this);
+    require('./modules/admin/index')(this);
+    require('./modules/email-activation')(this);
+    require('./modules/timeline')(this);
+    require('./modules/data-company')(this);
+    require('./modules/ccbusca')(this);
 
     /**
      * From day to night and night to day
@@ -230,6 +240,6 @@ var Controller = function() {
     return this;
 };
 
-module.exports = function() {
+module.exports = () => {
     return new Controller();
 };

@@ -252,11 +252,11 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::antecipate::show", function(data, checks, filterReference = true) {
-        var banks = $("BPQL > body > fidc", data);
+        var banks = $("BPQL > body > fidc", data),
+            validBankReferences = $();
 
         /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
         if (filterReference) {
-            var validBankReferences = $();
             _.each(commercialReference.split(","), (reference) => {
                 banks.each(function(i, element) {
                     if ($("username", element).text() == reference ||

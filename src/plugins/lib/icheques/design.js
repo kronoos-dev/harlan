@@ -5,6 +5,11 @@ var loaderRegister = 0,
 
 module.exports = function(controller) {
 
+    controller.unregisterTriggers("serverCommunication::websocket::sendMessage");
+    controller.unregisterTrigger("authentication::authenticated", "inbox");
+
+    controller.confs.subaccount.icons = ["fa-key", "fa-folder-open"];
+
     var siteTemplate = require('../../templates/icheques-site.html.js'),
         emailRegex = require("email-regex"),
         installDatabase = require("../../sql/icheques.sql.js");

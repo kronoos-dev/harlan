@@ -1,7 +1,11 @@
 /* global module */
 
-var _ = require("underscore"),
-    sprintf = require("sprintf");
+import _ from "underscore";
+import sprintf from "sprintf";
+import {
+    CPF,
+    CNPJ
+} from "cpf_cnpj";
 
 var formDescription = {
     "title": "Criação de Subconta",
@@ -84,6 +88,10 @@ var formDescription = {
 };
 module.exports = function(controller) {
 
+    controller.confs.subaccount = {
+        icons: ["fa-key", "fa-folder-open", "fa-cogs"]
+    };
+
     controller.endpoint.subaccountCreate = "SELECT FROM 'BIPBOPAPIKEY'.'GENERATE'";
     var register = function(data) {
         controller.serverCommunication.call(controller.endpoint.subaccountCreate,
@@ -105,6 +113,66 @@ module.exports = function(controller) {
         form.configure(formDescription);
     });
 
+    controller.registerCall("subaccount::limit", function(apiKey) {
+        controller.server.call("SELECT FROM 'BIPBOPAPIKEY'.'QUERY'",
+            controller.call("error::ajax", controller.call("loader::ajax", {
+                data: {
+                    apiKey: apiKey
+                },
+                success: (ret) => {
+                    var form = controller.call("form", (confs) => {
+                        controller.server.call("SELECT FROM 'BIPBOPAPIKEY'.'UPDATE'", {
+                            data: $.extend({
+                                apiKey: apiKey,
+                            }, confs),
+                            success: () => {
+                                toastr.success("Suas configurações de usuário foram atualizadas.");
+                            }
+                        });
+
+                    });
+                    form.configure({
+                        title: "Configuração de Subconta",
+                        subtitle: "Gerencie os parâmetros da subconta.",
+                        paragraph: "Limite a quantidade de consultas que uma subconta é capaz de realizar.",
+                        gamification: "lock",
+                        screens: [{
+                            magicLabel: true,
+                            fields: [{
+                                value: $("limit", ret).text(),
+                                name: "limit",
+                                type: "text",
+                                placeholder: "Quantidade de Consultas (0 para ilimitado)",
+                                labelText: "Quantidade de Consultas (0 para ilimitado)",
+                                optional: false,
+                                mask: "000.000.000.000.000",
+                                numeral: true,
+                                maskOptions: {
+                                    reverse: true
+                                },
+                            }, {
+                                value: $("day-limit", ret).text(),
+                                name: "dayLimit",
+                                type: "text",
+                                placeholder: "Data de Vencimento (max. dia 25)",
+                                labelText: "Data de Vencimento (max. dia 25)",
+                                optional: false,
+                                mask: "09",
+                                numeral: true,
+                                maskOptions: {
+                                    reverse: true
+                                },
+                                validate: function(item) {
+                                    var dayLimit = parseInt(item.element.val(), 10);
+                                    return dayLimit > 0 && dayLimit <= 25;
+                                }
+                            }]
+                        }]
+                    });
+                }
+            })));
+    });
+
     var companyDraw = (list, data) => {
         list.empty();
         $("BPQL > body > company", data).each(function(idx, item) {
@@ -116,7 +184,7 @@ module.exports = function(controller) {
             var iconStatus = function() {
                 return (status ? "fa-check" : "fa-times") + " block";
             };
-            var acc = list.add([iconStatus(), "fa-key", "fa-folder-open"], [cnpj, username]);
+            var acc = list.add([iconStatus()].concat(controller.confs.subaccount.icons), [cnpj ? CNPJ.format(cnpj) : (cpf ? CPF.format(cpf) : "Sem Documento"), username]);
             acc.find(".fa-key").click((e) => {
                 e.preventDefault();
                 controller.call("alert", {
@@ -125,6 +193,10 @@ module.exports = function(controller) {
                     subtitle: "Atenção! Manipule com segurança.",
                     paragraph: `A chave de API <strong class="apiKey">${apiKey}</strong> do usuário ${username} deve ser manipulada com segurança absoluta, não devendo ser repassada a terceiros. Tenha certeza que você sabe o que está fazendo.`
                 });
+            });
+            acc.find(".fa-cogs").click((e) => {
+                e.preventDefault();
+                controller.call("subaccount::limit", apiKey);
             });
             acc.find(".fa-folder-open").click((e) => {
                 e.preventDefault();
