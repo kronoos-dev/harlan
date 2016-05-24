@@ -1,6 +1,7 @@
 /* global module */
 
-var MoreResults = function(maxItems) {
+var MoreResults = function (maxItems) {
+
     var footer = $("<footer />").addClass("load-more"),
         container = $("<div />").addClass("container"),
         content = $("<div />").addClass("content").text("Mais Resultados"),
@@ -9,11 +10,16 @@ var MoreResults = function(maxItems) {
 
     footer.append(container.append(content)).hide();
 
-    var close = function() {
+    this.close = () =>  {
         footer.remove();
     };
 
-    var show = function(complete, i = 0) {
+    footer.click((e) => {
+        e.preventDefault();
+        this.show();
+    });
+
+    this.show = (complete, i = 0) => {
         var onComplete = (...p) => {
             if (complete) complete(...p);
             footer.show();
@@ -29,7 +35,7 @@ var MoreResults = function(maxItems) {
             if (!item && callit) {
                 callit((newItems) => {
                     if (!newItems || !newItems.length) {
-                        close();
+                        this.close();
                         onComplete(i, items);
                         return;
                     }
@@ -49,53 +55,44 @@ var MoreResults = function(maxItems) {
         if (!items.length && callit) {
             callit((newItems) => {
                 if (!newItems || !newItems.length) {
-                    close();
+                    this.close();
                 } else {
                     items = newItems;
                     onComplete(i, items);
                 }
             });
         } else {
-            if (!items.length) close();
+            if (!items.length) this.close();
             onComplete(i, items);
         }
 
         return this;
     };
 
-
-    footer.click((e) => {
-        e.preventDefault();
-        show();
-    });
-
-    this.show = show;
-
-    this.callback = function(callback) {
+    this.callback = (callback) =>  {
         callit = callback;
         return this;
     };
 
-    this.append = function(element) {
+    this.append = (element) =>  {
         items.push(element);
         return this;
     };
 
-    this.appendTo = function(element) {
+    this.appendTo = (element) =>  {
         footer.appendTo(element);
         return this;
     };
 
-    this.element = function() {
-        footer.show();
+    this.element = () =>  {
         return footer;
     };
 
     return this;
 };
 
-module.exports = function(controller) {
-    controller.registerCall("moreResults", function(maxItems) {
+module.exports = (controller) => {
+    controller.registerCall("moreResults", (maxItems) =>  {
         return new MoreResults(maxItems);
     });
 };
