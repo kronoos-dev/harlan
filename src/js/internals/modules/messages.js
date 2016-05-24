@@ -30,8 +30,8 @@ module.exports = function(controller) {
         controller.call("inbox::check");
     };
 
-    controller.registerTrigger("authentication::authenticated", "inbox::authentication::authenticated", checkbox);
-    controller.registerTrigger("serverCommunication::websocket::sendMessage", "inbox::serverCommunication::websocket::sendMessage", checkbox);
+    controller.registerTrigger("authentication::authenticated", "inbox", checkbox);
+    controller.registerTrigger("serverCommunication::websocket::sendMessage", "inbox", checkbox);
 
     controller.registerBootstrap("inbox", function(callback) {
         callback();

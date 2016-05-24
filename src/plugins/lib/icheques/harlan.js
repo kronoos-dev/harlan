@@ -15,6 +15,30 @@ var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
 module.exports = function(controller) {
 
+    var registerSocket = () => {
+        controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {
+            callback();
+
+            var dbResponse = controller.database.exec(squel
+                .select()
+                .from("ICHEQUES_CHECKS")
+                .where("PUSH_ID = ?", data.pushId).toString());
+
+            if (!dbResponse.length) {
+                controller.call("icheques::insertDatabase", data);
+                return;
+            }
+
+            controller.database.exec(squel
+                .update()
+                .table("ICHEQUES_CHECKS")
+                .where("PUSH_ID = ?", data.pushId)
+                .setFields(controller.call("icheques::databaseObject", data)).toString());
+
+            controller.call("icheques::item::upgrade", data);
+        });
+    };
+
     controller.registerTrigger("authentication::authenticated", "icheques::sync::authentication::authenticated", function(data, callback) {
         if (controller.serverCommunication.freeKey()) {
             callback();
@@ -42,6 +66,7 @@ module.exports = function(controller) {
                 });
 
                 controller.call("icheques::insertDatabase", storage);
+                registerSocket();
                 callback();
             },
             complete: function() {
@@ -298,27 +323,4 @@ module.exports = function(controller) {
         controller.call("icheques::item::delete", data);
         controller.trigger("icheques::deleted", data);
     });
-
-    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {
-        callback();
-
-        var dbResponse = controller.database.exec(squel
-            .select()
-            .from("ICHEQUES_CHECKS")
-            .where("PUSH_ID = ?", data.pushId).toString());
-
-        if (!dbResponse.length) {
-            controller.call("icheques::insertDatabase", data);
-            return;
-        }
-
-        controller.database.exec(squel
-            .update()
-            .table("ICHEQUES_CHECKS")
-            .where("PUSH_ID = ?", data.pushId)
-            .setFields(controller.call("icheques::databaseObject", data)).toString());
-
-        controller.call("icheques::item::upgrade", data);
-    });
-
 };
