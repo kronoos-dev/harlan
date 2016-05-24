@@ -60,7 +60,7 @@ var Controller = function() {
         for (let e of list) {
             delete events[name][e];
         }
-    }
+    };
 
     this.registerTrigger = (name, id, callback) => {
         console.log(':: register trigger ::', name);
