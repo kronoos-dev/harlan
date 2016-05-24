@@ -1,8 +1,10 @@
 /* global controller, numeral, Infinity, NaN, moment */
-(function (controller) {
-    var REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
-    var REGEX_SIGLA = /\'sigla\'\s*=\s*'([^']*)'/i;
-    var REGEX_PARAMETER = /\'(numero_oab|processo|)\'\s*=\s*'([^']*)'/i;
+(function(controller) {
+
+    const MAX_RESULTS = 10;
+    const REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
+    const REGEX_SIGLA = /\'sigla\'\s*=\s*'([^']*)'/i;
+    const REGEX_PARAMETER = /\'(numero_oab|processo|)\'\s*=\s*'([^']*)'/i;
 
     controller.trigger("projuris::init");
     controller.interface.helpers.logo.empty().append($("<div />").addClass("logo-projuris"));
@@ -10,22 +12,31 @@
 
     $("#action-credits").hide();
 
-    controller.registerCall("loader::catchElement", function () {
+    controller.registerCall("loader::catchElement", function() {
         return [];
     });
 
     $("title").text("Projuris | Processos Jurídicos Acompanhados no Sistema");
     $("link[rel='shortcut icon']").attr("href", "images/favicon-projuris.png");
+    $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(47) 3086-1999 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
 
+    var skip = 0;
     controller.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'", controller.call("loader::ajax", {
-        success: function (document) {
+        data: {
+            limit: MAX_RESULTS,
+            skip: skip
+        },
+        success: function(document) {
 
             var section = controller.call("section",
-                    "Processos Cadastrados",
-                    "Processos jurídicos acompanhados no sistema",
-                    "Créditos disponíveis e extrato");
+                "Processos Cadastrados",
+                "Processos jurídicos acompanhados no sistema",
+                "Créditos disponíveis e extrato");
             var jdocument = $(document);
             var result = controller.call("result");
+
+            section[1].append(result.element());
+            $(".app-content").append(section[0]);
 
             result.addItem("Usuário", jdocument.find("BPQL > body > username").text());
 
@@ -48,41 +59,64 @@
                 radial.element.addClass("attention animated flash");
             }
 
+            var moreResults = controller.call("moreResults", MAX_RESULTS).callback((callback) => {
+                skip += MAX_RESULTS;
+                controller.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'",
+                    controller.call("loader::ajax", controller.call("error::ajax", {
+                        data: {
+                            limit: MAX_RESULTS,
+                            skip: skip
+                        },
+                        success: (response) => {
+                            var items = [];
+                            $("BPQL > body push", response).each((idx, node) => {
+                                items.push(controller.call("projuris::parseResult", node));
+                            });
+                            callback(items);
+                        }
+                    })));
+            });
 
-            var pushs = jdocument.find("BPQL > body push");
+            moreResults.element().insertAfter(result.element());
+
+            let pushs = jdocument.find("BPQL > body push");
             if (pushs.length) {
-                result.addSeparator("Extrato de Processos", "Processos Realizados", pushs.length === 1 ?
-                        "1 processo" : pushs.length.toString() + " processos");
+                result.addSeparator("Extrato de Processos", "Processos Realizados", usedCredits === 1 ?
+                    "1 processo" : numeral(usedCredits).format('0,') + " processos");
 
-                pushs.each(function (idx, node) {
-                    var jnode = $(node);
-                    var resultNode = controller.call("result");
-                    resultNode.addItem("Título", jnode.attr("label"));
-                    resultNode.addItem("Versão", jnode.attr("version") || "0").addClass("center");
-                    resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center").addClass("center");
-                    resultNode.addItem("Atualização", moment(jnode.attr("nextJob")).fromNow());
-
-                    var sigla = jnode.find("data").text().match(REGEX_SIGLA);
-                    if (sigla) {
-                        resultNode.addItem("Sigla", sigla[1]);
-                    }
-
-                    var tribunal = jnode.find("data").text().match(REGEX_TRIBUNAL);
-                    if (tribunal) {
-                        resultNode.addItem(tribunal[1], tribunal[2]).css("width", "20%");
-                    }
-
-                    var parameter = jnode.find("data").text().match(REGEX_PARAMETER);
-                    if (parameter) {
-                        resultNode.addItem(parameter[1], parameter[2]);
-                    }
-
-                    result.element().append(resultNode.element().addClass("table"));
+                pushs.each((idx, node) => {
+                    moreResults.append(controller.call("projuris::parseResult", node));
                 });
             }
 
-            section[1].append(result.element());
-            $(".app-content").append(section[0]);
+            moreResults.show();
         }
     }));
+
+    controller.registerCall("projuris::parseResult", (node) => {
+        var jnode = $(node);
+        var resultNode = controller.call("result");
+        resultNode.addItem("Título", jnode.attr("label"));
+        resultNode.addItem("Versão", jnode.attr("version") || "0").addClass("center");
+        resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center").addClass("center");
+        resultNode.addItem("Atualização", moment(jnode.attr("nextJob")).fromNow());
+
+        var sigla = jnode.find("data").text().match(REGEX_SIGLA);
+        if (sigla) {
+            resultNode.addItem("Sigla", sigla[1]);
+        }
+
+        var tribunal = jnode.find("data").text().match(REGEX_TRIBUNAL);
+        if (tribunal) {
+            resultNode.addItem(tribunal[1], tribunal[2]).css("width", "20%");
+        }
+
+        var parameter = jnode.find("data").text().match(REGEX_PARAMETER);
+        if (parameter) {
+            resultNode.addItem(parameter[1], parameter[2]);
+        }
+
+        return resultNode.element().addClass("table");
+    });
+
 })(harlan);
