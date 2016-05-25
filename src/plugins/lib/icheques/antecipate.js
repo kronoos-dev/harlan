@@ -256,7 +256,7 @@ module.exports = function(controller) {
             validBankReferences = $();
 
         /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
-        if (filterReference) {
+        if (filterReference && commercialReference) {
             _.each(commercialReference.split(","), (reference) => {
                 banks.each(function(i, element) {
                     if ($("username", element).text() == reference ||
