@@ -17,13 +17,13 @@ module.exports = function (controller) {
 
 
         report = controller.call("report",
-                "Quem indicou a você o iCheques?",
-                "Nos diga quem foi bom samaritano que indicou a você o iCheques.",
-                "Nossa pergunta é porque nós pretendemos dar um saco cheio de moedas de ouro para quem te apresentou nossa maravilhosa ferramenta.",
+                "Como você encontrou a iCheques?",
+                "Conte como ouviu falar de nós, ou digite a referência que você recebeu por e-mail de sua Parceira Financeira.",
+                "",
                 true);
 
         var form = report.form(controller),
-                samaritano = form.addInput("samaritano", "text", "Nome do bom samaritano");
+                samaritano = form.addInput("samaritano", "text", "Referência");
 
         var autocomplete = controller.call("autocomplete", samaritano);
         var fill = function (val, submit) {
@@ -54,7 +54,7 @@ module.exports = function (controller) {
             });
         }, autocomplete);
 
-        form.addSubmit("send", "Boa Ação");
+        form.addSubmit("send", "Enviar");
 
         form.element().submit(function (e) {
             e.preventDefault();
