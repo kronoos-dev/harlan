@@ -76,9 +76,9 @@ module.exports = (controller) => {
         if (dict.approved && dict.expired) {
             report.title("Seu cadastro de antecipador está expirado.");
             report.subtitle("Infelizmente você não poderá receber novas operações.");
-            report.paragraph("Renove seu cadastro de antecipador clicando no botão abaixo, é um custo de R$ 500 (quinhentos reais) para mais um mês de operações.");
+            report.paragraph("Renove seu cadastro de antecipador clicando no botão abaixo, é um custo de R$ 900 (novecentos reais) para mais um mês de operações.");
             report.button("Renovar Cadastro", () => {
-                controller.call("credits::has", 50000, () => {
+                controller.call("credits::has", 90000, () => {
                     controller.server.call("UPDATE 'ICHEQUESFIDC'.'RENEW'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             success: () => {
@@ -355,7 +355,7 @@ module.exports = (controller) => {
                     paragraph: "o contrato de serviço estão disponíveis <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__ANTECIPADORA_DE_CHEQUES.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
                     confirmText: "Aceitar"
                 }, () => {
-                    controller.call("credits::has", 50000, () => {
+                    controller.call("credits::has", 90000, () => {
                         controller.call("billingInformation::need", () => {
                             controller.server.call("INSERT INTO 'ICHEQUESFIDC'.'COMPANY'", controller.call("error::ajax", controller.call("loader::ajax", {
                                 method: "POST",
@@ -368,7 +368,7 @@ module.exports = (controller) => {
                                         icon: "pass",
                                         title: "Parabéns! Aguarde seu e-mail pela nossa aprovação.",
                                         subtitle: "Assim que aprovado seu cadastro você já poderá transacionar com nossos clientes e parceiros.",
-                                        paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes. Certifique de manter pelo menos R$ 500 reais de créditos para poder começar a trabalhar com as operações."
+                                        paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes. Certifique de manter pelo menos R$ 900 reais de créditos para poder começar a trabalhar com as operações."
                                     });
                                 }
                             }, true)));
@@ -434,7 +434,7 @@ module.exports = (controller) => {
                                     icon: "pass",
                                     title: "Antecipadora aprovada com sucesso.",
                                     subtitle: "A antecipadora foi aprovada e já pode ser utilizada pelos clientes e parceiros iCheques.",
-                                    paragraph: "Um e-mail foi enviado avisando da aprovação, também foram debitados os R$ 500,00 (quinhentos reais), referentes ao primeiro mês de uso."
+                                    paragraph: "Um e-mail foi enviado avisando da aprovação, também foram debitados os R$ 900,00 (novecentos reais), referentes ao primeiro mês de uso."
                                 });
                                 report.close();
                             }
