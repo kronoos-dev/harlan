@@ -280,8 +280,8 @@ module.exports = function(controller) {
 
         if (!banks.length) {
             controller.call("alert", {
-                title: "Você não tem o perfil aprovado por nenhum fundo.",
-                subtitle: "Atualize seus dados bancários, cadastrais e procure uma factoring iCheques para habilitar essa função."
+                title: "Não foi possível completar sua solicitação!",
+                subtitle: "Para antecipar créditos você precisa ter o seu perfil aprovado por um Parceiro Financeiro. Entre em contato com o suporte: (11) 3661-4657."
             });
             return;
         }
