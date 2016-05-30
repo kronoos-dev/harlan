@@ -1,6 +1,6 @@
 module.exports = () => {
     var resize = function() {
-        $("body > .kronoos-site .call-to-action").css({
+        $(".kronoos-site .call-to-action, .kronoos-application .search-bar.full").css({
             "height": window.innerHeight
         });
     };

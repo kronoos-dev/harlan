@@ -1,0 +1,109 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700,900,600);
+
+//fonts
+$font_lora: Lora, sans-serif;
+$font_fago: FagoWebW01, sans-serif;
+$font_fago_ita: FagoWebPro-ItaW01, sans-serif;
+$font_source_sans_pro: 'Source Sans Pro', sans-serif;
+
+//urls
+$asset_0: url("/fonts/Lora-Italic.eot");
+$asset_1: url("/fonts/Lora-Italic.eot?#iefix");
+$asset_2: url("/fonts/Lora-Italic.woff");
+$asset_3: url("/fonts/Lora-Italic.ttf");
+$asset_4: url("/fonts/Lora-BoldItalic.eot");
+$asset_5: url("/fonts/Lora-BoldItalic.eot?#iefix");
+$asset_6: url("/fonts/Lora-BoldItalic.woff");
+$asset_7: url("/fonts/Lora-BoldItalic.ttf");
+$asset_8: url("/fonts/FagoWebW01-Regular.eot");
+$asset_9: url("/fonts/FagoWebW01-Regular.eot?#iefix");
+$asset_10: url("/fonts/FagoWebW01-Regular.woff");
+$asset_11: url("/fonts/FagoWebW01-Regular.ttf");
+$asset_12: url("/fonts/FagoWebPro-ItaW01-Regular.eot");
+$asset_13: url("/fonts/FagoWebPro-ItaW01-Regular.eot?#iefix");
+$asset_14: url("/fonts/FagoWebPro-ItaW01-Regular.woff");
+$asset_15: url("/fonts/FagoWebPro-ItaW01-Regular.ttf");
+$asset_16: url("/fonts/Lora-Regular.eot");
+$asset_17: url("/fonts/Lora-Regular.eot?#iefix");
+$asset_18: url("/fonts/Lora-Regular.woff");
+$asset_19: url("/fonts/Lora-Regular.ttf");
+$asset_20: url("/fonts/Lora-Bold.eot");
+$asset_21: url("/fonts/Lora-Bold.eot?#iefix");
+$asset_22: url("/fonts/Lora-Bold.woff");
+$asset_23: url("/fonts/Lora-Bold.ttf");
+$asset_24: url("/fonts/FagoWebW01-Regular_1.eot");
+$asset_25: url("/fonts/FagoWebW01-Regular_1.eot?#iefix");
+$asset_26: url("/fonts/FagoWebW01-Regular_1.woff");
+$asset_27: url("/fonts/FagoWebW01-Regular_1.ttf");
+$asset_28: url("/fonts/FagoWebPro-ItaW01-Regular_1.eot");
+$asset_29: url("/fonts/FagoWebPro-ItaW01-Regular_1.eot?#iefix");
+$asset_30: url("/fonts/FagoWebPro-ItaW01-Regular_1.woff");
+$asset_31: url("/fonts/FagoWebPro-ItaW01-Regular_1.ttf");
+$asset_32: url("/fonts/FagoWebW01-Regular_2.eot");
+$asset_33: url("/fonts/FagoWebW01-Regular_2.eot?#iefix");
+$asset_34: url("/fonts/FagoWebW01-Regular_2.woff");
+$asset_35: url("/fonts/FagoWebW01-Regular_2.ttf");
+
+@font-face {
+  font-family: $font_lora;
+  src: $asset_0;
+  src: $asset_1 format('embedded-opentype'), $asset_2 format('woff'), $asset_3 format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: $font_lora;
+  src: $asset_4;
+  src: $asset_5 format('embedded-opentype'), $asset_6 format('woff'), $asset_7 format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: $font_fago;
+  src: $asset_8;
+  src: $asset_9 format('embedded-opentype'), $asset_10 format('woff'), $asset_11 format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: $font_fago_ita;
+  src: $asset_12;
+  src: $asset_13 format('embedded-opentype'), $asset_14 format('woff'), $asset_15 format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: $font_lora;
+  src: $asset_16;
+  src: $asset_17 format('embedded-opentype'), $asset_18 format('woff'), $asset_19 format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: $font_lora;
+  src: $asset_20;
+  src: $asset_21 format('embedded-opentype'), $asset_22 format('woff'), $asset_23 format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: $font_fago;
+  src: $asset_24;
+  src: $asset_25 format('embedded-opentype'), $asset_26 format('woff'), $asset_27 format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: $font_fago_ita;
+  src: $asset_28;
+  src: $asset_29 format('embedded-opentype'), $asset_30 format('woff'), $asset_31 format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: $font_fago;
+  src: $asset_32;
+  src: $asset_33 format('embedded-opentype'), $asset_34 format('woff'), $asset_35 format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

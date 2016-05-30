@@ -113,7 +113,7 @@
         }
     }
 
-    ul:not(.list,.actions) {
+    ul:not(.list):not(.actions) {
         li {
             margin: 5px 0;
             line-height: 150%;
