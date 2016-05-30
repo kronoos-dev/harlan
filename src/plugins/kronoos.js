@@ -12,7 +12,6 @@
     require("./lib/kronoos/contact-us")(controller);
     require("./lib/kronoos/terms")(controller);
     require("./lib/kronoos/contract-accept")(controller);
-    require("./lib/kronoos/parser")(controller);
     require("./lib/kronoos/search")(controller);
-    require("./lib/kronoos/juristek")(controller);
+    require("./lib/kronoos/status")(controller);
 })(harlan);

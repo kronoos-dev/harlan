@@ -15,6 +15,8 @@ $color-complementary: #7c66c2;
         box-sizing: border-box;
     }
     .search-bar {
+        transition-property: all;
+        transition-duration: 2s;
         position: relative;
         line-height: 96px;
         background-color: rgb(81, 98, 115);
@@ -24,9 +26,13 @@ $color-complementary: #7c66c2;
         background-blend-mode: lighten;
         background-position: top;
         .status-message {
+            display: none;
+            &:last-child {
+                display: block;
+            }
             i {
                 margin-right: 15px;
-                vertical-align: middle;
+                vertical-align: baseline;
             }
             background: rgba(0, 0, 0, 0.9);
             background-blend-mode: color-burn;
@@ -35,7 +41,8 @@ $color-complementary: #7c66c2;
             font-kerning: initial;
             font-stretch: semi-condensed;
             font-weight: normal;
-            line-height: 58px;
+            line-height: 34px;
+            padding: 10px 0;
             color: rgb(197, 197, 197);
         }
         &.minimize {
@@ -193,6 +200,9 @@ $color-complementary: #7c66c2;
         .kronoos-side-content {
             display: inline-block;
             width: calc(100% - 300px);
+            &.full {
+                width: 100%;
+            }
             vertical-align: top;
             padding: 20px;
             box-sizing: border-box;

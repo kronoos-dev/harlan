@@ -1,5 +1,5 @@
 <div class="kronoos-application hide">
-    <div class="search-bar">
+    <div class="search-bar full">
         <div class="kronoos-floating">
             <div class="container">
                 <div class="content">
@@ -11,25 +11,20 @@
                             <li class="kronoos-action-logout">Sair</li>
                         </ul>
                     </nav>
-                    <div class="kronoos-q-container" id="kronoos-q-container">
-                        <i class="fa fa-spin fa-spinner status-icon"></i>
-                        <img src="../../../images/kronoos/icon.svg" class="kronoos-logo" />
-                        <input type="text" name="kronoos-q" class="kronoos-q" id="kronoos-q" placeholder="Digite um CPF/CNPJ para começar." />
-                        <i class="fa fa-search icon"></i>
-                    </div>
-                    <button class="kronoos-q-submit">Pesquisa Kronoos</button>
+                    <form method="POST" id="kronoos-action" action="#">
+                        <div class="kronoos-q-container" id="kronoos-q-container">
+                            <i class="fa fa-spin fa-spinner status-icon" style="display: none;"></i>
+                            <img src="/images/kronoos/icon.svg" class="kronoos-logo" />
+                            <input type="text" name="kronoos-q" class="kronoos-q" id="kronoos-q" placeholder="Digite um CPF/CNPJ para começar." />
+                            <i class="fa fa-search icon"></i>
+                        </div>
+                        <button class="kronoos-q-submit">Pesquisa Kronoos</button>
+                    </form>
                 </div>
             </div>
-            <div class="status-message">
-                <div class="container">
-                    <div class="content">
-                        <i class="fa fa-exclamation-triangle"></i> Buscando informações do processo 0220900-24.1999.5.15.0095.
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="result">
+        <!--
         <div class="container">
             <div class="content">
                 <div class="kronoos-element">
@@ -78,5 +73,6 @@
                 </div>
             </div>
         </div>
+    -->
     </div>
 </div>
