@@ -109,6 +109,7 @@
     "jdataview": "^2.5.0",
     "persistify": "^1.0.0",
     "run-sequence": "^1.1.5",
+    "slug": "^0.9.1",
     "webworker-threads": "^0.7.5",
     "weevil": "^0.1.2"
   }
