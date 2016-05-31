@@ -337,7 +337,7 @@ gulp.task("build:images:vector", () => {
 
 gulp.task("build:images:backgrounds", () => {
     return gulp.src([
-        `${src}/images/bg/*.{jpg,jpeg}`
+        `${src}/images/bg/**/*.{jpg,jpeg}`
     ])
     .pipe($.newer(`${dist}/images/bg`))
     .pipe($.imageResize({
@@ -373,7 +373,8 @@ gulp.task("build:images", ["build:images:no-vector", "build:images:vector", "bui
 
 gulp.task("fonts", () => {
     return gulp.src([
-        `${vendors}/font-awesome/fonts/**/*`
+        `${vendors}/font-awesome/fonts/**/*`,
+        `fonts/**/*`
     ])
     .pipe(gulp.dest(`${dist}/fonts`))
     .pipe($.size({title: ">>> fonts"}));

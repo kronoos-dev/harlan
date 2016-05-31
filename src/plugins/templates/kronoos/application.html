@@ -1,0 +1,30 @@
+<div class="kronoos-application hide">
+    <div class="search-bar full">
+        <div class="kronoos-floating">
+            <div class="container">
+                <div class="content">
+                    <nav>
+                        <i class="fa fa-navicon"></i>
+                        <ul>
+                            <li class="kronoos-action-print">Imprimir</li>
+                            <li class="kronoos-action-change-password">Mudar Senha</li>
+                            <li class="kronoos-action-harlan">Avançado</li>
+                            <li class="kronoos-action-clear">Limpar Tela</li>
+                            <li class="kronoos-action-logout">Sair</li>
+                        </ul>
+                    </nav>
+                    <form method="POST" id="kronoos-action" action="#">
+                        <div class="kronoos-q-container" id="kronoos-q-container">
+                            <i class="fa fa-spin fa-spinner status-icon" style="display: none;"></i>
+                            <img src="/images/kronoos/icon.svg" class="kronoos-logo" />
+                            <input type="text" name="kronoos-q" class="kronoos-q" id="kronoos-q" placeholder="Digite um CPF/CNPJ para começar." />
+                            <i class="fa fa-search icon"></i>
+                        </div>
+                        <button class="kronoos-q-submit">Pesquisa Kronoos</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kronoos-result"></div>
+</div>

@@ -1,32 +1,35 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="/js/app-installer.js" async></script>
         <title data-i18n="index.title">Soluções em Gerenciamento de Riscos e Compliance | Kronoos</title>
         <meta name="description" content="A Kronoos tem como objetivo oferecer soluções em gestão de riscos, compliance e mitigação de riscos relacionados à imagem.">
         <link rel="manifest" href="manifest-kronoos.json">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <link rel="shortcut icon" href="/images/favicon.png"/>
+        <link rel="shortcut icon" href="/images/kronoos/favicon.png"/>
         <link href="//fonts.googleapis.com/css?family=Poiret+One|Open+Sans:400italic,400,300,600,700,800|Open+Sans+Condensed:300,700" rel="stylesheet" type="text/css" />
         <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="css/app.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
+        <div id="install-screen" class="progress hide">
+            @@include("static-template/progress.tpl")
+        </div>
         <div class="login hide">
-            @@include('static-template/login.tpl')
+            @@include("static-template/login.tpl")
         </div>
         <div class="app hide">
             <div class="scroll-down">
-                @@include('static-template/header.tpl')
-                @@include('static-template/action.tpl')
+                @@include("static-template/header.tpl")
+                @@include("static-template/action.tpl")
             </div>
             <div class="app-content">
             </div>
         </div>
         <div class="iframe hide">
-            @@include('static-template/iframe.tpl')
+            @@include("static-template/iframe.tpl")
             <iframe></iframe>
         </div>
-        <script src="js/app.js"></script>
     </body>
 </html>
