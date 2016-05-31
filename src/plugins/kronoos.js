@@ -14,4 +14,5 @@
     require("./lib/kronoos/contract-accept")(controller);
     require("./lib/kronoos/search")(controller);
     require("./lib/kronoos/status")(controller);
+    require("./lib/kronoos/element")(controller);
 })(harlan);

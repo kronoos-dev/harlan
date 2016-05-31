@@ -7,6 +7,16 @@ module.exports = (controller) => {
         });
     };
 
+    controller.interface.helpers.menu.add("Kronoos", "undo").nodeLink.click((e) => {
+        e.preventDefault();
+        controller.interface.helpers.activeWindow(".kronoos-application");
+    });
+
+    $(".kronoos-action-harlan").click((e) => {
+        e.preventDefault();
+        controller.interface.helpers.activeWindow(".app");
+    });
+
     action(".kronoos-action-print", "kronoos::print");
     action(".kronoos-action-change-password", "password::change");
     action(".kronoos-action-logout", "authentication::logout");

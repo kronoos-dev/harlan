@@ -9,6 +9,7 @@ const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
 const R_EARTH = 6378137;
+const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
 const NAMESPACE_DESCRIPTION = {
     'peps': ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
     'congressmen': ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
@@ -41,7 +42,7 @@ module.exports = function(controller) {
         photosQueue;
 
     const INPUT = $("#kronoos-q");
-    const SEARCH_BAR = $(".search-bar");
+    const SEARCH_BAR = $(".kronoos-application .search-bar");
 
     var clearAll = () => {
         if (mapQueue) {
@@ -55,9 +56,6 @@ module.exports = function(controller) {
         clearInterval(registered);
         clearTimeout(backgroundTimeout);
 
-        xhr = [];
-        photos = [];
-
         if (xhr) {
             for (let ajax of xhr) {
                 ajax.abort();
@@ -65,10 +63,13 @@ module.exports = function(controller) {
             }
         }
 
+        xhr = [];
+        photos = [];
+
         SEARCH_BAR.css("background-image", `url(${BACKGROUND_IMAGES.notebook})`);
-        $(".status-message").remove();
-        $(".result").empty();
-        $(".search-bar").addClass("search-bar").removeClass("minimize");
+        $(".kronoos-application .status-message").remove();
+        $(".kronoos-result").empty();
+        SEARCH_BAR.addClass("full").removeClass("minimize");
     };
 
     $("#kronoos-action").submit((e) => {
@@ -96,7 +97,57 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData, jusSearch, procs) => {
+        $("BPQL body item", kronoosData).each((idx, element) => {
+            let namespace = $("namespace", element).text(),
+                [title, description] = NAMESPACE_DESCRIPTION[namespace],
+                kelement = controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description),
+                notes = $("notes node", element),
+                source = $("source node", element),
+                position = $("position", element);
 
+            if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
+                controller.server.call("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
+                    data: {
+                        name: name
+                    },
+                    dataType: "json",
+                    success: (ret) => {
+                        for (let picture of ret) {
+                            kelement.picture(picture);
+                            return;
+                        }
+                    }
+                })
+            }
+
+
+            if (notes.length) {
+                let knotes = kelement.list("Notas");
+                notes.each((idx) => {
+                    knotes(notes.eq(idx).text());
+                });
+            }
+
+            if (source.length || position.length) {
+                if (source.length && !position.length) {
+                    let ksources = kelement.list("Fontes");
+                    source.each((idx) => {
+                        ksources(source.eq(idx).text());
+                    });
+
+                } else if (!source.length && position.length) {
+                    kelement.list("Marcação")(position.text());
+                } else {
+                    let ktable = kelement.table("Marcação", "Fontes");
+                    source.each((i) => {
+                        ktable(position.eq(i).text(), source.eq(i).text());
+                    });
+                }
+            }
+
+            $(".kronoos-result").append(kelement.element());
+            SEARCH_BAR.addClass("minimize").removeClass("full");
+        });
     });
 
     controller.registerCall("kronoos::juristek::cnj", (cnj, ret) => {
@@ -175,7 +226,7 @@ module.exports = function(controller) {
             controller.call("kronoos::status::ajax", "fa-user", `Pesquisando correlações através do nome ${name}, documento ${document}.`, {
                 data: {
                     documento: document,
-                    name: name
+                    name: `"${name}"`
                 },
                 success: (ret) => {
                     controller.call("kronoos::ccbusca", name, document, ret);
@@ -183,7 +234,7 @@ module.exports = function(controller) {
             }))));
     });
 
-    var smartBackground = function () {
+    var smartBackground = function() {
         return setInterval(function() {
             if (!photos.length) {
                 return;
@@ -194,6 +245,12 @@ module.exports = function(controller) {
 
     controller.registerCall("kronoos::smartBackground", (cbuscaData) => {
         photosQueue = async.queue(function(picture, callback) {
+            if (picture.width < SEARCH_BAR.width() || picture.height < SEARCH_BAR.height()) {
+                callback();
+                return;
+            }
+
+
             let img = new Image();
             img.onload = function() {
                 callback();

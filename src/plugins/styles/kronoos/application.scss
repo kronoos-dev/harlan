@@ -46,7 +46,7 @@ $color-complementary: #7c66c2;
             color: rgb(197, 197, 197);
         }
         &.minimize {
-            width: auto !important;
+            height: auto !important;
         }
         .kronoos-logo {
             vertical-align: middle;
@@ -234,6 +234,8 @@ $color-complementary: #7c66c2;
                 box-sizing: border-box;
                 border-radius: 100000px;
                 background-position: center center;
+                background-size: contain;
+                background-repeat: no-repeat;
             }
         }
         table {
@@ -252,7 +254,9 @@ $color-complementary: #7c66c2;
     }
     a {
         $color-link: rgb(63, 81, 181);
-        &, &:link, &:visited {
+        &,
+        &:link,
+        &:visited {
             color: $color-link;
         }
         &:active {
