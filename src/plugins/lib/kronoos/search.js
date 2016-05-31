@@ -2,8 +2,12 @@ import {
     CPF,
     CNPJ
 } from "cpf_cnpj";
+
 import async from "async";
 import _ from "underscore";
+import VMasker from 'vanilla-masker';
+
+var removeDiacritics = require('diacritics').remove;
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -44,7 +48,8 @@ module.exports = function(controller) {
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
 
-    var clearAll = () => {
+    var clearAll;
+    controller.registerCall("kronoos::clearAll", clearAll = () => {
         if (mapQueue) {
             mapQueue.kill();
         }
@@ -70,7 +75,7 @@ module.exports = function(controller) {
         $(".kronoos-application .status-message").remove();
         $(".kronoos-result").empty();
         SEARCH_BAR.addClass("full").removeClass("minimize");
-    };
+    });
 
     $("#kronoos-action").submit((e) => {
         e.preventDefault();
@@ -103,9 +108,11 @@ module.exports = function(controller) {
                 kelement = controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description),
                 notes = $("notes node", element),
                 source = $("source node", element),
-                position = $("position", element);
+                position = $("position", element),
+                insertMethod = "append";
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
+                insertMethod = "prepend";
                 controller.server.call("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
                     data: {
                         name: name
@@ -117,7 +124,7 @@ module.exports = function(controller) {
                             return;
                         }
                     }
-                })
+                });
             }
 
 
@@ -132,7 +139,8 @@ module.exports = function(controller) {
                 if (source.length && !position.length) {
                     let ksources = kelement.list("Fontes");
                     source.each((idx) => {
-                        ksources(source.eq(idx).text());
+                        let s = source.eq(idx).text();
+                        ksources($("<a />").attr("href", s).text(s).html());
                     });
 
                 } else if (!source.length && position.length) {
@@ -140,18 +148,99 @@ module.exports = function(controller) {
                 } else {
                     let ktable = kelement.table("Marcação", "Fontes");
                     source.each((i) => {
-                        ktable(position.eq(i).text(), source.eq(i).text());
+                        let s = source.eq(i).text();
+                        ktable(position.eq(i).text(), $("<a />").attr("href", s).text(s).html());
                     });
                 }
             }
 
-            $(".kronoos-result").append(kelement.element());
+            $(".kronoos-result")[insertMethod](kelement.element());
             SEARCH_BAR.addClass("minimize").removeClass("full");
         });
+
+        for (let proc in procs) {
+            let jelement = controller.call("kronoos::element", `Processo CNJ ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
+                "Foram encontradas informações, confirmação pendente.");
+            let [article, match] = procs[proc];
+            jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
+            $(".kronoos-result").append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+        }
+
+        var m = moment();
+        $(".kronoos-element-container")
+            .first()
+            .data("instance")
+            .header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
     });
 
-    controller.registerCall("kronoos::juristek::cnj", (cnj, ret) => {
+    controller.registerCall("kronoos::juristek::cnj", (cnj, name, document, ret) => {
+        let normalizeName = (name) => {
+                return removeDiacritics(name).toUpperCase().replace(/\s+/, ' ');
+            },
+            cnjInstance = $(`#cnj-${cnj.replace(NON_NUMBER, '')}`).data("instance"),
+            normalizedName = normalizeName(name),
+            procs = $("processo", ret).filter(function() {
+                return $("partes parte", this).filter(function() {
+                    return normalizeName($(this).text()) == normalizedName;
+                }).length;
+            });
 
+        if (!procs.length) {
+            cnjInstance.element().remove();
+            return;
+        }
+
+        cnjInstance.element().find("p").remove();
+
+        let proc = procs.first(),
+            partes = proc.find("partes parte"),
+            andamentos = proc.find("andamentos andamento"),
+            pieces = _.pairs({
+                "Valor Causa": proc.find("valor_causa").text(),
+                "Foro": proc.find("foro").text(),
+                "Vara": proc.find("vara").text(),
+                "Comarca": proc.find("comarca").text(),
+                "Número Antigo": proc.find("numero_antigo").text(),
+                "Número Processo": proc.find("numero_processo").text(),
+                "Autuação": proc.find("autuacao").text(),
+                "Localização": proc.find("localizacao").text(),
+                "Ação": proc.find("acao").text(),
+                "Área": proc.find("area").text(),
+                "Situação": proc.find("situacao").text(),
+                "Observação": proc.find("observacao").text(),
+                "Classe": proc.find("classe").text(),
+                "Distribuição": proc.find("distribuicao").text(),
+            });
+
+
+        cnjInstance.subtitle("Existência de apontamentos cadastrais.");
+        cnjInstance.sidenote("Participação em processo jurídico.");
+
+        let validPieces = _.filter(pieces, (t) => {
+            return !/^\s*$/.test(t[1]);
+        });
+
+        let [keys, values] = _.unzip(validPieces);
+
+
+        for (let i = 0; i < keys.length; i += 2) {
+            cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
+        }
+
+        if (partes.length) {
+            let kparts = cnjInstance.list("Partes");
+            partes.each((idx) => {
+                let node = partes.eq(idx);
+                kparts(`${node.attr("tipo")} - ${node.text()}`);
+            });
+        }
+
+        if (andamentos.length) {
+            let kparts = cnjInstance.list("Andamentos");
+            andamentos.each((idx) => {
+                kparts(`${andamentos.eq(idx).find("data").text()} - ${andamentos.eq(idx).find("descricao").text()}`);
+            });
+        }
     });
 
     controller.registerCall("kronoos::juristek", (name, document, kronoosData, cbuscaData, jusSearch) => {
@@ -168,7 +257,7 @@ module.exports = function(controller) {
                 return;
             }
 
-            procs[match[3].replace(NON_NUMBER, '')] = articleText;
+            procs[VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999")] = [articleText, match[0]];
         });
 
         controller.call("kronoos::parse", name, document, kronoosData, cbuscaData, jusSearch, procs);
@@ -180,12 +269,15 @@ module.exports = function(controller) {
                         data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
                     },
                     success: (ret) => {
-                        controller.call("kronoos::juristek::cnj", cnj, ret);
+                        controller.call("kronoos::juristek::cnj", cnj, name, document, ret);
+                    },
+                    error: () => {
+                        $(`#cnj-${cnj.replace(NON_NUMBER, '')}`).remove();
                     }
                 })));
 
         }
-    })
+    });
 
     controller.registerCall("kronoos::jussearch", (name, document, kronoosData, cbuscaData) => {
         var run = false;
@@ -308,7 +400,7 @@ module.exports = function(controller) {
                         complete: () => {
                             callback();
                         }
-                    })
+                    });
                 }
             });
         }, 2);
@@ -317,7 +409,7 @@ module.exports = function(controller) {
             if (!photos.length) {
                 SEARCH_BAR.css("background-image", `url(${BACKGROUND_IMAGES.calculator})`);
             }
-        }
+        };
 
         var runnedAddresses = [];
         $($("endereco cep", cbuscaData).get().reverse()).each((idx, element) => {

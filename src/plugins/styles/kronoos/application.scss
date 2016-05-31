@@ -8,6 +8,9 @@ $color-complementary: #7c66c2;
     &.hide {
         display: none;
     }
+    strong {
+        font-weight: bold;
+    }
     font-family: 'Source Sans Pro', sans-serif;
     font-size: 16px;
     .container {
@@ -186,6 +189,9 @@ $color-complementary: #7c66c2;
         margin: 30px 0;
         border-bottom: 1px solid rgb(213, 213, 213);
         box-shadow: 0 10px 19px -19px rgb(0, 0, 0);
+        .kronoos-list {
+            margin: 32px 0;
+        }
         ul li {
             line-height: 32px;
             border-bottom: 1px solu;
@@ -239,6 +245,7 @@ $color-complementary: #7c66c2;
             }
         }
         table {
+            table-layout: fixed;
             margin: 32px 0;
             width: 100%;
             tbody {

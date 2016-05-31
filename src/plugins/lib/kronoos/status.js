@@ -8,7 +8,7 @@
 
 
 module.exports = (controller) => {
-    
+
     const searchBarContainer = $(".kronoos-application .search-bar .container");
     const loader = $(".kronoos-application .kronoos-q-container i.status-icon");
     const logo = $(".kronoos-application .kronoos-q-container img.kronoos-logo");
@@ -28,7 +28,8 @@ module.exports = (controller) => {
     });
 
     controller.registerCall("kronoos::status", function (icon, status) {
-        if (!iterations++) {
+        var it = iterations++;
+        if (!it) {
             loader.show();
             logo.hide();
         }

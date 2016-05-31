@@ -17,6 +17,12 @@ module.exports = (controller) => {
         controller.interface.helpers.activeWindow(".app");
     });
 
+    $(".kronoos-action-clear").click((e) => {
+        e.preventDefault();
+        $(".kronoos-q").val("");
+        controller.call("kronoos::clearAll");
+    });
+
     action(".kronoos-action-print", "kronoos::print");
     action(".kronoos-action-change-password", "password::change");
     action(".kronoos-action-logout", "authentication::logout");
