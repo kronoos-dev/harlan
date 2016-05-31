@@ -166,6 +166,9 @@ module.exports = function(controller) {
             $(".kronoos-result").append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
         }
 
+        if (!$(".kronoos-element-container").length) {
+            return;
+        }
         var m = moment();
         $(".kronoos-element-container")
             .first()
