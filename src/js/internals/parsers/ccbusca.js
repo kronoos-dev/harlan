@@ -5,7 +5,16 @@ var _ = require("underscore"),
 
 module.exports = function (controller) {
 
-    function hasAddressSeparator(nodes) {
+    function addressIsEmpty(nodes) {
+        for (let idx in nodes) {
+            if (! /^\**$/.test(nodes[idx])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function addressIsComplete(nodes) {
         for (let idx in nodes) {
             if (/^\**$/.test(nodes[idx])) {
                 return false;
@@ -53,39 +62,46 @@ module.exports = function (controller) {
             addressElements.push(nodes["Endereço"]);
             cepElements.push(nodes.CEP);
 
-            if (hasAddressSeparator(nodes)) result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
-
-            // Adiciona o item caso o endereço esteja completo
-            for (idx in nodes) {
-                if (/^\**$/.test(nodes[idx])) {
-                    return;
+            if (!addressIsEmpty(nodes)) {
+                result.addSeparator("Endereço", "Localização", "Endereçamento e mapa");
+                for (idx in nodes) {
+                    if (! /^\**$/.test(nodes[idx])) {
+                        result.addItem(idx, nodes[idx]);
+                    }
                 }
-                result.addItem(idx, nodes[idx]);
+
+                jnode.find("*").each(function (idx, node) {
+                    var jnode = $(node);
+                    if (!/complemento/i.test(jnode.prop("tagName"))) {
+                        address.push(jnode.text());
+                    }
+                });
+
+                var mapUrl = "http://maps.googleapis.com/maps/api/staticmap?" + $.param({
+                    "scale": "1",
+                    "size": "600x150",
+                    "maptype": "roadmap",
+                    "format": "png",
+                    "visual_refresh": "true",
+                    "markers": "size:mid|color:red|label:1|" + address.join(", ")
+                });
+
+                result.addItem().addClass("map").append(
+                        $("<a />").attr({
+                    "href": "https://www.google.com/maps?" + $.param({
+                        q: address.join(", ")
+                    }),
+                    "target": "_blank"
+                }).append($("<img />").attr("src", mapUrl)));
             }
 
-            jnode.find("*").each(function (idx, node) {
-                var jnode = $(node);
-                if (!/complemento/i.test(jnode.prop("tagName"))) {
-                    address.push(jnode.text());
-                }
-            });
-
-            var mapUrl = "http://maps.googleapis.com/maps/api/staticmap?" + $.param({
-                "scale": "1",
-                "size": "600x150",
-                "maptype": "roadmap",
-                "format": "png",
-                "visual_refresh": "true",
-                "markers": "size:mid|color:red|label:1|" + address.join(", ")
-            });
-
-            result.addItem().addClass("map").append(
-                    $("<a />").attr({
-                "href": "https://www.google.com/maps?" + $.param({
-                    q: address.join(", ")
-                }),
-                "target": "_blank"
-            }).append($("<img />").attr("src", mapUrl)));
+            // Adiciona o item caso o endereço esteja completo
+            // for (idx in nodes) {
+            //     if (/^\**$/.test(nodes[idx])) {
+            //         return;
+            //     }
+            //     result.addItem(idx, nodes[idx]);
+            // }
         });
     };
 
