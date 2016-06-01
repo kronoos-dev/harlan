@@ -48,6 +48,16 @@ module.exports = function(controller) {
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
 
+    $(".kronoos-logo").click((e) => {
+        e.preventDefault();
+        SEARCH_BAR.css("cursor", "pointer");
+        if (SEARCH_BAR.hasClass("full")) {
+            SEARCH_BAR.removeClass("full").addClass("minimize");
+        } else {
+            SEARCH_BAR.addClass("full").removeClass("minimize");
+        }
+    });
+
     var clearAll;
     controller.registerCall("kronoos::clearAll", clearAll = () => {
         if (mapQueue) {
@@ -167,8 +177,13 @@ module.exports = function(controller) {
         }
 
         if (!$(".kronoos-element-container").length) {
+            let [title, description] = NAMESPACE_DESCRIPTION.clear,
+                nelement = controller.call("kronoos::element", title, "Não consta nenhum apontamento cadastral.", description);
+            $(".kronoos-result").append(nelement.element());
+            SEARCH_BAR.addClass("minimize").removeClass("full");
             return;
         }
+
         var m = moment();
         $(".kronoos-element-container")
             .first()
