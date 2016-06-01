@@ -138,7 +138,6 @@ module.exports = function(controller) {
 
         if (/^\s*$/.test(inputUsername.val()) || inputPassword.val() === "") {
             toastr.error("Para acessar o sistema você precisa inserir seu usuário e senha.", "Insira seu nome de usuário e senha.");
-            onError();
             return;
         }
 

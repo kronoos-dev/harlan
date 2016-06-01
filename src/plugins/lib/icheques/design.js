@@ -107,4 +107,52 @@ module.exports = function(controller) {
         }
     });
 
+    $.getScript("//code.createjs.com/createjs-2015.11.26.min.js", function() {
+
+        var lib = {};
+        require("./animation.js")(lib, null, createjs, null);
+
+        let canvas = $("<canvas />").attr({
+                width: 225,
+                height: 255
+            }).css({
+                'z-index': 11,
+                height: '250px',
+                left: '50%',
+                'margin-left': '-125px',
+                'margin-top': '-125px',
+                position: 'relative',
+                top: '50%',
+                width: '250px'
+            }),
+
+            container = $("<div />").css({
+                'background-color': 'rgba(30,50,58,.8)',
+                'background-position': 'center center',
+                'background-repeat': 'no-repeat',
+                height: '100%',
+                left: '0',
+                'z-index': 10,
+                overflow: 'hidden',
+                position: 'fixed',
+                top: '0',
+                width: '100%',
+            }).append(canvas),
+
+            exportRoot = new lib.ichequesanimacao(),
+            stage = new createjs.Stage(canvas.get(0));
+
+        stage.addChild(exportRoot);
+        stage.update();
+        createjs.Ticker.setFPS(lib.properties.fps);
+        createjs.Ticker.addEventListener("tick", stage);
+
+        $.bipbopLoader.register = () => {
+            $("body").append(container);
+            return () => {
+                container.remove();
+            };
+        };
+    });
+
 };
