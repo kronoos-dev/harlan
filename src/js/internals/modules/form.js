@@ -184,6 +184,12 @@ module.exports = (controller) => {
             if (typeof setScreen !== "undefined") {
                 currentScreen = setScreen;
             }
+
+            if (modal) {
+                modal.close();
+                modal = null;
+            }
+
             modal = controller.call("modal");
             var screen = configuration.screens[currentScreen];
 
@@ -210,11 +216,13 @@ module.exports = (controller) => {
                         return;
                     }
 
-                    modal.close();
                     if (currentScreen + 1 < configuration.screens.length) {
                         next();
                     } else {
                         callback(this.readValues());
+                        if (modal) {
+                            modal.close();
+                        }
                     }
                 }, configuration, screen, this);
 
@@ -243,7 +251,6 @@ module.exports = (controller) => {
                 actions.add(controller.i18n.system.back()).click((e) => {
                     e.preventDefault();
                     back();
-                    modal.close();
                 });
             }
 

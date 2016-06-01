@@ -1,7 +1,7 @@
 /* global module, numeral, require, moment */
 
 var TIMEOUT = 5000;
-var AVOID_FILTER = /sem ocorrência/;
+var AVOID_FILTER = /(sem ocorrência|em processamento)/i;
 var Harmonizer = require("color-harmony").Harmonizer,
     Color = require("color"),
     sprintf = require("sprintf"),
