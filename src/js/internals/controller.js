@@ -176,6 +176,7 @@ var Controller = function() {
     require('./forms/receita-certidao')(this);
 
     /* Modules */
+    require('./modules/logs/watch-onerror.js')(this);
     require('./modules/analytics/google-analytics')(this);
     require('./modules/security/antiphishing')(this);
     require('./modules/i18n')(this);
