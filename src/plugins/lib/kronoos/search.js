@@ -47,10 +47,11 @@ module.exports = function(controller) {
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
+    const KRONOOS_LOGO = $(".kronoos-application .kronoos-logo");
 
-    $(".kronoos-logo").click((e) => {
+    KRONOOS_LOGO.css("cursor", "pointer");
+    KRONOOS_LOGO.click((e) => {
         e.preventDefault();
-        SEARCH_BAR.css("cursor", "pointer");
         if (SEARCH_BAR.hasClass("full")) {
             SEARCH_BAR.removeClass("full").addClass("minimize");
         } else {
