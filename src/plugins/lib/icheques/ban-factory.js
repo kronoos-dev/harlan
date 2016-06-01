@@ -4,9 +4,19 @@ import { CMC7Parser } from './cmc7-parser';
 import async from 'async';
 import { CPF } from "cpf_cnpj";
 import { CNPJ } from "cpf_cnpj";
+import slug from "slug";
+
+slug.defaults.modes['pretty'] = {
+    replacement: ' ',      // replace spaces with replacement
+    symbols: false,         // replace unicode symbols or not
+    lower: false,           // result in lower case
+    charmap: slug.charmap, // replace special characters
+    multicharmap: slug.multicharmap // replace multi-characters
+};
+slug.defaults.mode ='pretty';
 
 const NON_NUMERIC = /[\D]/g,
-      NON_WORD = /[\PL]/g,
+      NON_WORD = /[\W]/g,
       ROW_SIZE = 502,
       BAN_VERSION = '02.7',
       MAX_THREADS = 2,
@@ -107,7 +117,7 @@ export class BANFactory {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
                         this.buffer.setString(this._goToPosition(check.row, 32),
-                            $("BPQL > body > nome", ret).text().substring(0, 40));
+                            slug($("BPQL > body > nome", ret).text()).substring(0, 40));
                     },
                     complete: () => { callback(); }
                 });
