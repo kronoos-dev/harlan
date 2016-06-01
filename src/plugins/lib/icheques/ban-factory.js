@@ -155,7 +155,7 @@ export class BANFactory {
                             switch (i) {
                                 case 1:
                                     // endereco. de 391 até 430. 40.
-                                    this.buffer.setString(this._goToPosition(check.row, 390), val.trim().substring(0, 40));
+                                    this.buffer.setString(this._goToPosition(check.row, 390), slug(val).trim().substring(0, 40));
                                     break;
                                 case 2:
                                     // numero. de 431 até 435. 5.
@@ -167,19 +167,19 @@ export class BANFactory {
                                     break;
                                 case 4:
                                     // bairro. de 113 até 127. 15.
-                                    this.buffer.setString(this._goToPosition(check.row, 112), val.trim().substring(0, 15));
+                                    this.buffer.setString(this._goToPosition(check.row, 112), slug(val).trim().substring(0, 15));
                                     break;
                                 case 5:
                                     // cidade. de 152 até 169. 18.
-                                    this.buffer.setString(this._goToPosition(check.row, 151), val.trim().substring(0, 18));
+                                    this.buffer.setString(this._goToPosition(check.row, 151), slug(val).trim().substring(0, 18));
                                     break;
                                 case 6:
                                     // estado. de 170 até 171. 2.
-                                    this.buffer.setString(this._goToPosition(check.row, 169), val.trim().substring(0, 2));
+                                    this.buffer.setString(this._goToPosition(check.row, 169), slug(val).trim().substring(0, 2));
                                     break;
                                 case 7:
                                     // complemento. de 436 até 465. 30.
-                                    this.buffer.setString(this._goToPosition(check.row, 435), val.trim().substring(0, 30));
+                                    this.buffer.setString(this._goToPosition(check.row, 435), slug(val).trim().substring(0, 30));
                             }
                         });
                     },
@@ -222,18 +222,18 @@ export class BANFactory {
         // T:CPF/CNPJ. de 16 a 16. 1.
         this.buffer.setString(15, this.company.cnpj ? '1' : '2');
         // Nome do Cedente. de 17 a 56. 40.
-        this.buffer.setString(16, (this.company.nome || this.company.responsavel).replace(NON_WORD, ' ').substring(0, 40));
+        this.buffer.setString(16, slug((this.company.nome || this.company.responsavel)).replace(NON_WORD, ' ').substring(0, 40));
         // Endereco. de 57 a 96. 40.
         let endereco = [
             this.company.endereco[0],
             this.company.endereco[1],
             this.company.endereco[2]
         ].join(' ');
-        this.buffer.setString(56, endereco.substring(0, 40));
+        this.buffer.setString(56, slug(endereco).substring(0, 40));
         // Cidade. de 97 a 114. 18.
-        this.buffer.setString(96, this.company.endereco[5].substring(0, 18));
+        this.buffer.setString(96, slug(this.company.endereco[5]).substring(0, 18));
         // Estado. de 115 a 116. 2.
-        this.buffer.setString(114, this.company.endereco[6].substring(0, 2));
+        this.buffer.setString(114, slug(this.company.endereco[6]).substring(0, 2));
         // CEP. de 117 a 124. 8.
         this.buffer.setString(116, this.company.endereco[4].replace(NON_NUMERIC, '').substring(0, 8));
         // Data de operação. de 180 a 185. 6.
