@@ -181,7 +181,6 @@ module.exports = function(controller) {
                 nelement = controller.call("kronoos::element", title, "Não consta nenhum apontamento cadastral.", description);
             $(".kronoos-result").append(nelement.element());
             SEARCH_BAR.addClass("minimize").removeClass("full");
-            return;
         }
 
         var m = moment();
