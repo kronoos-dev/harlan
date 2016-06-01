@@ -1,15 +1,26 @@
+import html2canvas from 'html2canvas';
+
 module.exports = function(controller) {
 
-    controller.registerBootstrap("logs::watch::onerror", (cb) => {
+    controller.registerBootstrap("watch::onerror", (cb) => {
         cb();
-        window.onerror = (message, source, lineno, colno, error) => {
-            controller.trigger("logs::onerror::fired", {message, source, lineno, colno, error});
+        window.onerror = function() {
+            controller.trigger("logs::onerror", Array.from(arguments));
+            return false;
         };
     });
 
-    controller.registerTrigger("logs::onerror::fired", (args, cb) => {
-        // TODO chamar o endpoint
-        // controller.server.call();
+    controller.registerTrigger("logs::onerror", "callhome", (args, cb) => {
         cb();
+        html2canvas(document.body).then(function(canvas) {
+            controller.server.call("INSERT INTO 'HARLANAUTHENTICATION'.'BROWSERERROR'", {
+                method: "POST",
+                data: {
+                    navigator: navigator.userAgent,
+                    payload: JSON.stringify(args),
+                    canvas: canvas.toDataURL("image/jpeg")
+                }
+            });
+        });
     });
 };

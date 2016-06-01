@@ -69,6 +69,7 @@
     "gulp-uglify": "~1.5.1",
     "gulp-util": "^3.0.7",
     "hash-object": "^0.1.7",
+    "html2canvas": "^0.5.0-beta4",
     "jshint-stylish": "~2.1.0",
     "lapack": "^0.1.0",
     "lockable-storage": "^1.1.0",
