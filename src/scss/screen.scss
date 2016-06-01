@@ -237,7 +237,7 @@ label {
         @include border-bottom-left-radius(3px);
         padding: 0 15px;
         &.support-phone {
-            i { 
+            i {
                 vertical-align: middle;
                 margin-right: 5px;
             }
@@ -1247,6 +1247,7 @@ input.link {
     display: inline-block;
     background: url("../images/gamification.svg");
     background-position: 50px 50px;
+    background-size: 1180px 1204px;
     @media (max-width: 600px) {
         display: none;
     }
