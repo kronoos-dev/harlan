@@ -1,4 +1,5 @@
 /* global Buffer */
+require("pseudo-worker/polyfill");
 
 (function(path, size, compressedSize, encode) {
 
