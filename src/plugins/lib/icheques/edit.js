@@ -8,8 +8,8 @@ module.exports = function(controller) {
         controller.call("confirm", {
             icon: "reload",
             title: "Mais um mês de monitoramento.",
-            subtitle: "Confirme que deseja adicionar mais 30 dias de monitoramento.",
-            paragraph: "Ao custo de R$ 0,30 (trinta centavos!) monitore por mais 30 dias seus cheque e fique seguro na hora de depositar."
+            subtitle: "Confirme que deseja adicionar mais um mês ao monitoramento.",
+            paragraph: "Ao custo de R$ 0,30 (trinta centavos!) monitore por mais 30 dias seu cheque e fique seguro na hora de depositar."
         }, () => {
             controller.call("credits::has", 30, () => {
                 controller.serverCommunication.call("UPDATE 'ICHEQUES'.'ONEMONTH'",
