@@ -9,15 +9,18 @@ module.exports = function(controller) {
 
     var counter = 0;
     var animationElement = null;
-    var animations = ["animated rotateIn", "animated rotateOut"];
+
+    controller.confs.loader = {
+        animations: ["animated rotateIn", "animated rotateOut"]
+    };
 
     controller.registerCall("loader::catchElement", function() {
         return $(".logo:visible span");
     });
 
     var afterExecution = function() {
-        animationElement.removeClass(animations[counter++ % animations.length]);
-        animationElement.addClass(animations[counter % animations.length]);
+        animationElement.removeClass(controller.confs.loader.animations[counter++ % controller.confs.loader.animations.length]);
+        animationElement.addClass(controller.confs.loader.animations[counter % controller.confs.loader.animations.length]);
     };
 
     var loaderRegister = 0;
@@ -30,7 +33,7 @@ module.exports = function(controller) {
                 return;
             }
             animationElement.bind(animationEvent, afterExecution);
-            animationElement.addClass(animations[counter % animations.length]);
+            animationElement.addClass(controller.confs.loader.animations[counter % controller.confs.loader.animations.length]);
         }
         loaderRegister++;
     });
@@ -45,7 +48,7 @@ module.exports = function(controller) {
             $(".q").removeClass("loading");
             return;
         }
-        animationElement.removeClass(animations[counter % animations.length]);
+        animationElement.removeClass(controller.confs.loader.animations[counter % controller.confs.loader.animations.length]);
         if (animationElement && animationEvent) {
             animationElement.unbind(animationEvent);
         }
@@ -61,7 +64,7 @@ module.exports = function(controller) {
             } else {
                 controller.call("loader::register");
             }
-            
+
             if (beforeSend)
                 beforeSend(...ag);
         };
