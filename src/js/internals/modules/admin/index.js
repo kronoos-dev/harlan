@@ -4,6 +4,15 @@ var _ = require("underscore");
 module.exports = function(controller) {
 
     controller.endpoint.adminReport = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
+    controller.endpoint.createCompany = "INSERT INTO 'BIPBOPCOMPANYS'.'COMPANY'";
+
+    controller.registerCall("admin::roleTypes", function() {
+        return {
+            "": "Tipo de Contrato",
+            "avancado": "Avançado",
+            "simples": "Simples"
+        };
+    });
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "admin::reference::websocket::authentication", function(data, callback) {
         callback();

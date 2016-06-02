@@ -5,16 +5,6 @@ var owasp = require('owasp-password-strength-test'),
 
 module.exports = (controller) => {
 
-    controller.endpoint.createCompany = "INSERT INTO 'BIPBOPCOMPANYS'.'COMPANY'";
-
-    controller.registerCall("admin::roleTypes", function() {
-        return {
-            "": "Tipo de Contrato",
-            "avancado": "Avançado",
-            "simples": "Simples"
-        };
-    });
-
     controller.registerCall("admin::createAccount::formDescription", function() {
         return {
             "title": "Criação de Conta",
