@@ -1,5 +1,21 @@
 $color: #2A332E;
 
+.logo {
+    & > span {
+        top: 0;
+        background: url('/images/kronoos/logo.svg') no-repeat;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 180px;
+        height: 54px;
+        margin-right: 0;
+    }
+    h1 {
+        display: none;
+    }
+}
+
 .kronoos-site {
     .follow-bar {
         position: fixed;

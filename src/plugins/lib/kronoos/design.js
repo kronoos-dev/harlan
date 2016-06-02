@@ -5,6 +5,7 @@ module.exports = function(controller) {
     /* Document Title and Favicon */
     document.title = "Soluções em Gerenciamento de Riscos e Compliance | Kronoos";
     controller.interface.helpers.changeFavicon(`/images/kronoos/favicon.png`);
+    controller.confs.loader.animations = ["animated bounceIn"];
 
     /* Apply SCSS */
     require("../../styles/kronoos/fonts.js");
