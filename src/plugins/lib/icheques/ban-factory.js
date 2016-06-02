@@ -6,13 +6,14 @@ import { CPF } from "cpf_cnpj";
 import { CNPJ } from "cpf_cnpj";
 import slug from "slug";
 
-slug.defaults.modes['pretty'] = {
+slug.defaults.modes.pretty = {
     replacement: ' ',      // replace spaces with replacement
     symbols: false,         // replace unicode symbols or not
     lower: false,           // result in lower case
     charmap: slug.charmap, // replace special characters
     multicharmap: slug.multicharmap // replace multi-characters
 };
+
 slug.defaults.mode ='pretty';
 
 const NON_NUMERIC = /[\D]/g,

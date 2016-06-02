@@ -1,12 +1,3 @@
-// <div class="status-message">
-//     <div class="container">
-//         <div class="content">
-//             <i class="fa fa-exclamation-triangle"></i> Buscando informações do processo 0220900-24.1999.5.15.0095.
-//         </div>
-//     </div>
-// </div>
-
-
 module.exports = (controller) => {
 
     const searchBarContainer = $(".kronoos-application .search-bar .container");

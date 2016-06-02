@@ -1,11 +1,14 @@
+import VMasker from 'vanilla-masker';
+
 module.exports = (controller) => {
 
-    $("#kronoos-q").mask("000.000.000-00", {
-        onKeyPress: (input, e, field, options) => {
-            var masks = ['000.000.000-009', '00.000.000/0000-00'],
-                mask = (input.length > 14) ? masks[1] : masks[0];
-            field.mask(mask, options);
-        }
-    });
+    const masks = ['999.999.999-99', '99.999.999/9999-99'],
+        kronoosInput = $("#kronoos-q"),
+        mask = () => {
+            let v = kronoosInput.val();
+            kronoosInput.val(VMasker.toPattern(v, masks[v.length > 14 ? 1 : 0]));
+        };
 
+    kronoosInput.on('keydown', mask);
+    kronoosInput.on('paste', mask);
 };

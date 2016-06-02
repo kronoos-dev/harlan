@@ -1,0 +1,13 @@
+// Sets the style only for pseudo selectors
+@mixin setLinkSelectorStyle {
+  &:hover, &:link, &:active, &:visited {
+        @content;
+    }
+}
+
+// Sets the style to pseudo selectors AND base default anchor
+@mixin setLinkStyleAll {
+  &, &:hover, &:link, &:active, &:visited {
+        @content;
+    }
+}
