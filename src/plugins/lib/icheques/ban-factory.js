@@ -113,12 +113,17 @@ export class BANFactory {
         this.generateFooter();
 
         var tasks = async.queue((check, callback) => {
+            let name = "";
             async.parallel([(callback) => {
                 this.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
+                        name = $("BPQL > body > nome", ret).text();
+                        if (!name) {
+                            name = "NOME DO TITULAR NAO RASTREAVEL";
+                        }
                         this.buffer.setString(this._goToPosition(check.row, 32),
-                            slug($("BPQL > body > nome", ret).text()).substring(0, 40));
+                            slug(name).substring(0, 40));
                     },
                     complete: () => { callback(); }
                 });
