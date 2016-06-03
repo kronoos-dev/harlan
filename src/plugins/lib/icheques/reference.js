@@ -44,8 +44,8 @@ module.exports = function (controller) {
             controller.serverCommunication.call("SELECT FROM 'ICHEQUESAUTHENTICATION'.'ReferenceAutocomplete'", {
                 data: {input: search},
                 success: function (doc) {
-                    $("username", doc).each(function (idx, vl) {
-                        ac.item("Representante Comercial", $(vl).text().replace(/@icheques$/, ''), "Recebi uma maravilhosa visita do representante para fechar com vocês.").click(fill($(vl).text(), true));
+                    $("BPQL body references node", doc).each(function (idx, vl) {
+                        ac.item("Antecipadora de Cheques", $("nome", vl).text(), "A antecipadora me apresentou o iCheques para operarmos on-line.").click(fill($("username", vl).text(), true));
                     });
                 },
                 complete: function () {
