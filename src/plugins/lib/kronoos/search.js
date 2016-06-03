@@ -393,7 +393,7 @@ module.exports = function(controller) {
                         return;
                     }
 
-                    $.ajax("http://www.panoramio.com/map/get_panoramas.php", {
+                    $.ajax("//www.panoramio.com/map/get_panoramas.php", {
                         method: "GET",
                         dataType: "jsonp",
                         data: {
