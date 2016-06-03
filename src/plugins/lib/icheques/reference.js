@@ -19,7 +19,7 @@ module.exports = function (controller) {
         report = controller.call("report",
                 "Como você encontrou a iCheques?",
                 "Conte como ouviu falar de nós, ou digite a referência que você recebeu por e-mail de sua Parceira Financeira.",
-                "",
+                "Caso sua referência comercial seja de uma antecipadora, você recebe R$ 150,00 em créditos iniciais para poder começar a antecipar de imediato. Aproveite para procurar uma!",
                 true);
 
         var form = report.form(controller),

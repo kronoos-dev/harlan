@@ -15,6 +15,7 @@ const NON_NUMBER = /[^\d]/g;
 const R_EARTH = 6378137;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
 const NAMESPACE_DESCRIPTION = {
+    'hsbc': ['Fortunas e Offshores no HSBC da Suiça', 'Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça'],
     'peps': ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
     'congressmen': ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
     'state_representatives': ['Deputado Estadual', 'Representante eleito para a Assembleia Legislativa Estadual'],
