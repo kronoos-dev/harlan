@@ -9,6 +9,14 @@ module.exports = (controller) => {
             kronoosInput.val(VMasker.toPattern(v, masks[v.length > 14 ? 1 : 0]));
         };
 
+    kronoosInput.on('paste', () => {
+        kronoosInput.val("");
+    });
+
+    kronoosInput.on('focus', () => {
+        kronoosInput.val("");
+    });
+    
     kronoosInput.on('keydown', mask);
-    kronoosInput.on('paste', mask);
+
 };
