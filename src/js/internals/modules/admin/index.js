@@ -45,9 +45,6 @@ module.exports = function(controller) {
                 controller.call("admin::createCompany");
             });
 
-            report.result().addItem("Amor da Vida", "Cintia Lika Inaba");
-            report.result().addItem("Amor da Vida", "Lucas Fernando Amorim");
-
             report.button("Abrir Contas", () => {
                 var skip = 0;
                 var results = controller.call("moreResults", MAX_RESULTS).callback((callback) => {
