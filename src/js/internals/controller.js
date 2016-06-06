@@ -168,7 +168,6 @@ var Controller = function() {
 
     /* Parsers */
     require('./parsers/placas-wiki')(this);
-    require('./parsers/junta-empresa')(this);
     require('./parsers/cbusca')(this);
     require('./parsers/ccbusca')(this);
 
@@ -192,7 +191,6 @@ var Controller = function() {
     require('./modules/report')(this);
     require('./modules/module')(this);
     require('./modules/selected-results')(this);
-    require('./modules/search-junta-empresa')(this);
     require('./modules/find-company')(this);
     require('./modules/find-document')(this);
     require('./modules/xml-document')(this);
