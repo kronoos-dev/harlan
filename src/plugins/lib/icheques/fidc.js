@@ -1,3 +1,4 @@
+import async from 'async';
 import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
