@@ -522,7 +522,7 @@ module.exports = (controller) => {
         });
 
         queue.drain = () => {
-            obj.checkNumbers = obj.checkNumbers.join();
+            obj.checkNumbers = obj.checkNumbers.join(",");
             cb(obj);
         };
 
