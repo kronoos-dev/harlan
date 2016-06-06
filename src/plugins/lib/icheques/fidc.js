@@ -480,9 +480,12 @@ module.exports = (controller) => {
     var parseReceipt = (args, files, cb) => {
         let obj = {
             file: "",
+            equity: 0,
+            taxes: 0,
             checkNumbers: []
         };
-        async.queue((file, cb) => {
+
+        var queue = async.queue((file, cb) => {
             fileReaderStream(file).pipe(concat(function(buffer) {
                 obj.file += buffer.toString();
                 var lines = buffer.toString().split("\r\n");
@@ -493,8 +496,8 @@ module.exports = (controller) => {
                             obj.operation = data[4];
                             break;
                         case 'C':
-                            obj.equity = data[14];
-                            obj.taxes = data[21];
+                            obj.equity += data[14];
+                            obj.taxes += data[21];
                             break;
                         case 'T':
                             if (data[1] === "") {
@@ -514,10 +517,16 @@ module.exports = (controller) => {
                             break;
                     }
                 }
-                cb(obj);
+                cb();
             }));
         });
-        async.push(Array.from(files));
+
+        queue.drain = () => {
+            obj.checkNumbers = obj.checkNumbers.join();
+            cb(obj);
+        };
+
+        queue.push(Array.from(files));
     };
 
     var askReceipt = (data, cb) => {
