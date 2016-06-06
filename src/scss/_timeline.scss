@@ -1,6 +1,7 @@
 .timeline {
     text-align: left;
     display: block;
+    margin: 20px 0;
     .timeline-details {
         display: none;
         padding: 10px 16px;
@@ -27,6 +28,9 @@
         li {
             cursor: pointer;
             margin: 0 10px;
+            min-width: 20px;
+            text-align: center;
+            display: inline-block;
         }
     }
     .timeline-meta {

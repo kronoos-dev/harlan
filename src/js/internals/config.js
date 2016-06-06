@@ -1,6 +1,6 @@
 module.exports = {
-    // websocketAddress: "ws://localhost:8090/",
-    // webserviceAddress: "http://localhost:8080/",
+    //websocketAddress: "ws://localhost:8090/",
+    //webserviceAddress: "http://localhost:8080/",
     proshield: {
         hosts: [
             "proshield",

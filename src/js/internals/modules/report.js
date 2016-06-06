@@ -59,6 +59,18 @@ module.exports = (controller) => {
             return canvas.get(0);
         };
 
+        this.markers = () => {
+            let list = $("<ul />").addClass("markers");
+            elementContent.append(list);
+            return (icon, text, action) => {
+                let item;
+                list.append(item = $("<li />").text(text).prepend($("<i />")
+                    .addClass("fa")
+                    .addClass(icon)).click(action));
+                return item;
+            };
+        };
+
         this.gamification = (type) => {
             this.newContent();
             var icon = $("<i />")
@@ -74,7 +86,7 @@ module.exports = (controller) => {
             return p;
         };
 
-        this.timeline = (controller) => {
+        this.timeline = () => {
             var timeline = controller.call("timeline");
             elementContent.append(timeline.element());
             return timeline;

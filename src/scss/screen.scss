@@ -1238,6 +1238,28 @@ input.link {
     .gamification {
         margin: auto;
     }
+    .markers {
+        li {
+            background-color: rgb(255, 255, 255);
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            border: 1px rgb(228, 228, 228) solid;
+            cursor: pointer;
+            user-select: none;
+            i {
+                margin-right: 10px;
+                vertical-align: middle;
+            }
+            &:hover {
+                box-shadow: 1px 1px 2px rgb(238, 238, 238);
+            }
+            &:active {
+                box-shadow: 1px 1px 2px rgb(238, 238, 238) inset;
+            }
+        }
+    }
 }
 @media (max-width: 600px) {
     .container-gamification {
@@ -1283,5 +1305,27 @@ input.link {
     .actions,
     .alerts {
         display: none;
+    }
+}
+#toast-container {
+    line-height: 120%;
+    .toast-message {
+        margin-top: 3px;
+    }
+}
+.silhouette {
+    margin: auto;
+    background: url('/images/silhouettes.svg') rgb(59, 89, 152);
+    background-size: 300px;
+    border-radius: 83px;
+    background-position: 6px 2px;
+    &.people-2 {
+        background-position: 162px 2px;
+    }
+    &.people-3 {
+        background-position: 162px 156px;
+    }
+    &.people-4 {
+        background-position: 6px 156px;
     }
 }

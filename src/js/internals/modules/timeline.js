@@ -9,7 +9,7 @@ var Timeline = function() {
         obj.header = $("<div />").addClass("timeline-header");
         obj.details = $("<div />").addClass("timeline-details").html(details);
 
-        if (!moment.isMoment(time)) {
+        if (time && !moment.isMoment(time)) {
             time = moment.unix(time);
         }
 
@@ -25,14 +25,16 @@ var Timeline = function() {
             }
         });
 
-        obj.time = $("<span />").addClass("timeline-time").text(time.fromNow());
-        var interval = setInterval(function() {
-            obj.time.text(time.fromNow());
-        }, 60000);
+        if (time) {
+            obj.time = $("<span />").addClass("timeline-time").text(time.fromNow());
+            var interval = setInterval(function() {
+                obj.time.text(time.fromNow());
+            }, 60000);
 
-        obj.time.on('remove', () => {
-            clearInterval(interval);
-        });
+            obj.time.on('remove', () => {
+                clearInterval(interval);
+            });
+        }
 
 
         obj.headerContent = $("<span />").addClass("timeline-header-content").text(header);
@@ -66,7 +68,9 @@ var Timeline = function() {
         }
 
         obj.meta = $("<div />").addClass("timeline-meta");
-        obj.meta.append(obj.time);
+        if (obj.time) {
+            obj.meta.append(obj.time);
+        }
         obj.meta.append(obj.actions);
 
         obj.header.append(obj.meta);

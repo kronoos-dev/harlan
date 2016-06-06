@@ -1,7 +1,5 @@
 .autocomplete {
-
     position: relative;
-
     .input-icon {
         position: absolute;
         top: 18px;
@@ -9,7 +7,6 @@
         font-size: 18px;
         color: $color-action;
     }
-
     ul {
         @include box-shadow(0 0 10px 2px rgba(0,0,0,0.08));
         position: absolute;
@@ -19,16 +16,13 @@
         display: none;
         border-bottom-left-radius: 5px;
         border-bottom-right-radius: 5px;
-
         &.active {
             display: block;
         }
-
         &:empty {
             display: none;
         }
     }
-
     li {
         cursor: pointer;
         font-size: 18px;
@@ -38,11 +32,10 @@
         text-align: left;
         border-bottom: 1px solid #efefef;
         position: relative;
-
-        &:hover, &.selected  {
+        &.selected,
+        &:hover {
             background-color: darken(#fff, 5%);
         }
-
         @mixin color-icon($color, $icon) {
             background: $color;
             &:after {
@@ -53,46 +46,51 @@
                 right: 10px;
                 top: 10px;
             }
-            &:hover, &.selected  {
+            &.selected,
+            &:hover {
                 background-color: darken($color, 5%);
             }
-
         }
-
         &.admin-company {
             @include color-icon(#cbff7c, "\f0f2");
             background-image: url('../images/textures/brilliant.png');
         }
-
-
         &.company {
             @include color-icon(#fff, "\f0f7");
         }
-
         &.database {
             @include color-icon(lighten($color-action, 23%), "\f002");
+            .item-subtitle,
+            .item-title {
+                text-transform: none !important;
+            }
         }
-
+        &.socialprofile {
+            @include color-icon(rgb(0, 149, 255), "\f087");
+            background-image: url('../images/textures/diagmonds-light.png');
+            color: rgb(255, 255, 255);
+            text-shadow: 1px 1px 2px rgb(63, 85, 111);
+            .item-subtitle,
+            .item-title {
+                text-transform: none !important;
+            }
+        }
         &.saved {
             @include color-icon($color-save, "\f0c7");
         }
     }
-
     .item-title {
         text-transform: capitalize;
         font-size: 21px;
         line-height: 120%;
         font-family: $font-open-sans-condensed;
-        margin: 8px 0;
-        margin-top: 2px;
+        margin: 2px 0 8px;
     }
-
     .item-subtitle {
         text-transform: capitalize;
         font-size: 14px;
         margin: 6px 0;
     }
-
     .item-description {
         font-size: 12px;
     }

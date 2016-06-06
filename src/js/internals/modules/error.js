@@ -1,31 +1,45 @@
-module.exports = function (controller) {
+import e from '../library/server-communication/exception-dictionary';
 
-    controller.registerCall("error::toast", function () {
-        return function (exceptionType, exceptionMessage, exceptionCode) {
-            if (exceptionType === "ExceptionDatabase" && exceptionMessage) {
-                if (exceptionCode === 9) {
-                    /* Sem poderes para usar a consulta */
+module.exports = function(controller) {
+
+    controller.registerCall("error::server", (exceptionType, exceptionMessage, exceptionCode) => {
+
+        if (exceptionType === "ExceptionDatabase") {
+            switch (exceptionCode) {
+                case e.ExceptionDatabase.authenticationFailure:
                     controller.call("buyit");
-                } else {
-                    toastr.error(exceptionMessage);
-                }
-            } else {
-                toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
+                    return;
+                case e.ExceptionDatabase.insufficientFunds:
+                    controller.confirm({
+                        icon: 'fail',
+                        title: "Sem créditos suficientes.",
+                        subtitle: "Você não possui créditos suficientes para continuar.",
+                        paragraph: "Recarregue sua conta para poder usufruir dessa funcionalidade.",
+                        confirmText: "Recarregar"
+                    }, () => {
+                        controller.call("credits::buy");
+                    });
+                    return;
             }
-        };
+
+            if (exceptionMessage) {
+                toastr.error(exceptionMessage);
+                return;
+            }
+
+        }
+
+        toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
     });
 
-    controller.registerCall("error::ajax", function (dict) {
+    controller.registerCall("error::ajax", function(dict) {
         var error = dict.error;
-        dict.error = function (jqXHR, ...args) {
-            var call = Array.from(arguments);
+        dict.error = function(jqXHR, ...args) {
             try {
                 var xml = $.parseXML(jqXHR.responseText);
-                $.bipbopAssert(xml, controller.call("error::toast"));
-                if (dict.bipbopError) {
-                    dict.bipbopError(xml);
-                }
+                $.bipbopAssert(xml, dict.bipbopError || controller.reference("error::server"));
             } catch (err) {
+                console.debug(err);
                 toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }
 
