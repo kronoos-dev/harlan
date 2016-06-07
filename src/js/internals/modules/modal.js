@@ -22,8 +22,8 @@ module.exports = (controller) =>  {
             if (e.keyCode == 27) {
                 this.close();
             }
-        });
-        
+        };
+
         $(document).one("keyup", onEsc);
 
         $("body").append(modalContainer);
