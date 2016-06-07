@@ -124,6 +124,10 @@ module.exports = (controller) => {
             return this;
         };
 
+        this.results = () => {
+            return elementResults;
+        }
+
         this.result = () => {
             var result = controller.call("result");
             elementResults.append(result.element());

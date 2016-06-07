@@ -6,6 +6,7 @@ import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
 import {
+    camelCase,
     titleCase
 } from 'change-case';
 import hashObject from 'hash-object';
@@ -73,21 +74,85 @@ module.exports = (controller) => {
         modal.createActions().cancel();
     };
 
-    var openEmail = () => {
+    var openEmail = (report, email, document) => {
         return (e) => {
             e.preventDefault();
+            var modal = controller.call("modal");
+            modal.createActions.cancel();
         };
     };
 
-    var openPhone = () => {
+    var openPhone = (report, ddd, numero, document) => {
         return (e) => {
             e.preventDefault();
+            var modal = controller.call("modal");
+            modal.createActions.cancel();
         };
     };
 
-    var openAddress = () => {
-        return (e) => {
+    var openAddress = (report, filterCep, ccbusca, document) => {
+        var results = [];
+        return function(e) {
             e.preventDefault();
+
+            if (results.length) {
+                $(this).removeClass("enabled");
+                for (let result of results) {
+                    result.element().remove();
+                }
+
+                results = [];
+                return;
+            }
+            $(this).addClass("enabled");
+            $("BPQL > body enderecos > endereco", ccbusca).each((i, element) => {
+                let cep = $("cep", element).text().trim();
+                if (filterCep && filterCep != cep) {
+                    return /* void */;
+                }
+
+                let obj = {},
+                    result = report.result(),
+                    addItem = (key, value) => {
+                        if (!value || /^\s*$/.test(value)) {
+                            return;
+                        }
+                        obj[camelCase(removeDiacritics(key))] = value;
+                        return result.addItem(key, value);
+                    };
+
+                results.push(result);
+                addItem("Endereco", `${$("tipo", element).text().trim()} ${$("logradouro", element).text().trim()}`.trim());
+                addItem("Número", $("numero", element).text().trim().replace(/^0+/, ''));
+                addItem("Complemento", $("complemento", element).text().trim());
+                addItem("Bairro", $("bairro", element).text().trim());
+                addItem("CEP", cep);
+                addItem("Bairro", $("bairro", element).text().trim());
+                addItem("Cidade", $("cidade", element).text().trim());
+                addItem("Estado", $("estado", element).text().trim());
+
+                let image = new Image(),
+                    imageAddress = "http://maps.googleapis.com/maps/api/staticmap?" + $.param({
+                        "scale": "1",
+                        "size": "600x150",
+                        "maptype": "roadmap",
+                        "format": "png",
+                        "visual_refresh": "true",
+                        "markers": "size:mid|color:red|label:1|" + _.values(obj).join(", ")
+                    });
+
+                image.onload = () => {
+                    result.addItem().addClass("map").append(
+                        $("<a />").attr({
+                            "href": "https://www.google.com/maps?" + $.param({
+                                q: _.values(obj).join(", ")
+                            }),
+                            "target": "_blank"
+                        }).append($("<img />").attr("src", imageAddress)));
+                };
+
+                image.src = imageAddress;
+            });
         };
     };
 
@@ -98,29 +163,31 @@ module.exports = (controller) => {
         report.subtitle(`Informações relacionadas ao documento
             ${(isCPF ? CPF : CNPJ).format(document)}.`);
 
-        report.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
-        var timeline = report.timeline();
-        for (let i = 0; i < 5; i++) {
-            timeline.add(null, "Pellentesque habitant morbi tristique senectus et netus.", "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.", [
-                ["fa-folder-open", "Abrir", () => {
-                    /* Abrir ! */
-                }],
-                ["fa-info-circle", "Sobre", () => {
-                    /* Vender a informação aqui de maneira TOP! */
-                }]
-            ]).addClass("profile");
-        }
+        let timeline = report.timeline(),
+            paragraph = report.paragraph("Foram encontrados os seguintes apontamentos cadatrais para o documento em nossos bureaus de crédito, você pode clicar sobre uma informação para obter mais dados a respeito ou realizar uma ação, como enviar um e-mail, SMS, iniciar uma ligação. Bem como apontar inconsistências cadastrais.").hide(),
+            m = report.markers(),
+            newMark = (...args) => {
+                paragraph.show();
+                m(...args);
+            };
+
+        controller.trigger("socialprofile::queryList", {
+            report: report,
+            timeline: timeline,
+            name: name,
+            ccbusca: ccbusca,
+            document: document,
+            mark: newMark
+        });
 
         if (ccbusca) {
-            report.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
-            let newMark = report.markers();
             $("BPQL > body telefones > telefone", ccbusca).each((idx, element) => {
                 let ddd = $("ddd", element).text(),
                     numero = $("numero", element).text();
                 if (!/^\d{2}$/.test(ddd) || !/^\d{8,9}$/.test(numero)) {
                     return /* void */;
                 }
-                newMark("fa-phone", `(${ddd}) ${VMasker.toPattern(numero, "9999-99999")}`, openPhone(ddd, numero, document));
+                newMark("fa-phone", `(${ddd}) ${VMasker.toPattern(numero, "9999-99999")}`, openPhone(report, ddd, numero, document));
             });
 
             $("BPQL > body emails > email > email", ccbusca).each((idx, element) => {
@@ -130,43 +197,39 @@ module.exports = (controller) => {
                     }).test(email)) {
                     return /* void */;
                 }
-                newMark("fa-at", email, openEmail(email, document));
+                newMark("fa-at", email, openEmail(report, email, document));
             });
 
             var addresses = {};
             $("BPQL > body enderecos > endereco", ccbusca).each((idx, element) => {
                 let cidade = corrigeArtigos(titleCase($("cidade", element).text().replace(/\s+/, ' ').trim())),
                     estado = $("estado", element).text().replace(/\s+/, ' ').trim().toUpperCase(),
-                    cep = $("cep", element).text();
+                    cep = $("cep", element).text().trim();
 
                 if (/^\s*$/.test(cidade) || /^\s*$/.test(estado) || !/^\d{8}$/.test(cep)) {
                     return /* void */;
                 }
 
-                let obj = {
-                        cep: cep,
-                        cidade: removeDiacritics(cidade.toUpperCase()),
-                        estado: estado,
-                    },
-                    hash = hashObject(obj);
-
-                if (addresses[hash]) {
+                if (addresses[cep]) {
                     return /* void */;
                 }
 
-                addresses[hash] = true;
+                addresses[cep] = true;
 
-                newMark("fa-map", `${cidade}, ${estado} - ${VMasker.toPattern(cep, "99999-999")}`, openAddress(element, ccbusca, document));
+                newMark("fa-map", `${cidade}, ${estado} - ${VMasker.toPattern(cep, "99999-999")}`, openAddress(report, cep, ccbusca, document));
             });
         }
 
         var game = report.gamification("silhouette").addClass(isCPF ? "cpf" : "cnpj");
         detect(name.split(" ")[0]).then((gender) => {
-            debugger;
             if (gender === 'female') {
                 game.addClass("people-2");
             }
         });
+
+        for (let result of results) {
+            report.element().find(".results").append(result.element());
+        }
 
         $(".app-content").append(report.element());
     };
@@ -186,13 +249,6 @@ module.exports = (controller) => {
                 }
             })));
     };
-
-    controller.registerTrigger("mainSearch::submit", "socialprofile", (document, callback) => {
-        callback();
-        if (CPF.isValid(document) || CNPJ.isValid(document)) {
-            controller.call("socialprofile", document, callback);
-        }
-    });
 
     controller.registerCall("socialprofile", (document, specialParameters = {}, results = []) => {
         let isCPF = CPF.isValid(document);
@@ -224,6 +280,24 @@ module.exports = (controller) => {
                     controller.call("error::server", exceptionType, exceptionMessage, exceptionCode);
                 }
             })));
+    });
+
+    controller.registerTrigger("socialprofile::queryList", "certidaoCNPJ", (args, cb) => {
+        if (!CNPJ.isValid(args.document)) {
+            cb();
+            return;
+        }
+        controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", {
+            data: {
+                document: args.document
+            },
+            success: (ret) => {
+                args.report.results.append(controller.call("xmlDocument", ret, 'RFB', 'CERTIDAO'));
+            },
+            complete: () => {
+                cb();
+            }
+        });
     });
 
 };
