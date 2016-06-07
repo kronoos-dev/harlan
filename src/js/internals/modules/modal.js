@@ -14,20 +14,19 @@ var SAFARI_HACK_REFRESH_RATE = 500;
 module.exports = (controller) =>  {
 
     var Modal = function () {
-        var that = this;
         var modal = $("<div />").addClass("modal-content");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
 
-        $(document).keyup(function(e) {
+        var onEsc = (e) => {
             if (e.keyCode == 27) {
-                that.close();
+                this.close();
             }
         });
-
+        
+        $(document).one("keyup", onEsc);
 
         $("body").append(modalContainer);
-
 
         var webkitIOSandSafariHack = () =>  {
             var modalHeight = modal.outerHeight();
@@ -105,13 +104,12 @@ module.exports = (controller) =>  {
         this.onClose = null;
 
         this.close = () => {
+            $(document).unbind("keyup", onEsc);
             if (this.onClose) {
                 this.onClose();
             }
             modalContainer.remove();
         };
-
-        var close = this.close;
 
         this.createActions = () =>  {
             var actions = $("<ul />").addClass("actions");
@@ -128,7 +126,7 @@ module.exports = (controller) =>  {
                     add(text || controller.i18n.system.cancel()).click((e) => {
                         e.preventDefault();
                         if (onExit) onExit();
-                        close();
+                        this.close();
                     });
                 },
                 observation: (name) =>  {
