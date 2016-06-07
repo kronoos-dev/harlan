@@ -14,9 +14,16 @@ var SAFARI_HACK_REFRESH_RATE = 500;
 module.exports = (controller) =>  {
 
     var Modal = function () {
+        var that = this;
         var modal = $("<div />").addClass("modal-content");
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
+
+        $(document).keyup(function(e) {
+            if (e.keyCode == 27) {
+                that.close();
+            }
+        });
 
 
         $("body").append(modalContainer);
