@@ -289,7 +289,7 @@ module.exports = (controller) => {
         }
         controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", {
             data: {
-                document: args.document
+                documento: args.document
             },
             success: (ret) => {
                 args.report.results.append(controller.call("xmlDocument", ret, 'RFB', 'CERTIDAO'));
