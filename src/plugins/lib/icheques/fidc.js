@@ -1,11 +1,20 @@
+import async from 'async';
 import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import { CMC7Parser } from './cmc7-parser';
-import { titleCase } from 'change-case';
-import { CPF } from 'cpf_cnpj';
-import { CNPJ } from 'cpf_cnpj';
+import {
+    CMC7Parser
+} from './cmc7-parser';
+import {
+    titleCase
+} from 'change-case';
+import {
+    CPF
+} from 'cpf_cnpj';
+import {
+    CNPJ
+} from 'cpf_cnpj';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -115,43 +124,42 @@ module.exports = (controller) => {
                     return element[1] == "financeiro";
                 });
 
-                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`,
-                    !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
-                        ["fa-user", "Informações", () => {
-                            controller.call("icheques::fidc::company::view", $.extend({
-                                name: value.company.nome || value.company.responsavel || value.company.username,
-                                document: value.company.cnpj || value.company.cpf,
-                                endereco: value.company.endereco[0],
-                                zipcode:value.company.endereco[5],
-                                numero: value.company.endereco[1],
-                                complemento: value.company.endereco[2],
-                                estado: value.company.endereco[6],
-                                cidade: value.company.endereco[4],
-                                email: emails.length ? emails[0][0] : 0,
-                            }, value.profile));
-                        }],
-                        [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
-                            controller.confirm({}, () => {
-                                controller.call("icheques::fidc::allowedCompany::edit", value, t);
+                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`, !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
+                    ["fa-user", "Informações", () => {
+                        controller.call("icheques::fidc::company::view", $.extend({
+                            name: value.company.nome || value.company.responsavel || value.company.username,
+                            document: value.company.cnpj || value.company.cpf,
+                            endereco: value.company.endereco[0],
+                            zipcode: value.company.endereco[5],
+                            numero: value.company.endereco[1],
+                            complemento: value.company.endereco[2],
+                            estado: value.company.endereco[6],
+                            cidade: value.company.endereco[4],
+                            email: emails.length ? emails[0][0] : 0,
+                        }, value.profile));
+                    }],
+                    [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
+                        controller.confirm({}, () => {
+                            controller.call("icheques::fidc::allowedCompany::edit", value, t);
+                        });
+                    }],
+                    ["fa-times", "Recusar", () => {
+                        controller.confirm({}, () => {
+                            controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                                dataType: "json",
+                                data: {
+                                    id: value._id,
+                                    approved: false,
+                                    interest: 0,
+                                    limit: 0
+                                },
+                                success: () => {
+                                    t.remove();
+                                }
                             });
-                        }],
-                        ["fa-times", "Recusar", () => {
-                            controller.confirm({}, () => {
-                                controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
-                                    dataType: "json",
-                                    data: {
-                                        id: value._id,
-                                        approved: false,
-                                        interest: 0,
-                                        limit: 0
-                                    },
-                                    success: () => {
-                                        t.remove();
-                                    }
-                                });
-                            });
-                        }],
-                    ]);
+                        });
+                    }],
+                ]);
                 showing[value.company.username] = t;
             };
 
@@ -455,57 +463,71 @@ module.exports = (controller) => {
 
     });
 
-    var getFile = function(inputFile) {
-        var files = inputFile.get(0).files;
+    var getFiles = function(inputFile) {
+        let files = inputFile.get(0).files;
         if (!files.length) {
             throw "Selecione um arquivo!";
         }
 
-        var file = files.item(0);
-        if (!TEST_ITIT_EXTENSION.test(file.name)) {
-            throw "A extensão recebida do arquivo não confere!";
+        for (let file of files) {
+            if (!TEST_ITIT_EXTENSION.test(file.name)) {
+                throw "A extensão recebida do arquivo não confere!";
+            }
         }
-        return file;
+
+        return files;
     };
 
-    var parseReceipt = (args, file, cb) => {
-        fileReaderStream(file).pipe(concat(function(buffer) {
-            let obj = {
-                    file: buffer.toString(),
-                    checkNumbers: []
-                },
-                lines = buffer.toString().split("\r\n");
-            for (let line of lines) {
-                let data = line.split(";");
-                switch (data[0]) {
-                    case 'B':
-                        obj.operation = data[4];
-                        break;
-                    case 'C':
-                        obj.equity = data[14];
-                        obj.taxes = data[21];
-                        break;
-                    case 'T':
-                        if (data[1] === "") {
+    var parseReceipt = (args, files, cb) => {
+        let obj = {
+            file: "",
+            equity: 0,
+            taxes: 0,
+            checkNumbers: []
+        };
+
+        var queue = async.queue((file, cb) => {
+            fileReaderStream(file).pipe(concat(function(buffer) {
+                obj.file += buffer.toString();
+                var lines = buffer.toString().split("\r\n");
+                for (let line of lines) {
+                    let data = line.split(";");
+                    switch (data[0]) {
+                        case 'B':
+                            obj.operation = data[4];
                             break;
-                        }
-                        for (let idx in args.cmcs) {
-                            let cmc = args.cmcs[idx];
-                            if (!cmc) {
-                                continue;
-                            }
-                            if (new CMC7Parser(cmc).number == data[2]) {
-                                obj.checkNumbers.push(cmc);
-                                args.cmcs[idx] = null;
+                        case 'C':
+                            obj.equity += data[14];
+                            obj.taxes += data[21];
+                            break;
+                        case 'T':
+                            if (data[1] === "") {
                                 break;
                             }
-                        }
-                        break;
+                            for (let idx in args.cmcs) {
+                                let cmc = args.cmcs[idx];
+                                if (!cmc) {
+                                    continue;
+                                }
+                                if (new CMC7Parser(cmc).number == data[2]) {
+                                    obj.checkNumbers.push(cmc);
+                                    args.cmcs[idx] = null;
+                                    break;
+                                }
+                            }
+                            break;
+                    }
                 }
-            }
+                cb();
+            }));
+        });
+
+        queue.drain = () => {
             obj.checkNumbers = obj.checkNumbers.join(",");
             cb(obj);
-        }));
+        };
+
+        queue.push(Array.from(files));
     };
 
     var askReceipt = (data, cb) => {
@@ -516,12 +538,14 @@ module.exports = (controller) => {
         modal.addParagraph("Para finalizar a operação é necessário que você apresente o recibo no formato iTit (WBA).");
 
         var form = modal.createForm();
-        var inputFile = form.addInput("fidc-file", "file", "Selecionar arquivo.", {}, "Arquivo de Fundo FIDC");
+        var inputFile = form.addInput("fidc-file", "file", "Selecionar arquivo.", {}, "Arquivo de Fundo FIDC").attr({
+            multiple: 'multiple'
+        });
 
         form.addSubmit("submit", "Enviar").click(function(e) {
             e.preventDefault();
             try {
-                parseReceipt(data, getFile(inputFile), cb);
+                parseReceipt(data, getFiles(inputFile), cb);
                 modal.close();
             } catch (exception) {
                 toastr.warning(exception);

@@ -243,7 +243,7 @@ label {
             }
             background: rgb(215, 243, 214);
             line-height: 34px;
-            letter-spacing: .04em;
+            letter-spacing: 0.04em;
             font-weight: 200;
         }
         &.user {
@@ -1134,6 +1134,9 @@ input.link {
     background-color: #fff;
     margin: 30px 0;
     font-size: 16px;
+    .result {
+        box-shadow: inset 0 -4px 4px -4px rgba(41,41,41,.26), inset 0 4px 4px -4px rgba(41,41,41,.26);
+    }
     ul.r-actions {
         position: absolute;
         right: 15px;
@@ -1190,7 +1193,8 @@ input.link {
             line-height: 45px;
             font-weight: bold;
         }
-        p ol, p ul {
+        p ol,
+        p ul {
             position: relative;
             padding-left: 18px;
             li {
@@ -1270,15 +1274,14 @@ input.link {
         display: none;
     }
 }
-
 @import "readmore";
 @import "site";
 @import "widgets";
 @import "animation";
 @import "timeline";
-
 @media print {
-    .actions, .alerts {
+    .actions,
+    .alerts {
         display: none;
     }
 }

@@ -1,9 +1,9 @@
 var assert = require("assert"),
         _ = require("underscore");
 
-module.exports = function (controller) {
+module.exports = (controller) =>  {
 
-    var result = function (inputContainer, inputContent, inputResult) {
+    var Result = function (inputContainer, inputContent, inputResult)  {
         var container = inputContainer || $("<div />").addClass("container");
         var content = inputContent || $("<div />").addClass("content");
         var result = inputResult || $("<div />").addClass("result");
@@ -11,7 +11,7 @@ module.exports = function (controller) {
         if (!inputResult)
             result.append(container.append(content));
 
-        this.addSeparator = function (title, subtitle, description, items) {
+        this.addSeparator = (title, subtitle, description, items) =>  {
             items = items || {};
             items.container = $("<div />").addClass("container");
             items.result = {
@@ -32,7 +32,7 @@ module.exports = function (controller) {
             items.headerContent.append(items.resultsDisplay);
             items.headerContent.append(items.menu);
 
-            items.addItem = function (icon) {
+            items.addItem = (icon) =>  {
                 var item = $('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon));
                 items.menu.append(item);
                 return item;
@@ -52,13 +52,13 @@ module.exports = function (controller) {
             return header;
         };
 
-        this.block = function () {
+        this.block = () =>  {
             var ret = $("<div />");
             content.append(ret);
             return ret;
         };
 
-        var generateAlert = function (radial, percent, context) {
+        var generateAlert = (radial, percent, context) =>  {
             context = context || {
                 60: "attention",
                 80: "warning"
@@ -81,7 +81,7 @@ module.exports = function (controller) {
             return radial;
         };
 
-        this.generateRadial = function (name, percent, context) {
+        this.generateRadial = (name, percent, context) =>  {
             var item = this.addItem(name, "").addClass("center"),
                     itemValue = item.find(".value");
 
@@ -90,7 +90,7 @@ module.exports = function (controller) {
             var radial =  generateAlert(widget, percent, context);
 
             var change = radial.change;
-            radial.change = function (percent) {
+            radial.change = (percent) =>  {
                 change(percent);
                 generateAlert(radial, percent, context);
             };
@@ -99,7 +99,7 @@ module.exports = function (controller) {
         };
 
 
-        this.addItem = function (name, value, tagname) {
+        this.addItem = (name, value, tagname) =>  {
             var node = $("<div />").addClass("field");
 
             if (typeof tagname !== typeof undefined) {
@@ -119,22 +119,22 @@ module.exports = function (controller) {
             return node;
         };
 
-        this.content = function () {
+        this.content = () =>  {
             return content;
         };
 
-        this.element = function () {
+        this.element = () =>  {
             return result;
         };
 
         return this;
     };
 
-    controller.registerCall("result", function () {
-        return new result();
+    controller.registerCall("result", () =>  {
+        return new Result();
     });
 
-    controller.registerCall("result::import", function (result) {
+    controller.registerCall("result::import", (result) =>  {
         assert.ok(result.hasClass("result"));
 
         var container = result.find(".container").first();
@@ -143,7 +143,7 @@ module.exports = function (controller) {
         var content = container.find(".content");
         assert.ok(content.length > 0);
 
-        return new result(container, content, result);
+        return new Result(container, content, result);
     });
 
 };
