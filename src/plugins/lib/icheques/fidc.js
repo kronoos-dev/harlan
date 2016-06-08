@@ -694,6 +694,16 @@ module.exports = (controller) => {
                     validate: function(item) {
                         return numeral().unformat(item.element.val()) > 0;
                     }
+                }, {
+                    "name": "other-occurrences",
+                    "type": "checkbox",
+                    "labelText": "Enviar com Outras Ocorrências",
+                    "optional": true,
+                }, {
+                    "name": "blocked-bead",
+                    "type": "checkbox",
+                    "labelText": "Enviar com Talão Bloqueado",
+                    "optional": true,
                 }]
             }]
         });
