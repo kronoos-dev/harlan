@@ -201,10 +201,29 @@ module.exports = function(controller) {
 
         let form = modal.createForm(),
             search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar", {}, "Documento ou nº do cheque"),
-            list = form.createList(),
             actions = modal.createActions(),
             skip = 0,
             text = null;
+
+        // TODO Verificar se o usuário pode antecipar com outras ocorrências
+        // Se sim...
+            let otherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências");
+
+            otherOccurrences[1].change(() => {
+                // TODO Pegar os cheques com outras ocorrências e atualizar a lista
+            });
+        // Fim Se
+
+        // TODO Verificar se o usuário pode antecipar com talão bloqueado
+        // Se sim...
+            let blockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
+
+            blockedBead[1].change(() => {
+                // TODO Pegar os cheques com talão bloqueado e atualizar a lista
+            });
+        // Fim Se
+
+        let list = form.createList();
 
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
