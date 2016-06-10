@@ -13,9 +13,9 @@ module.exports = function(controller) {
                         controller.confirm({
                             icon: 'fail',
                             title: "Sem informações de bilhetagem.",
-                            subtitle: "Você não possui informações de bilhatagem para continuar.",
+                            subtitle: "Você não possui informações de bilhetagem para continuar.",
                             paragraph: "Registre suas informações de bilhetagem e tente novamente.",
-                            confirmText: "Recarregar"
+                            confirmText: "Informações de Bilhetagem"
                         }, () => {
                             controller.call("billingInformation::force");
                         });
