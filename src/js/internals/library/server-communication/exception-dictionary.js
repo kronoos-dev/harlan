@@ -12,6 +12,7 @@ module.exports = {
         overlimit: 12,
         unregisteredCompany: 13,
         insufficientFunds: 14,
-        noRegisteredEmailForSending: 15
+        noRegisteredEmailForSending: 15,
+        missingBillingInformation: 16
     }
 };

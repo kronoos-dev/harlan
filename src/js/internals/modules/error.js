@@ -9,6 +9,17 @@ module.exports = function(controller) {
                 case e.ExceptionDatabase.authenticationFailure:
                     controller.call("buyit");
                     return;
+                    case e.ExceptionDatabase.missingBillingInformation:
+                        controller.confirm({
+                            icon: 'fail',
+                            title: "Sem informações de bilhetagem.",
+                            subtitle: "Você não possui informações de bilhatagem para continuar.",
+                            paragraph: "Registre suas informações de bilhetagem e tente novamente.",
+                            confirmText: "Recarregar"
+                        }, () => {
+                            controller.call("billingInformation::force");
+                        });
+                        return;
                 case e.ExceptionDatabase.insufficientFunds:
                     controller.confirm({
                         icon: 'fail',
