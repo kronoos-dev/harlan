@@ -65,6 +65,10 @@ module.exports = function(controller) {
             return booleanExpiration;
         });
 
+        checks = _.filter(checks, (check) => {
+            return check.situation === "Cheque sem ocorrências" || check.situation === "Cheque com outras ocorrências" || check.situation === "O talão do cheque está bloqueado";
+        });
+
         if (expired.length) {
             toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
         }
@@ -203,25 +207,44 @@ module.exports = function(controller) {
             search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar", {}, "Documento ou nº do cheque"),
             actions = modal.createActions(),
             skip = 0,
-            text = null;
+            text = null,
+            goodChecks = [],
+            otherOccurrences = [],
+            blockedBead = [];
 
-        // TODO Verificar se o usuário pode antecipar com outras ocorrências
-        // Se sim...
-            let otherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências");
+        otherOccurrences = _.filter(checks, (check) => {
+            return check.situation === "Cheque com outras ocorrências";
+        });
 
-            otherOccurrences[1].change(() => {
-                // TODO Pegar os cheques com outras ocorrências e atualizar a lista
-            });
-        // Fim Se
+        blockedBead = _.filter(checks, (check) => {
+            return check.situation === "O talão do cheque está bloqueado";
+        });
 
-        // TODO Verificar se o usuário pode antecipar com talão bloqueado
-        // Se sim...
-            let blockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
+        checks = goodChecks = _.filter(checks, (check) => {
+            return check.situation === "Cheque sem ocorrências";
+        });
 
-            blockedBead[1].change(() => {
-                // TODO Pegar os cheques com talão bloqueado e atualizar a lista
-            });
-        // Fim Se
+        let fieldOtherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências");
+        fieldOtherOccurrences[1].change(() => {
+            // TODO Pegar os cheques com outras ocorrências e atualizar a lista
+            if (fieldOtherOccurrences[1].is(":checked")) {
+                checks = _.union(checks, otherOccurrences);
+            } else {
+                checks = _.difference(checks, otherOccurrences);
+            }
+            updateList(modal, pageActions, results, pagination, list, checks);
+        });
+
+        let fieldBlockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
+        fieldBlockedBead[1].change(() => {
+            // TODO Pegar os cheques com talão bloqueado e atualizar a lista
+            if (fieldBlockedBead[1].is(":checked")) {
+                checks = _.union(checks, blockedBead);
+            } else {
+                checks = _.difference(checks, blockedBead);
+            }
+            updateList(modal, pageActions, results, pagination, list, checks);
+        });
 
         let list = form.createList();
 
