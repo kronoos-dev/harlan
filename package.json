@@ -26,6 +26,7 @@
     "babel-preset-react": "^6.3.13",
     "babelify": "^7.2.0",
     "browserify": "~13.0.0",
+    "build-url": "^1.0.9",
     "change-case": "^2.3.1",
     "chart.js": "^1.0.2",
     "color": "^0.11.1",

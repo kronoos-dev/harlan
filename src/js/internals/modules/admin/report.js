@@ -1,7 +1,8 @@
 var _ = require("underscore"),
     Color = require("color"),
     randomColor = require("randomcolor"),
-    ChartJS = require("chart.js");
+    ChartJS = require("chart.js"),
+    buildURL = require("build-url");
 
 module.exports = function(controller) {
 
@@ -34,7 +35,9 @@ module.exports = function(controller) {
                         pointStrokeColor: color.light() ? "#fff" : "#000",
                         pointHighlightFill: color.light() ? "#fff" : "#000",
                         pointHighlightStroke: color.rgbString(),
+                        id: reader.children("id").text(),
                         label: reader.children("name").text(),
+                        description: reader.children("description").text(),
                         data: []
                     };
                 }
@@ -76,16 +79,48 @@ module.exports = function(controller) {
         modal.createActions().cancel();
     });
 
-    controller.registerCall("admin::report", function(callback, element, username, start, end, interval = "P1W", method = "append", closeable = false) {
+    controller.registerCall("admin::report::download", function(ajaxQuery, labels) {
+
+        let download = (report) => {
+                return (e) => {
+                    e.preventDefault();
+                    window.location.assign(buildURL(bipbop.webserviceAddress, {
+                        queryParams: $.extend({}, ajaxQuery, {
+                            q: controller.endpoint.adminReport,
+                            download: "true",
+                            apiKey: controller.server.apiKey(),
+                            report: report
+                        })
+                    }));
+                };
+            },
+            modal = controller.call("modal");
+
+        modal.title("Selecione o relatório que gostaria de baixar.");
+        modal.subtitle("Faça o download do relatório que deseja.");
+        modal.paragraph("Selecione o relatório que deseja para começar o download em CSV.");
+
+        let list = modal.createForm().createList();
+        for (let item of labels) {
+            list.add("fa-cloud-download", `${item.label} - ${item.description}`).click(download(item.id));
+        }
+
+        modal.createActions().cancel();
+
+    });
+
+    controller.registerCall("admin::report", function(callback, element, username, start, end, interval = "P1W", method = "append", closeable = false, contractType = null) {
+        let ajaxQuery = {
+            username: username,
+            period: interval,
+            dateStart: start || moment().subtract(2, 'months').startOf('week').format("DD/MM/YYYY"),
+            dateEnd: end,
+            contractType: contractType
+        };
         controller.serverCommunication.call(controller.endpoint.adminReport,
             controller.call("loader::ajax", controller.call("error::ajax", {
                 cache: true,
-                data: {
-                    username: username,
-                    period: interval,
-                    dateStart: start || moment().subtract(2, 'months').startOf('week').format("DD/MM/YYYY"),
-                    dateEnd: end
-                },
+                data: ajaxQuery,
                 success: function(response) {
                     var dataset = controller.call("admin::report::dataset", $("BPQL > body > node", response));
                     var report = controller.call("report",
@@ -103,6 +138,11 @@ module.exports = function(controller) {
                             color: dataset.datasets[i].color.light() ? "#000" : "#fff"
                         });
                     }
+
+                    report.action("fa-cloud-download", () => {
+                        controller.call("admin::report::download", ajaxQuery, dataset.datasets);
+                    });
+
                     report.action("fa-filter", () => {
                         controller.call("admin::report::filter", username, report, callback, closeable);
                     });
