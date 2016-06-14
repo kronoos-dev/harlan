@@ -305,6 +305,15 @@ var AccountOverview = function (closeable)  {
         );
     });
 
+    report.newAction("fa-check-square", () => {
+            var allChecks = controller.call("icheques::resultDatabase", controller.database.exec(squel
+                .select()
+                .from('ICHEQUES_CHECKS')
+                .where(expression)
+                .toString())[0]).values;
+            controller.call("icheques::antecipate", allChecks);
+    });
+
     var openButton = report.button("Filtrar Cheques", modalFilter);
 
     report.newContent();

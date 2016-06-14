@@ -646,6 +646,8 @@ module.exports = (controller) => {
 
     controller.registerCall("icheques::fidc::allowedCompany::edit", (value, t) => {
         var form = controller.call("form", function(formData) {
+            if (!formData.blockedBead) delete formData.blockedBead;
+            if (!formData.otherOccurrences) delete formData.otherOccurrences;
             formData.limit = Math.ceil(formData.limit * 100);
             controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
                 dataType: "json",
@@ -694,6 +696,20 @@ module.exports = (controller) => {
                     validate: function(item) {
                         return numeral().unformat(item.element.val()) > 0;
                     }
+                }, {
+                    "value": value.otherOccurrences,
+                    "checked": value.otherOccurrences,
+                    "name": "other-occurrences",
+                    "type": "checkbox",
+                    "labelText": "Enviar com Outras Ocorrências",
+                    "optional": true,
+                }, {
+                    "value": value.blockedBead,
+                    "checked": value.blockedBead,
+                    "name": "blocked-bead",
+                    "type": "checkbox",
+                    "labelText": "Enviar com Talão Bloqueado",
+                    "optional": true,
                 }]
             }]
         });
