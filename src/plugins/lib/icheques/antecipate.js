@@ -5,20 +5,22 @@ import { titleCase } from 'change-case';
 import { CPF } from 'cpf_cnpj';
 import { CNPJ } from 'cpf_cnpj';
 
-const PAGINATE_FILTER = 7;
+const PAGINATE_FILTER = 5;
 
 /* global module, numeral */
 module.exports = function(controller) {
 
-    var commercialReference = null;
+    var commercialReference = null,
+        hasOtherOccurrences = false,
+        hasBlockedBead = false;
 
     function modalChecksIsEmpty() {
         let modal = controller.call("modal");
 
         modal.title("Você não selecionou nenhum cheque");
         modal.subtitle("Seleção de Cheques para Antecipação");
-        modal.addParagraph("É necessário selecionar pelo menos um cheque para solicitar antecipação");
 
+        modal.addParagraph("É necessário selecionar pelo menos um cheque para poder antecipar");
         let form = modal.createForm();
 
         form.addSubmit("close", "Ok");
@@ -38,7 +40,7 @@ module.exports = function(controller) {
             },
             error: () => {
                 controller.alert({
-                    title: "Informações cadastrais são necessárias",
+                    title: "Informações cadastrais são necessárias.",
                     subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
                     paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
                 }, () => {
@@ -55,19 +57,23 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate::init", function(checks) {
-        var expired = [];
+        let expired = [], now = moment().format("YYYYMMDD");
 
         checks = _.filter(checks, (check) => {
-            var booleanExpiration = moment().diff(check.expire, 'days') < 0;
-            if (!booleanExpiration) {
+            let booleanExpiration = check.expire < now;
+            if (booleanExpiration) {
                 expired.push(check);
             }
-            return booleanExpiration;
+            return !booleanExpiration;
+        });
+
+        checks = _.filter(checks, (check) => {
+            return check.situation === "Cheque sem ocorrências" || check.situation === "Cheque com outras ocorrências" || check.situation === "O talão do cheque está bloqueado";
         });
 
         if (expired.length) {
-            toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
-        }
+             toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
+         }
 
         if (!checks.length) {
             toastr.error("Não há cheques bons para antecipação, verifique e tente novamente.", "Não há cheques em seja possível a antecipação.");
@@ -155,7 +161,7 @@ module.exports = function(controller) {
         var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
             return memo + num;
         });
-        if (checks.length) {
+        if (totalAmmount) {
             $(checksSum).text(numeral(totalAmmount / 100.0).format("$0,0.00"));
         } else {
             $(checksSum).text("Sem Saldo");
@@ -201,15 +207,56 @@ module.exports = function(controller) {
 
         let form = modal.createForm(),
             search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar", {}, "Documento ou nº do cheque"),
-            list = form.createList(),
             actions = modal.createActions(),
             skip = 0,
-            text = null;
+            text = null,
+            goodChecks = [],
+            otherOccurrences = [],
+            blockedBead = [];
+
+        otherOccurrences = _.filter(checks, (check) => {
+            return check.situation === "Cheque com outras ocorrências";
+        });
+
+        blockedBead = _.filter(checks, (check) => {
+            return check.situation === "O talão do cheque está bloqueado";
+        });
+
+        checks = goodChecks = _.filter(checks, (check) => {
+            return check.situation === "Cheque sem ocorrências";
+        });
+
+        let list = form.createList(),
+            fieldOtherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências"),
+            fieldBlockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
+        fieldOtherOccurrences[1].change(() => {
+            // TODO Pegar os cheques com outras ocorrências e atualizar a lista
+            if (fieldOtherOccurrences[1].is(":checked")) {
+                checks = _.union(checks, otherOccurrences);
+                if (otherOccurrences.length > 0) hasOtherOccurrences = true;
+            } else {
+                checks = _.difference(checks, otherOccurrences);
+                hasOtherOccurrences = false;
+            }
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
+        });
+        fieldBlockedBead[1].change(() => {
+            // TODO Pegar os cheques com talão bloqueado e atualizar a lista
+            if (fieldBlockedBead[1].is(":checked")) {
+                checks = _.union(checks, blockedBead);
+                if (blockedBead.length > 0) hasBlockedBead = true;
+            } else {
+                checks = _.difference(checks, blockedBead);
+                hasBlockedBead = false;
+            }
+            skip = 0;
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
+        });
 
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
             skip = 0;
-            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum, callback);
         });
 
         form.element().submit((e) => {
@@ -238,12 +285,12 @@ module.exports = function(controller) {
 
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
-                skip += 5;
+                skip += PAGINATE_FILTER;
                 updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
-                skip -= 5;
+                skip -= PAGINATE_FILTER;
                 updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide()
         };
@@ -407,6 +454,17 @@ module.exports = function(controller) {
 
     controller.registerCall("icheques::antecipate::fidc", (data, element, checks) => {
         var modal = controller.modal();
+
+        if ((hasOtherOccurrences && $(element).find("otherOccurrences").text() != "true") || (hasBlockedBead && $(element).find("blockedBead").text() != "true")) {
+          controller.call("alert", {
+            title: "Antecipar apenas cheques bons.",
+            subtitle: "Antecipação apenas de cheques regulares.",
+            paragraph: "Você só pode antecipar cheques bons. Entre em contato com a antecipadora em questão para poder antecipar outros tipos de cheques.",
+          });
+
+          return;
+        }
+
         modal.gamification("sword").css({
             "background": `url(${$(element).children("logo").text()}) no-repeat center`
         });
