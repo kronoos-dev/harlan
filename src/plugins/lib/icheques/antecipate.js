@@ -58,7 +58,6 @@ module.exports = function(controller) {
         let expired = [], now = moment().format("YYYYMMDD");
 
         checks = _.filter(checks, (check) => {
-            debugger;
             let booleanExpiration = check.expire < now;
             if (booleanExpiration) {
                 expired.push(check);
@@ -147,6 +146,7 @@ module.exports = function(controller) {
     });
 
     var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
+        debugger;
         if (text) {
             text = text.trim();
             checks = _.filter(checks, (check) => {
@@ -235,7 +235,7 @@ module.exports = function(controller) {
             } else {
                 checks = _.difference(checks, otherOccurrences);
             }
-            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
         });
         fieldBlockedBead[1].change(() => {
             // TODO Pegar os cheques com talão bloqueado e atualizar a lista
@@ -245,13 +245,13 @@ module.exports = function(controller) {
                 checks = _.difference(checks, blockedBead);
             }
             skip = 0;
-            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
         });
 
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
             skip = 0;
-            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum, callback);
         });
 
         form.element().submit((e) => {
