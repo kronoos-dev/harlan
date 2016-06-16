@@ -7,13 +7,12 @@ import { CNPJ } from 'cpf_cnpj';
 
 const PAGINATE_FILTER = 5;
 
-let hasOtherOccurrences = false,
-    hasblockedBead = false;
-
 /* global module, numeral */
 module.exports = function(controller) {
 
-    var commercialReference = null;
+    var commercialReference = null,
+        hasOtherOccurrences = false,
+        hasBlockedBead = false;
 
     function modalChecksIsEmpty() {
         let modal = controller.call("modal");
@@ -21,7 +20,7 @@ module.exports = function(controller) {
         modal.title("Você não selecionou nenhum cheque");
         modal.subtitle("Seleção de Cheques para Antecipação");
 
-        modal.addParagraph("É necessário selecionar pelo menos um cheque para solicitar antecipação");
+        modal.addParagraph("É necessário selecionar pelo menos um cheque para poder antecipar");
         let form = modal.createForm();
 
         form.addSubmit("close", "Ok");
@@ -245,10 +244,10 @@ module.exports = function(controller) {
             // TODO Pegar os cheques com talão bloqueado e atualizar a lista
             if (fieldBlockedBead[1].is(":checked")) {
                 checks = _.union(checks, blockedBead);
-                if (blockedBead.length > 0) hasblockedBead = true;
+                if (blockedBead.length > 0) hasBlockedBead = true;
             } else {
                 checks = _.difference(checks, blockedBead);
-                hasblockedBead = false;
+                hasBlockedBead = false;
             }
             skip = 0;
             updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
@@ -454,20 +453,13 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::antecipate::fidc", (data, element, checks) => {
-        console.log($(element).find("otherOccurrences").text());
-        debugger;
         var modal = controller.modal();
 
-        if ((hasOtherOccurrences && $(element).find("otherOccurrences").text() != "true") || hasblockedBead && $(element).find("blockedBead").text() != "true")) {
-          modal.title("Antecipar Apenas Cheques Bons");
-          modal.subtitle("Antecipação de Cheques");
-          modal.addParagraph("Você só pode antecipar cheques bons. Entre em contato com a antecipadora em questão para solicitar antecipar outros tipos de cheques");
-
-          var form = modal.createForm();
-          form.addSubmit("ok", "Entendi");
-          form.element().submit((e) => {
-            e.preventDefault();
-            modal.close();
+        if ((hasOtherOccurrences && $(element).find("otherOccurrences").text() != "true") || (hasBlockedBead && $(element).find("blockedBead").text() != "true")) {
+          controller.call("alert", {
+            title: "Antecipar Apenas Cheques Bons",
+            subtitle: "Antecipação de Cheques",
+            paragraph: "Você só pode antecipar cheques bons. Entre em contato com a antecipadora em questão para poder antecipar outros tipos de cheques",
           });
 
           return;
