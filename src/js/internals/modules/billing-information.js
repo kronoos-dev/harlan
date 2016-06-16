@@ -1,6 +1,7 @@
 var CPF = require("cpf_cnpj").CPF,
     CNPJ = require("cpf_cnpj").CNPJ,
-    emailRegex = require("email-regex");
+    emailRegex = require("email-regex"),
+    PHONE_REGEX = /^[\(]?\d{2}[\)]?\s*\d{4}[\-]?\d{4,5}$/;
 
 module.exports = (controller) => {
 
@@ -56,13 +57,23 @@ module.exports = (controller) => {
         var endereco = $("BPQL > body > company > endereco", response),
             document = $("BPQL > body > company > cnpj", response).text() ||
             $("BPQL > body > company > cpf", response).text();
+
+        let telefoneNode = $("BPQL > body > company > telefone > telefone", response).filter((idx, element) => {
+                return $(element).children("telefone:eq(4)").text() == "financeiro";
+            }).first(),
+            telefone;
+
+        if (telefoneNode.length) {
+            telefone = `(${telefoneNode.children("telefone:eq(0)").text()}) ${telefoneNode.children("telefone:eq(1)").text()}`;
+        }
+
         form.configure({
             "title": "Dados para NF-e",
             "subtitle": "Preencha os dados de faturamento para emissão de nota fiscal.",
             "gamification": "magicWand",
             "paragraph": "É muito importante que os dados estejam preenchidos de maneira correta para que seja a NF-e seja emitida corretamente.",
             "screens": [{
-                "nextButton" : next || undefined,
+                "nextButton": next || undefined,
                 "magicLabel": true,
                 "fields": [
                     [{
@@ -81,7 +92,7 @@ module.exports = (controller) => {
                             }
                         },
                         "name": "document",
-                        "placeholder": "CPF / CNPJ",
+                        "placeholder": "CNPJ / CPF",
                         "mask": document.replace(/[^0-9]/g, '').length <= 11 ? "000.000.000-00" : '00.000.000/0000-00',
                         "optional": false,
                         "disabled": CNPJ.isValid(document),
@@ -173,7 +184,8 @@ module.exports = (controller) => {
                             "SE": "Sergipe",
                             "TO": "Tocantins"
                         }
-                    }], {
+                    }],
+                    [{
                         "name": "email",
                         "optional": false,
                         "type": "text",
@@ -184,7 +196,17 @@ module.exports = (controller) => {
                         "validate": (item) => {
                             return emailRegex().test(item.element.val());
                         }
-                    }
+                    }, {
+                        "name": "phone",
+                        "optional": false,
+                        "type": "text",
+                        "value": telefone,
+                        "mask": "(00) 0000-00009",
+                        "placeholder": "Telefone de Contato",
+                        "validate": (item) => {
+                            return PHONE_REGEX.test(item.element.val());
+                        }
+                    }]
                 ]
             }]
         });
