@@ -40,7 +40,7 @@ module.exports = function(controller) {
             },
             error: () => {
                 controller.alert({
-                    title: "Informações cadastrais são necessárias",
+                    title: "Informações cadastrais são necessárias.",
                     subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
                     paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
                 }, () => {
@@ -457,9 +457,9 @@ module.exports = function(controller) {
 
         if ((hasOtherOccurrences && $(element).find("otherOccurrences").text() != "true") || (hasBlockedBead && $(element).find("blockedBead").text() != "true")) {
           controller.call("alert", {
-            title: "Antecipar Apenas Cheques Bons",
-            subtitle: "Antecipação de Cheques",
-            paragraph: "Você só pode antecipar cheques bons. Entre em contato com a antecipadora em questão para poder antecipar outros tipos de cheques",
+            title: "Antecipar apenas cheques bons.",
+            subtitle: "Antecipação apenas de cheques regulares.",
+            paragraph: "Você só pode antecipar cheques bons. Entre em contato com a antecipadora em questão para poder antecipar outros tipos de cheques.",
           });
 
           return;
