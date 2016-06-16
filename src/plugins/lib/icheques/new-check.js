@@ -48,6 +48,9 @@ module.exports = function (controller) {
         }
 
         if (checkAlreadyExists(data) || _.findIndex(storage, function (compare) {
+            if (!compare || !compare.cmc) {
+                return false;
+            }
             return compare.cmc === data.cmc;
         }) !== -1) {
             toastr.warning("O cheque informado já foi cadastrado.", "Efetue uma busca no sistema.");
@@ -97,10 +100,13 @@ module.exports = function (controller) {
             e.preventDefault();
             controller.call("icheques::newcheck");
         });
+
         form.addSubmit("checkout", "Enviar para Monitoramento").click(function (e) {
             e.preventDefault();
             newCheckWrapper = null;
-            controller.call("icheques::checkout", storage);
+            controller.call("icheques::checkout", _.filter(storage, (i) => {
+                return i;
+            }));
             modal.close();
         });
 

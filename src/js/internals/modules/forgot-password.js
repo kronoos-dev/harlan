@@ -100,6 +100,7 @@ module.exports = function (controller) {
 
             controller.serverCommunication.call("UPDATE 'HARLANAUTHENTICATION'.'FORGOTPASSWORD'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
+                        method : 'POST',
                         data: {
                             securecode: inputSecureCode.val(),
                             username: username,

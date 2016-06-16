@@ -4,15 +4,13 @@ import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
 import {
-    CMC7Parser
+    CMC7Parse
 } from './cmc7-parser';
 import {
     titleCase
 } from 'change-case';
 import {
-    CPF
-} from 'cpf_cnpj';
-import {
+    CPF,
     CNPJ
 } from 'cpf_cnpj';
 
@@ -465,13 +463,12 @@ module.exports = (controller) => {
 
     var getFiles = function(inputFile) {
         let files = inputFile.get(0).files;
-        if (!files.length) {
-            throw "Selecione um arquivo!";
-        }
 
-        for (let file of files) {
-            if (!TEST_ITIT_EXTENSION.test(file.name)) {
-                throw "A extensão recebida do arquivo não confere!";
+        if (files.length) {
+            for (let file of files) {
+                if (!TEST_ITIT_EXTENSION.test(file.name)) {
+                    throw "A extensão recebida do arquivo não confere!";
+                }
             }
         }
 
@@ -485,6 +482,13 @@ module.exports = (controller) => {
             taxes: 0,
             checkNumbers: []
         };
+
+        if (!files.length) {
+            obj.checkNumbers = args.cmcs.join(",");
+            obj.operation = moment().format("DDMMYYYY");
+            cb(obj);
+            return;
+        }
 
         var queue = async.queue((file, cb) => {
             fileReaderStream(file).pipe(concat(function(buffer) {
@@ -564,7 +568,7 @@ module.exports = (controller) => {
             "Para aceitar os cheques você deve encaminhar um arquivo .iTIT para geração de fatura e conclusão.");
 
         report.label(`Usuário\: ${args.company.username}`);
-        report.label(`Documento\: ${args.company.cnpj || args.company.cpf}`);
+        report.label(`Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}`);
         report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 

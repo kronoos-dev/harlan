@@ -35,7 +35,7 @@ module.exports = (controller) => {
 
             if (errors.length) {
                 for (var i in errors) {
-                    
+
                     toastr.error(errors[i], "Não foi possível prosseguir devido a um erro.");
                 }
                 return;
@@ -45,6 +45,7 @@ module.exports = (controller) => {
             }, () => {
                 controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'PASSWORD'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
+                        method: 'POST',
                         data: {
                             username: username,
                             password: inputPassword.val()

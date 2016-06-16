@@ -5,7 +5,7 @@ import { titleCase } from 'change-case';
 import { CPF } from 'cpf_cnpj';
 import { CNPJ } from 'cpf_cnpj';
 
-const PAGINATE_FILTER = 7;
+const PAGINATE_FILTER = 3;
 
 /* global module, numeral */
 module.exports = function(controller) {
@@ -55,14 +55,15 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate::init", function(checks) {
-        var expired = [];
+        let expired = [], now = moment().format("YYYYMMDD");
 
         checks = _.filter(checks, (check) => {
-            var booleanExpiration = moment().diff(check.expire, 'days') < 0;
-            if (!booleanExpiration) {
+            debugger;
+            let booleanExpiration = check.expire < now;
+            if (booleanExpiration) {
                 expired.push(check);
             }
-            return booleanExpiration;
+            return !booleanExpiration;
         });
 
         checks = _.filter(checks, (check) => {
@@ -70,8 +71,8 @@ module.exports = function(controller) {
         });
 
         if (expired.length) {
-            toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
-        }
+             toastr.warning("Alguns cheques da sua carteira estão vencidos.", "Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.");
+         }
 
         if (!checks.length) {
             toastr.error("Não há cheques bons para antecipação, verifique e tente novamente.", "Não há cheques em seja possível a antecipação.");
@@ -159,7 +160,7 @@ module.exports = function(controller) {
         var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
             return memo + num;
         });
-        if (checks.length) {
+        if (totalAmmount) {
             $(checksSum).text(numeral(totalAmmount / 100.0).format("$0,0.00"));
         } else {
             $(checksSum).text("Sem Saldo");
@@ -224,7 +225,9 @@ module.exports = function(controller) {
             return check.situation === "Cheque sem ocorrências";
         });
 
-        let fieldOtherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências");
+        let list = form.createList(),
+            fieldOtherOccurrences = form.addCheckbox("other-occurrences", "Exibir cheques com outras ocorrências"),
+            fieldBlockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
         fieldOtherOccurrences[1].change(() => {
             // TODO Pegar os cheques com outras ocorrências e atualizar a lista
             if (fieldOtherOccurrences[1].is(":checked")) {
@@ -232,10 +235,8 @@ module.exports = function(controller) {
             } else {
                 checks = _.difference(checks, otherOccurrences);
             }
-            updateList(modal, pageActions, results, pagination, list, checks);
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
         });
-
-        let fieldBlockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado");
         fieldBlockedBead[1].change(() => {
             // TODO Pegar os cheques com talão bloqueado e atualizar a lista
             if (fieldBlockedBead[1].is(":checked")) {
@@ -243,10 +244,9 @@ module.exports = function(controller) {
             } else {
                 checks = _.difference(checks, blockedBead);
             }
-            updateList(modal, pageActions, results, pagination, list, checks);
+            skip = 0;
+            updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, callback);
         });
-
-        let list = form.createList();
 
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
@@ -280,12 +280,12 @@ module.exports = function(controller) {
 
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
-                skip += 5;
+                skip += PAGINATE_FILTER;
                 updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
-                skip -= 5;
+                skip -= PAGINATE_FILTER;
                 updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
             }).hide()
         };
