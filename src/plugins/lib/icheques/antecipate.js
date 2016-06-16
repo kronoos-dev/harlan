@@ -146,7 +146,6 @@ module.exports = function(controller) {
     });
 
     var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
-        debugger;
         if (text) {
             text = text.trim();
             checks = _.filter(checks, (check) => {
