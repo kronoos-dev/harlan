@@ -652,6 +652,7 @@ module.exports = (controller) => {
         var form = controller.call("form", function(formData) {
             if (!formData.blockedBead) delete formData.blockedBead;
             if (!formData.otherOccurrences) delete formData.otherOccurrences;
+            if (!formData.linkedAccount) delete formData.linkedAccount;
             formData.limit = Math.ceil(formData.limit * 100);
             controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
                 dataType: "json",
@@ -705,14 +706,21 @@ module.exports = (controller) => {
                     "checked": value.otherOccurrences,
                     "name": "other-occurrences",
                     "type": "checkbox",
-                    "labelText": "Enviar com Outras Ocorrências",
+                    "labelText": "Enviar Outras Ocorrências",
                     "optional": true,
                 }, {
                     "value": value.blockedBead,
                     "checked": value.blockedBead,
                     "name": "blocked-bead",
                     "type": "checkbox",
-                    "labelText": "Enviar com Talão Bloqueado",
+                    "labelText": "Enviar Talão Bloqueado",
+                    "optional": true,
+                }, {
+                    "value": value.linkedAccount,
+                    "checked": value.linkedAccount,
+                    "name": "linked-account",
+                    "type": "checkbox",
+                    "labelText": "Linkar crédito",
                     "optional": true,
                 }]
             }]

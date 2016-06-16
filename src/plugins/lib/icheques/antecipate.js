@@ -58,7 +58,6 @@ module.exports = function(controller) {
         let expired = [], now = moment().format("YYYYMMDD");
 
         checks = _.filter(checks, (check) => {
-            debugger;
             let booleanExpiration = check.expire < now;
             if (booleanExpiration) {
                 expired.push(check);
