@@ -79,6 +79,7 @@ module.exports = function(controller) {
                                     "type": "text",
                                     "placeholder": "Liquidez dos Cheques (%)",
                                     "labelText": "Liquidez dos Cheques (%)",
+                                    "numeralFormat" : "0.00%",
                                     "mask": "##0,99%",
                                     "maskOptions": {
                                         "reverse": true
@@ -195,7 +196,6 @@ module.exports = function(controller) {
                             case 'monthCheckAmmount':
                             case 'avgCheckAmmount':
                             case 'revenue':
-                            case 'checkLiquidity':
                                 lastData[idx] *= 100;
                                 break;
                         }

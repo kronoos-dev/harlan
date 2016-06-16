@@ -5,7 +5,7 @@ import { titleCase } from 'change-case';
 import { CPF } from 'cpf_cnpj';
 import { CNPJ } from 'cpf_cnpj';
 
-const PAGINATE_FILTER = 3;
+const PAGINATE_FILTER = 5;
 
 /* global module, numeral */
 module.exports = function(controller) {

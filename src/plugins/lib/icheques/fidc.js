@@ -688,11 +688,12 @@ module.exports = (controller) => {
                         return numeral().unformat(item.element.val()) > 0;
                     }
                 }, {
-                    "value": value.interest * 100,
+                    "value": value.interest,
                     "name": "interest",
                     "type": "text",
                     "placeholder": "Taxa (%)",
                     "labelText": "Taxa (%)",
+                    "numeralFormat" : "0.00%",
                     "mask": "##0,00%",
                     "maskOptions": {
                         "reverse": true
