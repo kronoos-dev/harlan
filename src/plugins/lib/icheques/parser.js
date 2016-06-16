@@ -13,7 +13,7 @@ module.exports = function (controller) {
             return nodeElement.length ? nodeElement.text() : null;
         };
 
-        return {
+        let ret = {
             creation: parseInt(getElement("creation")),
             company: getElement("company"),
             cmc: getElement("cmc"),
@@ -26,8 +26,10 @@ module.exports = function (controller) {
             display: getElement("display"),
             queryStatus: databaseInteger(getElement("queryStatus")),
             ocurrenceCode: databaseInteger(getElement("ocurrenceCode")),
-            ocurrence: getElement("ocurrence")
+            ocurrence: getElement("ocurrence"),
+            operation: databaseInteger(getElement("operation")),
         };
+        return ret;
     });
 
 };

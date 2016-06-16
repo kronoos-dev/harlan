@@ -1,5 +1,6 @@
 var changeCase = require("change-case");
 var uniqid = require("uniqid");
+import {CPF, CNPJ} from 'cpf_cnpj';
 
 module.exports = (controller) => {
 
@@ -57,7 +58,7 @@ module.exports = (controller) => {
 
         var [section, results, actions] = controller.call("section",
             `Administração ${name || username}`,
-            `Conta registrada para documento ${cnpj || cpf || username}`,
+            `Conta registrada para documento ${(cnpj ? CNPJ.format(cnpj) : null) || (cpf ? CPF.format(cpf) : null) || username}`,
             `Visualizar, editar e controlar`, false, minimized);
 
         section.addClass("admin-company");
@@ -66,9 +67,9 @@ module.exports = (controller) => {
         var result = controller.call("result");
 
         if (name) result.addItem("Assinante", name);
-        if (cnpj) result.addItem("CNPJ", cnpj);
+        if (cnpj) result.addItem("CNPJ", CNPJ.format(cnpj));
         if (responsible) result.addItem("Responsável", responsible);
-        if (cpf) result.addItem("CPF", cpf);
+        if (cpf) result.addItem("CPF", CPF.format(cpf));
         var creditsInput = null;
         if (credits) creditsInput = result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);

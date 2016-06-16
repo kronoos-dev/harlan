@@ -161,6 +161,7 @@ module.exports = function(controller) {
                         callback();
                     }
                 },
+                method: 'POST',
                 data: {
                     username: inputUsername.val(),
                     password: inputPassword.val()

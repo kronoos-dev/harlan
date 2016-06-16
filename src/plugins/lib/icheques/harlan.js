@@ -6,7 +6,9 @@ var async = require("async"),
     squel = require("squel"),
     changeCase = require('change-case');
 
-import { CMC7Parser } from "./cmc7-parser.js";
+import {
+    CMC7Parser
+} from "./cmc7-parser.js";
 
 var SEARCH_REGEX = /cheq?u?e?/i,
     FIDC = /fid?c?/i,
@@ -52,9 +54,9 @@ module.exports = function(controller) {
 
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
             data: {
-                'q[0]' : "SELECT FROM 'ICHEQUES'.'CHECKS'",
-                'q[1]' : "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
-                'approved' : 'true'
+                'q[0]': "SELECT FROM 'ICHEQUES'.'CHECKS'",
+                'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
+                'approved': 'true'
             },
             error: function() {
                 callback(Array.from(arguments));
@@ -90,21 +92,39 @@ module.exports = function(controller) {
             controller.call("icheques::item::edit", check);
         });
 
-        controller.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click((e) => {
-            e.preventDefault();
-            controller.confirm({
-                title: "Remover Cheque da Carteira"
-            }, () => {
-                controller.server.call("DELETE FROM 'ICHEQUES'.'CHECK'", {
-                    data: {
-                        cmc: check.cmc
-                    },
-                    success: () => {
-                        toastr.warning("O cheque foi removido com sucesso.", "Esse cheque não existe mais em nossa base de dados.");
-                    }
+        if (check.operation) {
+            controller.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
+                e.preventDefault();
+                controller.confirm({
+                    title: "Você deseja realmente devolver o cheque?",
+                    subtitle: "Esta operação não pode ser desfeita.",
+                    paragraph: "Atenção! Caso devolver o cheque, ele sumirá de sua carteira, e esta operação não poderá ser desfeita!"
+                }, () => {
+                    controller.server.call("DELETE FROM 'ICHEQUESFIDC'.'OPERATION'",
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                cmc: check.cmc
+                            }
+                    })));
                 });
             });
-        });
+        } else {
+            controller.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click((e) => {
+                e.preventDefault();
+                controller.confirm({
+                    title: "Remover Cheque da Carteira"
+                }, () => {
+                    controller.server.call("DELETE FROM 'ICHEQUES'.'CHECK'", {
+                        data: {
+                            cmc: check.cmc
+                        },
+                        success: () => {
+                            toastr.warning("O cheque foi removido com sucesso.", "Esse cheque não existe mais em nossa base de dados.");
+                        }
+                    });
+                });
+            });
+        }
 
         controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
             e.preventDefault();
@@ -130,59 +150,60 @@ module.exports = function(controller) {
         }
 
         var nodes = [];
-        var documentDelete = function () {
-            separator.remove();
-            checkResult.element().remove();
-        }, documentUpdate = function(check) {
-            separator.data("item", check);
+        var documentDelete = function() {
+                separator.remove();
+                checkResult.element().remove();
+            },
+            documentUpdate = function(check) {
+                separator.data("item", check);
 
-            var rescan = function() {
-                for (var i in nodes) {
-                    nodes[i].remove();
-                } /* rescan */
-                nodes = [];
-                separator.removeClass("loading success error warning");
-            };
+                var rescan = function() {
+                    for (var i in nodes) {
+                        nodes[i].remove();
+                    } /* rescan */
+                    nodes = [];
+                    separator.removeClass("loading success error warning");
+                };
 
-            if (check.exceptionMessage) {
-                if (check.exceptionPushable) {
+                if (check.exceptionMessage) {
+                    if (check.exceptionPushable) {
+                        rescan();
+                        separator.addClass("warning");
+                        nodes.push(checkResult.addItem("Erro", check.exceptionMessage));
+                    }
+                    return;
+                }
+
+                if (check.expire && expiration) {
+                    expiration.find(".value").text(moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
+                }
+
+                if (check.queryStatus && check.queryStatus !== 10) {
                     rescan();
-                    separator.addClass("warning");
-                    nodes.push(checkResult.addItem("Erro", check.exceptionMessage));
+
+                    var elementClass = "success",
+                        situation = check.situation,
+                        display = check.display,
+                        ocurrence = check.ocurrence;
+
+                    if (check.queryStatus !== 1) {
+                        elementClass = "error";
+                        section[0].addClass("warning");
+                        separator.find("h4").text(check.situation);
+                    }
+
+                    separator.addClass(elementClass);
+
+                    nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", situation));
+                    nodes.push(checkResult.addItem("Exibição", display));
+
+                    if (check.ocurrenceCode) {
+                        nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", ocurrence));
+                    }
+
+                    separator.addClass(elementClass);
                 }
-                return;
-            }
-
-            if (check.expire && expiration) {
-                expiration.find(".value").text(moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
-            }
-
-            if (check.queryStatus && check.queryStatus !== 10) {
-                rescan();
-
-                var elementClass = "success",
-                    situation = check.situation,
-                    display = check.display,
-                    ocurrence = check.ocurrence;
-
-                if (check.queryStatus !== 1) {
-                    elementClass = "error";
-                    section[0].addClass("warning");
-                    separator.find("h4").text(check.situation);
-                }
-
-                separator.addClass(elementClass);
-
-                nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", situation));
-                nodes.push(checkResult.addItem("Exibição", display));
-
-                if (check.ocurrenceCode) {
-                    nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", ocurrence));
-                }
-
-                separator.addClass(elementClass);
-            }
-        };
+            };
 
         documentUpdate(check);
         separator.addClass("pushid-" + check.pushId);
@@ -312,7 +333,7 @@ module.exports = function(controller) {
         upgrade(item);
     });
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUnset", "icheques::pushDelete", function (data, callback) {
+    controller.registerTrigger("serverCommunication::websocket::ichequeUnset", "icheques::pushDelete", function(data, callback) {
         callback();
 
         controller.database.exec(squel
