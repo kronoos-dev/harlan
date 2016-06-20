@@ -4,7 +4,7 @@ module.exports = function (controller) {
 
     var report = null;
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::reference::websocket::authentication", function (data, callback) {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques", function (data, callback) {
         callback();
 
         if (report) {
