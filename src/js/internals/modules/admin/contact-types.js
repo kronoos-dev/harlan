@@ -1,5 +1,5 @@
 module.exports = (controller) => {
-    controller.registerCall("admin::emailTypes", () => {
+    controller.registerCall("admin::contactTypes", () => {
         return {
             "financeiro": "Financeiro",
             "comercial": "Comercial",

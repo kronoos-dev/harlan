@@ -7,7 +7,7 @@ module.exports = (controller) => {
 
         var form = modal.createForm(),
             email = form.addInput("email", "email", "Endereço de E-mail"),
-            emailType = form.addSelect("emailType", "Tipo do Email", controller.call("admin::emailTypes"));
+            emailType = form.addSelect("emailType", "Tipo do Email", controller.call("admin::contactTypes"));
 
         form.element().submit((e) => {
             e.preventDefault();

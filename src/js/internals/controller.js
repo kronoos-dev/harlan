@@ -228,7 +228,7 @@ var Controller = function() {
     require('./modules/timeline')(this);
     require('./modules/data-company')(this);
     require('./modules/ccbusca')(this);
-    require('./modules/admin/email-types')(this);
+    require('./modules/admin/contact-types')(this);
 
     /**
      * From day to night and night to day
