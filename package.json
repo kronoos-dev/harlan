@@ -36,6 +36,7 @@
     "cpf_cnpj": "0.0.4",
     "crypto-js": "^3.1.5",
     "diacritics": "^1.2.3",
+    "dom4": "^1.8.3",
     "domready": "~1.0.7",
     "email-regex": "^1.0.0",
     "es6-shim": "^0.34.2",
