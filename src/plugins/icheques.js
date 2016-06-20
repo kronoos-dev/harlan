@@ -15,7 +15,7 @@
         moreMonths: 30
     });
 
-    controller.registerCall("admin::emailTypes", function() {
+    controller.registerCall("admin::emailTypes", () => {
         return {
             "financeiro": "Ambos",
             "comercial": "Operações",
