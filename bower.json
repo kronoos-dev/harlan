@@ -51,6 +51,7 @@
     "poiretone-googlefont": "*",
     "opensans-googlefont": "*",
     "opensanscondensed-googlefont": "*",
-    "material-design-icons": "~2.2.3"
+    "material-design-icons": "~2.2.3",
+    "vis": "~4.16.1"
   }
 }

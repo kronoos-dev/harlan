@@ -107,6 +107,8 @@ module.exports = function(controller) {
             return controller.call("kronoos::search", document, "John Doe", true);
         }
 
+        $(".kronoos-print-document").text((CPF.isValid(document) ? CPF : CNPJ).format(document));
+
         xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
             controller.call("kronoos::status::ajax", "fa-user", `Capturando dados de identidade através do documento ${document}.`, {
                 data: {

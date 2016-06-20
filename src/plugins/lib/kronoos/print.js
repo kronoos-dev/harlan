@@ -1,7 +1,10 @@
 module.exports = (controller) => {
 
     controller.registerCall("kronoos::print", () => {
-        controller.interface.helpers.activeWindow(".kronoos-print");
+        $(".kronoos-print-result")
+            .empty()
+            .append($(".kronoos-result").clone());
+        window.print();
     });
 
 };

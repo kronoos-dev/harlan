@@ -41,6 +41,7 @@ externalJsSources = [
     `${vendors}/numeral/languages.js`,
     `${vendors}/material-design-lite/material.js`,
     `${vendors}/pikaday/pikaday.js`,
+    `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`
 ],
 PRODUCTION = typeof $.util.env.production !== "undefined" ? true : false,
