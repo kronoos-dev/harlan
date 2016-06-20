@@ -9,11 +9,7 @@ module.exports = (controller) => {
             phone = form.addInput("phone", "text", "Telefone").mask("(00) 0000-00009"),
             pabx = form.addInput("ramal", "text", "Ramal").mask("0#"),
             contact = form.addInput("contato", "text", "Nome Contato"),
-            phoneType = form.addSelect("phoneType", "Tipo do phone", {
-                "financeiro" : "Financeiro",
-                "comercial" : "Comercial",
-                "tecnico" : "Técnico"
-            });
+            phoneType = form.addSelect("phoneType", "Tipo do phone", controller.call("admin::contactTypes"));
 
         form.element().submit((e) => {
             e.preventDefault();
