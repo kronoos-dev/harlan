@@ -25,11 +25,19 @@ module.exports = function (instance, controller) {
             }
 
             input[obj.labelPosition || "after"](obj.label);
+            input.parent().trigger("new-label");
         }
     };
 
     this.multiField = function () {
-        var div = $("<div />").addClass("multi-field");
+        let div = $("<div />").addClass("multi-field");
+        div.on("new-label", () => {
+            let items = $(".input-label", div);
+            for (let i = 0; i < items.length; i++) {
+                let item = items.eq(i);
+                item.css("left", `${i * (100 / items.length)}%`);
+            }
+        });
         form.append(div);
         return div;
     };
@@ -54,8 +62,7 @@ module.exports = function (instance, controller) {
             select.val(value);
         }
 
-        var a = obj.append || form;
-        a.append(select);
+        (obj.append || form).append(select);
         createLabel(select, obj, labelText);
 
         return select;
@@ -75,8 +82,7 @@ module.exports = function (instance, controller) {
             autocapitalize: false
         }).text(value);
 
-        var a = obj.append || form;
-        a.append(input);
+        (obj.append || form).append(input);
         createLabel(input, obj, labelText, placeholder);
 
         return input;
@@ -94,8 +100,7 @@ module.exports = function (instance, controller) {
             value: value
         });
 
-        var a = obj.append || form;
-        a.append(input);
+        (obj.append || form).append(input);
         createLabel(input, obj, labelText, placeholder);
 
         return input;
