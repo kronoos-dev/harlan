@@ -1,7 +1,7 @@
 import checkdigit from 'checkdigit';
 
 const CMC7_GROUPS = /(\d{7})(\d{1})(\d{10})(\d{1})(\d{10})(\d{1})/,
-    NON_NUMBERS = /[^\d]/;
+    NON_NUMBERS = /[^\d]/g;
 
 export class CMC7Validator {
 
