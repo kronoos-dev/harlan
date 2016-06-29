@@ -64,6 +64,9 @@ module.exports = (controller) => {
                         }
                         field.value = value;
                         if (field.element) {
+                            if (field.numeralFormat) {
+                                value = numeral(value).format(field.numeralFormat);
+                            }
                             field.element.val(field.mask && field.element.masked ? field.element.masked(value) : value);
                         }
                     }
@@ -95,7 +98,11 @@ module.exports = (controller) => {
                 if (item.mask) {
                     item.element.mask(item.mask, item.maskOptions);
                     if (item.value) {
-                        item.element.val(item.element.masked(item.value));
+                        let v = item.value;
+                        if (item.numeralFormat) {
+                            v = numeral(v).format(item.numeralFormat);
+                        }
+                        item.element.val(item.element.masked(v));
                     }
                 }
 

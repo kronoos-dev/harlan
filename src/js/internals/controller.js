@@ -57,8 +57,12 @@ var Controller = function() {
     };
 
     this.unregisterTrigger = (name, ...list) => {
-        for (let e of list) {
-            delete events[name][e];
+        if (events[name]) {
+            for (let e of list) {
+                if (events[name][e]) {
+                    delete events[name][e];
+                }
+            }
         }
     };
 
@@ -229,6 +233,7 @@ var Controller = function() {
     require('./modules/timeline')(this);
     require('./modules/data-company')(this);
     require('./modules/ccbusca')(this);
+    require('./modules/admin/contact-types')(this);
 
     /**
      * From day to night and night to day

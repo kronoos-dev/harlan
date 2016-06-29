@@ -15,7 +15,6 @@ const NON_NUMBER = /[^\d]/g;
 const R_EARTH = 6378137;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
 const NAMESPACE_DESCRIPTION = {
-    'hsbc': ['Fortunas e Offshores no HSBC da Suiça', 'Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça'],
     'peps': ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
     'congressmen': ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
     'state_representatives': ['Deputado Estadual', 'Representante eleito para a Assembleia Legislativa Estadual'],
@@ -90,27 +89,38 @@ module.exports = function(controller) {
     });
 
     $("#kronoos-action").submit((e) => {
+        $(INPUT).blur();
         e.preventDefault();
 
         clearAll();
 
         let document = INPUT.val();
 
-        if (!CPF.isValid(document) && !CNPJ.isValid(document)) {
+        var SPECIAL_MATCH = /^\s*123\.?456\.?789\-?10\s*$/.test(document);
+        if (!CPF.isValid(document) && !CNPJ.isValid(document) && !SPECIAL_MATCH) {
             toastr.error("O documento informado não é um CPF ou CNPJ válido.",
                 "Preencha um CPF ou CNPJ válido para poder realizar a consulta Kronoos");
             return;
         }
 
-        xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", controller.call("error::ajax",
+        if (SPECIAL_MATCH) {
+            return controller.call("kronoos::search", document, "John Doe", true);
+        }
+
+        $(".kronoos-print-document").text((CPF.isValid(document) ? CPF : CNPJ).format(document));
+
+        xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
             controller.call("kronoos::status::ajax", "fa-user", `Capturando dados de identidade através do documento ${document}.`, {
                 data: {
                     documento: document
                 },
                 success: (ret) => {
-                    controller.call("kronoos::search", document, $("BPQL > body > nome", ret).text());
+                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).text(), document);
+                },
+                error: () => {
+                    controller.call("kronoos::ccbusca", null, document);
                 }
-            }))));
+            })));
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData, jusSearch, procs) => {
@@ -320,19 +330,24 @@ module.exports = function(controller) {
             }))));
     });
 
-    controller.registerCall("kronoos::ccbusca", (name, document, kronoosData) => {
+    controller.registerCall("kronoos::ccbusca", (name, document, specialMatch) => {
+        if (specialMatch) {
+            controller.call("kronoos::search", document, name, ret);
+        }
+
         xhr.push(controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", controller.call("error::ajax",
-            controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name} ${document}.`, {
+            controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name || ""} ${document}.`, {
                 data: {
                     documento: document,
                 },
                 success: (ret) => {
-                    controller.call("kronoos::jussearch", name, document, kronoosData, ret);
+                    name = name || $("BPQL > body cadastro > nome", ret).text();
+                    controller.call("kronoos::search", document, name, ret);
                 }
             }))));
     });
 
-    controller.registerCall("kronoos::search", (document, name) => {
+    controller.registerCall("kronoos::search", (document, name, cbusca) => {
         xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
             controller.call("kronoos::status::ajax", "fa-user", `Pesquisando correlações através do nome ${name}, documento ${document}.`, {
                 data: {
@@ -340,7 +355,7 @@ module.exports = function(controller) {
                     name: `"${name}"`
                 },
                 success: (ret) => {
-                    controller.call("kronoos::ccbusca", name, document, ret);
+                    controller.call("kronoos::jussearch", name, document, ret, cbusca);
                 }
             }))));
     });
@@ -393,7 +408,7 @@ module.exports = function(controller) {
                         return;
                     }
 
-                    $.ajax("http://www.panoramio.com/map/get_panoramas.php", {
+                    $.ajax("//www.panoramio.com/map/get_panoramas.php", {
                         method: "GET",
                         dataType: "jsonp",
                         data: {

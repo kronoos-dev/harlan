@@ -1,11 +1,11 @@
+import async from 'async';
 import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
 import { CMC7Parser } from './cmc7-parser';
 import { titleCase } from 'change-case';
-import { CPF } from 'cpf_cnpj';
-import { CNPJ } from 'cpf_cnpj';
+import { CPF, CNPJ } from 'cpf_cnpj';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -115,43 +115,42 @@ module.exports = (controller) => {
                     return element[1] == "financeiro";
                 });
 
-                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`,
-                    !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
-                        ["fa-user", "Informações", () => {
-                            controller.call("icheques::fidc::company::view", $.extend({
-                                name: value.company.nome || value.company.responsavel || value.company.username,
-                                document: value.company.cnpj || value.company.cpf,
-                                endereco: value.company.endereco[0],
-                                zipcode:value.company.endereco[5],
-                                numero: value.company.endereco[1],
-                                complemento: value.company.endereco[2],
-                                estado: value.company.endereco[6],
-                                cidade: value.company.endereco[4],
-                                email: emails.length ? emails[0][0] : 0,
-                            }, value.profile));
-                        }],
-                        [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
-                            controller.confirm({}, () => {
-                                controller.call("icheques::fidc::allowedCompany::edit", value, t);
+                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`, !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
+                    ["fa-user", "Informações", () => {
+                        controller.call("icheques::fidc::company::view", $.extend({
+                            name: value.company.nome || value.company.responsavel || value.company.username,
+                            document: value.company.cnpj || value.company.cpf,
+                            endereco: value.company.endereco[0],
+                            zipcode: value.company.endereco[5],
+                            numero: value.company.endereco[1],
+                            complemento: value.company.endereco[2],
+                            estado: value.company.endereco[6],
+                            cidade: value.company.endereco[4],
+                            email: emails.length ? emails[0][0] : 0,
+                        }, value.profile));
+                    }],
+                    [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
+                        controller.confirm({}, () => {
+                            controller.call("icheques::fidc::allowedCompany::edit", value, t);
+                        });
+                    }],
+                    ["fa-times", "Recusar", () => {
+                        controller.confirm({}, () => {
+                            controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                                dataType: "json",
+                                data: {
+                                    id: value._id,
+                                    approved: false,
+                                    interest: 0,
+                                    limit: 0
+                                },
+                                success: () => {
+                                    t.remove();
+                                }
                             });
-                        }],
-                        ["fa-times", "Recusar", () => {
-                            controller.confirm({}, () => {
-                                controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
-                                    dataType: "json",
-                                    data: {
-                                        id: value._id,
-                                        approved: false,
-                                        interest: 0,
-                                        limit: 0
-                                    },
-                                    success: () => {
-                                        t.remove();
-                                    }
-                                });
-                            });
-                        }],
-                    ]);
+                        });
+                    }],
+                ]);
                 showing[value.company.username] = t;
             };
 
@@ -455,57 +454,77 @@ module.exports = (controller) => {
 
     });
 
-    var getFile = function(inputFile) {
-        var files = inputFile.get(0).files;
-        if (!files.length) {
-            throw "Selecione um arquivo!";
-        }
+    var getFiles = function(inputFile) {
+        let files = inputFile.get(0).files;
 
-        var file = files.item(0);
-        if (!TEST_ITIT_EXTENSION.test(file.name)) {
-            throw "A extensão recebida do arquivo não confere!";
-        }
-        return file;
-    };
-
-    var parseReceipt = (args, file, cb) => {
-        fileReaderStream(file).pipe(concat(function(buffer) {
-            let obj = {
-                    file: buffer.toString(),
-                    checkNumbers: []
-                },
-                lines = buffer.toString().split("\r\n");
-            for (let line of lines) {
-                let data = line.split(";");
-                switch (data[0]) {
-                    case 'B':
-                        obj.operation = data[4];
-                        break;
-                    case 'C':
-                        obj.equity = data[14];
-                        obj.taxes = data[21];
-                        break;
-                    case 'T':
-                        if (data[1] === "") {
-                            break;
-                        }
-                        for (let idx in args.cmcs) {
-                            let cmc = args.cmcs[idx];
-                            if (!cmc) {
-                                continue;
-                            }
-                            if (new CMC7Parser(cmc).number == data[2]) {
-                                obj.checkNumbers.push(cmc);
-                                args.cmcs[idx] = null;
-                                break;
-                            }
-                        }
-                        break;
+        if (files.length) {
+            for (let file = 0; file < files.length; file++) {
+                if (!TEST_ITIT_EXTENSION.test(files[file].name)) {
+                    throw "A extensão recebida do arquivo não confere!";
                 }
             }
+        }
+
+        return files;
+    };
+
+    var parseReceipt = (args, files, cb) => {
+        let obj = {
+            file: "",
+            equity: 0,
+            taxes: 0,
+            checkNumbers: []
+        };
+
+        if (!files.length) {
+            obj.checkNumbers = args.cmcs.join(",");
+            obj.operation = moment().format("DDMMYYYY");
+            cb(obj);
+            return;
+        }
+
+        var queue = async.queue((file, cb) => {
+            fileReaderStream(file).pipe(concat(function(buffer) {
+                obj.file += buffer.toString();
+                var lines = buffer.toString().split("\r\n");
+                for (let line of lines) {
+                    let data = line.split(";");
+                    switch (data[0]) {
+                        case 'B':
+                            obj.operation = data[4];
+                            break;
+                        case 'C':
+                            obj.equity += data[14];
+                            obj.taxes += data[21];
+                            break;
+                        case 'T':
+                            if (data[1] === "") {
+                                break;
+                            }
+                            for (let idx in args.cmcs) {
+                                let cmc = args.cmcs[idx];
+                                if (!cmc) {
+                                    continue;
+                                }
+                                if (new CMC7Parser(cmc).number == data[2]) {
+                                    obj.checkNumbers.push(cmc);
+                                    args.cmcs[idx] = null;
+                                    break;
+                                }
+                            }
+                            break;
+                    }
+                }
+                cb();
+            }));
+        });
+
+        queue.drain = () => {
             obj.checkNumbers = obj.checkNumbers.join(",");
             cb(obj);
-        }));
+        };
+
+        queue.push(Array.from(files));
     };
 
     var askReceipt = (data, cb) => {
@@ -516,12 +535,14 @@ module.exports = (controller) => {
         modal.addParagraph("Para finalizar a operação é necessário que você apresente o recibo no formato iTit (WBA).");
 
         var form = modal.createForm();
-        var inputFile = form.addInput("fidc-file", "file", "Selecionar arquivo.", {}, "Arquivo de Fundo FIDC");
+        var inputFile = form.addInput("fidc-file", "file", "Selecionar arquivo.", {}, "Arquivo de Fundo FIDC").attr({
+            multiple: 'multiple'
+        });
 
         form.addSubmit("submit", "Enviar").click(function(e) {
             e.preventDefault();
             try {
-                parseReceipt(data, getFile(inputFile), cb);
+                parseReceipt(data, getFiles(inputFile), cb);
                 modal.close();
             } catch (exception) {
                 toastr.warning(exception);
@@ -540,7 +561,7 @@ module.exports = (controller) => {
             "Para aceitar os cheques você deve encaminhar um arquivo .iTIT para geração de fatura e conclusão.");
 
         report.label(`Usuário\: ${args.company.username}`);
-        report.label(`Documento\: ${args.company.cnpj || args.company.cpf}`);
+        report.label(`Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}`);
         report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 
@@ -622,6 +643,9 @@ module.exports = (controller) => {
 
     controller.registerCall("icheques::fidc::allowedCompany::edit", (value, t) => {
         var form = controller.call("form", function(formData) {
+            if (!formData.blockedBead) delete formData.blockedBead;
+            if (!formData.otherOccurrences) delete formData.otherOccurrences;
+            if (!formData.linkedAccount) delete formData.linkedAccount;
             formData.limit = Math.ceil(formData.limit * 100);
             controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
                 dataType: "json",
@@ -657,12 +681,13 @@ module.exports = (controller) => {
                         return numeral().unformat(item.element.val()) > 0;
                     }
                 }, {
-                    "value": value.interest * 100,
+                    "value": value.interest ,
                     "name": "interest",
                     "type": "text",
                     "placeholder": "Taxa (%)",
                     "labelText": "Taxa (%)",
-                    "mask": "##0,00%",
+                    "numeralFormat" : "0.00%",
+                    "mask": "##0,99%",
                     "maskOptions": {
                         "reverse": true
                     },
@@ -670,6 +695,27 @@ module.exports = (controller) => {
                     validate: function(item) {
                         return numeral().unformat(item.element.val()) > 0;
                     }
+                }, {
+                    "value": value.otherOccurrences,
+                    "checked": value.otherOccurrences,
+                    "name": "other-occurrences",
+                    "type": "checkbox",
+                    "labelText": "Enviar Outras Ocorrências",
+                    "optional": true,
+                }, {
+                    "value": value.blockedBead,
+                    "checked": value.blockedBead,
+                    "name": "blocked-bead",
+                    "type": "checkbox",
+                    "labelText": "Enviar Talão Bloqueado",
+                    "optional": true,
+                }, {
+                    "value": value.linkedAccount,
+                    "checked": value.linkedAccount,
+                    "name": "linked-account",
+                    "type": "checkbox",
+                    "labelText": "Linkar crédito",
+                    "optional": true,
                 }]
             }]
         });

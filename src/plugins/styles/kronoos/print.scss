@@ -1,13 +1,26 @@
 @import "fonts";
 @import "mixins";
 
+$logo: "/images/kronoos/logo.svg";
 $kronoos-green: #006838;
 $gray-sepator: #b3b3b3;
 $text-color: #393939;
 
+@media print {
+    body {
+        height: 100%;
+        & > * {
+            display: none !important;
+        }
+    }
+}
+
 .kronoos-print {
-    &.hide {
-        display: none;
+    height: 100%;
+    display: none;
+
+    @media print {
+        display: block !important;
     }
 
     body, html {
@@ -114,14 +127,11 @@ $text-color: #393939;
         text-align: center;
     }
     .logo {
-        background: url("../images/logo.svg");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
         color: transparent;
-        @media print {
-            content: url("../images/logo.svg");
-        }
+        content: url($logo);
     }
     .info {
         color: $kronoos-green;
@@ -233,78 +243,8 @@ $text-color: #393939;
                 }
             }
         }
-        section {
-            .icon,
-            .record {
-                display: inline-block;
-            }
-            .record {
-                width: calc( 100% - 74px );
-            }
-            .icon {
-                vertical-align: top;
-                margin-top: 16px;
-                width: 50px;
-                height: 50px;
-                margin-right: 20px;
-                border-radius: 25px;
-                background-color: #d2d2d2;
-            }
-            border-top: 2px $gray-sepator solid;
-            margin: 50px 0;
-            padding: 20px 0;
-            h3 {
-                font-family: $font_lora;
-            }
-            h3 {
-                font-size: 21px;
-                line-height: 26px;
-            }
-            h4,
-            h5 {
-                font-family: $font_fago;
-                text-transform: none;
-                color: $text-color;
-                line-height: 14px;
-                font-size: 14px;
-            }
-            h6 {
-                text-transform: uppercase;
-                font-weight: 600;
-                font-size: 14px;
-                margin: 3px 0;
-            }
-            .data {
-                margin: 34px 0;
-            }
-            .list {
-                margin: 8px 0;
-            }
-            ul {
-                margin: 8px 0;
-            }
-            .multiple-list {
-                display: flex;
-                width: 100%;
-                .list {
-                    width: 50%;
-                }
-            }
-            li {
-                font-size: 14px;
-                line-height: 18px;
-                padding: 10px 0;
-                border-bottom: 1px solid $gray-sepator;
-                a {
-                    @include setLinkStyleAll {
-                        color: $text-color;
-                        text-decoration: none;
-                    }
-                }
-            }
-            h4 {
-                font-family: $font_fago_ita;
-            }
-        }
+
+        @import "kronoos-element";
+
     }
 }

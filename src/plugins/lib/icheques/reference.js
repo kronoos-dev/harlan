@@ -4,7 +4,7 @@ module.exports = function (controller) {
 
     var report = null;
 
-    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques::reference::websocket::authentication", function (data, callback) {
+    controller.registerTrigger("serverCommunication::websocket::authentication", "icheques", function (data, callback) {
         callback();
 
         if (report) {
@@ -19,7 +19,7 @@ module.exports = function (controller) {
         report = controller.call("report",
                 "Como você encontrou a iCheques?",
                 "Conte como ouviu falar de nós, ou digite a referência que você recebeu por e-mail de sua Parceira Financeira.",
-                "Caso sua referência comercial seja de uma antecipadora, você recebe R$ 150,00 em créditos iniciais para poder começar a antecipar de imediato. Aproveite para procurar uma!",
+                "",
                 true);
 
         var form = report.form(controller),
@@ -44,8 +44,8 @@ module.exports = function (controller) {
             controller.serverCommunication.call("SELECT FROM 'ICHEQUESAUTHENTICATION'.'ReferenceAutocomplete'", {
                 data: {input: search},
                 success: function (doc) {
-                    $("username", doc).each(function (idx, vl) {
-                        ac.item("Representante Comercial", $(vl).text().replace(/@icheques$/, ''), "Recebi uma maravilhosa visita do representante para fechar com vocês.").click(fill($(vl).text(), true));
+                    $("BPQL body references node", doc).each(function (idx, vl) {
+                        ac.item("Antecipadora de Cheques", $("nome", vl).text(), "A antecipadora me apresentou o iCheques para operarmos on-line.").click(fill($("username", vl).text(), true));
                     });
                 },
                 complete: function () {
