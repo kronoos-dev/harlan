@@ -201,8 +201,7 @@ module.exports = (controller) => {
         modal.element().append(selfView);
         modal.element().append(remoteView);
 
-        var session;
-        session = callback({
+        var session = callback({
             confirmed: function(data) {
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
                 selfView.play();
@@ -280,8 +279,8 @@ module.exports = (controller) => {
                 `sip:${address}@${runningConfiguration.domain}` :
                 `sip:${address}`;
 
-            (callHandler || defaultCallHandler)((eventHandlers) => {
-                controller.call("softphone::xirsys", (pcConfig) => {
+            controller.call("softphone::xirsys", (pcConfig) => {
+                (callHandler || defaultCallHandler)((eventHandlers) => {
                     return ua.call(uri, {
                         'sessionTimersExpires': 900,
                         'eventHandlers': eventHandlers,
