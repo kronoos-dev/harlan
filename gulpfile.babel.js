@@ -33,7 +33,6 @@ externalJsSources = [
     `${vendors}/jquery.payment/lib/jquery.payment.js`,
     `${vendors}/jquery-mask-plugin/src/jquery.mask.js`,
     `${vendors}/oauth.io/dist/oauth.min.js`,
-    `${vendors}/zeroclipboard/dist/ZeroClipboard.js`,
     `${vendors}/toastr/toastr.js`,
     `${vendors}/mustache/mustache.js`,
     `${vendors}/moment/min/moment-with-locales.js`,
@@ -62,12 +61,12 @@ function i18n(locale) {
     .pipe($.size({title: `>>> i18n-${locale}`}));
 }
 
-gulp.task("swf", () => {
+gulp.task("assets", () => {
     return gulp.src([
-        "bower_components/zeroclipboard/dist/ZeroClipboard.swf"
+        "src/assets/**/*"
     ])
     .pipe(gulp.dest(`${dist}/assets`))
-    .pipe($.size({title: ">>> swf"}));
+    .pipe($.size({title: ">>> assets"}));
 });
 
 gulp.task("legal", () => {
@@ -413,7 +412,7 @@ gulp.task("build", cb => {
         "manifest",
         "legal",
         "fonts",
-        "swf",
+        "assets",
         "styles",
         "templates",
         "html",

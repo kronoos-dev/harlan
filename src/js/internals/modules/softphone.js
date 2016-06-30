@@ -1,9 +1,10 @@
 import JsSIP from 'jssip';
-import {
-    queue
-} from 'async';
+JsSIP.debug.enable('JsSIP:*');
 
-var useragent, runningConfiguration, makecall;
+var useragent /* jssip instance */ ,
+    runningConfiguration /* jssip configuration */ ,
+    makecall /* callback for registered jssip */ ,
+    cachedPCConfig /* cached peer connection config */ ;
 
 module.exports = (controller) => {
 
@@ -21,15 +22,16 @@ module.exports = (controller) => {
 
     controller.registerCall("softphone::configure", (callback) => {
         let form = controller.call("form", (items) => {
-                let configuration = {
-                    'ws_servers': items.websocket,
-                    'uri': `sip:${items.authorizationUser}@${items.domain}`,
-                    'authorization_user': items.authorizationUser,
-                    'password': items.password,
-                    'register_expires': 9000,
-                    'register': true,
-                    'domain': items.domain
-                };
+                let configuration = $.extend(items, {
+                    ws_servers: items.websocket,
+                    uri: `sip:${items.authorizationUser}@${items.domain}`,
+                    authorization_user: items.authorizationUser,
+                    password: items.password,
+                    register_expires: 9000,
+                    use_preloaded_route: true,
+                    register: true,
+                    domain: items.domain
+                });
                 localStorage.softphoneConfiguration = JSON.stringify(configuration);
                 controller.call("softphone::disconnect");
                 callback(configuration);
@@ -40,8 +42,8 @@ module.exports = (controller) => {
             "subtitle": "Preencha as configurações abaixo.",
             "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente.",
             "gamification": "star",
+            "magicLabel": true,
             "screens": [{
-                "magicLabel": true,
                 "fields": [
                     [{
                         "name": "authorization-user",
@@ -68,6 +70,47 @@ module.exports = (controller) => {
                         "optional": false,
                         "labelText": "Domínio",
                     }
+                ]
+            }, {
+                "title": "Configuração da Plataforma XIRSYS",
+                "subtitle": "O XIRSYS é um serviço que permite a você uma melhor qualidade na ligação.",
+                "paragraph": "A configuração do XIRSYS é obrigatória para que você tenha qualidade de ligação.",
+                "fields": [
+                    [{
+                        "name": "xirsys-ident",
+                        "type": "text",
+                        "placeholder": "Nome de Usuário",
+                        "labelText": "Nome de Usuário",
+                        "optional": false
+                    }, {
+                        "name": "xirsys-room",
+                        "type": "text",
+                        "placeholder": "Sala",
+                        "labelText": "Sala",
+                        "optional": false,
+                        "value": "default"
+                    }], {
+                        "name": "xirsys-secret",
+                        "type": "text",
+                        "placeholder": "Chave de API Xirsys",
+                        "labelText": "Chave de API Xirsys",
+                        "optional": false
+                    },
+                    [{
+                        "name": "xirsys-domain",
+                        "type": "text",
+                        "placeholder": "Domínio",
+                        "value": window.location.hostname,
+                        "optional": false,
+                        "labelText": "Domínio"
+                    }, {
+                        "name": "xirsys-application",
+                        "type": "text",
+                        "value": "default",
+                        "placeholder": "Aplicação",
+                        "optional": false,
+                        "labelText": "Aplicação",
+                    }]
                 ]
             }]
         });
@@ -127,8 +170,9 @@ module.exports = (controller) => {
     controller.registerCall("softphone::disconnect", (callback) => {
         if (!useragent) {
             if (callback) callback();
+            return;
         }
-        useragent.useragent.unregister();
+        useragent.unregister();
         useragent.stop();
         makecall = null;
         useragent = null;
@@ -153,17 +197,18 @@ module.exports = (controller) => {
             selfView = document.createElement("video");
 
         $([remoteView, selfView]).hide();
-        
+
         modal.element().append(selfView);
         modal.element().append(remoteView);
 
-        var session = callback({
-            confirmed: function (data) {
+        var session;
+        session = callback({
+            confirmed: function(data) {
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
-                remoteView.play();
-                remoteView.volume = 1;
+                selfView.play();
+                selfView.volume = 1;
             },
-            addstream: function (data) {
+            addstream: function(data) {
                 var stream = data.stream;
                 remoteView.src = window.URL.createObjectURL(stream);
                 remoteView.play();
@@ -188,9 +233,45 @@ module.exports = (controller) => {
     controller.registerCall("softphone::terminateCalls", (callback) => {
         if (!useragent) {
             if (callback) callback();
+            return;
         }
         useragent.terminateSessions();
         if (callback) callback();
+    });
+
+    controller.registerCall("softphone::xirsys", (callback) => {
+        if (cachedPCConfig) {
+            callback(cachedPCConfig);
+            return;
+        }
+
+        controller.call("softphone::configuration", (configuration) => {
+            $.ajax({
+                url: "https://service.xirsys.com/ice",
+                data: {
+                    ident: configuration.xirsysIdent,
+                    secret: configuration.xirsysSecret,
+                    domain: configuration.xirsysDomain,
+                    application: configuration.xirsysApplication,
+                    room: configuration.xirsysRoom,
+                    secure: 1
+                },
+                success: (data, status) => {
+                    cachedPCConfig = data.d;
+                    callback(data.d);
+                },
+                error: () => {
+                    controller.confirm({
+                        icon: "fail",
+                        title: "Não foi possível estabelecer uma boa ligação com o XIRSYS.",
+                        subtitle: "Se você estiver atrás de um firewall a qualidade de sua ligação pode ficar comprometida.",
+                        paragraph: "Empresas que não utilizam tecnologia IPv6 ou que seus computadores não possuem endereço IPv4 real podem ter a qualidade de sua ligação sériamente comprometida, refaça a configuração VoIP."
+                    }, () => {
+                        callback(null);
+                    });
+                }
+            });
+        });
     });
 
     controller.registerCall("softphone::call", (address, onEnd = null, callHandler = null) => {
@@ -200,14 +281,17 @@ module.exports = (controller) => {
                 `sip:${address}`;
 
             (callHandler || defaultCallHandler)((eventHandlers) => {
-                return ua.call(uri, {
-                    'sessionTimersExpires': 900,
-                    'eventHandlers': eventHandlers,
-                    'mediaConstraints': {
-                        'audio': true,
-                        'video': false
-                    },
-                }, address, onEnd);
+                controller.call("softphone::xirsys", (pcConfig) => {
+                    return ua.call(uri, {
+                        'sessionTimersExpires': 900,
+                        'eventHandlers': eventHandlers,
+                        'mediaConstraints': {
+                            'audio': true,
+                            'video': false
+                        },
+                        'pcConfig': pcConfig ? pcConfig.iceServers : null
+                    }, address, onEnd);
+                });
             });
         });
     });
