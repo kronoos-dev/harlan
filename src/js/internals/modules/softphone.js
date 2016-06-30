@@ -152,18 +152,18 @@ module.exports = (controller) => {
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
 
+        $([remoteView, selfView]).hide();
+        
         modal.element().append(selfView);
         modal.element().append(remoteView);
 
         var session = callback({
             confirmed: function (data) {
-                console.log("confirmed");
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
                 remoteView.play();
                 remoteView.volume = 1;
             },
             addstream: function (data) {
-                console.log("addstream");
                 var stream = data.stream;
                 remoteView.src = window.URL.createObjectURL(stream);
                 remoteView.play();
