@@ -126,7 +126,7 @@ module.exports = (controller) => {
 
         this.results = () => {
             return elementResults;
-        }
+        };
 
         this.result = () => {
             var result = controller.call("result");
