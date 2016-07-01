@@ -184,7 +184,13 @@ module.exports = (controller) => {
         let modal = controller.call("modal"),
             title = modal.title("Estamos realizando a ligação."),
             subtitle = modal.subtitle("Aguarde enquanto realizamos sua ligação."),
-            paragraph = modal.paragraph("");
+            paragraph = modal.paragraph(""),
+            form = modal.createForm(),
+            slider = form.addInput("volume-slider", "range", "", {}, "", 1).attr({
+                step: 0.1,
+                min: 0,
+                max: 1
+            });
 
         modal.onClose = () => {
             controller.call("softphone::terminateCalls");
@@ -200,6 +206,12 @@ module.exports = (controller) => {
 
         modal.element().append(selfView);
         modal.element().append(remoteView);
+
+        slider.on("input", () => {
+            let volume = slider.val();
+            remoteView.volume = volume;
+            console.log(volume);
+        });
 
         var session = callback({
             confirmed: function(data) {
