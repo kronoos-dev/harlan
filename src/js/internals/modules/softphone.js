@@ -198,8 +198,14 @@ module.exports = (controller) => {
             slider.off("input");
         };
 
-        modal.createActions().add("Mute").click(() => {
-            session.mute();
+        let muteButton = modal.createActions().add("Mute").click(() => {
+            if (session.isMuted().audio) {
+                session.unmute();
+                muteButton.find('a').text("Mute");
+            } else {
+                session.mute();
+                muteButton.find('a').text("Unmute");
+            }
         });
         modal.createActions().cancel();
 
