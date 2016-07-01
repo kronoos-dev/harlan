@@ -195,6 +195,7 @@ module.exports = (controller) => {
         modal.onClose = () => {
             controller.call("softphone::terminateCalls");
             if (onEnd) onEnd();
+            slider.off("input");
         };
 
         modal.createActions().cancel();
@@ -210,7 +211,6 @@ module.exports = (controller) => {
         slider.on("input", () => {
             let volume = slider.val();
             remoteView.volume = volume;
-            console.log(volume);
         });
 
         var session = callback({
