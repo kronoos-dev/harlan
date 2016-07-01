@@ -198,6 +198,9 @@ module.exports = (controller) => {
             slider.off("input");
         };
 
+        modal.createActions().add("Mute").click(() => {
+            session.mute();
+        });
         modal.createActions().cancel();
 
         let remoteView = document.createElement("video"),
