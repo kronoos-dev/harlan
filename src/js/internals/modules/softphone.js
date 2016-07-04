@@ -184,7 +184,6 @@ module.exports = (controller) => {
         let modal = controller.call("modal"),
             gamification = modal.gamification(),
             title = modal.title("Estamos realizando a ligação."),
-            subtitle = modal.subtitle("Aguarde enquanto realizamos sua ligação."),
             paragraph = modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
 
         let lastIcon, gamificationIcon = (icon) => {
@@ -274,6 +273,7 @@ module.exports = (controller) => {
             },
             ended: function(data) {
                 modal.close();
+                stopAudio(song);
             }
         });
     };
