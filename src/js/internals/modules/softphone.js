@@ -190,7 +190,13 @@ module.exports = (controller) => {
                 step: 0.1,
                 min: 0,
                 max: 1
-            });
+            }),
+            song = new Audio("../assets/US_ringback_tone.ogg");
+
+        function stopAudio(audioObj) {
+            audioObj.pause();
+            audioObj.currentTime = 0.0;
+        }
 
         modal.onClose = () => {
             controller.call("softphone::terminateCalls");
@@ -227,6 +233,7 @@ module.exports = (controller) => {
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
                 selfView.play();
                 selfView.volume = 1;
+                stopAudio(song);
             },
             addstream: function(data) {
                 var stream = data.stream;
@@ -238,14 +245,17 @@ module.exports = (controller) => {
                 title.text("Estamos realizando a ligação.");
                 subtitle.text("A sua ligação está em curso...");
                 paragraph.text("");
+                song.play();
             },
             failed: function(data) {
                 title.text("Falha ao estabelecer a ligação");
                 subtitle.text("Tivemos um problema ao tentar estabelecer sua ligação.");
                 paragraph.text("Verifique suas configurações e tente novamente mais tarde.");
+                stopAudio(song);
             },
             ended: function(data) {
                 modal.close();
+                stopAudio(song);
             }
         });
     };
