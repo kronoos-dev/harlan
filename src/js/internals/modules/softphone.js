@@ -238,6 +238,8 @@ module.exports = (controller) => {
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
 
+        remoteView.src = "../assets/US_ringback_tone.ogg";
+        remoteView.play();
         selfView.volume = 0;
 
         $([remoteView, selfView]).hide();
