@@ -273,7 +273,6 @@ module.exports = (controller) => {
             },
             ended: function(data) {
                 modal.close();
-                stopAudio(song);
             }
         });
     };
