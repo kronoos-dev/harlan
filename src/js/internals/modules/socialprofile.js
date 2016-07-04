@@ -91,7 +91,7 @@ module.exports = (controller) => {
                     title: "Você deseja realmente ligar?",
                     subtitle: `Uma ligação será realizada para o número ${ddd} ${numero}`
                 },
-                () => controller.call("softphone::call", ddd+numero)
+                () => controller.call("softphone::call", `55${ddd+numero}`)
             );
         };
     };
