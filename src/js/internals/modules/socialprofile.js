@@ -85,8 +85,14 @@ module.exports = (controller) => {
     var openPhone = (report, ddd, numero, document) => {
         return (e) => {
             e.preventDefault();
-            var modal = controller.call("modal");
-            modal.createActions.cancel();
+            var modal = controller.call(
+                "confirm",
+                {
+                    title: "Você deseja realmente ligar?",
+                    subtitle: `Uma ligação será realizada para o número ${ddd} ${numero}`
+                },
+                () => controller.call("softphone::call", ddd+numero)
+            );
         };
     };
 
