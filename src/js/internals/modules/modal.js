@@ -43,7 +43,7 @@ module.exports = (controller) =>  {
 
         this.gamification = (type) =>  {
             var image = $("<div />")
-                    .addClass("gamification").addClass(gamificationIcons[type]);
+                    .addClass("gamification").addClass(gamificationIcons[type] || type);
             modal.append(image);
             return image;
         };

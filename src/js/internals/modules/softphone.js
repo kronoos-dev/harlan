@@ -258,13 +258,11 @@ module.exports = (controller) => {
             progress: function(data) {
                 gamificationIcon("phone-icon-5");
                 title.text("Estamos realizando a ligação.");
-                subtitle.text("A sua ligação está em curso.");
                 paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
             },
             failed: function(data) {
                 gamificationIcon("phone-icon-3");
                 title.text("Falha ao estabelecer a ligação");
-                subtitle.text("Tivemos um problema ao tentar estabelecer sua ligação.");
                 paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
                 $([slider, muteButton]).hide();
                 setTimeout(() => {
