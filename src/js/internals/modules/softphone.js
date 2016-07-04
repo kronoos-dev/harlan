@@ -235,14 +235,14 @@ module.exports = (controller) => {
                 remoteView.volume = 1;
             },
             progress: function(data) {
-                title.text("progress");
-                subtitle.text("in-progress-call");
-                paragraph.text("in-progress-call");
+                title.text("Estamos realizando a ligação.");
+                subtitle.text("A sua ligação está em curso...");
+                paragraph.text("");
             },
             failed: function(data) {
-                title.text("failed");
-                subtitle.text("failed-call");
-                paragraph.text("failed-call");
+                title.text("Falha ao estabelecer a ligação");
+                subtitle.text("Tivemos um problema ao tentar estabelecer sua ligação.");
+                paragraph.text("Verifique suas configurações e tente novamente mais tarde.");
             },
             ended: function(data) {
                 modal.close();
