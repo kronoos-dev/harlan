@@ -203,9 +203,7 @@ module.exports = (controller) => {
         };
 
         let actions = modal.createActions(),
-            lastTimeout;
-
-        actions.add("Volume").click(() => {
+            lastTimeout, slider = actions.add("Volume").click(() => {
             let modal = controller.call("modal"),
                 form = modal.createForm();
             form.addInput("volume-slider", "range", "", {}, "", remoteView.volume).attr({
