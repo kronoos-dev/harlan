@@ -1,7 +1,4 @@
-import {
-    CPF,
-    CNPJ
-} from 'cpf_cnpj';
+import { CPF, CNPJ } from 'cpf_cnpj';
 import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
@@ -85,13 +82,14 @@ module.exports = (controller) => {
     var openPhone = (report, ddd, numero, document) => {
         return (e) => {
             e.preventDefault();
-            var modal = controller.call(
-                "confirm",
-                {
-                    title: "Você deseja realmente ligar?",
-                    subtitle: `Uma ligação será realizada para o número 55${ddd}${numero}`
-                },
-                () => controller.call("softphone::call", `55${ddd}${numero}`)
+            var modal = controller.confirm({
+                    icon: "phone-icon-7",
+                    title: "Você deseja realmente estabeler uma ligação?",
+                    subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, "9999-99999")}.`,
+                    paragraph: "Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente."
+                }, () => {
+                    controller.call("softphone::call", `55${ddd}${numero}`);
+                }
             );
         };
     };
