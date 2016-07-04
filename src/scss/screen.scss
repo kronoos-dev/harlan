@@ -1326,3 +1326,19 @@ input.link {
         background-position: 6px 156px;
     }
 }
+
+@for $i from 0 through 15 {
+    .phone-icon-#{$i} {
+        background: url(/images/phone_icons.svg);
+        background-size: 664px 664px;
+        $begin-x: (14 + (($i % 4) * 152)) * -1;
+        $begin-y: (floor($i / 4) * 166) * -1;
+        background-position: #{$begin-x}px #{$begin-y}px;
+    }
+}
+
+.phone-keyboard {
+    width: 33.333333%;
+    display: inline-block;
+    margin: 5px 0;
+}

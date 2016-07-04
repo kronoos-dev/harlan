@@ -101,7 +101,9 @@ module.exports = function (instance, controller) {
         });
 
         (obj.append || form).append(input);
-        createLabel(input, obj, labelText, placeholder);
+        if (labelText !== false) {
+            createLabel(input, obj, labelText, placeholder);
+        }
 
         return input;
     };

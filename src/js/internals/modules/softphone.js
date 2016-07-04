@@ -182,67 +182,97 @@ module.exports = (controller) => {
 
     var defaultCallHandler = (callback, address, onEnd) => {
         let modal = controller.call("modal"),
+            gamification = modal.gamification(),
             title = modal.title("Estamos realizando a ligação."),
             subtitle = modal.subtitle("Aguarde enquanto realizamos sua ligação."),
-            paragraph = modal.paragraph(""),
-            form = modal.createForm(),
-            slider = form.addInput("volume-slider", "range", "", {}, "", 1).attr({
-                step: 0.1,
-                min: 0,
-                max: 1
-            });
+            paragraph = modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+
+        let lastIcon, gamificationIcon = (icon) => {
+            if (lastIcon) {
+                gamification.removeClass(lastIcon);
+            }
+            lastIcon = icon;
+            gamification.addClass(icon);
+        };
+
+        gamificationIcon("phone-icon-1");
 
         modal.onClose = () => {
             controller.call("softphone::terminateCalls");
             if (onEnd) onEnd();
-            slider.off("input");
         };
 
-        let muteButton = modal.createActions().add("Mute").click(() => {
+        let actions = modal.createActions(),
+            lastTimeout;
+
+        actions.add("Volume").click(() => {
+            let modal = controller.call("modal"),
+                form = modal.createForm();
+            form.addInput("volume-slider", "range", "", {}, "", remoteView.volume).attr({
+                step: 0.1,
+                min: 0,
+                max: 1
+            }).on("input", function() {
+                remoteView.volume = $(this).val();
+                if (lastTimeout) {
+                    clearTimeout(lastTimeout);
+                }
+                lastTimeout = setTimeout(() => {
+                    modal.close();
+                }, 600);
+            });
+        });
+
+        let muteButton = actions.add("Mudo"),
+            muteText = muteButton.find("a");
+
+        muteButton.click(() => {
             if (session.isMuted().audio) {
                 session.unmute();
-                muteButton.find('a').text("Mute");
+                muteText.text("Mudo");
             } else {
                 session.mute();
-                muteButton.find('a').text("Unmute");
+                muteText.text("Remover Mudo");
             }
         });
-        modal.createActions().cancel();
+
+        actions.cancel();
 
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
+
+        selfView.volume = 0;
 
         $([remoteView, selfView]).hide();
 
         modal.element().append(selfView);
         modal.element().append(remoteView);
 
-        slider.on("input", () => {
-            let volume = slider.val();
-            remoteView.volume = volume;
-        });
-
         var session = callback({
             confirmed: function(data) {
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
                 selfView.play();
-                selfView.volume = 1;
             },
             addstream: function(data) {
                 var stream = data.stream;
                 remoteView.src = window.URL.createObjectURL(stream);
                 remoteView.play();
-                remoteView.volume = 1;
             },
             progress: function(data) {
+                gamificationIcon("phone-icon-5");
                 title.text("Estamos realizando a ligação.");
-                subtitle.text("A sua ligação está em curso...");
-                paragraph.text("");
+                subtitle.text("A sua ligação está em curso.");
+                paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
             },
             failed: function(data) {
+                gamificationIcon("phone-icon-3");
                 title.text("Falha ao estabelecer a ligação");
                 subtitle.text("Tivemos um problema ao tentar estabelecer sua ligação.");
-                paragraph.text("Verifique suas configurações e tente novamente mais tarde.");
+                paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+                $([slider, muteButton]).hide();
+                setTimeout(() => {
+                    modal.close();
+                }, 1200);
             },
             ended: function(data) {
                 modal.close();
@@ -314,6 +344,54 @@ module.exports = (controller) => {
                 });
             });
         });
+    });
+
+    controller.registerCall("softphone::keypad", (callback) => {
+        callback = callback || controller.reference("softphone::call");
+        let modal = controller.call("modal");
+        modal.gamification().addClass("phone-icon-7");
+        modal.title("Lorem ipsun sit amet.");
+        modal.subtitle("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.");
+        modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+        let form = modal.createForm(),
+            actions = modal.createActions(),
+            phoneInput = form.addInput("phone", "text", "Telefone para Discagem", {}, false);
+        actions.add("Limpar").click((e) => {
+            e.preventDefault();
+            phoneInput.val("");
+        });
+        actions.cancel();
+
+        form.element().append($("<div />").addClass("input-submit")
+            .append(phoneInput)
+            .append(form.addSubmit("submit", "Discar")));
+
+        phoneInput.focus();
+
+        form.element().submit((e) => {
+            e.preventDefault();
+            modal.close();
+            callback(phoneInput.val());
+        });
+
+        let digitInput = function(e) {
+            e.preventDefault();
+            phoneInput.val(phoneInput.val() + $(this).val());
+        };
+
+        form.addSubmit("send-1", "1").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-2", "2").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-3", "3").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-4", "4").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-5", "5").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-6", "6").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-7", "7").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-8", "8").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-9", "9").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-*", "*").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-0", "0").addClass("phone-keyboard").click(digitInput);
+        form.addSubmit("send-#", "#").addClass("phone-keyboard").click(digitInput);
+
     });
 
 };
