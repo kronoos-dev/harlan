@@ -180,11 +180,29 @@ module.exports = (controller) => {
         if (callback) callback();
     });
 
+    var defaultOnEnd = () => {
+        let modal = controller.call("modal"),
+            title = modal.title("Relatório da ligação"),
+            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar."),
+            form = modal.createForm(),
+            inputQuality = form.addInput("quality", "number", "Qualidade da ligação", {}, "De 0 a 10, qual a qualidade da ligação?", 10).attr({
+                min: 0,
+                max: 10
+            }),
+            inputValidNumber = form.addCheckbox("valid-number", "Esse numero de telefone continua válido.", true);
+
+        form.element().submit((e) => {
+            e.preventDefault();
+            modal.close();
+        });
+        modal.createActions().cancel();
+    };
+
     var defaultCallHandler = (callback, address, onEnd) => {
         let modal = controller.call("modal"),
             gamification = modal.gamification(),
             session,
-            title = modal.title("Estamos realizando a ligação."),
+            title = modal.title("Estamos realizando a ligação"),
             paragraph = modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
 
         let lastIcon, gamificationIcon = (icon) => {
@@ -269,7 +287,7 @@ module.exports = (controller) => {
             },
             progress: function(data) {
                 gamificationIcon("phone-icon-5");
-                title.text("Estamos realizando a ligação.");
+                title.text("Estamos realizando a ligação");
                 paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
             },
             failed: function(data) {
@@ -316,7 +334,7 @@ module.exports = (controller) => {
                 error: () => {
                     controller.confirm({
                         icon: "fail",
-                        title: "Não foi possível estabelecer uma boa ligação com o XIRSYS.",
+                        title: "Não foi possível estabelecer uma boa ligação com o XIRSYS",
                         subtitle: "Se você estiver atrás de um firewall a qualidade de sua ligação pode ficar comprometida.",
                         paragraph: "Empresas que não utilizam tecnologia IPv6 ou que seus computadores não possuem endereço IPv4 real podem ter a qualidade de sua ligação sériamente comprometida, refaça a configuração VoIP."
                     }, () => {
@@ -347,7 +365,7 @@ module.exports = (controller) => {
                             'video': false
                         },
                         'pcConfig': pcConfig ? pcConfig : null
-                    }, address, onEnd);
+                    }, address, (onEnd || defaultOnEnd));
                     return session;
                 });
             });
@@ -358,7 +376,7 @@ module.exports = (controller) => {
         callback = callback || controller.reference("softphone::call");
         let modal = controller.call("modal");
         modal.gamification().addClass("phone-icon-7");
-        modal.title("Lorem ipsun sit amet.");
+        modal.title("Lorem ipsun sit amet");
         modal.subtitle("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.");
         modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
         let form = modal.createForm(),
