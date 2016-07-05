@@ -183,6 +183,7 @@ module.exports = (controller) => {
     var defaultCallHandler = (callback, address, onEnd) => {
         let modal = controller.call("modal"),
             gamification = modal.gamification(),
+            session,
             title = modal.title("Estamos realizando a ligação."),
             paragraph = modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
 
@@ -197,28 +198,36 @@ module.exports = (controller) => {
         gamificationIcon("phone-icon-1");
 
         modal.onClose = () => {
-            controller.call("softphone::terminateCalls");
+            if (session) {
+                try {
+                    session.terminate();
+                } catch (e) {}
+            } else {
+                controller.call("softphone::terminateCalls");
+            }
             if (onEnd) onEnd();
         };
 
         let actions = modal.createActions(),
             lastTimeout, slider = actions.add("Volume").click(() => {
-            let modal = controller.call("modal"),
-                form = modal.createForm();
-            form.addInput("volume-slider", "range", "", {}, "", remoteView.volume).attr({
-                step: 0.1,
-                min: 0,
-                max: 1
-            }).on("input", function() {
-                remoteView.volume = $(this).val();
-                if (lastTimeout) {
-                    clearTimeout(lastTimeout);
-                }
-                lastTimeout = setTimeout(() => {
-                    modal.close();
-                }, 600);
+                let modal = controller.call("modal"),
+                    form = modal.createForm();
+                form.addInput("volume-slider", "range", "", {}, "", remoteView.volume).attr({
+                    step: 0.1,
+                    min: 0,
+                    max: 1
+                }).on("input", function() {
+                    remoteView.volume = $(this).val();
+                    localStorage.softphoneVolume = $(this).val();
+                    if (lastTimeout) {
+                        clearTimeout(lastTimeout);
+                    }
+                    lastTimeout = setTimeout(() => {
+                        modal.close();
+                    }, 600);
+                });
+                modal.createActions().cancel();
             });
-        });
 
         let muteButton = actions.add("Mudo"),
             muteText = muteButton.find("a");
@@ -238,6 +247,7 @@ module.exports = (controller) => {
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
 
+        remoteView.volume = localStorage.softphoneVolume ? parseInt(localStorage.softphoneVolume, 10) : 1
         selfView.volume = 0;
 
         $([remoteView, selfView]).hide();
@@ -245,7 +255,7 @@ module.exports = (controller) => {
         modal.element().append(selfView);
         modal.element().append(remoteView);
 
-        var session = callback({
+        session = callback({
             confirmed: function(data) {
                 selfView.src = window.URL.createObjectURL(session.connection.getLocalStreams()[0]);
                 selfView.play();
@@ -264,10 +274,6 @@ module.exports = (controller) => {
                 gamificationIcon("phone-icon-3");
                 title.text("Falha ao estabelecer a ligação");
                 paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
-                $([slider, muteButton]).hide();
-                setTimeout(() => {
-                    modal.close();
-                }, 1200);
             },
             ended: function(data) {
                 modal.close();
@@ -327,14 +333,18 @@ module.exports = (controller) => {
 
             controller.call("softphone::xirsys", (pcConfig) => {
                 (callHandler || defaultCallHandler)((eventHandlers) => {
+                    if (pcConfig) {
+                        pcConfig.bundlePolicy = "max-bundle";
+                        pcConfig.gatheringTimeout = 2000;
+                    }
                     return ua.call(uri, {
-                        'sessionTimersExpires': 900,
+                        'sessionTimersExpires': 500,
                         'eventHandlers': eventHandlers,
                         'mediaConstraints': {
                             'audio': true,
                             'video': false
                         },
-                        'pcConfig': pcConfig ? pcConfig.iceServers : null
+                        'pcConfig': pcConfig ? pcConfig : null
                     }, address, onEnd);
                 });
             });
