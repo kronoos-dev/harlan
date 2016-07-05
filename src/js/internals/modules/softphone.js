@@ -200,6 +200,7 @@ module.exports = (controller) => {
         modal.onClose = () => {
             if (session) {
                 try {
+                    session.connection.close();
                     session.terminate();
                 } catch (e) {}
             } else {
@@ -246,8 +247,9 @@ module.exports = (controller) => {
 
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
-
+        remoteView.src = "../assets/US_ringback_tone.ogg";
         remoteView.volume = localStorage.softphoneVolume ? parseInt(localStorage.softphoneVolume, 10) : 1
+        remoteView.play();
         selfView.volume = 0;
 
         $([remoteView, selfView]).hide();
@@ -337,7 +339,7 @@ module.exports = (controller) => {
                         pcConfig.bundlePolicy = "max-bundle";
                         pcConfig.gatheringTimeout = 2000;
                     }
-                    return ua.call(uri, {
+                    let session = ua.call(uri, {
                         'sessionTimersExpires': 500,
                         'eventHandlers': eventHandlers,
                         'mediaConstraints': {
@@ -346,6 +348,7 @@ module.exports = (controller) => {
                         },
                         'pcConfig': pcConfig ? pcConfig : null
                     }, address, onEnd);
+                    return session;
                 });
             });
         });
