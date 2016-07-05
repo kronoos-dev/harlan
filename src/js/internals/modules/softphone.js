@@ -8,6 +8,39 @@ var useragent /* jssip instance */ ,
 
 module.exports = (controller) => {
 
+    controller.registerTrigger("findDatabase::instantSearch", "softphone", function(args, callback) {
+        callback();
+        let [text, modal] = args;
+
+        if (!/phone|limpar|configuração/i.test(text)) {
+            return;
+        }
+
+        modal.item("Limpar Configuração Softphone",
+                "Configuração Softphone Harlan",
+                "Caso deseje utilizar o softphone deverá ser feita a configuração.")
+            .addClass("softphone")
+            .click(function() {
+                controller.confirm({}, () => {
+                    controller.alert({
+                        icon: "pass",
+                        title: "As configurações foram todas limpas com sucesso.",
+                        subtitle: "Caso deseje utilizar o softphone terá de realizar a configuração.",
+                        paragraph: "As configurações do softphone foram limpas deste computador, ninguém desta máquina poderá utilizar suas credenciais para realizar ligações."
+                    });
+                    delete localStorage.softphoneConfiguration;
+                });
+            });
+    });
+
+    controller.registerBootstrap("softphone", (cb) => {
+        cb();
+        controller.interface.helpers.menu.add("Discar", "phone").nodeLink.click((e) => {
+            e.preventDefault();
+            controller.call("softphone::keypad");
+        });
+    });
+
     controller.registerCall("softphone::configuration", (callback) => {
         if (!localStorage.softphoneConfiguration) {
             if (callback) {
@@ -185,7 +218,7 @@ module.exports = (controller) => {
             gamification = modal.gamification(),
             session,
             title = modal.title("Estamos realizando a ligação."),
-            paragraph = modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+            paragraph = modal.paragraph("Aguarde enquanto conectamos você ao número discado, certifique que seu headset esteja conectado. Não recomendamos o uso de caixas de som para ligação pois as mesmas podem causar eco e ruídos na ligação. Nós desejamos que sua ligação seja proveitosa.");
 
         let lastIcon, gamificationIcon = (icon) => {
             if (lastIcon) {
@@ -269,13 +302,18 @@ module.exports = (controller) => {
             },
             progress: function(data) {
                 gamificationIcon("phone-icon-5");
-                title.text("Estamos realizando a ligação.");
-                paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+                title.text("Ligação em progresso");
+                paragraph.text("Você está conectado ao número discado. Quando não desejar ser escutado clique no botão mute. Caso não esteja ouvindo bem a ligação você pode regular o volume no link logo abaixo. Nós desejamos que a ligação seja proveitosa.");
+
             },
             failed: function(data) {
                 gamificationIcon("phone-icon-3");
                 title.text("Falha ao estabelecer a ligação");
-                paragraph.text("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+                paragraph.text("Ocorreu uma falha ao tentar estabelecer uma ligação, provávelmente a rede ou provedor VoIP esteja com alguma deficiência. Se certifique que o número existe e tente novamente mais tarde.");
+                remoteView.stop();
+                setTimeout(() => {
+                    modal.close();
+                }, 1600);
             },
             ended: function(data) {
                 modal.close();
@@ -354,21 +392,23 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("softphone::keypad", (callback) => {
+    controller.registerCall("softphone::keypad", (callback, value = "") => {
         callback = callback || controller.reference("softphone::call");
         let modal = controller.call("modal");
         modal.gamification().addClass("phone-icon-7");
-        modal.title("Lorem ipsun sit amet.");
-        modal.subtitle("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.");
-        modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.");
+        modal.title("Digite o número de telefone.");
+        modal.subtitle("Use o teclado para digitar ou as botões visíveis na interface.");
+        modal.paragraph("Você pode digitar qualquer caracter com seu teclado ou os tradicionais usando as teclas disponíveis abaixo. Antes de submeter o número confirme, isso evita ligações indesejadas e custos adicionais. Atenção, as ligações podem estar sendo gravadas pelo provedor SIP ou pela plataforma.");
         let form = modal.createForm(),
             actions = modal.createActions(),
-            phoneInput = form.addInput("phone", "text", "Telefone para Discagem", {}, false);
+            phoneInput = form.addInput("phone", "text", "Telefone para Discagem", {}, false).val(value);
+
         actions.add("Limpar").click((e) => {
             e.preventDefault();
             phoneInput.val("");
         });
         actions.cancel();
+
 
         form.element().append($("<div />").addClass("input-submit")
             .append(phoneInput)

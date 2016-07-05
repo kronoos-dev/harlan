@@ -91,6 +91,7 @@
     "pseudo-worker": "^1.0.2",
     "randomcolor": "^0.4.3",
     "raphael": "^2.1.4",
+    "recordrtc": "^5.3.8",
     "sprintf": "^0.1.5",
     "squel": "^4.2.2",
     "stream-browserify": "^2.0.1",

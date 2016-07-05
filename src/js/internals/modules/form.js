@@ -4,9 +4,7 @@ const EMPTY_REGEX = /^\s*$/;
 
 import assert from "assert";
 import _ from "underscore";
-import {
-    camelCase
-} from 'change-case';
+import { camelCase } from 'change-case';
 import async from "async";
 
 module.exports = (controller) => {
