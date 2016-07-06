@@ -383,14 +383,14 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("softphone::call", (address, onEnd = null, callHandler = null) => {
+    controller.registerCall("softphone::call", (address, onEnd = defaultOnEnd, callHandler = defaultCallHandler) => {
         controller.call("softphone", (ua) => {
             let uri = address.indexOf('@') === -1 ?
                 `sip:${address}@${runningConfiguration.domain}` :
                 `sip:${address}`;
 
             controller.call("softphone::xirsys", (pcConfig) => {
-                (callHandler || defaultCallHandler)((eventHandlers) => {
+                callHandler((eventHandlers) => {
                     if (pcConfig) {
                         pcConfig.bundlePolicy = "max-bundle";
                         pcConfig.gatheringTimeout = 2000;
@@ -405,7 +405,7 @@ module.exports = (controller) => {
                         'pcConfig': pcConfig ? pcConfig : null
                     });
                     return session;
-                }, address, (onEnd || defaultOnEnd));
+                }, address, onEnd);
             });
         });
     });
