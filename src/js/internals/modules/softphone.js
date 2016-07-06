@@ -215,15 +215,17 @@ module.exports = (controller) => {
 
     var defaultOnEnd = () => {
         let modal = controller.call("modal"),
+            gamification = modal.gamification("icon-1-4"),
             title = modal.title("Relatório da ligação"),
-            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar."),
+            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar. Através dele poderemos trabalhar para melhorar sua experiência de uso."),
             form = modal.createForm(),
             inputQuality = form.addInput("quality", "number", "Qualidade da ligação", {}, "De 0 a 10, qual a qualidade da ligação?", 10).attr({
                 min: 0,
                 max: 10
             }),
-            inputValidNumber = form.addCheckbox("valid-number", "Esse numero de telefone continua válido.", true);
+            inputValidNumber = form.addCheckbox("valid-number", "O telefone continua válido?", true);
 
+        form.addSubmit("enviar", "Enviar");
         form.element().submit((e) => {
             e.preventDefault();
             modal.close();
@@ -382,14 +384,14 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("softphone::call", (address, onEnd = null, callHandler = null) => {
+    controller.registerCall("softphone::call", (address, onEnd = defaultOnEnd, callHandler = defaultCallHandler) => {
         controller.call("softphone", (ua) => {
             let uri = address.indexOf('@') === -1 ?
                 `sip:${address}@${runningConfiguration.domain}` :
                 `sip:${address}`;
 
             controller.call("softphone::xirsys", (pcConfig) => {
-                (callHandler || defaultCallHandler)((eventHandlers) => {
+                callHandler((eventHandlers) => {
                     if (pcConfig) {
                         pcConfig.bundlePolicy = "max-bundle";
                         pcConfig.gatheringTimeout = 2000;
@@ -402,9 +404,9 @@ module.exports = (controller) => {
                             'video': false
                         },
                         'pcConfig': pcConfig ? pcConfig : null
-                    }, address, (onEnd || defaultOnEnd));
+                    });
                     return session;
-                });
+                }, address, onEnd);
             });
         });
     });
