@@ -222,8 +222,9 @@ module.exports = (controller) => {
                 min: 0,
                 max: 10
             }),
-            inputValidNumber = form.addCheckbox("valid-number", "Esse numero de telefone continua válido.", true);
+            inputValidNumber = form.addCheckbox("valid-number", "O telefone continua válido?", true);
 
+        form.addSubmit("enviar", "Enviar");
         form.element().submit((e) => {
             e.preventDefault();
             modal.close();
@@ -402,9 +403,9 @@ module.exports = (controller) => {
                             'video': false
                         },
                         'pcConfig': pcConfig ? pcConfig : null
-                    }, address, (onEnd || defaultOnEnd));
+                    });
                     return session;
-                });
+                }, address, (onEnd || defaultOnEnd));
             });
         });
     });
