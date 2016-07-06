@@ -74,8 +74,7 @@ module.exports = (controller) => {
     var openEmail = (report, email, document) => {
         return (e) => {
             e.preventDefault();
-            var modal = controller.call("modal");
-            modal.createActions.cancel();
+            window.open(`mailto:${email}`, '_blank');
         };
     };
 
@@ -88,7 +87,7 @@ module.exports = (controller) => {
                     subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, "9999-99999")}.`,
                     paragraph: "Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente."
                 }, () => {
-                    controller.call("softphone::call", `55${ddd}${numero}`);
+                    controller.call("softphone::keypad", null, `55${ddd}${numero}`);
                 }
             );
         };

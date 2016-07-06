@@ -73,7 +73,7 @@ module.exports = (controller) => {
         form.configure({
             "title": "Instalação de Softphone",
             "subtitle": "Preencha as configurações abaixo.",
-            "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente.",
+            "paragraph": "Caso não possua um provedor de VoIP via navegador verifique os planos da <a href=\"https://www.conectenos.com.br/\">Conecte-nos.</a>",
             "gamification": "star",
             "magicLabel": true,
             "screens": [{
@@ -107,7 +107,7 @@ module.exports = (controller) => {
             }, {
                 "title": "Configuração da Plataforma XIRSYS",
                 "subtitle": "O XIRSYS é um serviço que permite a você uma melhor qualidade na ligação.",
-                "paragraph": "A configuração do XIRSYS é obrigatória para que você tenha qualidade de ligação.",
+                "paragraph": "A configuração do <a href=\"https://www.xirsys.com\">XIRSYS</a> é obrigatória para que você tenha qualidade de ligação.",
                 "fields": [
                     [{
                         "name": "xirsys-ident",
