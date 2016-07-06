@@ -213,6 +213,24 @@ module.exports = (controller) => {
         if (callback) callback();
     });
 
+    var defaultOnEnd = () => {
+        let modal = controller.call("modal"),
+            title = modal.title("Relatório da ligação"),
+            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar."),
+            form = modal.createForm(),
+            inputQuality = form.addInput("quality", "number", "Qualidade da ligação", {}, "De 0 a 10, qual a qualidade da ligação?", 10).attr({
+                min: 0,
+                max: 10
+            }),
+            inputValidNumber = form.addCheckbox("valid-number", "Esse numero de telefone continua válido.", true);
+
+        form.element().submit((e) => {
+            e.preventDefault();
+            modal.close();
+        });
+        modal.createActions().cancel();
+    };
+
     var defaultCallHandler = (callback, address, onEnd) => {
         let modal = controller.call("modal"),
             gamification = modal.gamification(),
@@ -304,7 +322,6 @@ module.exports = (controller) => {
                 gamificationIcon("phone-icon-5");
                 title.text("Ligação em progresso");
                 paragraph.text("Você está conectado ao número discado. Quando não desejar ser escutado clique no botão mute. Caso não esteja ouvindo bem a ligação você pode regular o volume no link logo abaixo. Nós desejamos que a ligação seja proveitosa.");
-
             },
             failed: function(data) {
                 gamificationIcon("phone-icon-3");
@@ -354,7 +371,7 @@ module.exports = (controller) => {
                 error: () => {
                     controller.confirm({
                         icon: "fail",
-                        title: "Não foi possível estabelecer uma boa ligação com o XIRSYS.",
+                        title: "Não foi possível estabelecer uma boa ligação com o XIRSYS",
                         subtitle: "Se você estiver atrás de um firewall a qualidade de sua ligação pode ficar comprometida.",
                         paragraph: "Empresas que não utilizam tecnologia IPv6 ou que seus computadores não possuem endereço IPv4 real podem ter a qualidade de sua ligação sériamente comprometida, refaça a configuração VoIP."
                     }, () => {
@@ -385,7 +402,7 @@ module.exports = (controller) => {
                             'video': false
                         },
                         'pcConfig': pcConfig ? pcConfig : null
-                    }, address, onEnd);
+                    }, address, (onEnd || defaultOnEnd));
                     return session;
                 });
             });
@@ -399,6 +416,7 @@ module.exports = (controller) => {
         modal.title("Digite o número de telefone.");
         modal.subtitle("Use o teclado para digitar ou as botões visíveis na interface.");
         modal.paragraph("Você pode digitar qualquer caracter com seu teclado ou os tradicionais usando as teclas disponíveis abaixo. Antes de submeter o número confirme, isso evita ligações indesejadas e custos adicionais. Atenção, as ligações podem estar sendo gravadas pelo provedor SIP ou pela plataforma.");
+
         let form = modal.createForm(),
             actions = modal.createActions(),
             phoneInput = form.addInput("phone", "text", "Telefone para Discagem", {}, false).val(value);
