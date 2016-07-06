@@ -30,7 +30,7 @@ module.exports = (controller) =>  {
         controller.call("authentication::need", () => {
             var modal = controller.call("modal"),
                 missing = companyCredits - needed,
-                form, actions; 
+                form, actions;
 
             if (missing < 0) {
                 modal.title("Você precisa de créditos!");
@@ -70,6 +70,13 @@ module.exports = (controller) =>  {
             }
         });
     });
+
+    if (controller.query.recharge === "true" && controller.query.apiKey) {
+        controller.registerTrigger("call::authentication::loggedin", "recharge", (data, cb) => {
+            cb();
+            controller.call("credits::buy");
+        });
+    }
 
     controller.registerTrigger("authentication::authenticated", "credits::authentication::authenticated", (ret, callback) =>  {
         var credits = 0;
