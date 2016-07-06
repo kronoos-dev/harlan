@@ -215,8 +215,9 @@ module.exports = (controller) => {
 
     var defaultOnEnd = () => {
         let modal = controller.call("modal"),
+            gamification = modal.gamification("icon-1-4"),
             title = modal.title("Relatório da ligação"),
-            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar."),
+            subtitle = modal.subtitle("Seu feedback é muito importante para nós. Por favor não deixe de opinar. Através dele poderemos trabalhar para melhorar sua experiência de uso."),
             form = modal.createForm(),
             inputQuality = form.addInput("quality", "number", "Qualidade da ligação", {}, "De 0 a 10, qual a qualidade da ligação?", 10).attr({
                 min: 0,
