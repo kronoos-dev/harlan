@@ -1,5 +1,6 @@
 var assert = require("assert"),
-        _ = require("underscore");
+        _ = require("underscore"),
+        vis = require("vis");
 
 module.exports = (controller) =>  {
 
@@ -117,6 +118,23 @@ module.exports = (controller) =>  {
             content.append(node);
 
             return node;
+        };
+
+        this.addNetwork = (nodesArray, edgesArray, options = {})=> {
+            let elem = document.createElement("div"),
+                nodes = new vis.DataSet(nodesArray),
+                edges = new vis.DataSet(edgesArray),
+                data = {
+                    nodes: nodes,
+                    edges: edges
+                },
+                network = new vis.Network(elem, data, options);
+
+            $(elem).attr("style", "width: 100%; height: 400px; border: 1px solid lightgray;");
+
+            content.append(elem);
+
+            return $(elem);
         };
 
         this.content = () =>  {
