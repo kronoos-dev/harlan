@@ -3,7 +3,7 @@
 module.exports = function (controller) {
 
     controller.registerCall("icheques::buyreader", function (cep) {
-        controller.call("credits::has", 93800, function () {
+        controller.call("credits::has", 88400, function () {
             controller.call("icheques::buyreader::go", cep);
         });
     });
@@ -137,7 +137,7 @@ module.exports = function (controller) {
                 modal.close();
                 controller.call("icheques::buyreader", inputCep.val());
             });
-            form.addSubmit("submit", "Adquirir por R$ 938,00");
+            form.addSubmit("submit", "Adquirir por R$ 884,00");
             var actions = modal.createActions();
             actions.observation("Garantia de 12 meses");
             actions.observation("Entrega em 4 dias úteis");
