@@ -1,4 +1,6 @@
-import { Harmonizer } from "color-harmony";
+import {
+    Harmonizer
+} from "color-harmony";
 import ChartJS from "chart.js";
 import _ from 'underscore';
 import Color from "color";
@@ -43,13 +45,17 @@ module.exports = (controller) => {
                         highlight: colorsHightlight[i]
                     };
                 });
-
-                new ChartJS(report.canvas(250, 250).getContext("2d")).Doughnut(reduceDataset(charData));
-
+                var canvas = report.canvas(250, 250),
+                    interval = setInterval(() => {
+                        if (document.contains(canvas) && $(canvas).is(":visible")) {
+                            clearInterval(interval);
+                            new ChartJS(canvas.getContext("2d")).Doughnut(reduceDataset(charData));
+                        }
+                    });
                 charData.forEach((opt, i) => {
                     report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
-                        "background-color" : colors[i],
-                        "color" : new Color(colors[i]).light() ? "#000" : "#fff",
+                        "background-color": colors[i],
+                        "color": new Color(colors[i]).light() ? "#000" : "#fff",
                         'text-transform': 'capitalize',
                         'cursor': 'pointer'
                     }).click((e) => {
@@ -68,9 +74,9 @@ module.exports = (controller) => {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = (dataArgument) =>  {
+    var reduceDataset = (dataArgument) => {
         let data = jQuery.extend(true, {}, dataArgument);
-        var sum = _.reduce(data, (a, b) =>  {
+        var sum = _.reduce(data, (a, b) => {
             return {
                 value: a.value + b.value
             };
@@ -80,13 +86,13 @@ module.exports = (controller) => {
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) =>  {
+        return _.map(_.values(_.groupBy(data, (item) => {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), (value) =>  {
-            return _.reduce(value, (a, b) =>  {
+        })), (value) => {
+            return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
                 a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
