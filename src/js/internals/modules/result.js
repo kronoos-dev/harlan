@@ -130,7 +130,7 @@ module.exports = (controller) =>  {
                 },
                 network = new vis.Network(elem, data, options);
 
-            $(elem).attr("style", "width: 100%; height: 400px; border: 1px solid lightgray;");
+            $(elem).attr("style", "width: 100%; height: 400px;");
 
             content.append(elem);
 
