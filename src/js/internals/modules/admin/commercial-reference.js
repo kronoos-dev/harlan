@@ -33,7 +33,7 @@ module.exports = (controller) => {
                         return {
                             _id: a._id || "Sem Valor",
                             total: a.total + b.total,
-                        }
+                        };
                     });
                 }), 'total');
 
