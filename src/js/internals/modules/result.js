@@ -134,7 +134,7 @@ module.exports = (controller) =>  {
 
             content.append(elem);
 
-            return $(elem);
+            return [network, $(elem)];
         };
 
         this.content = () =>  {
