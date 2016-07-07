@@ -27,7 +27,8 @@ module.exports = function (controller) {
                     icon: {
                         face: 'FontAwesome',
                         code: '\uf007',
-                        size: 50
+                        size: 50,
+                        color: '#f0a30a'
                     }
                 }
             }
