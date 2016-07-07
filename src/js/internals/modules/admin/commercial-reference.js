@@ -36,6 +36,7 @@ module.exports = (controller) => {
 
                 var charData = _.map(reduceData, (opt, i) => {
                     return {
+                        commercialReference: opt._id,
                         label: opt._id || null,
                         value: opt.total,
                         color: colors[i],
@@ -49,7 +50,13 @@ module.exports = (controller) => {
                     report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
                         "background-color" : colors[i],
                         "color" : new Color(colors[i]).light() ? "#000" : "#fff",
-                        'text-transform': 'capitalize'
+                        'text-transform': 'capitalize',
+                        'cursor': 'pointer'
+                    }).click((e) => {
+                        e.preventDefault();
+                        controller.call("admin::openCompanys", report, {
+                            commercialReference: opt.commercialReference
+                        });
                     });
                 });
             }
