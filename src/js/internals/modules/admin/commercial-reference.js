@@ -51,7 +51,7 @@ module.exports = (controller) => {
                             clearInterval(interval);
                             new ChartJS(canvas.getContext("2d")).Doughnut(reduceDataset(charData));
                         }
-                    });
+                    }, 1000);
                 charData.forEach((opt, i) => {
                     report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
                         "background-color": colors[i],
