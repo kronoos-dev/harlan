@@ -51,7 +51,8 @@ module.exports = (controller) => {
                 charData.forEach((opt, i) => {
                     report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
                         "background-color" : colors[i],
-                        "color" : new Color(colors[i]).light() ? "#000" : "#fff"
+                        "color" : new Color(colors[i]).light() ? "#000" : "#fff",
+                        'text-transform': 'capitalize'
                     });
                 });
             }
@@ -63,8 +64,8 @@ module.exports = (controller) => {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = (data) =>  {
-
+    var reduceDataset = (dataArgument) =>  {
+        let data = jQuery.extend(true, {}, dataArgument);
         var sum = _.reduce(data, (a, b) =>  {
             return {
                 value: a.value + b.value
