@@ -53,5 +53,8 @@
     "opensanscondensed-googlefont": "*",
     "material-design-icons": "~2.2.3",
     "vis": "~4.16.1"
+  },
+  "resolutions": {
+    "jquery": ">=1.5"
   }
 }

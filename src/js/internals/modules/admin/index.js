@@ -31,6 +31,7 @@ module.exports = function(controller) {
         require("./change-password")(controller);
         require("./change-address")(controller);
         require("./change-contract")(controller);
+        require("./commercial-reference")(controller);
         require("./change-company")(controller);
         require("./email")(controller);
         require("./phone")(controller);
@@ -81,6 +82,7 @@ module.exports = function(controller) {
 
 
         controller.call("admin::index");
+        controller.call("admin::commercialReference");
 
         controller.trigger("admin");
     });
