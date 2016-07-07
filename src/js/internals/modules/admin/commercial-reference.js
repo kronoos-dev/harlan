@@ -5,9 +5,10 @@ import ChartJS from "chart.js";
 import _ from 'underscore';
 
 module.exports = (controller) => {
+
     let harmonizer = new Harmonizer();
     controller.registerCall("admin::commercialReference", () => {
-        controller.server.call("SELECT FROM 'BIPBOPCOMPANYSREPORT'.'COMMERCIALREFERENCE'", {
+        controller.server.call(controller.endpoint.commercialReferenceOverview, {
             dataType: 'json',
             success: (dataset) => {
                 var report = controller.call("report",

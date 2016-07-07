@@ -5,6 +5,7 @@ module.exports = function(controller) {
 
     controller.endpoint.adminReport = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
     controller.endpoint.createCompany = "INSERT INTO 'BIPBOPCOMPANYS'.'COMPANY'";
+    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'COMMERCIALREFERENCE'";
 
     controller.registerCall("admin::roleTypes", function() {
         return {
