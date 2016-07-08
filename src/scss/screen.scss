@@ -1342,3 +1342,28 @@ input.link {
     display: inline-block;
     margin: 5px 0;
 }
+
+.result-network {
+    width: 100%;
+    min-width: 600px;
+    margin: auto;
+    display: block;
+    height: 450px;
+}
+
+.vis-network {
+    canvas {
+        margin: 0;
+    }
+}
+
+.network-screen {
+    .container {
+        max-width: 100%;
+        width: 100%;
+    }
+    .content {
+        padding: 0 !important;
+        width: 100%;
+    }
+}

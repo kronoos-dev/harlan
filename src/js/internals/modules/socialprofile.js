@@ -108,6 +108,7 @@ module.exports = (controller) => {
             }
 
             result = report.result();
+            result.element().addClass("network-screen");
             $(this).addClass("enabled");
             var [network, element] = result.addNetwork([{
                 id: 1,
