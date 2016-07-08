@@ -121,20 +121,13 @@ module.exports = (controller) =>  {
         };
 
         this.addNetwork = (nodesArray, edgesArray, options = {})=> {
-            let elem = document.createElement("div"),
-                nodes = new vis.DataSet(nodesArray),
-                edges = new vis.DataSet(edgesArray),
-                data = {
-                    nodes: nodes,
-                    edges: edges
-                },
-                network = new vis.Network(elem, data, options);
-
-            $(elem).attr("style", "width: 100%; height: 400px;");
-
+            let elem = $("<div />").addClass("result-network"),
+                network = new vis.Network(elem.get(0), {
+                    nodes: nodesArray,
+                    edges: edgesArray
+                }, options);
             content.append(elem);
-
-            return [network, $(elem)];
+            return [network, elem];
         };
 
         this.content = () =>  {

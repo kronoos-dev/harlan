@@ -1,4 +1,7 @@
-import { CPF, CNPJ } from 'cpf_cnpj';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
@@ -8,8 +11,8 @@ import {
 } from 'change-case';
 import hashObject from 'hash-object';
 import _ from 'underscore';
-const detect = require('detect-gender');
 
+const detect = require('detect-gender');
 const removeDiacritics = require('diacritics').remove,
     corrigeArtigos = (str) => {
         _.each([
@@ -74,8 +77,7 @@ module.exports = (controller) => {
     var openEmail = (report, email, document) => {
         return (e) => {
             e.preventDefault();
-            var modal = controller.call("modal");
-            modal.createActions.cancel();
+            window.open(`mailto:${email}`, '_blank');
         };
     };
 
@@ -83,14 +85,83 @@ module.exports = (controller) => {
         return (e) => {
             e.preventDefault();
             var modal = controller.confirm({
-                    icon: "phone-icon-7",
-                    title: "Você deseja realmente estabeler uma ligação?",
-                    subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, "9999-99999")}.`,
-                    paragraph: "Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente."
-                }, () => {
-                    controller.call("softphone::call", `55${ddd}${numero}`);
+                icon: "phone-icon-7",
+                title: "Você deseja realmente estabeler uma ligação?",
+                subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, "9999-99999")}.`,
+                paragraph: "Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente."
+            }, () => {
+                controller.call("softphone::keypad", null, `55${ddd}${numero}`);
+            });
+        };
+    };
+
+    var openGraph = (report, ccbusca, document) => {
+        var result;
+        return function(e) {
+            e.preventDefault();
+
+            if (result) {
+                $(this).removeClass("enabled");
+                result.element().remove();
+                result = null;
+                return;
+            }
+
+            result = report.result();
+            $(this).addClass("enabled");
+            var [network, element] = result.addNetwork([{
+                id: 1,
+                label: 'Node 1',
+                title: 'I have a popup!',
+                group: 'users'
+            }, {
+                id: 2,
+                label: 'Node 2',
+                title: 'I have a popup!',
+                group: 'users'
+            }, {
+                id: 3,
+                label: 'Node 3',
+                title: 'I have a popup!',
+                group: 'users'
+            }, {
+                id: 4,
+                label: 'Node 4',
+                title: 'I have a popup!',
+                group: 'users'
+            }, {
+                id: 5,
+                label: 'Node 5',
+                title: 'I have a popup!',
+                group: 'users'
+            }], [{
+                from: 1,
+                to: 3
+            }, {
+                from: 1,
+                to: 2
+            }, {
+                from: 2,
+                to: 4
+            }, {
+                from: 2,
+                to: 5
+            }], {
+                interaction: {
+                    hover: true
+                },
+                groups: {
+                    users: {
+                        shape: 'icon',
+                        icon: {
+                            face: 'FontAwesome',
+                            code: '\uf007',
+                            size: 50,
+                            color: '#f0a30a'
+                        }
+                    }
                 }
-            );
+            });
         };
     };
 
@@ -223,6 +294,8 @@ module.exports = (controller) => {
                 newMark("fa-map", `${cidade}, ${estado} - ${VMasker.toPattern(cep, "99999-999")}`, openAddress(report, cep, ccbusca, document));
             });
         }
+
+        newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
 
         var game = report.gamification("silhouette").addClass(isCPF ? "cpf" : "cnpj");
         detect(name.split(" ")[0]).then((gender) => {

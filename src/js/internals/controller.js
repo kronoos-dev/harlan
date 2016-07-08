@@ -193,7 +193,6 @@ var Controller = function() {
     require('./modules/welcome-screen')(this);
     require('./modules/authentication')(this);
     require('./modules/report')(this);
-    require('./modules/network')(this);
     require('./modules/module')(this);
     require('./modules/selected-results')(this);
     require('./modules/find-company')(this);
