@@ -234,6 +234,7 @@ var Controller = function() {
     require('./modules/timeline')(this);
     require('./modules/data-company')(this);
     require('./modules/ccbusca')(this);
+    require('./modules/generate-relations')(this);
     require('./modules/admin/contact-types')(this);
 
     /**

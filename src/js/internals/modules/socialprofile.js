@@ -1,14 +1,8 @@
-import {
-    CPF,
-    CNPJ
-} from 'cpf_cnpj';
+import { CPF, CNPJ } from 'cpf_cnpj';
 import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
-import {
-    camelCase,
-    titleCase
-} from 'change-case';
+import { camelCase, titleCase } from 'change-case';
 import hashObject from 'hash-object';
 import _ from 'underscore';
 
@@ -110,44 +104,8 @@ module.exports = (controller) => {
             result = report.result();
             result.element().addClass("network-screen");
             $(this).addClass("enabled");
-            var [network, element] = result.addNetwork([{
-                id: 1,
-                label: 'Node 1',
-                title: 'I have a popup!',
-                group: 'users'
-            }, {
-                id: 2,
-                label: 'Node 2',
-                title: 'I have a popup!',
-                group: 'users'
-            }, {
-                id: 3,
-                label: 'Node 3',
-                title: 'I have a popup!',
-                group: 'users'
-            }, {
-                id: 4,
-                label: 'Node 4',
-                title: 'I have a popup!',
-                group: 'users'
-            }, {
-                id: 5,
-                label: 'Node 5',
-                title: 'I have a popup!',
-                group: 'users'
-            }], [{
-                from: 1,
-                to: 3
-            }, {
-                from: 1,
-                to: 2
-            }, {
-                from: 2,
-                to: 4
-            }, {
-                from: 2,
-                to: 5
-            }], {
+            var [stars, relations] = controller.call("generateRelations", report, ccbusca, document);
+            var [network, element] = result.addNetwork(starts, relations, {
                 interaction: {
                     hover: true
                 },
