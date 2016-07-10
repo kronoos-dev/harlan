@@ -301,7 +301,7 @@ module.exports = (controller) => {
         let remoteView = document.createElement("video"),
             selfView = document.createElement("video");
         remoteView.src = "../assets/US_ringback_tone.ogg";
-        remoteView.volume = localStorage.softphoneVolume ? parseInt(localStorage.softphoneVolume, 10) : 1
+        remoteView.volume = localStorage.softphoneVolume ? parseInt(localStorage.softphoneVolume, 10) : 1;
         remoteView.play();
         selfView.volume = 0;
 
