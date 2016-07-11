@@ -254,7 +254,7 @@ module.exports = (controller) => {
             });
         }
 
-        newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
+        // newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
 
         var game = report.gamification("silhouette").addClass(isCPF ? "cpf" : "cnpj");
         detect(name.split(" ")[0]).then((gender) => {
