@@ -30,7 +30,7 @@ module.exports = (controller) => {
                 var reduceData = _.sortBy(_.map(groupData, (group) => {
                     return _.reduce(group, (a, b) => {
                         return {
-                            _id: a._id || "Sem Valor",
+                            _id: a._id,
                             total: a.total + b.total,
                         };
                     });
@@ -39,24 +39,27 @@ module.exports = (controller) => {
                 var charData = _.map(reduceData, (opt, i) => {
                     return {
                         commercialReference: opt._id,
-                        label: opt._id || null,
+                        label: opt._id || "Não preenchido",
                         value: opt.total,
                         color: colors[i],
                         highlight: colorsHightlight[i]
                     };
                 });
-                var canvas = report.canvas(250, 250),
+                var reducedDataset = reduceDataset(charData),
+                    canvas = report.canvas(250, 250),
                     interval = setInterval(() => {
                         if (document.contains(canvas) && $(canvas).is(":visible")) {
                             clearInterval(interval);
-                            new ChartJS(canvas.getContext("2d")).Doughnut(reduceDataset(charData));
+                            new ChartJS(canvas.getContext("2d")).Doughnut(reducedDataset);
                         }
                     }, 1000);
                 charData.forEach((opt, i) => {
+                    if (!opt.commercialReference) {
+                        return;
+                    }
                     report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
                         "background-color": colors[i],
                         "color": new Color(colors[i]).light() ? "#000" : "#fff",
-                        'text-transform': 'capitalize',
                         'cursor': 'pointer'
                     }).click((e) => {
                         e.preventDefault();

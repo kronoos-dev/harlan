@@ -10,8 +10,8 @@ module.exports = function (controller) {
             gotoButtonNode = $(".iframe .icon.url"),
             iframeLoaderNode = $(".iframe .q");
 
-    /* 
-     * Quando o módulo é colocado 
+    /*
+     * Quando o módulo é colocado
      * embedded a caixa de consulta deve desaparecer
      */
     controller.registerCall("iframeEmbed", function () {
@@ -80,7 +80,7 @@ module.exports = function (controller) {
             }
         });
 
-        iframeNode.load(function () {
+        iframeNode.on("load", function () {
             iframeLoaderNode.removeClass("loading");
         });
     });
