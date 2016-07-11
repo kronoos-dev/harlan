@@ -60,11 +60,11 @@ module.exports = function(controller) {
                 .or("CPF LIKE ?", searchString)
                 .or("CMC LIKE ?", sprintf("%%%s%%", searchString))
                 .or("CNPJ LIKE ?", searchString)
-                .or_begin()
-                .and("OBSERVATION IS NOT NULL")
-                .and("OBSERVATION != ''")
-                .and("OBSERVATION LIKE ?", sprintf("%%%s%%", args[0]))
-                .end()).toString();
+                .or(squel.expr()
+                    .and("OBSERVATION IS NOT NULL")
+                    .and("OBSERVATION != ''")
+                    .and("OBSERVATION LIKE ?", sprintf("%%%s%%", args[0]))
+                )).toString();
 
         var databaseResult = controller.call("icheques::resultDatabase", controller.database.exec(query)[0]);
 
