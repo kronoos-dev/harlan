@@ -1,4 +1,4 @@
-/* global Buffer */
+/*jshint -W054 */
 require("pseudo-worker/polyfill");
 
 (function(path, size, compressedSize, encode) {

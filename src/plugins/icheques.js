@@ -8,6 +8,7 @@
     controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933";
     controller.endpoint.forgotPassword = "SELECT FROM 'ICHEQUESAUTHENTICATION'.'FORGOTPASSWORD'";
     controller.endpoint.adminReport = "SELECT FROM 'ICHEQUESREPORT'.'REPORT'";
+    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'IChequesReport'.'COMMERCIALREFERENCE'";
 
     $.extend(controller.confs.icheques, {
         price: 150,

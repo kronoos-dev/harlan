@@ -5,6 +5,7 @@ module.exports = function(controller) {
 
     controller.endpoint.adminReport = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
     controller.endpoint.createCompany = "INSERT INTO 'BIPBOPCOMPANYS'.'COMPANY'";
+    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'COMMERCIALREFERENCE'";
 
     controller.registerCall("admin::roleTypes", function() {
         return {
@@ -31,6 +32,7 @@ module.exports = function(controller) {
         require("./change-password")(controller);
         require("./change-address")(controller);
         require("./change-contract")(controller);
+        require("./commercial-reference")(controller);
         require("./change-company")(controller);
         require("./email")(controller);
         require("./phone")(controller);
@@ -81,6 +83,7 @@ module.exports = function(controller) {
 
 
         controller.call("admin::index");
+        controller.call("admin::commercialReference");
 
         controller.trigger("admin");
     });
