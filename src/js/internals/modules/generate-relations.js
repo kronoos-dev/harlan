@@ -75,7 +75,7 @@ module.exports = (controller) => {
                 }
             }
             return parallel(jobs, callback);
-        }
+        };
 
         this.trackNodes = (callback) => {
             return executeAdapter('trackNodes', callback);
@@ -89,7 +89,7 @@ module.exports = (controller) => {
             return executeAdapter('purchaseNewDocuments', callback);
         };
 
-        this.track = (depth = 3, callback) => {
+        this.track = (callback, depth = 3) => {
             let track = (cb) => {
                 this.trackNodes(() => {
                     this.trackEdges(() => {
@@ -105,7 +105,7 @@ module.exports = (controller) => {
 
     controller.registerCall("generateRelations", (report, ccbusca, document, description, callback, depth = 3) => {
         let relationsGenerator = GenerateRelations(report, ccbusca);
-        return relationsGenerator.track(depth, callback);
+        return relationsGenerator.track(callback, depth);
     });
 
 };
