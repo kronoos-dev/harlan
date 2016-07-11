@@ -19,7 +19,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "WNdb": "^3.1.2",
     "async": "~2.0.0-rc.6",
     "babel-plugin-syntax-async-functions": "^6.8.0",
     "babel-polyfill": "^6.9.1",
@@ -106,12 +105,7 @@
     "vis": "^4.16.1",
     "vivus": "^0.3.1",
     "web3": "^0.17.0-alpha",
-    "weight-manager": "^1.0.0"
-  },
-  "jshintConfig": {
-    "esnext": true
-  },
-  "devDependencies": {
+    "weight-manager": "^1.0.0",
     "babel-core": "^6.7.6",
     "browser-image-size": "^1.1.0",
     "browser-sync": "^2.12.3",
@@ -125,5 +119,8 @@
     "slug": "^0.9.1",
     "webworker-threads": "^0.7.5",
     "weevil": "^0.1.2"
+  },
+  "jshintConfig": {
+     "esnext": true
   }
 }
