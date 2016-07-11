@@ -1,3 +1,5 @@
+/*jshint -W083 */
+
 import JsSIP from 'jssip';
 JsSIP.debug.enable('JsSIP:*');
 

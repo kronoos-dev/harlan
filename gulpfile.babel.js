@@ -222,7 +222,8 @@ gulp.task("jshint", () => {
     return gulp.src([
         `${src}/js/**/*.js`,
         `!${src}/js/internals/i18n/**/*`,
-        `${plugins}/**/*.js`
+        `${plugins}/**/*.js`,
+        `!${src}/**/*.html.js`
     ])
     .pipe($.jshint({esnext: true}))
     .pipe($.jshint.reporter(stylish))

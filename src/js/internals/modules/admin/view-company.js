@@ -1,5 +1,4 @@
-var changeCase = require("change-case");
-var uniqid = require("uniqid");
+import changeCase from 'change-case';
 import {CPF, CNPJ} from 'cpf_cnpj';
 
 module.exports = (controller) => {

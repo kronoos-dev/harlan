@@ -1,4 +1,3 @@
-import uniqid from 'uniqid';
 import async from 'async';
 import assert from 'assert';
 import url from 'url';

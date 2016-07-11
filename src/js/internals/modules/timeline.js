@@ -1,4 +1,4 @@
-import uniqid from 'uniqid';
+/*jshint -W083 */
 
 var Timeline = function() {
     var timeline = $("<ul />").addClass("timeline");
@@ -49,7 +49,7 @@ var Timeline = function() {
                         return;
                     }
 
-                    var id = uniqid(),
+                    var id = (new Date().getTime()).toString(16),
                         item = $("<li />").append($("<i />").addClass("fa " + icon)).click(function(e) {
                             e.preventDefault();
                             action(obj);

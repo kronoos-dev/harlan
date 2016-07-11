@@ -1,6 +1,5 @@
 /* global module */
-var uniqid = require('uniqid'),
-        CreateList = require("./create-list");
+var CreateList = require("./create-list");
 
 module.exports = function (instance, controller) {
 
@@ -13,7 +12,7 @@ module.exports = function (instance, controller) {
         }
 
         if (obj) {
-            input.addClass("has-label").attr('id', (obj.id = uniqid()));
+            input.addClass("has-label").attr('id', (obj.id = (new Date().getTime()).toString(16)));
             obj.label = $("<label />")
                     .addClass("input-label")
                     .attr({'for': obj.id})
@@ -120,7 +119,7 @@ module.exports = function (instance, controller) {
     };
 
     this.addCheckbox = function (name, label, checked, value, item) {
-        var elementId = uniqid();
+        var elementId = (new Date().getTime()).toString(16);
         item = item || {};
 
         var checkbox = $("<input />").attr({

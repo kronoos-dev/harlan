@@ -1,10 +1,8 @@
-var uniqid = require("uniqid");
-
 module.exports = (controller) => {
 
     controller.registerCall("tooltip", (actions, content) => {
         var element = $("<li />"),
-            id = uniqid();
+            id = (new Date().getTime()).toString(16);
 
         element.attr("id", id);
         actions.prepend(element);

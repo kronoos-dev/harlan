@@ -26,7 +26,7 @@
     "test",
     "tests"
   ],
-  "devDependencies": {
+  "dependencies": {
     "font-awesome": "~4.6.3",
     "toastr": "~2.1.2",
     "animate.css": "~3.5.1",
@@ -45,16 +45,10 @@
     "twin-bcrypt": "~2.2.0",
     "jquery.payment": "~1.4.3",
     "pikaday": "~1.4.0",
-    "material-design-icons": "~2.2.3"
-  },
-  "dependencies": {
-    "poiretone-googlefont": "*",
-    "opensans-googlefont": "*",
-    "opensanscondensed-googlefont": "*",
     "material-design-icons": "~2.2.3",
     "vis": "~4.16.1"
   },
   "resolutions": {
-    "jquery": ">=1.5"
+    "jquery": ">=3.1"
   }
 }
