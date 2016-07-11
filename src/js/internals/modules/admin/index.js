@@ -1,6 +1,6 @@
 var loaded = false;
-const MAX_RESULTS = 10;
 var _ = require("underscore");
+
 module.exports = function(controller) {
 
     controller.endpoint.adminReport = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
@@ -27,6 +27,7 @@ module.exports = function(controller) {
 
         require("./autocomplete")(controller);
         require("./instant-search")(controller);
+        require("./open-companys")(controller);
         require("./create-company")(controller);
         require("./view-company")(controller);
         require("./change-password")(controller);
@@ -48,30 +49,7 @@ module.exports = function(controller) {
             });
 
             report.button("Abrir Contas", () => {
-                var skip = 0;
-                var results = controller.call("moreResults", MAX_RESULTS).callback((callback) => {
-                    controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'",
-                        controller.call("loader::ajax", controller.call("error::ajax", {
-                            data: {
-                                limit: MAX_RESULTS,
-                                skip: skip
-                            },
-                            success: (response) => {
-                                callback(_.map($("BPQL > body > company", response), (company) => {
-                                    return controller.call("admin::viewCompany", company, false, null, true);
-                                }));
-                            }
-                        })));
-                    skip += MAX_RESULTS;
-                }).appendTo(report.element()).show((i, items) => {
-                    if (!i)
-                        controller.call("alert", {
-                            title: "Infelizmente não há nenhuma empresa para exibir. ;(",
-                            subtitle: "Experimente adicionar alguma empresa pois não há nenhuma cadastrada para exibição.",
-                            paragraph: "Você precisa cadastrar uma empresa para utilizar este recurso, verifique na sua página de usuário," +
-                                " pelo botão de <a href=\"javascript:harlan.call('admin::createCompany');'>Criar Conta</strong>"
-                        });
-                });
+                controller.call("admin::openCompanys", report);
             });
 
             report.gamification("accuracy");
@@ -81,10 +59,8 @@ module.exports = function(controller) {
             }, report.element());
         });
 
-
         controller.call("admin::index");
         controller.call("admin::commercialReference");
-
         controller.trigger("admin");
     });
 };
