@@ -205,15 +205,6 @@ module.exports = (controller) => {
                 m(...args);
             };
 
-        controller.trigger("socialprofile::queryList", {
-            report: report,
-            timeline: timeline,
-            name: name,
-            ccbusca: ccbusca,
-            document: document,
-            mark: newMark
-        });
-
         if (ccbusca) {
             $("BPQL > body telefones > telefone", ccbusca).each((idx, element) => {
                 let ddd = $("ddd", element).text(),
@@ -254,7 +245,16 @@ module.exports = (controller) => {
             });
         }
 
-        // newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
+        newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
+
+        controller.trigger("socialprofile::queryList", {
+            report: report,
+            timeline: timeline,
+            name: name,
+            ccbusca: ccbusca,
+            document: document,
+            mark: newMark
+        });
 
         var game = report.gamification("silhouette").addClass(isCPF ? "cpf" : "cnpj");
         detect(name.split(" ")[0]).then((gender) => {
@@ -267,7 +267,7 @@ module.exports = (controller) => {
             report.element().find(".results").append(result.element());
         }
 
-        $(".app-content").append(report.element());
+        $(".app-content").prepend(report.element());
     };
 
     var ccbusca = (document, name, results = [], specialParameters = {}) => {

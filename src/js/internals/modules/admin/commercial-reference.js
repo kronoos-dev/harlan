@@ -16,7 +16,7 @@ module.exports = (controller) => {
                 var report = controller.call("report",
                         "Referências Comerciais",
                         "Lista das referências comerciais.", null, true),
-                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map((i) => i * 3)),
+                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map((i) => i * 10)),
                     colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map((i) => i * 3));
                 report.paragraph("Através do gráfico ao lado pode se ver quem são as maiores referências comerciais para sua aplicação. O usuário ou o administador podem editar a referência comercial através dos dados cadastrais.");
                 $(".app-content").append(report.element());
