@@ -32,16 +32,19 @@ module.exports = (controller) => {
 
     controller.registerTrigger("socialprofile::queryList", "socialprofile", (args, cb) => {
         cb();
-        args.timeline.add(null, "Obter informações sócio-econômicas e de perfil na internet.", "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo", [
-            ["fa-folder-open", "Abrir", () => {
+        args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
+            "Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.",
+            [["fa-folder-open", "Abrir", () => {
                 let email = Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a).unique()[0],
                     modal = controller.call("modal");
 
-                modal.title("HTML Ipsum Presents");
-                modal.subtitle("Aliquam tincidunt mauris eu risus.");
-                modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.")
+                modal.title("E-mail para Cruzamento");
+                modal.subtitle(`Para maior assertividade digite o e-mail de ${corrigeArtigos(titleCase(args.name))}.`);
+                modal.paragraph(`O endereço de e-mail será utilizado junto do documento ${(CPF.isValid(args.document) ? CPF : CNPJ).format(args.document)} para cruzamentos em bases de dados online.`);
+
                 let form = modal.createForm(),
                     emailField = form.addInput("email", "email", "Endereço de e-mail do usuário (opcional).").val(email);
+
                 form.addSubmit("send", "Pesquisar");
                 form.element().submit((e) => {
                     e.preventDefault();
@@ -237,7 +240,7 @@ module.exports = (controller) => {
             ${(isCPF ? CPF : CNPJ).format(document)}.`);
 
         let timeline = report.timeline(),
-            paragraph = report.paragraph("Foram encontrados os seguintes apontamentos cadatrais para o documento em nossos bureaus de crédito, você pode clicar sobre uma informação para obter mais dados a respeito ou realizar uma ação, como enviar um e-mail, SMS, iniciar uma ligação. Bem como apontar inconsistências cadastrais.").hide(),
+            paragraph = report.paragraph("Foram encontrados os seguintes apontamentos cadatrais para o documento em nossos bureaus de crédito, você pode clicar sobre uma informação para obter mais dados a respeito ou realizar uma ação, como enviar um e-mail, SMS, iniciar uma ligação.").hide(),
             m = report.markers(),
             newMark = (...args) => {
                 paragraph.show();
