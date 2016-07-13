@@ -1,8 +1,14 @@
-import { CPF, CNPJ } from 'cpf_cnpj';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
-import { camelCase, titleCase } from 'change-case';
+import {
+    camelCase,
+    titleCase
+} from 'change-case';
 import hashObject from 'hash-object';
 import _ from 'underscore';
 
@@ -23,6 +29,39 @@ const removeDiacritics = require('diacritics').remove,
 
 
 module.exports = (controller) => {
+
+    controller.registerTrigger("socialprofile::queryList", "socialprofile", (args, cb) => {
+        cb();
+        args.timeline.add(null, "Obter informações sócio-econômicas e de perfil na internet.", "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo", [
+            ["fa-folder-open", "Abrir", () => {
+                let email = Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a).unique()[0],
+                    modal = controller.call("modal");
+
+                modal.title("HTML Ipsum Presents");
+                modal.subtitle("Aliquam tincidunt mauris eu risus.");
+                modal.paragraph("Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.")
+                let form = modal.createForm(),
+                    emailField = form.addInput("email", "email", "Endereço de e-mail do usuário (opcional).").val(email);
+                form.addSubmit("send", "Pesquisar");
+                form.element().submit((e) => {
+                    e.preventDefault();
+                    modal.close();
+                    controller.server.call("SELECT FROM 'SocialProfile'.'Consulta'",
+                        controller.call("loader::ajax", controller.call("error::ajax", {
+                            data: {
+                                documento: args.document,
+                                email: emailField.val()
+                            },
+                            success: (data) => {
+                                /* do whatever with data */
+                            }
+                        })));
+                });
+                modal.createActions().cancel();
+            }]
+        ]);
+    });
+
 
     controller.registerTrigger("findDatabase::instantSearch", "socialprofile", function(args, callback) {
         let [text, modal] = args;
