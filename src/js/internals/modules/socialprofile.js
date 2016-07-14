@@ -30,6 +30,23 @@ const removeDiacritics = require('diacritics').remove,
 
 module.exports = (controller) => {
 
+    var parseSocialProfile = (data, args) => {
+        data.find("scores > scores").forEach((item, node) => {
+            let jnode = $(node);
+            //args.report.score(jnode.find("provider").text(), parseInt(jnode.find("value").text(), 10));
+        });
+
+        let socialProfiles = data.find("socialProfiles > socialProfiles");
+        if (socialProfiles.length) {
+            var container = $("<div />").addClass("social-networks");
+
+        }
+
+        data.find("topics > value").forEach((item, node) => {
+            args.report.label($(node).text());
+        });
+    };
+
     controller.registerTrigger("socialprofile::queryList", "socialprofile", (args, cb) => {
         cb();
         args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
@@ -56,9 +73,10 @@ module.exports = (controller) => {
                                 email: emailField.val()
                             },
                             success: (data) => {
+                                parseSocialProfile($(data), args);
                                 /* do whatever with data */
                             }
-                        })));
+                        }), true));
                 });
                 modal.createActions().cancel();
             }]
