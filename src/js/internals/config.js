@@ -10,11 +10,7 @@ module.exports = {
     kronoos: {
         hosts: [
             "kronoos",
-            "kronoos.com",
-            "www.kronoos.com",
-            "kronoos.com.br",
-            "www.kronoos.com.br",
-            "painel.kronoos.com.br"
+            "painel.kronoos.com"
         ]
     },
     dive: {
