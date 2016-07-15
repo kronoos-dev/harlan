@@ -1,6 +1,8 @@
-var assert = require("assert"),
-        _ = require("underscore"),
-        vis = require("vis");
+import assert from "assert";
+import _ from "underscore";
+import vis from "vis";
+
+const IS_EMPTY = /^\s*$/;
 
 module.exports = (controller) =>  {
 
@@ -99,6 +101,19 @@ module.exports = (controller) =>  {
             return radial;
         };
 
+        this.addNonEmptyItem = (name, value, tagname) => {
+            if (IS_EMPTY.test(value)) {
+                return null; /* avoid empty */
+            }
+            return this.addItem(name, value, tagname);
+        };
+
+        this.addDateItem = (name, value, fromFormat, toFormat, tagname) => {
+            if (IS_EMPTY.test(value)) {
+                return null; /* avoid empty */
+            }
+            return this.addItem(name, moment(value, fromFormat).format(toFormat), tagname);
+        };
 
         this.addItem = (name, value, tagname) =>  {
             var node = $("<div />").addClass("field");

@@ -4,6 +4,7 @@ module.exports = {
     aolchat: "external-link",
     bebo: "external-link",
     bitbucket: "bitbucket",
+    instagram: "instagram",
     blippy: "external-link",
     crunchbase: "external-link",
     delicious: "delicious",

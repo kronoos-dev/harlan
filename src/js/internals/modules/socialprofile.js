@@ -9,11 +9,23 @@ import {
     camelCase,
     titleCase
 } from 'change-case';
+import socialIcons from './lib/social-icons';
 import hashObject from 'hash-object';
 import _ from 'underscore';
+import detect from 'detect-gender';
+import diacritics from 'diacritics';
 
-const detect = require('detect-gender');
-const removeDiacritics = require('diacritics').remove,
+const CRITERIA_COLOR = {
+        "A1": "",
+        "A2": "",
+        "B1": "",
+        "B2": "",
+        "C1": "",
+        "C2": "",
+        "D": "",
+        "E": ""
+    },
+    PHOTO_INTERVAL = 10000,
     corrigeArtigos = (str) => {
         _.each([
             'o', 'os', 'a', 'as', 'um', 'uns', 'uma', 'umas',
@@ -31,56 +43,155 @@ const removeDiacritics = require('diacritics').remove,
 module.exports = (controller) => {
 
     var parseSocialProfile = (data, args) => {
-        data.find("scores > scores").forEach((item, node) => {
-            let jnode = $(node);
-            //args.report.score(jnode.find("provider").text(), parseInt(jnode.find("value").text(), 10));
-        });
-
         let socialProfiles = data.find("socialProfiles > socialProfiles");
         if (socialProfiles.length) {
-            var container = $("<div />").addClass("social-networks");
-
+            var socialProfilesContainer = $("<ul />").addClass("social-networks");
+            socialProfiles.each((idx, socialProfile) => {
+                let jSocialProfile = $(socialProfile),
+                    socialProfileContainer = $("<li>"),
+                    socialProfileHref = $("<a />").attr({
+                        target: "_blank",
+                        href: jSocialProfile.find("url").text(),
+                        title: [
+                            jSocialProfile.find("typeName").text(),
+                            jSocialProfile.find("bio").text(),
+                            jSocialProfile.find("followers").text(),
+                            jSocialProfile.find("username").text()
+                        ].filter((i) => i).join(" - ")
+                    }),
+                    socialProfileIcon = $("<i />").addClass(`fa fa-${socialIcons[jSocialProfile.find("typeId").text()] || "external-link"}`);
+                socialProfilesContainer.append(socialProfileContainer.append(socialProfileHref.append(socialProfileIcon)));
+            });
+            args.report.content().append(socialProfilesContainer);
         }
 
-        data.find("topics > value").forEach((item, node) => {
+        let photos = data.find("photos > url").map((idx, item) => {
+            return $(item).text();
+        });
+
+        if (photos.length) {
+            let gamification = args.report.element().find(".gamification"),
+                currentPhoto = 0,
+                photosInterval,
+                recoverPhoto = () => {
+
+                    if (!gamification.is(":visible")) {
+                        clearInterval(photosInterval);
+                    }
+
+                    let photo = photos[currentPhoto++ % photos.length],
+                        image = new Image();
+
+                    image.onload = () => gamification.css({
+                        "background-image": `url("${photo}")`,
+                        "background-size": "cover",
+                        "background-color": "rgba(0, 0, 0, 0)",
+                        "background-repeat" : "no-repeat"
+                    });
+
+                    image.src = photo;
+
+                };
+
+            photosInterval = setInterval(recoverPhoto, PHOTO_INTERVAL);
+            recoverPhoto();
+        }
+
+        let parseMoneyData = (a) => numeral(parseFloat(data.find(a).text())).format('$0,0.00'),
+            subtitle = args.report.element().find("h3");
+
+        args.report.label(`Classificação ${data.find("criteria").text()}`)
+            .css("background-color", CRITERIA_COLOR[data.find("criteria").text()])
+            .addClass("social-classification").attr("title", "Classificação Socioeconômica")
+            .insertAfter(subtitle);
+
+        args.report.label(`${parseMoneyData("buy-limit")} / ${parseMoneyData("buy-avg")}`)
+            .addClass("buy-data").attr("title", "Teto e Valor Médio de Compra")
+            .insertAfter(subtitle);
+
+        args.report.label(`Idade aproximada de ${data.find("approximate-age").text()} anos`)
+            .addClass("approximate-age").insertAfter(subtitle).css("margin-left", "0");
+
+        data.find("topics > value").each((item, node) => {
             args.report.label($(node).text());
+        });
+
+        var organization = data.find("organizations > organizations").filter((idx, node) => {
+            return $(node).find("isPrimary").text() == "true";
+        }).first();
+        if (organization.length) {
+            $("<h4 />")
+                .text([organization.find("name").text(), organization.find("title").text()].join(" na "))
+                .insertAfter(args.report.element().find("h2"))
+                .addClass("jobtitle");
+        }
+
+        data.find("organizations > organizations").each((idx, node) => {
+            let jnode = $(node),
+                companyName = jnode.find("name").text();
+
+            if (!companyName) {
+                return;
+            }
+
+            let result = null;
+            args.mark("fa-suitcase", companyName, function (e) {
+                e.preventDefault();
+                let element = $(this);
+                if (result) {
+                    element.removeClass("enabled");
+                    result.element().remove();
+                    return;
+                }
+                element.addClass("enabled");
+                result = args.report.result();
+                result.addItem("Empresa", companyName);
+                result.addNonEmptyItem("Ocupação", jnode.find("name").text());
+                result.addDateItem("Início", jnode.find("startDate").text(), "YYYY-MM-DD", "DD/MM/YYYY");
+                result.addDateItem("Término", jnode.find("endDate").text(), "YYYY-MM-DD", "DD/MM/YYYY");
+            });
+        });
+
+        data.find("scores > scores").each((item, node) => {
+            let jnode = $(node);
+            //args.report.score(jnode.find("provider").text(), parseInt(jnode.find("value").text(), 10));
         });
     };
 
     controller.registerTrigger("socialprofile::queryList", "socialprofile", (args, cb) => {
         cb();
-        args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
-            "Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.",
-            [["fa-folder-open", "Abrir", () => {
-                let email = Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a).unique()[0],
-                    modal = controller.call("modal");
+        let item = args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
+            "Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.", [
+                ["fa-folder-open", "Abrir", () => {
+                    let email = Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a).unique()[0],
+                        modal = controller.call("modal");
 
-                modal.title("E-mail para Cruzamento");
-                modal.subtitle(`Para maior assertividade digite o e-mail de ${corrigeArtigos(titleCase(args.name))}.`);
-                modal.paragraph(`O endereço de e-mail será utilizado junto do documento ${(CPF.isValid(args.document) ? CPF : CNPJ).format(args.document)} para cruzamentos em bases de dados online.`);
+                    modal.title("E-mail para Cruzamento");
+                    modal.subtitle(`Para maior assertividade digite o e-mail de ${corrigeArtigos(titleCase(args.name))}.`);
+                    modal.paragraph(`O endereço de e-mail será utilizado junto do documento ${(CPF.isValid(args.document) ? CPF : CNPJ).format(args.document)} para cruzamentos em bases de dados online.`);
 
-                let form = modal.createForm(),
-                    emailField = form.addInput("email", "email", "Endereço de e-mail do usuário (opcional).").val(email);
+                    let form = modal.createForm(),
+                        emailField = form.addInput("email", "email", "Endereço de e-mail do usuário (opcional).").val(email);
 
-                form.addSubmit("send", "Pesquisar");
-                form.element().submit((e) => {
-                    e.preventDefault();
-                    modal.close();
-                    controller.server.call("SELECT FROM 'SocialProfile'.'Consulta'",
-                        controller.call("loader::ajax", controller.call("error::ajax", {
-                            data: {
-                                documento: args.document,
-                                email: emailField.val()
-                            },
-                            success: (data) => {
-                                parseSocialProfile($(data), args);
-                                /* do whatever with data */
-                            }
-                        }), true));
-                });
-                modal.createActions().cancel();
-            }]
-        ]);
+                    form.addSubmit("send", "Pesquisar");
+                    form.element().submit((e) => {
+                        e.preventDefault();
+                        modal.close();
+                        controller.server.call("SELECT FROM 'SocialProfile'.'Consulta'",
+                            controller.call("loader::ajax", controller.call("error::ajax", {
+                                data: {
+                                    documento: args.document,
+                                    email: emailField.val()
+                                },
+                                success: (data) => {
+                                    parseSocialProfile($(data), args);
+                                    item.remove();
+                                }
+                            }), true));
+                    });
+                    modal.createActions().cancel();
+                }]
+            ]);
     });
 
 
@@ -211,7 +322,7 @@ module.exports = (controller) => {
                         if (!value || /^\s*$/.test(value)) {
                             return;
                         }
-                        obj[camelCase(removeDiacritics(key))] = value;
+                        obj[camelCase(diacritics.remove(key))] = value;
                         return result.addItem(key, value);
                     };
 
@@ -253,6 +364,9 @@ module.exports = (controller) => {
     var buildReport = (document, name, ccbusca = null, results = [], specialParameters = {}) => {
         let report = controller.call("report"),
             isCPF = CPF.isValid(document);
+
+        report.element().addClass("social-profile");
+
         report.title(corrigeArtigos(titleCase(name)));
         report.subtitle(`Informações relacionadas ao documento
             ${(isCPF ? CPF : CNPJ).format(document)}.`);
@@ -305,7 +419,7 @@ module.exports = (controller) => {
             });
         }
 
-        newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
+        //newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
 
         controller.trigger("socialprofile::queryList", {
             report: report,

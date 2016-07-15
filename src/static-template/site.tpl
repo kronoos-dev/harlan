@@ -4,7 +4,6 @@
         <nav class="nav">
             <ul>
                 <li><a href="#" class="action-home">Home</a></li>
-                <li><a target="_blank" href="http://blog.bipbop.com.br/">Blog</a></li>
                 <li><a href="mailto:consrctato@bipbop.com.br">Suporte</a></li>
                 <li><a href="https://api.bipbop.com.br/">Web Service</a></li>
                 <li><a href="#" class="action-login">Login</a></li>
@@ -32,7 +31,7 @@
                 <li>Saiba com quem você está lidando: <b>Verifique seus parceiros de negócios</b> e suas histórias.</li>
                 <li><b>Previna fraudes</b> cruzando as informações com nosso sistema.</li>
             </ul>
-            
+
         </div>
         <div class="action">
             <hr />
@@ -56,7 +55,7 @@
                     <p>Suas informações sempre estarão a salvo criptografadas automáticamente na nuvem.</p>
                 </li>
             </ul>
-            <input class="submit action-evaluate" type="submit" value="Conheça já" />            
+            <input class="submit action-evaluate" type="submit" value="Conheça já" />
         </div>
         <div class="action">
             <div class="plans">
