@@ -141,12 +141,13 @@ module.exports = (controller) => {
                 if (result) {
                     element.removeClass("enabled");
                     result.element().remove();
+                    result = null;
                     return;
                 }
                 element.addClass("enabled");
                 result = args.report.result();
                 result.addItem("Empresa", companyName);
-                result.addNonEmptyItem("Ocupação", jnode.find("name").text());
+                result.addNonEmptyItem("Ocupação", jnode.find("title").text());
                 result.addDateItem("Início", jnode.find("startDate").text(), "YYYY-MM-DD", "DD/MM/YYYY");
                 result.addDateItem("Término", jnode.find("endDate").text(), "YYYY-MM-DD", "DD/MM/YYYY");
             });
