@@ -12,7 +12,7 @@ module.exports = function (instance, controller) {
         }
 
         if (obj) {
-            input.addClass("has-label").attr('id', (obj.id = (new Date().getTime()).toString(16)));
+            input.addClass("has-label").attr('id', (obj.id = require('node-uuid').v4()));
             obj.label = $("<label />")
                     .addClass("input-label")
                     .attr({'for': obj.id})
@@ -119,7 +119,7 @@ module.exports = function (instance, controller) {
     };
 
     this.addCheckbox = function (name, label, checked, value, item) {
-        var elementId = (new Date().getTime()).toString(16);
+        var elementId = require('node-uuid').v4();
         item = item || {};
 
         var checkbox = $("<input />").attr({

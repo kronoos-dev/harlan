@@ -2,7 +2,7 @@ module.exports = (controller) => {
 
     controller.registerCall("tooltip", (actions, content) => {
         var element = $("<li />"),
-            id = (new Date().getTime()).toString(16);
+            id = require('node-uuid').v4();
 
         element.attr("id", id);
         actions.prepend(element);

@@ -49,7 +49,7 @@ var Timeline = function() {
                         return;
                     }
 
-                    var id = (new Date().getTime()).toString(16),
+                    var id = require('node-uuid').v4(),
                         item = $("<li />").append($("<i />").addClass("fa " + icon)).click(function(e) {
                             e.preventDefault();
                             action(obj);
