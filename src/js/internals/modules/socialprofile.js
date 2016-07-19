@@ -86,7 +86,7 @@ module.exports = (controller) => {
                         "background-image": `url("${photo}")`,
                         "background-size": "cover",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "background-repeat" : "no-repeat"
+                        "background-repeat": "no-repeat"
                     });
 
                     image.src = photo;
@@ -135,7 +135,7 @@ module.exports = (controller) => {
             }
 
             let result = null;
-            args.mark("fa-suitcase", companyName, function (e) {
+            args.mark("fa-suitcase", companyName, function(e) {
                 e.preventDefault();
                 let element = $(this);
                 if (result) {
@@ -276,22 +276,11 @@ module.exports = (controller) => {
             result = report.result();
             result.element().addClass("network-screen");
             $(this).addClass("enabled");
-            var [stars, relations] = controller.call("generateRelations", report, ccbusca, document);
-            var [network, element] = result.addNetwork(starts, relations, {
-                interaction: {
-                    hover: true
-                },
-                groups: {
-                    users: {
-                        shape: 'icon',
-                        icon: {
-                            face: 'FontAwesome',
-                            code: '\uf007',
-                            size: 50,
-                            color: '#f0a30a'
-                        }
-                    }
-                }
+            let generateRelations = controller.call("generateRelations");
+            generateRelations.appendDocument(ccbusca, document);
+            generateRelations.track((data) => {
+                debugger;
+                result.addNetwork(data.nodes, data.edges, {groups: data.groups});
             });
         };
     };
@@ -420,7 +409,7 @@ module.exports = (controller) => {
             });
         }
 
-        //newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
+        newMark("fa-share-alt", "Relações", openGraph(report, ccbusca, document));
 
         controller.trigger("socialprofile::queryList", {
             report: report,
