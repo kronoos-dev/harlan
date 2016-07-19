@@ -276,11 +276,38 @@ module.exports = (controller) => {
             result = report.result();
             result.element().addClass("network-screen");
             $(this).addClass("enabled");
+
             let generateRelations = controller.call("generateRelations");
             generateRelations.appendDocument(ccbusca, document);
-            generateRelations.track((data) => {
-                result.addNetwork(data.nodes, data.edges, {groups: data.groups});
-            });
+
+            let network, node, track = () => {
+
+                if (network) network.destroy();
+                if (node) node.remove();
+
+                network = null;
+                node = null;
+
+                generateRelations.track((data) => {
+                    [network, node] = result.addNetwork(data.nodes, data.edges, {groups: data.groups});
+                    network.on("click", (params) => {
+                        if (!params.nodes[0]) {
+                            return;
+                        }
+                        controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", {
+                            data: {
+                                documento: params.nodes[0]
+                            },
+                            success: (data) => {
+                                generateRelations.appendDocument(data, params.nodes[0]);
+                                track();
+                            }
+                        });
+                    });
+                });
+            };
+
+            track();
         };
     };
 

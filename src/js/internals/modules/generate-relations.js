@@ -3,30 +3,49 @@ import parallel from 'async/parallel';
 import _ from 'underscore';
 
 var groups = {
-    groups: {
-        company: {
-            shape: 'icon',
-            icon: {
-                face: 'FontAwesome',
-                code: '\uf1ad',
-                size: 50,
-                color: '#57169a'
-            }
-        },
-        user: {
-            shape: 'icon',
-            icon: {
-                face: 'FontAwesome',
-                code: '\uf007',
-                size: 50,
-                color: '#aa00ff'
-            }
+    company: {
+        shape: 'icon',
+        icon: {
+            face: 'FontAwesome',
+            code: '\uf1ad',
+            size: 50,
+            color: '#57169a'
+        }
+    },
+    user: {
+        shape: 'icon',
+        icon: {
+            face: 'FontAwesome',
+            code: '\uf007',
+            size: 50,
+            color: '#aa00ff'
         }
     }
 };
 
 /* Adaptadores para Compreensão Documental */
 var readAdapters = {
+    "RFB.CERTIDAO": {
+        trackNodes: (relation, legalDocument, document) => {
+            return (callback) => {
+                return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
+                    return relation.createNode($(node).text(), `${$(node).text()} / ${$(node).attr("qualificacao")}`, "user");
+                }).toArray());
+            }
+        },
+        trackEdges: (relation, legalDocument, document) => {
+            return (callback) => {
+                return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
+                    return relation.createEdge(legalDocument, $(node).text());
+                }).toArray());
+            }
+        },
+        purchaseNewDocuments: (relation, legalDocument, document) => {
+            return (callback) => {
+                callback();
+            };
+        }
+    },
     "CCBUSCA.CONSULTA": {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
