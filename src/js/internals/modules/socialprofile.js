@@ -279,7 +279,6 @@ module.exports = (controller) => {
             let generateRelations = controller.call("generateRelations");
             generateRelations.appendDocument(ccbusca, document);
             generateRelations.track((data) => {
-                debugger;
                 result.addNetwork(data.nodes, data.edges, {groups: data.groups});
             });
         };
