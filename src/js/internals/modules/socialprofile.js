@@ -1,19 +1,14 @@
-import {
-    CPF,
-    CNPJ
-} from 'cpf_cnpj';
+import { CPF, CNPJ } from 'cpf_cnpj';
 import VMasker from 'vanilla-masker';
 import e from '../library/server-communication/exception-dictionary';
 import emailRegex from 'email-regex';
-import {
-    camelCase,
-    titleCase
-} from 'change-case';
+import { camelCase, titleCase } from 'change-case';
 import socialIcons from './lib/social-icons';
 import hashObject from 'hash-object';
 import _ from 'underscore';
 import detect from 'detect-gender';
 import diacritics from 'diacritics';
+import parallel from 'async/parallel';
 
 const CRITERIA_COLOR = {
         "A1": "",
@@ -280,32 +275,68 @@ module.exports = (controller) => {
             let generateRelations = controller.call("generateRelations");
             generateRelations.appendDocument(ccbusca, document);
 
-            let network, node, track = () => {
+            let network, node, ids = {},
+                track = () => {
 
-                if (network) network.destroy();
-                if (node) node.remove();
+                    if (network) {
+                        network.destroy();
+                        network = null;
+                    }
 
-                network = null;
-                node = null;
+                    if (node) {
+                        node.remove();
+                        node = null;
+                    }
 
-                generateRelations.track((data) => {
-                    [network, node] = result.addNetwork(data.nodes, data.edges, {groups: data.groups});
-                    network.on("click", (params) => {
-                        if (!params.nodes[0]) {
-                            return;
-                        }
-                        controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", {
-                            data: {
-                                documento: params.nodes[0]
-                            },
-                            success: (data) => {
-                                generateRelations.appendDocument(data, params.nodes[0]);
-                                track();
+                    generateRelations.track((data) => {
+                        [network, node] = result.addNetwork(data.nodes, data.edges, {
+                            groups: data.groups
+                        });
+
+                        let oneclick = (params) => {
+                            if (!params.nodes[0] || ids[params.nodes[0]]) {
+                                return;
                             }
+
+                            ids[params.nodes[0]] = true;
+
+                            let getDocument = (query) =>
+                                (callback) => controller.server.call(query, controller.call("loader::ajax", {
+                                    data: {
+                                        documento: params.nodes[0]
+                                    },
+                                    success: (data) => {
+                                        generateRelations.appendDocument(data, params.nodes[0]);
+                                    },
+                                    complete: () => callback()
+                                }, true));
+
+                            parallel([
+                                getDocument("SELECT FROM 'CCBUSCA'.'CONSULTA'"),
+                                getDocument("SELECT FROM 'RFB'.'CERTIDAO'"),
+                            ], () => {
+                                track();
+                            });
+                        }, doubleclick = (params) => {
+                            controller.call("socialprofile", params.nodes[0]);
+                        };
+
+                        let clickTimer = null;
+                        network.on("click", (params) => {
+                            if (clickTimer) {
+                                clearTimeout(clickTimer);
+                                clickTimer = null;
+                                doubleclick(params);
+                                return;
+                            }
+
+                            clickTimer = setTimeout(() => {
+                                oneclick(params);
+                                clickTimer = null;
+                            }, 400);
                         });
                     });
-                });
-            };
+                };
 
             track();
         };

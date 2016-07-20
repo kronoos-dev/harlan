@@ -2,13 +2,15 @@ import times from 'async/times';
 import parallel from 'async/parallel';
 import _ from 'underscore';
 
+var wrap = require('wordwrap')(20);
+
 var groups = {
     company: {
         shape: 'icon',
         icon: {
             face: 'FontAwesome',
             code: '\uf1ad',
-            size: 50,
+            size: 30,
             color: '#57169a'
         }
     },
@@ -17,7 +19,7 @@ var groups = {
         icon: {
             face: 'FontAwesome',
             code: '\uf007',
-            size: 50,
+            size: 30,
             color: '#aa00ff'
         }
     }
@@ -29,16 +31,16 @@ var readAdapters = {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
                 return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                    return relation.createNode($(node).text(), `${$(node).text()} / ${$(node).attr("qualificacao")}`, "user");
+                    return relation.createNode(relation.labelIdentification($(node).text()), $(node).text(), "user");
                 }).toArray());
-            }
+            };
         },
         trackEdges: (relation, legalDocument, document) => {
             return (callback) => {
                 return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                    return relation.createEdge(legalDocument, $(node).text());
+                    return relation.createEdge(legalDocument, relation.labelIdentification($(node).text()));
                 }).toArray());
-            }
+            };
         },
         purchaseNewDocuments: (relation, legalDocument, document) => {
             return (callback) => {
@@ -79,6 +81,7 @@ var GenerateRelations = function() {
 
     /* Documents */
     var documents = {};
+    var labelIdentification = {};
 
     this.createEdge = (vfrom, vto) => {
         return {
@@ -88,13 +91,19 @@ var GenerateRelations = function() {
     };
 
     this.createNode = (id, label, group, data = {}) => {
-        return {
+
+        labelIdentification[label] = id;
+
+        return $.extend({
             id: id,
-            label: label,
+            label: wrap(label),
             group: group,
-            data: data
-        };
+        }, data);
     };
+
+    this.labelIdentification = (label) => {
+        return labelIdentification[label] || label;
+    }
 
     /* Append Document */
     this.appendDocument = (document, legalDocument) => {
@@ -156,8 +165,12 @@ var GenerateRelations = function() {
             });
         }, (err, results) => {
             callback({
-                edges: _.uniq(_.flatten(_.pluck(results, "edges")), false, (a) => {
-                    return `${a.to}:${a.from}`;
+                edges: _.uniq(_.flatten(_.pluck(results, "edges")), false, (n) => {
+                    let t = n.from >= n.to,
+                        a = t ? n.from : n.to,
+                        b = !t ? n.from : n.to;
+                    
+                    return `${b}:${a}`;
                 }),
                 nodes: _.uniq(_.flatten(_.pluck(results, "nodes")), false, (a) => {
                     return a.id;
