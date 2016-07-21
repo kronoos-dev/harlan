@@ -3,9 +3,16 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import { CMC7Parser } from './cmc7-parser';
-import { titleCase } from 'change-case';
-import { CPF, CNPJ } from 'cpf_cnpj';
+import {
+    CMC7Parser
+} from './cmc7-parser';
+import {
+    titleCase
+} from 'change-case';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -354,24 +361,22 @@ module.exports = (controller) => {
                     paragraph: "o contrato de serviço estão disponíveis <a target='_blank' href='/legal/icheques/MINUTA___CONTRATO__ANTECIPADORA_DE_CHEQUES.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar de todos os benefícios iCheques.",
                     confirmText: "Aceitar"
                 }, () => {
-                    controller.call("credits::has", 90000, () => {
-                        controller.call("billingInformation::need", () => {
-                            controller.server.call("INSERT INTO 'ICHEQUESFIDC'.'COMPANY'", controller.call("error::ajax", controller.call("loader::ajax", {
-                                method: "POST",
-                                data: {
-                                    bio: bio.val(),
-                                    logo: logoImage
-                                },
-                                success: () => {
-                                    controller.call("alert", {
-                                        icon: "pass",
-                                        title: "Parabéns! Aguarde seu e-mail pela nossa aprovação.",
-                                        subtitle: "Assim que aprovado seu cadastro você já poderá transacionar com nossos clientes e parceiros.",
-                                        paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes. Certifique de manter pelo menos R$ 900 reais de créditos para poder começar a trabalhar com as operações."
-                                    });
-                                }
-                            }, true)));
-                        });
+                    controller.call("billingInformation::need", () => {
+                        controller.server.call("INSERT INTO 'ICHEQUESFIDC'.'COMPANY'", controller.call("error::ajax", controller.call("loader::ajax", {
+                            method: "POST",
+                            data: {
+                                bio: bio.val(),
+                                logo: logoImage
+                            },
+                            success: () => {
+                                controller.call("alert", {
+                                    icon: "pass",
+                                    title: "Parabéns! Aguarde seu e-mail pela nossa aprovação.",
+                                    subtitle: "Assim que aprovado seu cadastro você já poderá transacionar com nossos clientes e parceiros.",
+                                    paragraph: "O nosso prazo é de 7 (sete) dias úteis, mas de repente podemos aprovar antes."
+                                });
+                            }
+                        }, true)));
                     });
                 });
             });
@@ -681,12 +686,12 @@ module.exports = (controller) => {
                         return numeral().unformat(item.element.val()) > 0;
                     }
                 }, {
-                    "value": value.interest ,
+                    "value": value.interest,
                     "name": "interest",
                     "type": "text",
                     "placeholder": "Taxa (%)",
                     "labelText": "Taxa (%)",
-                    "numeralFormat" : "0.00%",
+                    "numeralFormat": "0.00%",
                     "mask": "##0,99%",
                     "maskOptions": {
                         "reverse": true
