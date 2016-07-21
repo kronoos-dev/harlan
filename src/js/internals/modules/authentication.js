@@ -40,7 +40,11 @@ module.exports = function(controller) {
         callback();
 
         if (!authenticate()) {
-            controller.call("default::page");
+            if (window.location.hash == "#/login") {
+                controller.interface.helpers.activeWindow(".login");
+            } else {
+                controller.call("default::page");
+            }
         }
 
         $("#action-logout").click(function(e) {

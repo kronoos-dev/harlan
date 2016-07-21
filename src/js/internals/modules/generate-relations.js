@@ -103,7 +103,7 @@ var GenerateRelations = function() {
 
     this.labelIdentification = (label) => {
         return labelIdentification[label] || label;
-    }
+    };
 
     /* Append Document */
     this.appendDocument = (document, legalDocument) => {
@@ -169,7 +169,7 @@ var GenerateRelations = function() {
                     let t = n.from >= n.to,
                         a = t ? n.from : n.to,
                         b = !t ? n.from : n.to;
-                    
+
                     return `${b}:${a}`;
                 }),
                 nodes: _.uniq(_.flatten(_.pluck(results, "nodes")), false, (a) => {
