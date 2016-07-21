@@ -28,6 +28,7 @@
     require("./lib/icheques/welcome")(controller);
     require("./lib/icheques/parser")(controller);
     require("./lib/icheques/new-check")(controller);
+    require("./lib/icheques/ban-file")(controller);
     require("./lib/icheques/cmc-reader")(controller);
     require("./lib/icheques/checkout")(controller);
     require("./lib/icheques/create-account")(controller);

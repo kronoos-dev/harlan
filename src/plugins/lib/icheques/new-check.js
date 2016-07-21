@@ -1,16 +1,13 @@
-/* global toastr, moment, module, require, numeral */
+import { CMC7Validator } from "./cmc7-validator";
+import { CPF, CNPJ } from  "cpf_cnpj";
+import squel from "squel";
+import _ from "underscore";
+import StringMask from 'string-mask';
 
-var CPF = require("cpf_cnpj").CPF,
-        CNPJ = require("cpf_cnpj").CNPJ,
-        CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
+const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
         MATCH_NON_DIGITS = /[^\d]/g,
-        squel = require("squel"),
-        _ = require("underscore"),
-        StringMask = require('string-mask');
-
-var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
-
-var validCheck = require("./data/valid-check");
+        CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
+        validCheck = require("./data/valid-check");
 
 module.exports = function (controller) {
 
@@ -184,7 +181,8 @@ module.exports = function (controller) {
                 inputExpire.removeClass("error");
             }
 
-            if (!/^\d{30}$/.test(cmc7.replace(MATCH_NON_DIGITS, ''))) {
+            let cmc7Val = cmc7.replace(MATCH_NON_DIGITS, '');
+            if (!/^\d{30}$/.test(cmc7Val) || !new CMC7Validator(cmc7Val).isValid()) {
                 errors.push("O CMC7 do cheque não confere.");
                 inputCMC7.addClass("error");
             } else {
@@ -211,7 +209,7 @@ module.exports = function (controller) {
                 document: document,
                 ammount: inputValue.val(),
                 expire: expire,
-                cmc: cmc7,
+                cmc: cmc7Val,
                 observation: inputObservacao.val()
             });
 
@@ -259,5 +257,4 @@ module.exports = function (controller) {
         });
     });
 
-    require("./ban-file")(controller);
 };
