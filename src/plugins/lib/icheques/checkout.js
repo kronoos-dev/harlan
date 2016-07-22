@@ -127,6 +127,19 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::calculateBill", function(checks, callback) {
+        controller.server.call("SELECT FROM 'ICHEQUES'.'IPAYTHEBILL'", controller.call("loader::ajax", {
+            dataType: "json",
+            success: (data) => {
+                if (data) {
+                    controller.call("icheques::calculateBill::pay", checks, callback);
+                } else {
+                    callback();
+                }
+            }
+        }));
+    });
+
+    controller.registerCall("icheques::calculateBill::pay", function(checks, callback) {
         var total = 0;
         for (var i in checks) {
             if (!validCheck(checks[i].cmc)) {
