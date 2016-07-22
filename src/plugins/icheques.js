@@ -1,6 +1,13 @@
 /* global toastr */
 (function (controller) {
 
+    controller.registerCall("admin::roleTypes", function() {
+        return {
+            "": "Tipo de Contrato",
+            "ichequeCustomer": "iCheques"
+        };
+    });
+
     $("body").addClass("icheques-extension");
 
     controller.call("ccbusca::enable");
