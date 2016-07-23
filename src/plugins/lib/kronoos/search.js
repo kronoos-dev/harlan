@@ -266,12 +266,12 @@ module.exports = function(controller) {
             });
         }
 
-        if (andamentos.length) {
-            let kparts = cnjInstance.list("Andamentos");
-            andamentos.each((idx) => {
-                kparts(`${andamentos.eq(idx).find("data").text()} - ${andamentos.eq(idx).find("descricao").text()}`);
-            });
-        }
+        // if (andamentos.length) {
+        //     let kparts = cnjInstance.list("Andamentos");
+        //     andamentos.each((idx) => {
+        //         kparts(`${andamentos.eq(idx).find("data").text()} - ${andamentos.eq(idx).find("descricao").text()}`);
+        //     });
+        // }
     });
 
     controller.registerCall("kronoos::juristek", (name, document, kronoosData, cbuscaData, jusSearch) => {
