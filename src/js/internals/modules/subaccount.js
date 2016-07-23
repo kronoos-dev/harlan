@@ -93,16 +93,17 @@ module.exports = function(controller) {
     };
 
     controller.endpoint.subaccountCreate = "SELECT FROM 'BIPBOPAPIKEY'.'GENERATE'";
+
     var register = function(data) {
         controller.serverCommunication.call(controller.endpoint.subaccountCreate,
             controller.call("error::ajax", {
                 data: data,
-                success: function() {
+                success: function(data) {
                     controller.call("alert", {
                         icon: "pass",
-                        title: "Subconta Criada com Sucesso",
-                        subtitle: "Agora você já pode acessar esse novo usuário",
-                        pagraph: "As subcontas não podem criar novas subcontas."
+                        title: `Subconta ${$(data).find("BPQL > body > company > username").text()}  com Sucesso`,
+                        subtitle: "Agora você já pode acessar esse novo usuário.",
+                        paragraph: `A chave de API <strong class="apiKey">${$(data).find("BPQL > body > company > apiKey").text()}</strong> do usuário ${$(data).find("BPQL > body > company > username").text()} deve ser manipulada com segurança absoluta, não devendo ser repassada a terceiros. Tenha certeza que você sabe o que está fazendo.`
                     });
                 }
             }));
@@ -228,7 +229,7 @@ module.exports = function(controller) {
         });
     };
 
-    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text = null, callback = null, bipbopLoader = true) => {
+    var updateList = (modal, pageActions, results, pagination, list, autoCreate = false, limit = 5, skip = 0, text = null, callback = null, bipbopLoader = true) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -246,7 +247,7 @@ module.exports = function(controller) {
                         currentPage = Math.floor(skip / limit) + 1,
                         pages = Math.ceil(queryResults / limit);
 
-                    if (!queryResults) {
+                    if (!queryResults && autoCreate) {
                         modal.close();
                         controller.call("subaccount::create");
                         return;
@@ -296,20 +297,20 @@ module.exports = function(controller) {
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {
                 skip += 5;
-                updateList(modal, pageActions, results, pagination, list, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, false, 5, skip, text);
             }).hide(),
 
             back: actions.add("Página Anterior").click(() => {
                 skip -= 5;
-                updateList(modal, pageActions, results, pagination, list, 5, skip, text);
+                updateList(modal, pageActions, results, pagination, list, false, 5, skip, text);
             }).hide()
         };
 
-        updateList(modal, pageActions, results, pagination, list, 5, skip, text);
+        updateList(modal, pageActions, results, pagination, list, true, 5, skip, text);
         controller.call("instantSearch", search, (query, autocomplete, callback) => {
             text = query;
             skip = 0;
-            updateList(modal, pageActions, results, pagination, list, 5, skip, text, callback, false);
+            updateList(modal, pageActions, results, pagination, list, false, 5, skip, text, callback, false);
         });
     });
 
