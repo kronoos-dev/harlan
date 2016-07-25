@@ -41,7 +41,7 @@ module.exports = function (controller) {
 
         for (var i = 0; i <= 5; i++) {
             $("body > .site .carrousel").append($("<img />")
-                    .attr("src", "images/site/screenshoots/" + i.toString() + ".png"));
+                    .attr("src", "/images/site/screenshoots/" + i.toString() + ".png"));
         }
 
 

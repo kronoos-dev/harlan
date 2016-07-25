@@ -60,7 +60,7 @@ module.exports = function (controller) {
         modal = createModal(modal);
         var elements = [];
         elements.push(modal.subtitle("Segurança para sua governança cadastral."));
-        elements.push(modal.imageParagraph("images/wizard_1.svg", "Conectar seus cadastros na nuvem permite você que fique sempre atento quando uma informação mudar, saiba sempre a situação de seus clientes e fornecedores para realizar seus negócios com segurança.", null, null));
+        elements.push(modal.imageParagraph("/images/wizard_1.svg", "Conectar seus cadastros na nuvem permite você que fique sempre atento quando uma informação mudar, saiba sempre a situação de seus clientes e fornecedores para realizar seus negócios com segurança.", null, null));
         nextBack(modal, function () {
             deleteElements(elements);
             controller.call("welcomescreen::wizard::1", modal);
@@ -74,7 +74,7 @@ module.exports = function (controller) {
         modal = createModal(modal);
         var elements = [];
         elements.push(modal.subtitle("Acompanhe a evolução e o risco."));
-        elements.push(modal.imageParagraph("images/wizard_2.svg", "Acompanhe em tempo real e evolução e o risco de seus cadastros, se mantenha informado de eventuais problemas com nosso PUSH que permite receber atualizações onde quer quer você esteja.", null, null));
+        elements.push(modal.imageParagraph("/images/wizard_2.svg", "Acompanhe em tempo real e evolução e o risco de seus cadastros, se mantenha informado de eventuais problemas com nosso PUSH que permite receber atualizações onde quer quer você esteja.", null, null));
         nextBack(modal, function () {
             deleteElements(elements);
             controller.call("welcomescreen::wizard::2", modal);
@@ -88,7 +88,7 @@ module.exports = function (controller) {
         modal = createModal(modal);
         var elements = [];
         elements.push(modal.subtitle("Sistema open-source e modular."));
-        elements.push(modal.imageParagraph("images/wizard_3.svg", "Nosso sistema é aberto, permite ajustes e informações de terceiros, para se integrar basta adicionar sua fonte no Marketplace BIPBOP ou se desejar criar um módulo para nossa ferramenta basta adicionar um JavaScript, simples e fácil.", null, null));
+        elements.push(modal.imageParagraph("/images/wizard_3.svg", "Nosso sistema é aberto, permite ajustes e informações de terceiros, para se integrar basta adicionar sua fonte no Marketplace BIPBOP ou se desejar criar um módulo para nossa ferramenta basta adicionar um JavaScript, simples e fácil.", null, null));
         nextBack(modal, function () {
             modal.close();
         }, function () {

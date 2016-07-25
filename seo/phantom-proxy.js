@@ -3,7 +3,7 @@
 var webpage = require('webpage');
 var server = require('webserver');
 var system = require('system');
-var waitfor = require('./waitfor.js');
+var waitfor = require('./lib/waitfor.js');
 
 var onError = function(response, page) {
     response.statusCode = 500;
@@ -34,7 +34,7 @@ var listening = server.create().listen(8080, function(request, response) {
         "Content-Type": "text/html; charset=UTF-8",
         "X-PhantomJS": "true"
     };
-    
+
     page.onResourceRequested = function(requestData, request) {
         if (!/^https?:\/\/(www\.)?harlan\.com\.br/.test(requestData.url) || requestData.headers['Content-Type'] === 'text/css') {
             request.abort();

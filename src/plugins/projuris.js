@@ -15,7 +15,7 @@
     });
 
     $("title").text("Projuris | Processos Jurídicos Acompanhados no Sistema");
-    $("link[rel='shortcut icon']").attr("href", "images/favicon-projuris.png");
+    $("link[rel='shortcut icon']").attr("href", "/images/favicon-projuris.png");
     $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(47) 3086-1999 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
 
     var skip = 0;

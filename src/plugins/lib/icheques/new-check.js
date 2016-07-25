@@ -247,7 +247,7 @@ module.exports = function (controller) {
                 form = modal.createForm();
 
         form.element().append($("<img />").attr({
-            src: "images/icheques/cheque.svg"
+            src: "/images/icheques/cheque.svg"
         }));
 
         form.addSubmit("understand", "Entendi!");

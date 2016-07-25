@@ -2,7 +2,7 @@
 
 var Form = require("./lib/form");
 
-var GAMIFICATION_IMAGE = "images/gamification.png";
+var GAMIFICATION_IMAGE = "/images/gamification.png";
 new Image().src = GAMIFICATION_IMAGE; /* Preload Image */
 var gamificationIcons = require("./data/gamification-icons");
 

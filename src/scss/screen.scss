@@ -126,7 +126,7 @@ label {
         top: 4px;
         background: red;
         display: inline-block;
-        background: url("../images/harlan.png");
+        background: url("/images/harlan.png");
     }
 }
 .q {
@@ -347,19 +347,19 @@ label {
                 }
             }
             &.success {
-                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #87f78b 0%, #62f567 100%);
+                background: url(/images/textures/brilliant.png), linear-gradient(90deg, #87f78b 0%, #62f567 100%);
                 .content:before {
                     content: "\f046";
                 }
             }
             &.error {
-                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f89592 0%, #f77e7a 100%);
+                background: url(/images/textures/brilliant.png), linear-gradient(90deg, #f89592 0%, #f77e7a 100%);
                 .content:before {
                     content: "\f057";
                 }
             }
             &.warning {
-                background: url(../images/textures/brilliant.png), linear-gradient(90deg, #f2f77a 0%, #f0f562 100%);
+                background: url(/images/textures/brilliant.png), linear-gradient(90deg, #f2f77a 0%, #f0f562 100%);
                 .content:before {
                     content: "\f071";
                 }
@@ -367,7 +367,7 @@ label {
             &.loading {
                 background: linear-gradient(90deg, #C7CEF3 0%, #d9d9f6 100%);
                 background-size: 400% 400%;
-                animation: url(../images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
+                animation: url(/images/textures/diagmonds-light.png), backgroundPosition 2s ease-in-out infinite;
                 .content:before {
                     display: inline-block;
                     animation: fa-spin 2s linear infinite;
@@ -761,7 +761,7 @@ label {
     }
     &.admin-company {
         header {
-            background-image: url('../images/textures/brilliant.png');
+            background-image: url('/images/textures/brilliant.png');
             background-color: #99FF00;
             &.separator {
                 background-color: #dfdfdf;
@@ -1271,7 +1271,7 @@ input.link {
     width: 166px;
     height: 166px;
     display: inline-block;
-    background: url("../images/gamification.svg");
+    background: url("/images/gamification.svg");
     background-position: 50px 50px;
     background-size: 1180px 1204px;
     @media (max-width: 600px) {

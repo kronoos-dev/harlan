@@ -20,7 +20,7 @@ module.exports = function(controller) {
     $("#demonstration").parent().hide();
 
     document.title = "Proteja sua carteira de cheques | iCheques";
-    controller.interface.helpers.changeFavicon("images/icheques/favicon.png");
+    controller.interface.helpers.changeFavicon("/images/icheques/favicon.png");
     require("../../styles/icheques.js");
     $("body").append(siteTemplate);
     $("#input-q").attr("placeholder", "Pesquise por um CPF/CNPJ ou número de cheque cadastrado.");
