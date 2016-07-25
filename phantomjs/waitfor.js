@@ -19,16 +19,14 @@ module.exports = function (testFx, onReady, onTimeout, timeOutMillis) {
     var interval = null;
 
     var tickFunction = function () {
-        if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
-            condition = testFx();
-        } else {
-            if (!condition) {
-                onTimeout();
-            } else {
-                onReady();
-            }
+        if (condition || (condition = testFx())) {
+            onReady();
             clearInterval(interval);
-            interval = null;
+        }
+
+        if ((new Date().getTime() - start >= maxtimeOutMillis)) {
+            onTimeout();
+            clearInterval(interval);
         }
     };
 
