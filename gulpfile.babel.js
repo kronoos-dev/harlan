@@ -22,11 +22,18 @@ dist = "Server/web",
 src = "src",
 plugins = `${src}/plugins`,
 vendors = "bower_components",
+PRODUCTION = typeof $.util.env.production !== "undefined" ? true : false,
+DEVEL = !PRODUCTION,
+PREPROCESSOR_CONTEXT = {
+    context: {
+        CONTEXT: PRODUCTION ? "PRODUCTION" : "DEVELOPMENT"
+    }
+},
 externalJsSources = [
     `${vendors}/twin-bcrypt/twin-bcrypt.min.js`,
     `${vendors}/sql.js/js/sql.js`,
-    `${vendors}/react/react.js`,
-    `${vendors}/react/react-dom.js`,
+    `${vendors}/react/react.${PRODUCTION ? 'min.js' : 'js'}`,
+    `${vendors}/react/react-dom.${PRODUCTION ? 'min.js' : 'js'}`,
     `${vendors}/jquery/dist/jquery.js`,
     `${vendors}/jquery/dist/jquery.js`,
     `${vendors}/jquery.bipbop/dist/jquery.bipbop.js`,
@@ -42,14 +49,7 @@ externalJsSources = [
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`
-],
-PRODUCTION = typeof $.util.env.production !== "undefined" ? true : false,
-DEVEL = !PRODUCTION,
-PREPROCESSOR_CONTEXT = {
-    context: {
-        CONTEXT: PRODUCTION ? "PRODUCTION" : "DEVELOPMENT"
-    }
-};
+];
 
 function i18n(locale) {
     return gulp.src("src/js/internals/i18n/" + locale + "/**/*.json")
