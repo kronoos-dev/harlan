@@ -7,6 +7,19 @@ var waitfor = require('./waitfor.js');
 
 var onError = function(response, page) {
     response.statusCode = 500;
+    response.closeGracefully();
+    page.close();
+};
+
+var onSuccess = function(response, page, item) {
+    response.setHeader("Cache-Control", "max-age=15552000");
+    response.statusCode = 200;
+    page.evaluate(function(item) {
+        $("body").children().not("." + item).remove();
+        $("body > ." + item).removeClass("hide");
+        $("script").remove();
+        $("style").remove();
+    }, item);
     response.write(page.content);
     response.closeGracefully();
     page.close();
@@ -21,42 +34,29 @@ var listening = server.create().listen(8080, function(request, response) {
         "Content-Type": "text/html; charset=UTF-8",
         "X-PhantomJS": "true"
     };
+    
     page.onResourceRequested = function(requestData, request) {
         if (!/^https?:\/\/(www\.)?harlan\.com\.br/.test(requestData.url) || requestData.headers['Content-Type'] === 'text/css') {
             request.abort();
         }
     };
 
-    page.onResourceError = function() {};
-    page.onError = function() {};
-
-    if (request.url == "/") {
-        page.open("http://www.harlan.com.br/development.html", "GET", function(status) {
-
+    if (request.url === "/") {
+        page.open("https://www.harlan.com.br/development.html", "GET", function(status) {
             if (status !== 'success') {
                 return onError(response, page);
             }
 
             waitfor(function() {
-                return page.evaluate(function () {
+                return page.evaluate(function() {
                     if ($ === undefined) {
                         return false;
                     }
                     return $(".site").length;
                 });
             }, function() {
-                response.setHeader("Cache-Control", "max-age=15552000");
-                response.statusCode = 200;
-                page.evaluate(function() {
-                    $("body").children().not(".site").remove();
-                    $(".site").removeClass("hide");
-                    $("body").after("<!-- proxy version -->");
-                });
-                response.write(page.content);
-                response.closeGracefully();
-                page.close();
-                return;
-            }, function () {
+                onSuccess(response, page, "site");
+            }, function() {
                 onError(response, page);
             }, 10000);
         });
@@ -64,7 +64,7 @@ var listening = server.create().listen(8080, function(request, response) {
         return;
     }
 
-    page.open("http://www.harlan.com.br/" + request.url, "GET", function(status) {
+    page.open("https://www.harlan.com.br/" + request.url, "GET", function(status) {
         if (status !== 'success') {
             return onError(response, page);
         }
@@ -91,16 +91,7 @@ var listening = server.create().listen(8080, function(request, response) {
                 return window.pageLoaded || $(".result").length > 0;
             });
         }, function() {
-            response.setHeader("Cache-Control", "max-age=15552000");
-            response.statusCode = 200;
-            page.evaluate(function() {
-                $("body").children().not(".app").remove();
-                $(".app").removeClass("hide");
-                $("body").after("<!-- proxy version -->");
-            });
-            response.write(page.content);
-            response.closeGracefully();
-            page.close();
+            onSuccess(response, page, "app");
         }, function() {
             onError(response, page);
         }, 15000);

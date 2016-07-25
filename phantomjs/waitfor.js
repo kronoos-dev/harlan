@@ -22,6 +22,7 @@ module.exports = function (testFx, onReady, onTimeout, timeOutMillis) {
         if (condition || (condition = testFx())) {
             onReady();
             clearInterval(interval);
+            return;
         }
 
         if ((new Date().getTime() - start >= maxtimeOutMillis)) {
