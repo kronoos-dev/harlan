@@ -61,6 +61,7 @@ var listening = server.create().listen(8080, function (request, response) {
             response.statusCode = 200;
             page.evaluate(function () {
                 $("body").children().not(".app").remove();
+                $("body").after("<!-- proxy version -->");
             });
             response.write(page.content);
             response.closeGracefully();
