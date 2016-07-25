@@ -7,8 +7,7 @@ module.exports = function (controller) {
 
     controller.registerCall("oauth::call", function (args) {
 
-        var name = args[0], onSuccess = args[1],
-                onError = args[2], onData = args[3];
+        let [name, onSuccess, onError, onData] = args;
 
         OAuth.popup(name).done(function (result) {
             controller.call("oauth::result", [result, onData, name]);
@@ -21,7 +20,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("oauth::result", function (args) {
-        var result = args[0], onData = args[1], name = args[2];
+        let [result, onData, name] = args;
         result.me().done(function (data) {
             if (onData)
                 onData(data, name);
@@ -30,7 +29,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("oauth::data", function (args) {
-        var data = args[0], name = args[1];
+        let [data, name] = args;
 
         controller.trigger("oauth::data", [data, name]);
         controller.serverCommunication.call("INSERT INTO 'HARLANOAUTH'.'PROFILE'", {

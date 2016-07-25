@@ -155,7 +155,7 @@ module.exports = function (controller) {
             };
         };
 
-        form.addSubmit("submit", "Usar a conta Google").click(submitForm("google_plus"));
+        form.addSubmit("submit", "Usar a conta Google").click(submitForm("google"));
         form.addSubmit("submit", "Usar a conta LinkedIn").click(submitForm("linkedin2"));
 
         form.addSubmit("submit", "Usar minha conta de e-mail.").removeClass("button").addClass("link").click(function (e) {
