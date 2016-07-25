@@ -1,48 +1,28 @@
 /* global harlan, phantom */
-
 var webpage = require('webpage');
 var server = require('webserver');
 var system = require('system');
 var waitfor = require('./waitfor.js');
 
-var listening = server.create().listen(8080, function (request, response) {
+var listening = server.create().listen(8080, function(request, response) {
 
     var page = webpage.create();
     page.settings.loadImages = false;
 
     response.headers = {
-        "Content-Type" : "text/html; charset=UTF-8",
-        "X-PhantomJS" : "true"
+        "Content-Type": "text/html; charset=UTF-8",
+        "X-PhantomJS": "true"
     };
-    page.onResourceRequested = function (requestData, request) {
-        if ((/http:\/\/.+?\.css/gi).test(requestData['url']) ||
-                requestData.headers['Content-Type'] == 'text/css') {
-            console.log('The url of the request is matching. Aborting: ' + requestData['url']);
+    page.onResourceRequested = function(requestData, request) {
+        if (!/^https?:\/\/(www\.)?harlan\.com\.br/.test(requestData['url']) || requestData.headers['Content-Type'] == 'text/css') {
             request.abort();
         }
     };
 
-    page.onResourceError = function (resourceError) {
-        console.log('Unable to load resource (#' + resourceError.id + 'URL:' + resourceError.url + ')');
-        console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
-    };
+    page.onResourceError = function(resourceError) {};
+    page.onError = function(msg, trace) {};
 
-    page.onError = function (msg, trace) {
-
-        var msgStack = ['ERROR: ' + msg];
-
-        if (trace && trace.length) {
-            msgStack.push('TRACE:');
-            trace.forEach(function (t) {
-                msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
-            });
-        }
-
-        console.error(msgStack.join('\n'));
-
-    }
-    ;
-    page.open("http://harlan.bipbop.com.br" + request.url, "GET", function (status) {
+    page.open("http://www.harlan.com.br" + request.url, "GET", function(status) {
         if (status !== 'success') {
             response.statusCode = 500;
             response.write(page.content);
@@ -51,8 +31,8 @@ var listening = server.create().listen(8080, function (request, response) {
             return;
         }
 
-        waitfor(function () {
-            return page.evaluate(function (arg) {
+        waitfor(function() {
+            return page.evaluate(function(arg) {
 
                 if (typeof harlan === "undefined") {
                     return false;
@@ -63,35 +43,32 @@ var listening = server.create().listen(8080, function (request, response) {
                 }
 
                 if (typeof registered === "undefined") {
-                    harlan.registerTrigger("call::loader::unregister", function (args, callback) {
+                    harlan.registerTrigger("seo::ready", function(args, callback) {
                         pageLoaded = true; /* GLOBAL */
                         callback();
                     }); /* Harlan Global */
                     registered = true;
                 }
 
-                console.log("O status da página é " + (pageLoaded ? "true" : "false"));
-
                 return pageLoaded || $(".result").length > 0;
             });
-        }, function () {
+        }, function() {
             response.statusCode = 200;
+            return page.evaluate(function () {
+                $("body").children().not(".app").remove();
+            });
             response.write(page.content);
             response.close();
             page.close();
-        }, function () {
+        }, function() {
             response.statusCode = 500;
             response.write(page.content);
             response.close();
             page.close();
         }, 30000);
     });
-
-
-
 });
 
 if (!listening) {
-    console.log("could not create web server listening on port 8080");
     phantom.exit(1);
 }

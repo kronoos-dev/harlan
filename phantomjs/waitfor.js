@@ -1,6 +1,6 @@
 /**
  * See https://github.com/ariya/phantomjs/blob/master/examples/waitfor.js
- * 
+ *
  * Wait until the test condition is true or a timeout occurs. Useful for waiting
  * on a server response or for a ui change (fadeIn, etc.) to occur.
  *
@@ -17,7 +17,7 @@ module.exports = function (testFx, onReady, onTimeout, timeOutMillis) {
     var start = new Date().getTime();
     var condition = testFx();
     var interval = null;
-    
+
     var tickFunction = function () {
         if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
             condition = testFx();
