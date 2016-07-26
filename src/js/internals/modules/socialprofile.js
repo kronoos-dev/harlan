@@ -9,6 +9,7 @@ import _ from 'underscore';
 import detect from 'detect-gender';
 import diacritics from 'diacritics';
 import parallel from 'async/parallel';
+import pad from 'pad';
 
 const CRITERIA_COLOR = {
         "A1": "",
@@ -303,23 +304,20 @@ module.exports = (controller) => {
                             let getDocument = (query) =>
                                 (callback) => controller.server.call(query, controller.call("loader::ajax", {
                                     data: {
-                                        documento: params.nodes[0]
+                                        documento: pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0')
                                     },
-                                    success: (data) => {
-                                        generateRelations.appendDocument(data, params.nodes[0]);
-                                    },
+                                    success: (data) => generateRelations.appendDocument(data, params.nodes[0]),
                                     complete: () => callback()
                                 }, true));
 
                             parallel([
                                 getDocument("SELECT FROM 'CCBUSCA'.'CONSULTA'"),
                                 getDocument("SELECT FROM 'RFB'.'CERTIDAO'"),
+                                getDocument("SELECT FROM 'CBUSCA'.'CONSULTA'"),
                             ], () => {
                                 track();
                             });
-                        }, doubleclick = (params) => {
-                            controller.call("socialprofile", params.nodes[0]);
-                        };
+                        }, doubleclick = (params) => controller.call("socialprofile", params.nodes[0]);
 
                         let clickTimer = null;
                         network.on("click", (params) => {
@@ -337,8 +335,11 @@ module.exports = (controller) => {
                         });
                     });
                 };
-
-            track();
+            controller.server.call("SELECT FROM 'CBUSCA'.'CONSULTA'", controller.call("loader::ajax", {
+                data: { documento : document },
+                success: (data) => generateRelations.appendDocument(data, document),
+                complete: () => track()
+            }, true));
         };
     };
 

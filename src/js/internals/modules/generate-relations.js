@@ -2,6 +2,7 @@ import times from 'async/times';
 import parallel from 'async/parallel';
 import _ from 'underscore';
 
+const START_ZERO = /^0+/;
 var wrap = require('wordwrap')(20);
 
 var groups = {
@@ -27,6 +28,27 @@ var groups = {
 
 /* Adaptadores para Compreensão Documental */
 var readAdapters = {
+    "CBUSCA.CONSULTA": {
+        trackNodes: (relation, legalDocument, document) => {
+            return (callback) => {
+                return callback(null, $("socios > socio", document).map((idx, node) => {
+                    return relation.createNode($(node).text(), $(node).attr("nome"), "user", {unlabel: true});
+                }).toArray());
+            };
+        },
+        trackEdges: (relation, legalDocument, document) => {
+            return (callback) => {
+                return callback(null, $("socios > socio", document).map((idx, node) => {
+                    return relation.createEdge(legalDocument, $(node).text());
+                }).toArray());
+            };
+        },
+        purchaseNewDocuments: (relation, legalDocument, document) => {
+            return (callback) => {
+                callback();
+            };
+        }
+    },
     "RFB.CERTIDAO": {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
@@ -52,7 +74,7 @@ var readAdapters = {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
                 let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                    return relation.createNode($(node).find("cnpj").text(), $(node).find("nome").text(), "company");
+                    return relation.createNode($(node).find("cnpj").text(), $(node).find("nome").text(), "company", {unlabel: true});
                 }).toArray();
 
                 nodes.push(relation.createNode(
@@ -85,8 +107,8 @@ var GenerateRelations = function() {
 
     this.createEdge = (vfrom, vto) => {
         return {
-            from: vfrom,
-            to: vto
+            from: vfrom.replace(START_ZERO, ''),
+            to: vto.replace(START_ZERO, '')
         };
     };
 
@@ -95,7 +117,7 @@ var GenerateRelations = function() {
         labelIdentification[label] = id;
 
         return $.extend({
-            id: id,
+            id: id.replace(START_ZERO, ''),
             label: wrap(label),
             group: group,
         }, data);
@@ -164,19 +186,30 @@ var GenerateRelations = function() {
                 });
             });
         }, (err, results) => {
-            callback({
-                edges: _.uniq(_.flatten(_.pluck(results, "edges")), false, (n) => {
+            let allNodes = _.uniq(_.flatten(_.pluck(results, "nodes")), false, (a) => a.id),
+                unlabers = _.pluck(_.filter(allNodes, (node) => node.unlabel), "label"),
+                nodes = _.filter(allNodes, (node) => unlabers.indexOf(node.id) === -1),
+                edges =  _.uniq(_.map(_.flatten(_.pluck(results, "edges")), (edge) => {
+                    for (let i of ['to', 'from']) {
+                        if (unlabers.indexOf(edge[i]) !== -1) {
+                            edge[i] = nodes.findWhere(nodes, {label: edge[i]}).id;
+                        }
+                    } 
+                    return edge;
+                }), false, (n) => {
                     let t = n.from >= n.to,
                         a = t ? n.from : n.to,
                         b = !t ? n.from : n.to;
 
                     return `${b}:${a}`;
-                }),
-                nodes: _.uniq(_.flatten(_.pluck(results, "nodes")), false, (a) => {
-                    return a.id;
-                }),
+                });
+
+            callback({
+                edges: edges,
+                nodes: nodes,
                 groups: groups
             });
+
         });
     };
 };
