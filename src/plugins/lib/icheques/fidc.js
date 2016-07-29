@@ -648,6 +648,7 @@ module.exports = (controller) => {
 
     controller.registerCall("icheques::fidc::allowedCompany::edit", (value, t) => {
         var form = controller.call("form", function(formData) {
+            if (!formData.processingOnes) delete formData.processingOnes;
             if (!formData.blockedBead) delete formData.blockedBead;
             if (!formData.otherOccurrences) delete formData.otherOccurrences;
             if (!formData.linkedAccount) delete formData.linkedAccount;
@@ -672,56 +673,64 @@ module.exports = (controller) => {
             "screens": [{
                 "magicLabel": true,
                 "fields": [{
-                    "value": value.limit,
-                    "name": "limit",
-                    "type": "text",
-                    "placeholder": "Limite (R$)",
-                    "labelText": "Limite (R$)",
-                    "mask": "000.000.000.000.000,00",
-                    "maskOptions": {
-                        "reverse": true
+                        "value": value.limit,
+                        "name": "limit",
+                        "type": "text",
+                        "placeholder": "Limite (R$)",
+                        "labelText": "Limite (R$)",
+                        "mask": "000.000.000.000.000,00",
+                        "maskOptions": {
+                            "reverse": true
+                        },
+                        "numeral": true,
+                        validate: function(item) {
+                            return numeral().unformat(item.element.val()) > 0;
+                        }
+                    }, {
+                        "value": value.interest,
+                        "name": "interest",
+                        "type": "text",
+                        "placeholder": "Taxa (%)",
+                        "labelText": "Taxa (%)",
+                        "numeralFormat": "0.00%",
+                        "mask": "##0,99%",
+                        "maskOptions": {
+                            "reverse": true
+                        },
+                        "numeral": true,
+                        validate: function(item) {
+                            return numeral().unformat(item.element.val()) > 0;
+                        }
+                    }, {
+                        "value": value.otherOccurrences,
+                        "checked": value.otherOccurrences,
+                        "name": "other-occurrences",
+                        "type": "checkbox",
+                        "labelText": "Enviar Outras Ocorrências",
+                        "optional": true,
+                    }, {
+                        "value": value.blockedBead,
+                        "checked": value.blockedBead,
+                        "name": "blocked-bead",
+                        "type": "checkbox",
+                        "labelText": "Enviar Talão Bloqueado",
+                        "optional": true,
+                    }, {
+                        "value": value.processingOnes,
+                        "checked": value.processingOnes,
+                        "name": "linked-account",
+                        "type": "checkbox",
+                        "labelText": "Enviar em Processamento",
+                        "optional": true,
+                    }, {
+                        "value": value.linkedAccount,
+                        "checked": value.linkedAccount,
+                        "name": "linked-account",
+                        "type": "checkbox",
+                        "labelText": "Linkar crédito",
+                        "optional": true,
                     },
-                    "numeral": true,
-                    validate: function(item) {
-                        return numeral().unformat(item.element.val()) > 0;
-                    }
-                }, {
-                    "value": value.interest,
-                    "name": "interest",
-                    "type": "text",
-                    "placeholder": "Taxa (%)",
-                    "labelText": "Taxa (%)",
-                    "numeralFormat": "0.00%",
-                    "mask": "##0,99%",
-                    "maskOptions": {
-                        "reverse": true
-                    },
-                    "numeral": true,
-                    validate: function(item) {
-                        return numeral().unformat(item.element.val()) > 0;
-                    }
-                }, {
-                    "value": value.otherOccurrences,
-                    "checked": value.otherOccurrences,
-                    "name": "other-occurrences",
-                    "type": "checkbox",
-                    "labelText": "Enviar Outras Ocorrências",
-                    "optional": true,
-                }, {
-                    "value": value.blockedBead,
-                    "checked": value.blockedBead,
-                    "name": "blocked-bead",
-                    "type": "checkbox",
-                    "labelText": "Enviar Talão Bloqueado",
-                    "optional": true,
-                }, {
-                    "value": value.linkedAccount,
-                    "checked": value.linkedAccount,
-                    "name": "linked-account",
-                    "type": "checkbox",
-                    "labelText": "Linkar crédito",
-                    "optional": true,
-                }]
+                ]
             }]
         });
     });
