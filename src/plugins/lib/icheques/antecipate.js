@@ -225,7 +225,6 @@ module.exports = function(controller) {
         modal.title("Cheques para Antecipar");
         modal.subtitle("Seleção de Cheques para Antecipação");
         modal.addParagraph("Selecione, da relação abaixo, os cheques que NÃO gostaria de antecipar. Serão eliminados da lista");
-
         let form = modal.createForm(),
             search = form.addInput("query", "text", "Digite aqui o número do documento ou do cheque para filtrar", {}, "Documento ou nº do cheque"),
             actions = modal.createActions(),
@@ -233,7 +232,8 @@ module.exports = function(controller) {
             text = null,
             goodChecks = [],
             otherOccurrences = [],
-            blockedBead = [];
+            blockedBead = [],
+            processingOnes = [];
 
         otherOccurrences = _.filter(checks, (check) => {
             return check.situation === "Cheque com outras ocorrências";
@@ -270,7 +270,7 @@ module.exports = function(controller) {
 
         fieldProcessingOnes[1].change(() => {
             // TODO Pegar os cheques com talão bloqueado e atualizar a lista
-            if (fieldBlockedBead[1].is(":checked")) {
+            if (fieldProcessingOnes[1].is(":checked")) {
                 checks = _.union(checks, processingOnes);
                 if (hasProcessingOnes.length > 0) hasProcessingOnes = true;
             } else {

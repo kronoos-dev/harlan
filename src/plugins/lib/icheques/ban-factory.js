@@ -130,7 +130,8 @@ export class BANFactory {
             }, (callback) => {
                 let doc = CPF.strip(check.cpf) || CNPJ.strip(check.cnpj),
                     soma = 0;
-                this.call(`SELECT FROM 'CCF'.'CONSULTA' WHERE 'DOC' = '${doc}'`, {
+                this.call("SELECT FROM 'CCF'.'CONSULTA'", {
+                    data: {doc: doc},
                     success: (ret) => {
                         $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
                             let $el = $(el),

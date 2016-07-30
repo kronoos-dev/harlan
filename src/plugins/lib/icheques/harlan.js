@@ -229,6 +229,26 @@ module.exports = function(controller) {
         section[0].addClass("icheque loading");
         showChecks(task[1], result, section);
         callback(null, section);
+
+        controller.serverCommunication.call("SELECT FROM 'CCF'.'CONSULTA'", {
+            data: {
+                documento: task[0]
+            },
+            success: (ret) => {
+                let soma = 0;
+                $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
+                    let $el = $(el),
+                        tag = $el.prop("tagName");
+                    if (!tag.includes("aline")) return;
+                    soma += parseInt($el.text(), 10);
+                });
+                if (soma > 0) {
+                    section[0].find("h3").text(`Este documento possui ${soma} ${soma > 1 ? "cheques" : "cheque"} sem fundo no BACEN.`);
+                    section[0].addClass("warning");
+                }
+            }
+        });
+
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
             cache: true,
             data: {

@@ -162,6 +162,23 @@ var AccountOverview = function (closeable)  {
 
 
     var filterLabels = [];
+
+    var antecipateAction = () =>  {
+        var querystr = squel
+            .select()
+            .from('ICHEQUES_CHECKS')
+            .where(expression.and("EXPIRE >= ?", moment().format("YYYYMMDD")))
+            .toString();
+
+        var query = controller.database.exec(querystr)[0];
+        if (!query || !query.values) {
+            return;
+        }
+
+        controller.call("icheques::resultDatabase", query);
+        controller.call("icheques::antecipate", query.values);
+    };
+
     var openDocuments = () =>  {
         var querystr = squel
             .select()
@@ -294,6 +311,7 @@ var AccountOverview = function (closeable)  {
     };
 
     report.newAction("fa-folder-open", openDocuments);
+    report.newAction("fa-money", antecipateAction);
 
     report.newAction("fa-cloud-download", () => {
         controller.call("icheques::ban::generate",
@@ -416,21 +434,7 @@ var AccountOverview = function (closeable)  {
 
         if (!_.without(datasetQueryStatus, 1).length) {
             status.html(messages.noOcurrence);
-            manipulationItens.push(report.button("Antecipar Cheques", () =>  {
-                var querystr = squel
-                    .select()
-                    .from('ICHEQUES_CHECKS')
-                    .where(expression.and("EXPIRE >= ?", moment().format("YYYYMMDD")))
-                    .toString();
-
-                var query = controller.database.exec(querystr)[0];
-                if (!query || !query.values) {
-                    return;
-                }
-
-                controller.call("icheques::resultDatabase", query);
-                controller.call("icheques::antecipate", query.values);
-            }).insertBefore(openButton));
+            manipulationItens.push(report.button("Antecipar Cheques", antecipateAction).insertBefore(openButton));
         } else if (!_.without(datasetQueryStatus, 10, null).length) {
             status.html(messages.processing);
         } else if (!_.intersection(datasetQueryStatus, [null, 10, 1]).length) {

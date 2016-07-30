@@ -143,18 +143,34 @@ module.exports = (controller) => {
                     }],
                     ["fa-times", "Recusar", () => {
                         controller.confirm({}, () => {
-                            controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
-                                dataType: "json",
-                                data: {
-                                    id: value._id,
-                                    approved: false,
-                                    interest: 0,
-                                    limit: 0
-                                },
-                                success: () => {
-                                    t.remove();
+                            let modal = controller.call("modal");
+                            modal.title("Motivo de Rejeição");
+                            modal.subtitle("Insira o motivo do cadastro estar sendo recusado.");
+                            modal.paragraph("Para poder continuar insira o motivo do cadastro estar sendo recusado.");
+                            let form = modal.createForm(),
+                                reason = form.addTextarea("reason", "Por qual razão o cadastro está sendo recusado?");
+                            form.addSubmit("send", "Recursar");
+                            form.element().submit((e) => {
+                                e.preventDefault();
+                                if (!reason.val().length) {
+                                    return /* void */;
                                 }
+                                modal.close();
+                                controller.server.call("UPDATE 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
+                                    dataType: "json",
+                                    data: {
+                                        id: value._id,
+                                        approved: false,
+                                        reason: reason.val(),
+                                        interest: 0,
+                                        limit: 0
+                                    },
+                                    success: () => {
+                                        t.remove();
+                                    }
+                                });
                             });
+                            modal.createActions().cancel();
                         });
                     }],
                 ]);
@@ -673,64 +689,63 @@ module.exports = (controller) => {
             "screens": [{
                 "magicLabel": true,
                 "fields": [{
-                        "value": value.limit,
-                        "name": "limit",
-                        "type": "text",
-                        "placeholder": "Limite (R$)",
-                        "labelText": "Limite (R$)",
-                        "mask": "000.000.000.000.000,00",
-                        "maskOptions": {
-                            "reverse": true
-                        },
-                        "numeral": true,
-                        validate: function(item) {
-                            return numeral().unformat(item.element.val()) > 0;
-                        }
-                    }, {
-                        "value": value.interest,
-                        "name": "interest",
-                        "type": "text",
-                        "placeholder": "Taxa (%)",
-                        "labelText": "Taxa (%)",
-                        "numeralFormat": "0.00%",
-                        "mask": "##0,99%",
-                        "maskOptions": {
-                            "reverse": true
-                        },
-                        "numeral": true,
-                        validate: function(item) {
-                            return numeral().unformat(item.element.val()) > 0;
-                        }
-                    }, {
-                        "value": value.otherOccurrences,
-                        "checked": value.otherOccurrences,
-                        "name": "other-occurrences",
-                        "type": "checkbox",
-                        "labelText": "Enviar Outras Ocorrências",
-                        "optional": true,
-                    }, {
-                        "value": value.blockedBead,
-                        "checked": value.blockedBead,
-                        "name": "blocked-bead",
-                        "type": "checkbox",
-                        "labelText": "Enviar Talão Bloqueado",
-                        "optional": true,
-                    }, {
-                        "value": value.processingOnes,
-                        "checked": value.processingOnes,
-                        "name": "linked-account",
-                        "type": "checkbox",
-                        "labelText": "Enviar em Processamento",
-                        "optional": true,
-                    }, {
-                        "value": value.linkedAccount,
-                        "checked": value.linkedAccount,
-                        "name": "linked-account",
-                        "type": "checkbox",
-                        "labelText": "Linkar crédito",
-                        "optional": true,
+                    "value": value.limit,
+                    "name": "limit",
+                    "type": "text",
+                    "placeholder": "Limite (R$)",
+                    "labelText": "Limite (R$)",
+                    "mask": "000.000.000.000.000,00",
+                    "maskOptions": {
+                        "reverse": true
                     },
-                ]
+                    "numeral": true,
+                    validate: function(item) {
+                        return numeral().unformat(item.element.val()) > 0;
+                    }
+                }, {
+                    "value": value.interest,
+                    "name": "interest",
+                    "type": "text",
+                    "placeholder": "Taxa (%)",
+                    "labelText": "Taxa (%)",
+                    "numeralFormat": "0.00%",
+                    "mask": "##0,99%",
+                    "maskOptions": {
+                        "reverse": true
+                    },
+                    "numeral": true,
+                    validate: function(item) {
+                        return numeral().unformat(item.element.val()) > 0;
+                    }
+                }, {
+                    "value": value.otherOccurrences,
+                    "checked": value.otherOccurrences,
+                    "name": "other-occurrences",
+                    "type": "checkbox",
+                    "labelText": "Enviar Outras Ocorrências",
+                    "optional": true,
+                }, {
+                    "value": value.blockedBead,
+                    "checked": value.blockedBead,
+                    "name": "blocked-bead",
+                    "type": "checkbox",
+                    "labelText": "Enviar Talão Bloqueado",
+                    "optional": true,
+                }, {
+                    "value": value.processingOnes,
+                    "checked": value.processingOnes,
+                    "name": "processing-ones",
+                    "type": "checkbox",
+                    "labelText": "Enviar em Processamento",
+                    "optional": true,
+                }, {
+                    "value": value.linkedAccount,
+                    "checked": value.linkedAccount,
+                    "name": "linked-account",
+                    "type": "checkbox",
+                    "labelText": "Linkar crédito",
+                    "optional": true,
+                }, ]
             }]
         });
     });
