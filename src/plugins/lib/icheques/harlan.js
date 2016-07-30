@@ -105,7 +105,7 @@ module.exports = function(controller) {
                             data: {
                                 cmc: check.cmc
                             }
-                    })));
+                        })));
                 });
             });
         } else {
@@ -219,7 +219,7 @@ module.exports = function(controller) {
         }
     };
 
-    var showDocument = function(task, callback) {
+    var showDocument = function(task) {
         var section = controller.call("section",
                 "iCheque",
                 "Prevenção a fraudes na sua carteira de cheques.",
@@ -227,12 +227,16 @@ module.exports = function(controller) {
             result = controller.call("result");
         section[1].append(result.element());
         section[0].addClass("icheque loading");
+
+        if (!$(".ichequesAccountOverview").length) {
+            controller.call("icheques::report::overview", false, false);
+        }
+
         showChecks(task[1], result, section);
-        callback(null, section);
 
         controller.serverCommunication.call("SELECT FROM 'CCF'.'CONSULTA'", {
             data: {
-                documento: task[0]
+                doc: task[0]
             },
             success: (ret) => {
                 let soma = 0;
@@ -265,10 +269,6 @@ module.exports = function(controller) {
             }
         });
 
-        if (!$(".ichequesAccountOverview").length) {
-            controller.call("icheques::report::overview", false, false);
-        }
-
         return section[0];
     };
 
@@ -291,9 +291,6 @@ module.exports = function(controller) {
         return databaseResult;
     });
 
-
-    controller.registerCall("icheques::show::document", showDocument);
-
     controller.registerCall("icheques::show::query", function(query, callback, element) {
         if (!query) {
             return;
@@ -303,26 +300,21 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::show", function(storage, callback, element) {
-        var documents = _.groupBy(storage, function(a) {
+        var documents = _.pairs(_.groupBy(storage, function(a) {
             return a.cpf || a.cnpj;
+        }));
+
+        var moreResults = controller.call("moreResults", 5);
+        moreResults.callback((cb) => {
+            cb(_.map(documents.splice(0, documents.length > 5 ? 5 : documents.length), showDocument));
         });
 
-        async.map(_.pairs(documents), showDocument, function(err, results) {
+        $(element || ".app-content").append(moreResults.element());
+        moreResults.show();
 
-            var moreResults = controller.call("moreResults", 5);
-            /** @TODO Trocar para novo modelo */
-            for (var i in results) {
-                moreResults.append(results[i][0]);
-            }
-
-
-            $(element || ".app-content").append(moreResults.element());
-            moreResults.show();
-
-            if (callback) {
-                callback();
-            }
-        });
+        if (callback) {
+            callback();
+        }
     });
 
     controller.registerCall("icheques::item::delete", function(cmc) {
