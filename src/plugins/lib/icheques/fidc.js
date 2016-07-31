@@ -3,16 +3,9 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
-import {
-    CMC7Parser
-} from './cmc7-parser';
-import {
-    titleCase
-} from 'change-case';
-import {
-    CPF,
-    CNPJ
-} from 'cpf_cnpj';
+import { CMC7Parser } from './cmc7-parser';
+import { titleCase } from 'change-case';
+import { CPF, CNPJ } from 'cpf_cnpj';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;

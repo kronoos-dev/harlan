@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import geolib from 'geolib';
 import { CMC7Parser } from './cmc7-parser';
 import { queue } from 'async';
 import { titleCase } from 'change-case';
@@ -6,6 +7,10 @@ import { CPF } from 'cpf_cnpj';
 import { CNPJ } from 'cpf_cnpj';
 
 const PAGINATE_FILTER = 5;
+
+const parseLocation = (element, elementPath) => parseFloat($(element).find(elementPath).text()),
+      calculateDistance = require('fast-haversine');
+
 
 /* global module, numeral */
 module.exports = function(controller) {
@@ -75,7 +80,8 @@ module.exports = function(controller) {
 
     /* List Banks */
     controller.registerCall("icheques::antecipate::init", function(checks) {
-        let expired = [], now = moment().format("YYYYMMDD");
+        let expired = [],
+            now = moment().format("YYYYMMDD");
 
         checks = _.filter(checks, (check) => {
             let booleanExpiration = check.expire < now;
@@ -106,7 +112,6 @@ module.exports = function(controller) {
 
         // Ordenando pelo número do cheque
         checks = _.sortBy(checks, "number");
-
 
         controller.call("billingInformation::need", () => {
             var noAmmountChecks = _.filter(checks, (obj) => {
@@ -339,88 +344,115 @@ module.exports = function(controller) {
         updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
     });
 
-    controller.registerCall("icheques::antecipate::show", function(data, checks, filterReference = true) {
-        var banks = $("BPQL > body > fidc", data),
-            validBankReferences = $();
+    controller.registerCall("icheques::antecipate::show", (data, checks, filterReference = true) =>
+        controller.call("geolocation", (geoposition) => {
+            var banks = $("BPQL > body > fidc", data),
+                validBankReferences = $();
 
-        /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
-        if (filterReference && commercialReference) {
-            _.each(commercialReference.split(","), (reference) => {
-                banks.each(function(i, element) {
-                    if ($("username", element).text() == reference ||
-                        $("cnpj", element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
-                        validBankReferences.push(element);
-                        return false; /* loop break */
+            /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
+            if (filterReference && commercialReference) {
+                _.each(commercialReference.split(","), (reference) => {
+                    banks.each(function(i, element) {
+                        if ($("username", element).text() == reference ||
+                            $("cnpj", element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
+                            validBankReferences.push(element);
+                            return false; /* loop break */
+                        }
+                    });
+                });
+                if (validBankReferences.length) {
+                    banks = validBankReferences;
+                }
+            }
+
+            banks = banks.filter((i, element) => {
+                var approved = $(element).children("approvedCustomer").text() == "true";
+                var ask = $(element).children("ask").text() == "true";
+                return !ask || approved;
+            });
+
+            if (!banks.length) {
+                controller.call("alert", {
+                    title: "Não foi possível completar sua solicitação!",
+                    subtitle: "Para antecipar créditos você precisa ter o seu perfil aprovado por um Parceiro Financeiro. Entre em contato com o suporte: (11) 3661-4657."
+                });
+                return;
+            }
+
+            if (geoposition) {
+                banks = _.sortBy(_.filter(banks.toArray(), (element) => calculateDistance({
+                    lat: geoposition.coords.latitude,
+                    lon: geoposition.coords.longitude
+                }, {
+                    lat: parseLocation(element, "geocode > geometry > location > lat"),
+                    lon: parseLocation(element, "geocode > geometry > location > lng")
+                }) <= 200000), (element) => calculateDistance({
+                    lat: geoposition.coords.latitude,
+                    lon: geoposition.coords.longitude
+                }, {
+                    lat: parseLocation(element, "geocode > geometry > location > lat"),
+                    lon: parseLocation(element, "geocode > geometry > location > lng")
+                }));
+
+                if (!banks.length) {
+                    if (!banks.length) {
+                        controller.call("alert", {
+                            title: "Não foi possível encontrar um parceiro antecipador!",
+                            subtitle: "Sinto muito mas não há parceiros iCheques na sua região.",
+                            paragraph: "Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657."
+                        });
+                        return;
                     }
+                }
+            }
+
+            var modal = controller.call("modal");
+            modal.title("Factorings iCheques");
+            modal.subtitle("Relação de Factorings iCheques");
+            modal.addParagraph("Selecione a Factoring iCheques que deseja enviar sua carteira de cheques.");
+
+            var form = modal.createForm(),
+                list = form.createList();
+
+            _.each(banks, (element) => {
+                var approved = $(element).children("approvedCustomer").text() === "true";
+
+                list.add("fa-share", [
+                    $("company > nome", element).text() || $("company > responsavel", element).text() || $("company > username", element).text(), !approved ?
+                    "Solicitar Aprovação" :
+                    `${numeral(parseFloat($(element).children("interest").text().replace(',', '.'))).format('0.00%')} / ${numeral(parseInt($(element).children("limit").text()) / 100).format('$0,0.00')}`,
+                    `${$("company > endereco > node:eq(4)", element).text()} / ${$("company > endereco > node:eq(6)", element).text()}`,
+                    $(element).children("bio").text(),
+                ]).click(function(e) {
+                    if (!approved) {
+                        controller.call("icheques::antecipate::allow", data, element);
+                    } else {
+                        controller.call("icheques::antecipate::fidc", data, element, checks);
+                    }
+                    modal.close();
                 });
             });
-            if (validBankReferences.length) {
-                banks = validBankReferences;
-            }
-        }
 
-
-        banks = banks.filter((i, element) => {
-            var approved = $(element).children("approvedCustomer").text() == "true";
-            var ask = $(element).children("ask").text() == "true";
-            return !ask || approved;
-        });
-
-        if (!banks.length) {
-            controller.call("alert", {
-                title: "Não foi possível completar sua solicitação!",
-                subtitle: "Para antecipar créditos você precisa ter o seu perfil aprovado por um Parceiro Financeiro. Entre em contato com o suporte: (11) 3661-4657."
+            list.element().find("li:first div:last").css({
+                width: "185px"
             });
-            return;
-        }
 
-        var modal = controller.call("modal");
-        modal.title("Factorings iCheques");
-        modal.subtitle("Relação de Factorings iCheques");
-        modal.addParagraph("Selecione a Factoring iCheques que deseja enviar sua carteira de cheques.");
+            var actions = modal.createActions();
 
-        var form = modal.createForm(),
-            list = form.createList();
-
-        banks.each(function(i, element) {
-            var approved = $(element).children("approvedCustomer").text() === "true";
-
-            list.add("fa-share", [
-                $("company > nome", element).text() || $("company > responsavel", element).text() || $("company > username", element).text(), !approved ?
-                "Solicitar Aprovação" :
-                `${numeral(parseFloat($(element).children("interest").text().replace(',', '.'))).format('0.00%')} / ${numeral(parseInt($(element).children("limit").text()) / 100).format('$0,0.00')}`,
-                `${$("company > endereco > node:eq(4)", element).text()} / ${$("company > endereco > node:eq(6)", element).text()}`,
-                $(element).children("bio").text(),
-            ]).click(function(e) {
-                if (!approved) {
-                    controller.call("icheques::antecipate::allow", data, element);
-                } else {
-                    controller.call("icheques::antecipate::fidc", data, element, checks);
-                }
+            actions.add("Sair").click(function(e) {
+                e.preventDefault();
                 modal.close();
             });
-        });
 
-        list.element().find("li:first div:last").css({
-            width: "185px"
-        });
+            if (validBankReferences.length) {
+                actions.observation("Opera com mais algum fundo? <br />Entre em contato com o suporte.").css({
+                    display: 'block',
+                    'font-size': '12px',
+                    'line-height': '14px'
+                });
+            }
 
-        var actions = modal.createActions();
-
-        actions.add("Sair").click(function(e) {
-            e.preventDefault();
-            modal.close();
-        });
-
-        if (validBankReferences.length) {
-            actions.observation("Opera com mais algum fundo? <br />Entre em contato com o suporte.").css({
-                display: 'block',
-                'font-size': '12px',
-                'line-height': '14px'
-            });
-        }
-
-    });
+        }));
 
     var companyData = (paragraph, element) => {
         var phones = $("<ul />").addClass("phones");
