@@ -635,7 +635,20 @@ module.exports = (controller) => {
                     });
                     return;
                 }
-                sendAccept(false);
+                let modal = controller.call("modal");
+                modal.title("Qual o motivo da recusa?");
+                modal.subtitle("Você precisa informar o motivo da recusa para continuar.");
+                modal.paragraph("Ao informar seu cliente o motivo da recusa você evita discussões posteriores no telefone ou email.");
+                let form = modal.createForm(),
+                    reason = form.addTextarea("textarea", "Qual motivo da recusa?");
+                form.addSubmit("continue", "Recusar");
+                form.element().submit((e) => {
+                    e.preventDefault();
+                    modal.close();
+                    sendAccept(false, {
+                        reason: reason.val()
+                    });
+                });
             };
         };
 
