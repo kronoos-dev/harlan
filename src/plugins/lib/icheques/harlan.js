@@ -155,6 +155,7 @@ module.exports = function(controller) {
                 checkResult.element().remove();
             },
             documentUpdate = function(check) {
+                section[0].removeClass("loadingCheck");
                 separator.data("item", check);
 
                 var rescan = function() {
@@ -180,6 +181,7 @@ module.exports = function(controller) {
 
                 if (check.queryStatus && check.queryStatus !== 10) {
                     rescan();
+                    section[0].removeClass("loading");
 
                     var elementClass = "success",
                         situation = check.situation,
@@ -202,6 +204,8 @@ module.exports = function(controller) {
                     }
 
                     separator.addClass(elementClass);
+                } else {
+                    section[0].addClass("loadingCheck");
                 }
             };
 
