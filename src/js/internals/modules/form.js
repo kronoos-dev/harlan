@@ -155,11 +155,11 @@ module.exports = (controller) => {
                     return numeral().unformat(input.element.val());
                 }
                 if (input.pikaday) {
-                    var moment = moment(input.element.val(), controller.i18n.pikaday.format);
-                    if (!moment.isValid) {
+                    var m = moment(input.element.val(), controller.i18n.pikaday.format);
+                    if (!m.isValid) {
                         return null;
                     }
-                    return moment.format("YYYY-MM-DD");
+                    return m.format("YYYY-MM-DD");
                 }
             }
 
