@@ -56,6 +56,7 @@
     require("./lib/icheques/fidc")(controller);
     require("./lib/icheques/fidc-view")(controller);
     require("./lib/icheques/ban-url-download")(controller);
+    require("./lib/icheques/operation-score")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
