@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import geolib from 'geolib';
 import { CMC7Parser } from './cmc7-parser';
 import { queue } from 'async';
 import { titleCase } from 'change-case';
