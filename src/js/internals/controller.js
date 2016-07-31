@@ -187,6 +187,7 @@ var Controller = function() {
     require('./modules/find-database')(this);
     require('./modules/loader')(this);
     require('./modules/error')(this);
+    require('./modules/geolocation')(this);
     require('./modules/endpoint')(this);
     require('./modules/database-search')(this);
     require('./modules/modal')(this);
@@ -234,7 +235,6 @@ var Controller = function() {
     require('./modules/timeline')(this);
     require('./modules/data-company')(this);
     require('./modules/ccbusca')(this);
-    require('./modules/geolocation')(this);
     require('./modules/generate-relations')(this);
     require('./modules/admin/contact-types')(this);
 
