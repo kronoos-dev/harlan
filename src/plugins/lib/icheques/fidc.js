@@ -130,9 +130,7 @@ module.exports = (controller) => {
                         }, value.profile));
                     }],
                     [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
-                        controller.confirm({}, () => {
-                            controller.call("icheques::fidc::allowedCompany::edit", value, t);
-                        });
+                        controller.confirm({}, () => controller.call("icheques::fidc::allowedCompany::edit", value, t));
                     }],
                     ["fa-times", "Recusar", () => {
                         controller.confirm({}, () => {
