@@ -139,8 +139,8 @@ module.exports = (controller) => {
                             modal.subtitle("Insira o motivo do cadastro estar sendo recusado.");
                             modal.paragraph("Para poder continuar insira o motivo do cadastro estar sendo recusado.");
                             let form = modal.createForm(),
-                                reason = form.addTextarea("reason", "Por qual razão o cadastro está sendo recusado?");
-                            form.addSubmit("send", "Recursar");
+                                reason = form.addTextarea("reason", "Por qual motivo o cadastro está sendo recusado?");
+                            form.addSubmit("send", "Recusar");
                             form.element().submit((e) => {
                                 e.preventDefault();
                                 if (!reason.val().length) {
