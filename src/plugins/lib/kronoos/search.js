@@ -259,7 +259,7 @@ module.exports = function(controller) {
                     elements.push((cb) => xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
                         controller.call("kronoos::status::ajax", "fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${document}.`, {
                             data: {
-                                documento: unformattedDocument,
+                                documento: document,
                                 name: `"${node.label.replace("\n", "")}"`
                             },
                             success: (data) => {

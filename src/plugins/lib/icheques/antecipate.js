@@ -8,8 +8,20 @@ import { CNPJ } from 'cpf_cnpj';
 const PAGINATE_FILTER = 5;
 
 const parseLocation = (element, elementPath) => parseFloat($(element).find(elementPath).text()),
-      calculateDistance = require('fast-haversine');
+      R = 6378137,
+      PI_360 = Math.PI / 360;
 
+function calculateDistance(a, b) {
+
+  const cLat = Math.cos((a.lat + b.lat) * PI_360);
+  const dLat = (b.lat - a.lat) * PI_360;
+  const dLon = (b.lon - a.lon) * PI_360;
+
+  const f = dLat * dLat + cLat * cLat * dLon * dLon;
+  const c = 2 * Math.atan2(Math.sqrt(f), Math.sqrt(1 - f));
+
+  return R * c;
+}
 
 /* global module, numeral */
 module.exports = function(controller) {
