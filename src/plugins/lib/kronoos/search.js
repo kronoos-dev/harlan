@@ -45,7 +45,9 @@ module.exports = function(controller) {
         registered,
         backgroundTimeout,
         mapQueue,
-        photosQueue;
+        photosQueue,
+        graphTrack,
+        graphParallel;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
@@ -63,14 +65,25 @@ module.exports = function(controller) {
 
     var clearAll;
     controller.registerCall("kronoos::clearAll", clearAll = () => {
+        if (graphTrack) {
+            graphTrack.kill();
+            graphTrack = null;
+        }
+        if (graphParallel) {
+            graphParallel.kill();
+            graphParallel = null;
+        }
+
         if (mapQueue) {
             mapQueue.kill();
+            mapQueue = null;
         }
+
         if (photosQueue) {
             photosQueue.kill();
+            photosQueue = null;
         }
-        photosQueue = null;
-        mapQueue = null;
+
         clearInterval(registered);
         clearTimeout(backgroundTimeout);
 
@@ -125,7 +138,8 @@ module.exports = function(controller) {
             })));
     });
 
-    controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData, jusSearch, procs) => {
+    controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, jusSearch = null, procs = []) => {
+        let kelements = [];
         $("BPQL body item", kronoosData).each((idx, element) => {
             let namespace = $("namespace", element).text(),
                 [title, description] = NAMESPACE_DESCRIPTION[namespace],
@@ -137,6 +151,7 @@ module.exports = function(controller) {
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
                 insertMethod = "prepend";
+                kelements.unshift(kelement);
                 controller.server.call("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
                     data: {
                         name: name
@@ -149,6 +164,8 @@ module.exports = function(controller) {
                         }
                     }
                 });
+            } else {
+                kelements.push(kelement);
             }
 
             if (notes.length) {
@@ -184,64 +201,85 @@ module.exports = function(controller) {
         for (let proc in procs) {
             let jelement = controller.call("kronoos::element", `Processo Nº ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
                 "Foram encontradas informações, confirmação pendente.");
+            kelements.push(jelement);
             let [article, match] = procs[proc];
             jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
             $(".kronoos-result").append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
         }
 
-        if (!$(".kronoos-element-container").length) {
+        if (!kelements.length) {
             let [title, description] = NAMESPACE_DESCRIPTION.clear,
                 nelement = controller.call("kronoos::element", title, "Não consta nenhum apontamento cadastral.", description);
             $(".kronoos-result").append(nelement.element());
+            kelements.push(nelement);
             SEARCH_BAR.addClass("minimize").removeClass("full");
         }
 
-        let m = moment(),
-            element = $(".kronoos-element-container")
-            .first()
-            .data("instance")
-            .header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+        let m = moment();
+        kelements[0].header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+
+        if (!cbuscaData) {
+            return
+        }
 
         let generateRelations = controller.call("generateRelations");
         generateRelations.appendDocument(cbuscaData, document);
 
-        let lastData, documents = {},
-            query = (query, document, elements) => {
+        let lastData, documents = {};
+        documents[document] = true;
+
+        let query = (query, document, elements) => {
                 let key = `${query}.'${document}'`;
                 if (documents[key]) {
                     return;
                 }
 
                 documents[key] = true;
-                elements.push((callback) => controller.server.call(query,
+                elements.push((callback) => xhr.push(controller.server.call(query,
                     controller.call("kronoos::status::ajax", "fa-eye", `Capturando dados de conexão através do documento ${document}.`, {
-                    data: {
-                        documento: pad(document.length > 11 ? 14 : 11, document, '0')
-                    },
-                    success: (data) => generateRelations.appendDocument(data, document),
-                    complete: () => callback()
-                }, true)));
+                        data: {
+                            documento: document
+                        },
+                        success: (data) => generateRelations.appendDocument(data, document),
+                        complete: () => callback()
+                    }, true))));
             };
 
-        async.times(5, (i, cb) => generateRelations.track((data) => {
+        graphTrack = async.times(5, (i, cb) => generateRelations.track((data) => {
             let elements = [];
-            for (let id of _.pluck(data.nodes, 'id')) {
-                query("SELECT FROM 'RFB'.'CERTIDAO'", id, elements);
-                query("SELECT FROM 'CBUSCA'.'CONSULTA'", id, elements);
-                query("SELECT FROM 'CCBUSCA'.'CONSULTA'", id, elements);
+            for (let node of data.nodes) {
+                let unformattedDocument = pad(node.id.length > 11 ? 14 : 11, node.id, '0'),
+                    document = (CPF.isValid(unformattedDocument) ? CPF : CNPJ).format(unformattedDocument);
+                query("SELECT FROM 'RFB'.'CERTIDAO'", unformattedDocument, elements);
+                query("SELECT FROM 'CBUSCA'.'CONSULTA'", unformattedDocument, elements);
+                query("SELECT FROM 'CCBUSCA'.'CONSULTA'", unformattedDocument, elements);
+
+                if (!documents[document]) {
+                    documents[document] = true;
+                    elements.push((cb) => xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
+                        controller.call("kronoos::status::ajax", "fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${document}.`, {
+                            data: {
+                                documento: unformattedDocument,
+                                name: `"${node.label.replace("\n", "")}"`
+                            },
+                            success: (data) => {
+                                controller.call("kronoos::parse", node.label, document, data);
+                            },
+                            complete: () => cb()
+                        })))));
+                }
             }
-            async.parallel(elements, cb);
+            graphParallel = async.parallel(elements, cb);
             lastData = data;
         }), () => {
             generateRelations.track((data) => {
                 if (!data.nodes.length)
                     return;
-                element.addNetwork(data.nodes, data.edges, {
+                kelements[0].addNetwork(data.nodes, data.edges, {
                     groups: data.groups
                 });
             });
         });
-
 
     });
 
