@@ -4,10 +4,10 @@ import {
     CPF,
     CNPJ
 } from "cpf_cnpj";
-
 import async from "async";
 import _ from "underscore";
 import VMasker from 'vanilla-masker';
+import pad from 'pad';
 
 var removeDiacritics = require('diacritics').remove;
 
@@ -151,7 +151,6 @@ module.exports = function(controller) {
                 });
             }
 
-
             if (notes.length) {
                 let knotes = kelement.list("Notas");
                 notes.each((idx) => {
@@ -183,7 +182,7 @@ module.exports = function(controller) {
         });
 
         for (let proc in procs) {
-            let jelement = controller.call("kronoos::element", `Processo CNJ ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
+            let jelement = controller.call("kronoos::element", `Processo Nº ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
                 "Foram encontradas informações, confirmação pendente.");
             let [article, match] = procs[proc];
             jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
@@ -197,11 +196,53 @@ module.exports = function(controller) {
             SEARCH_BAR.addClass("minimize").removeClass("full");
         }
 
-        var m = moment();
-        $(".kronoos-element-container")
+        let m = moment(),
+            element = $(".kronoos-element-container")
             .first()
             .data("instance")
             .header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+
+        let generateRelations = controller.call("generateRelations");
+        generateRelations.appendDocument(cbuscaData, document);
+
+        let lastData, documents = {},
+            query = (query, document, elements) => {
+                let key = `${query}.'${document}'`;
+                if (documents[key]) {
+                    return;
+                }
+
+                documents[key] = true;
+                elements.push((callback) => controller.server.call(query,
+                    controller.call("kronoos::status::ajax", "fa-eye", `Capturando dados de conexão através do documento ${document}.`, {
+                    data: {
+                        documento: pad(document.length > 11 ? 14 : 11, document, '0')
+                    },
+                    success: (data) => generateRelations.appendDocument(data, document),
+                    complete: () => callback()
+                }, true)));
+            };
+
+        async.times(5, (i, cb) => generateRelations.track((data) => {
+            let elements = [];
+            for (let id of _.pluck(data.nodes, 'id')) {
+                query("SELECT FROM 'RFB'.'CERTIDAO'", id, elements);
+                query("SELECT FROM 'CBUSCA'.'CONSULTA'", id, elements);
+                query("SELECT FROM 'CCBUSCA'.'CONSULTA'", id, elements);
+            }
+            async.parallel(elements, cb);
+            lastData = data;
+        }), () => {
+            generateRelations.track((data) => {
+                if (!data.nodes.length)
+                    return;
+                element.addNetwork(data.nodes, data.edges, {
+                    groups: data.groups
+                });
+            });
+        });
+
+
     });
 
     controller.registerCall("kronoos::juristek::cnj", (cnj, name, document, ret) => {
@@ -295,7 +336,7 @@ module.exports = function(controller) {
 
         for (let cnj in procs) {
             xhr.push(controller.server.call("SELECT FROM 'JURISTEK'.'KRONOOS'",
-                controller.call("kronoos::status::ajax", "fa-balance-scale", `Verificando processo CNJ ${cnj} para ${document}.`, {
+                controller.call("kronoos::status::ajax", "fa-balance-scale", `Verificando processo Nº ${cnj} para ${(CPF.isValid(document) ? CPF : CNPJ).format(document)}.`, {
                     data: {
                         data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
                     },

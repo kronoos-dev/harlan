@@ -70,6 +70,16 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return addItem;
     };
 
+    this.addNetwork = (nodesArray, edgesArray, options = {}) => {
+        let elem = $("<div />").addClass("result-network"),
+            network = new vis.Network(elem.get(0), {
+                nodes: nodesArray,
+                edges: edgesArray
+            }, options);
+        element.append(elem);
+        return [network, elem];
+    };
+
     this.picture = (url) => {
         var image = new Image();
         image.onload = () => {
