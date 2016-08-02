@@ -179,11 +179,14 @@ var AccountOverview = function (closeable)  {
         controller.call("icheques::antecipate", query.values);
     };
 
-    var openDocuments = () =>  {
+    var openDocuments = (situation = null) =>  {
+        let searchExpression = expression.clone();
+        searchExpression.and("(SITUATION = ?)", situation);
+
         var querystr = squel
             .select()
             .from('ICHEQUES_CHECKS')
-            .where(expression)
+            .where(searchExpression)
             .toString();
 
         var query = controller.database.exec(querystr)[0];
@@ -310,8 +313,8 @@ var AccountOverview = function (closeable)  {
         }
     };
 
-    report.newAction("fa-folder-open", openDocuments);
-    report.newAction("fa-money", antecipateAction);
+    report.newAction("fa-folder-open", openDocuments, "Abrir Cheques");
+    report.newAction("fa-money", antecipateAction, "Antecipar Recebíveis");
 
     report.newAction("fa-cloud-download", () => {
         controller.call("icheques::ban::generate",
@@ -321,7 +324,7 @@ var AccountOverview = function (closeable)  {
                 .where(expression)
                 .toString())[0])
         );
-    });
+    }, "Arquivo BAN");
 
     var openButton = report.button("Filtrar Cheques", modalFilter);
 
@@ -467,7 +470,11 @@ var AccountOverview = function (closeable)  {
             var color = new Color(element.color);
             return report.label(sprintf("%s: %d", element.situation, element.value)).css({
                 "background-color": color.hslString(),
-                "color": color.light() ? "#000" : "#fff"
+                "color": color.light() ? "#000" : "#fff",
+                "cursor" : "pointer"
+            }).click((e) => {
+                e.preventDefault();
+                openDocuments(element.situation);
             });
         });
 

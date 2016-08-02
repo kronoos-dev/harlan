@@ -116,11 +116,11 @@ module.exports = (controller) => {
             return universalContainer;
         };
 
-        this.newAction = (icon, action) => {
+        this.newAction = (icon, action, title = null) => {
             elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
                 e.preventDefault();
                 action();
-            }));
+            }).attr({title : title}));
             return this;
         };
 
