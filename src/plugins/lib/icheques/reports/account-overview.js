@@ -179,9 +179,13 @@ var AccountOverview = function (closeable)  {
         controller.call("icheques::antecipate", query.values);
     };
 
-    var openDocuments = (situation = null) =>  {
+    var openDocuments = (situation = false) =>  {
         let searchExpression = expression.clone();
-        searchExpression.and("(SITUATION = ?)", situation);
+        if (situation) {
+            searchExpression.and("(SITUATION = ?)", situation);
+        } else if (situation === null) {
+            searchExpression.and("(SITUATION IS NULL OR SITUATION = '')");
+        }
 
         var querystr = squel
             .select()
@@ -474,7 +478,7 @@ var AccountOverview = function (closeable)  {
                 "cursor" : "pointer"
             }).click((e) => {
                 e.preventDefault();
-                openDocuments(element.situation);
+                openDocuments(element.situation != "Em processamento" ? element.situation : null);
             });
         });
 
