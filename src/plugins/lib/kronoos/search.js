@@ -219,7 +219,7 @@ module.exports = function(controller) {
         kelements[0].header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
         if (!cbuscaData) {
-            return
+            return;
         }
 
         let generateRelations = controller.call("generateRelations");

@@ -237,6 +237,7 @@ var Controller = function() {
     require('./modules/ccbusca')(this);
     require('./modules/generate-relations')(this);
     require('./modules/admin/contact-types')(this);
+    require('./modules/smartsupp')(this);
 
     /**
      * From day to night and night to day

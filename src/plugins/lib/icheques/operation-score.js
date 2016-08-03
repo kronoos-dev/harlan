@@ -43,6 +43,6 @@ module.exports = (controller) => {
             }, true));
         });
         modal.createActions().cancel();
-    })
+    });
 
 };
