@@ -10,13 +10,15 @@
 
     $("body").addClass("icheques-extension");
 
+    controller.unregisterTrigger("findDatabase::instantSearch", "socialprofile");
+
     controller.call("ccbusca::enable");
 
     controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933";
     controller.confs.smartsupp = "6da797e6b8bcf7dce984a4787ca27fe5d5f2b179";
     controller.endpoint.forgotPassword = "SELECT FROM 'ICHEQUESAUTHENTICATION'.'FORGOTPASSWORD'";
     controller.endpoint.adminReport = "SELECT FROM 'ICHEQUESREPORT'.'REPORT'";
-    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'IChequesReport'.'COMMERCIALREFERENCE'";
+    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'IChequesReport'.'COMMERCIALREFERENCE' WHERE 'CACHE' = 'DISABLED'";
 
     $.extend(controller.confs.icheques, {
         price: 150,
