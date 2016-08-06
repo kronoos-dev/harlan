@@ -59,6 +59,7 @@ label {
 .app {
     width: 100%;
     position: absolute;
+    padding-bottom: 35px;
     @include classHideEnabled;
 }
 .portofolio {
@@ -836,6 +837,29 @@ textarea {
         }
         &.small {
             cursor: pointer;
+        }
+
+        &.gray-button {
+            background-color: rgb(140, 140, 140);
+            color: rgb(255, 255, 255);
+            font-weight: bold;
+            box-shadow: 1px 1px 1px rgb(210, 210, 210);
+            border: none;
+            &:hover {
+                background-color: lighten(rgb(140, 140, 140), 12%);
+            }
+        }
+
+
+        &.green-button {
+            background-color: rgb(52, 163, 54);
+            color: rgb(255, 255, 255);
+            font-weight: bold;
+            box-shadow: 1px 1px 1px rgb(210, 210, 210);
+            border: none;
+            &:hover {
+                background-color: lighten(rgb(52, 163, 54), 12%);
+            }
         }
     }
     &[type="checkbox"] {

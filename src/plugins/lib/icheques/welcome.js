@@ -12,28 +12,11 @@ module.exports = function (controller) {
 
         report.button("Adicionar Cheque", function () {
             controller.call("icheques::newcheck");
-        });
+        }).addClass("green-button");
 
         report.button("Dados Cadastrais", function () {
             controller.call("icheques::form::company");
-        });
-
-//        switch ($("BPQL > body > type", ret).text()) {
-//            case "credit-anticipator":
-//                report.button("Adicionar Fundo", function () {
-//                    /* cria subchave */
-//                });
-//                break;
-//
-//            case "retail":
-//                report.button("Adicionar Empresa", function () {
-//                    /* cria subchave */
-//                });
-//                break;
-//        }
-//        report.button("Dados Bancários", function () {
-//            controller.call("icheques::form::bank");
-//        });
+        }).addClass("gray-button");
 
         report.gamification("shield");
 

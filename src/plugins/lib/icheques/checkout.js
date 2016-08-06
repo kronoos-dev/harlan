@@ -19,7 +19,8 @@ const DATABASE_KEYS = [
     'display',
     'ocurrence',
     'lastUpdate',
-    'operation'
+    'operation',
+    'ccf'
 ];
 
 var squel = require("squel"),

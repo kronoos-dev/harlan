@@ -61,7 +61,6 @@ module.exports = function (controller) {
                 continue;
             }
 
-
             var expire = moment(lines[key - 1].substring(249, 249 + 6), "DDMMYY");
 
             var data = {
@@ -82,7 +81,8 @@ module.exports = function (controller) {
             var expire = moment(lines[key].substring(120, 120 + 6), "DDMMYY");
             var data = {
                 cmc: lines[key].substring(351, 351 + 30),
-                expire: (expire.isValid() ? expire : moment().add(5, 'months')).format("YYYYMMDD")
+                expire: (expire.isValid() ? expire : moment().add(5, 'months')).format("YYYYMMDD"),
+                ammount: parseInt(lines[key].substring(180, 192).replace(/^0+/, ''), 10)
             };
 
             var document = lines[key].substring(220, 220 + 14);

@@ -105,7 +105,7 @@ module.exports = function (controller) {
                 return i;
             }));
             modal.close();
-        });
+        }).addClass("green-button");
 
         modal.createActions().add("Cancelar Operação").click(function (e) {
             e.preventDefault();

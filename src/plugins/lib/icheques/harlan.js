@@ -244,7 +244,7 @@ module.exports = function(controller) {
             },
             success: (ret) => {
                 let soma = 0;
-                $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
+                $(ret).find("BPQL > body > xml > ccfs > ccf > alinea12").each((i, el) => {
                     let $el = $(el),
                         tag = $el.prop("tagName");
                     if (!tag.includes("aline")) return;
