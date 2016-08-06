@@ -40,7 +40,7 @@ module.exports = (controller) => {
         report.button("Solicitar Antecipação", () => {
             var checks = controller.call("icheques::resultDatabase", controller.database.exec(obtainChecks)[0]).values;
             controller.call("icheques::antecipate", checks);
-        });
+        }).addClass("green-button");
 
         report.gamification("checkPoint");
 
