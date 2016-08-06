@@ -145,12 +145,12 @@ module.exports = function (controller) {
                 e.preventDefault();
                 modal.close();
             });
-        });
+        }).addClass("green-button");
 
         report.button("Já Tenho", function () {
             localStorage.cmc7Reader = true;
             report.close();
-        });
+        }).addClass("gray-button");
 
         report.gamification("star");
 
