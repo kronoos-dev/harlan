@@ -508,12 +508,16 @@ module.exports = function(controller) {
     };
 
     controller.registerCall("icheques::antecipate::allow", (data, element) => {
-        var modal = controller.modal();
+        let modal = controller.modal();
+
         modal.gamification("sword").css({
             "background": `url(${$(element).children("logo").text()}) no-repeat center`
         });
         modal.title($("company > nome", element).text() || $("company > responsavel", element).text());
-        modal.subtitle($("company > cnpj", element).text() || $("company > cpf", element).text());
+        modal.subtitle($("company > cnpj", element).text() ?
+            "CNPJ " + CNPJ.format($("company > cnpj", element).text()) :
+            "CPF " + CPF.format($("company > cpf", element).text()));
+
         var paragraph = modal.paragraph($(element).children("bio").text());
         modal.paragraph("A liberação da antecipadora pode ocorrer em até 7 dias úteis.");
         companyData(paragraph, element);
