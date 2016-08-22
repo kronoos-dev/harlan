@@ -225,9 +225,9 @@ module.exports = function(controller) {
 
     var showDocument = function(task) {
         var section = controller.call("section",
-                "iCheque",
-                "Prevenção a fraudes na sua carteira de cheques.",
-                "Documento " + task[0], false, true),
+                "iCheques",
+                "Monitoramento de cheques.",
+                "CPF/CNPJ " + task[0], false, true),
             result = controller.call("result");
         section[1].append(result.element());
         section[0].addClass("icheque loading");
@@ -238,7 +238,7 @@ module.exports = function(controller) {
 
         showChecks(task[1], result, section);
 
-        if (controller.confs.ccf)
+        if (controller.confs.ccf) {
             controller.serverCommunication.call("SELECT FROM 'CCF'.'CONSULTA'", {
                 data: {
                     doc: task[0]
@@ -257,6 +257,7 @@ module.exports = function(controller) {
                     }
                 }
             });
+        }
 
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
             cache: true,
@@ -264,7 +265,37 @@ module.exports = function(controller) {
                 documento: task[0]
             },
             success: function(ret) {
-                result.element().prepend(controller.call("xmlDocument", ret));
+                let xmlDocument = null,
+                    icon  = $("<i />").addClass("fa fa-user-plus"),
+                    showing = false;
+
+                section[2].prepend($("<li />").append(icon)
+                    .attr("title", "Informações do Sacado"));
+
+                section[2].find(".action-resize i").click(function () {
+                    if (!$(this).hasClass("fa-plus-square-o")) {
+                        icon.removeClass("fa-user-times");
+                        icon.addClass("fa-user-plus");
+                        xmlDocument.remove();
+                        showing = false;
+                    }
+                });
+
+                icon.click((e) => {
+                    e.preventDefault();
+                    if (!showing) {
+                        xmlDocument = controller.call("xmlDocument", ret);
+                        section[2].find(".fa-plus-square-o").click();
+                        icon.addClass("fa-user-times");
+                        icon.removeClass("fa-user-plus");
+                        result.element().prepend(xmlDocument);
+                    } else {
+                        icon.removeClass("fa-user-times");
+                        icon.addClass("fa-user-plus");
+                        xmlDocument.remove();
+                    }
+                    showing = !showing;
+                });
             },
             error: function() {
                 result.content().prepend(result.addItem("Documento", task[0]));
