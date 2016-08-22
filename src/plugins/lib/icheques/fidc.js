@@ -55,6 +55,9 @@ module.exports = (controller) => {
                     if (globalReport) globalReport.element().remove();
                     return;
                 }
+
+                controller.confs.ccf = true;
+                
                 var expireNode = $("BPQL > body > fidc > expire", ret),
                     expire = expireNode.length ? moment.unix(parseInt(expireNode.text())) : null;
 
@@ -94,8 +97,8 @@ module.exports = (controller) => {
             });
             report.gamification("fail");
         } else if (dict.approved) {
-            report.title("Seu cadastro de antecipador está perfeito.");
-            report.subtitle("Essa conta está habilitada para receber carteiras de cheques.");
+            report.title("Pronto! Seu FIDC/Factoring está configurado!");
+            report.subtitle("Essa conta está habilitada para receber operações. Bons negócios!");
             report.paragraph(dict.bio);
 
             var timeline = report.timeline(controller);

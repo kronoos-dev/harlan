@@ -78,8 +78,6 @@ module.exports = (controller) => {
     controller.registerTrigger("authentication::authenticated::end", "dive::smartReport", () => {
         closeItems();
 
-        controller.call("dive::smartReport");
-
         var rfbColors = {success: 0, warning: 0, error: 0};
         controller.call("dive::smartReport::doughnut::show",
                 "SELECT FROM 'DIVE'.'SpecialReportRFB'",
@@ -124,23 +122,6 @@ module.exports = (controller) => {
                 }, {});
     });
 
-    controller.registerCall("dive::smartReport", () => {
-        let report = controller.call("report",
-                "Relatórios Inteligentes",
-                "Mergulhe nos dados através dos relatórios inteligentes.",
-                "Os relatórios inteligentes foram desenvolvidos para que você tenha uma visão completa dos dados de sua carteira, saiba a porcentagem de cadastros de qualidade, seu progresso ao longo do tempo e dessa forma gerencie melhor sua cobrança.",
-                false);
-        items.push(report);
-        report.button("Filtros", () => {
-            controller.call("dive::smartReport::filter");
-        });
-        report.gamification("magicWand");
-        $(".app-content").append(report.element());
-    });
-
-    controller.registerCall("dive::smartReport::filter", () => {
-
-    });
 
     controller.registerCall("dive::smartReport::doughnut::show", (endpoint, title, subtitle, markdown, nodeColor) => {
         controller.serverCommunication.call(endpoint, {
