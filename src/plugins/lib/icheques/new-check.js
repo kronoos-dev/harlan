@@ -3,11 +3,11 @@ import { CPF, CNPJ } from  "cpf_cnpj";
 import squel from "squel";
 import _ from "underscore";
 import StringMask from 'string-mask';
+import validCheck from "./data/valid-check";
 
 const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
         MATCH_NON_DIGITS = /[^\d]/g,
-        CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
-        validCheck = require("./data/valid-check");
+        CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
 module.exports = function (controller) {
 
@@ -38,11 +38,6 @@ module.exports = function (controller) {
 
     var newCheck = function (data, checkList, storage, modal) {
         data.cmc = data.cmc.replace(MATCH_NON_DIGITS, '');
-
-        if (!validCheck(data.cmc)) {
-            toastr.warning("A instituição bancária emissora do cheque não é aceita pelo sistema.", "A instituição bancária não é aceita pelo iCheques.");
-            return;
-        }
 
         if (checkAlreadyExists(data) || _.findIndex(storage, function (compare) {
             if (!compare || !compare.cmc) {
@@ -205,13 +200,24 @@ module.exports = function (controller) {
 
             setCMC7Document(cmc7, document);
 
-            callback({
+            let finish = () => callback({
                 document: document,
                 ammount: inputValue.val(),
                 expire: expire,
                 cmc: cmc7Val,
                 observation: inputObservacao.val()
             });
+
+            if (!validCheck(cmc7Val)) {
+                controller.confirm({
+                    icon: "socialShare",
+                    title: "A instituição bancária informada não é coberta pelo iCheques.",
+                    subtitle: "Mesmo assim você gostaria de adicionar o cheque em sua carteira?",
+                    paragraph: "Você poderá antecipá-lo com nossos parceiros financeiros ou simplesmente administrá-lo em sua carteira."
+                }, finish);
+            } else {
+                finish();
+            }
 
             modal.close();
             newCheckFormAction = null;
@@ -220,7 +226,7 @@ module.exports = function (controller) {
 
         form.element().submit(newCheckFormAction);
 
-        form.addSubmit("addcheck", "Adicionar Cheque").addClass("strong");
+        form.addSubmit("addcheck", "Adicionar Cheque").addClass("strong green-button");
 
         var actions = modal.createActions();
         actions.add("Arquivo BAN ou REM").click(function (e) {

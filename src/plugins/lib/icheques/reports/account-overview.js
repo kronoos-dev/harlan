@@ -214,21 +214,8 @@ var AccountOverview = function (closeable)  {
     };
 
 
-    var reportFilter = (f) =>  {
-        _.each(filterLabels, (e) =>  {
-            e.remove();
-        });
-
-        filterLabels = [];
-
-        /* convert modal data */
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-
+    this.filter = (f) => {
         expression = squel.expr();
-
 
         if (f.filter === "0") {
             //            filterLabels.push(report.label("Cheques Processados"));
@@ -294,6 +281,22 @@ var AccountOverview = function (closeable)  {
             expression.and("AMMOUNT = ?", f.initAmmount * 100);
             //            filterLabels.push(report.label("Valor " + numeral(f.initAmmount / 100).format("$0,0.00")));
         }
+    };
+
+    var reportFilter = (f) =>  {
+        _.each(filterLabels, (e) =>  {
+            e.remove();
+        });
+
+        filterLabels = [];
+
+        /* convert modal data */
+        if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
+
+        this.filter(f);
 
         generateSum();
 

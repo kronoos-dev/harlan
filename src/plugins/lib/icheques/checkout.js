@@ -56,6 +56,15 @@ module.exports = function(controller) {
             return;
         }
 
+        if (!validCheck(check.cmc)) {
+            check.situation = "Instituição bancária não monitorada";
+            check.display = "Instituição bancária não monitorada";
+            check.queryStatus = "Instituição bancária não monitorada";
+            check.ocurrenceCode = 99999;
+            check.ocurrence = "Instituição bancária não monitorada";
+            check.pushId = null;
+        }
+
         controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
     };
 
@@ -79,11 +88,6 @@ module.exports = function(controller) {
     };
 
     var newCheck = function(check, callback) {
-        if (!validCheck(check.cmc)) {
-            callback();
-            return false;
-        }
-
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
             data: check,
             success: function(ret) {
@@ -103,14 +107,6 @@ module.exports = function(controller) {
     controller.registerCall("icheques::checkout", function(storage) {
         if (!storage.length) {
             return;
-        }
-
-        for (var i in storage) {
-            if (!validCheck(storage[i].cmc)) {
-                toastr.warning("Alguns cheques não poderão ser processados.",
-                    "Instituição bancária não integrada ao iCheques.");
-                break;
-            }
         }
 
         controller.call("icheques::calculateBill", storage, function() {
@@ -143,9 +139,6 @@ module.exports = function(controller) {
     controller.registerCall("icheques::calculateBill::pay", function(checks, callback) {
         var total = 0;
         for (var i in checks) {
-            if (!validCheck(checks[i].cmc)) {
-                continue;
-            }
             total += calculateCheck(checks[i]);
         }
 

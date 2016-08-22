@@ -69,8 +69,8 @@ module.exports = function(controller) {
     controller.registerCall("icheques::antecipate", function(checks) {
         controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
             dataType: "json",
-            success: () => {
-                controller.call("icheques::antecipate::init", checks);
+            success: (profile) => {
+                controller.call("icheques::antecipate::init", checks, profile);
             },
             error: () => {
                 controller.alert({
@@ -90,7 +90,7 @@ module.exports = function(controller) {
     });
 
     /* List Banks */
-    controller.registerCall("icheques::antecipate::init", function(checks) {
+    controller.registerCall("icheques::antecipate::init", function(checks, profile) {
         let expired = [],
             now = moment().format("YYYYMMDD");
 
@@ -105,6 +105,7 @@ module.exports = function(controller) {
         checks = _.filter(checks, (check) => {
             return check.situation === "Cheque sem ocorrências" ||
                 check.situation === "Cheque com outras ocorrências" ||
+                check.situation === "Instituição bancária não monitorada" ||
                 check.situation === "O talão do cheque está bloqueado" ||
                 !check.situation;
         });
@@ -171,7 +172,7 @@ module.exports = function(controller) {
                         approved: "true"
                     },
                     success: function(ret) {
-                        controller.call("icheques::antecipate::filter", ret, checks);
+                        controller.call("icheques::antecipate::filter", ret, checks, profile);
                     }
                 })));
         }, (ret) => {
@@ -236,7 +237,7 @@ module.exports = function(controller) {
         if (callback) callback();
     };
 
-    controller.registerCall("icheques::antecipate::filter", (data, checks) => {
+    controller.registerCall("icheques::antecipate::filter", (data, checks, profile) => {
         let modal = controller.call("modal");
         modal.title("Cheques para Antecipar");
         modal.subtitle("Seleção de Cheques para Antecipação");
@@ -252,7 +253,8 @@ module.exports = function(controller) {
             processingOnes = [];
 
         otherOccurrences = _.filter(checks, (check) => {
-            return check.situation === "Cheque com outras ocorrências";
+            return check.situation === "Cheque com outras ocorrências" ||
+                   check.situation === "Instituição bancária não monitorada";
         });
 
         blockedBead = _.filter(checks, (check) => {
@@ -324,7 +326,7 @@ module.exports = function(controller) {
             });
 
             if (checks.length || totalAmmount <= 0) {
-                controller.call("icheques::antecipate::show", data, checks);
+                controller.call("icheques::antecipate::show", data, checks, profile);
             } else {
                 controller.call("icheques::antecipate::checksIsEmpty");
             }
@@ -355,7 +357,7 @@ module.exports = function(controller) {
         updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
     });
 
-    controller.registerCall("icheques::antecipate::show", (data, checks, filterReference = true) =>
+    controller.registerCall("icheques::antecipate::show", (data, checks, profile, filterReference = true) =>
         controller.call("geolocation", (geoposition) => {
             var banks = $("BPQL > body > fidc", data),
                 validBankReferences = $();
@@ -377,9 +379,30 @@ module.exports = function(controller) {
             }
 
             banks = banks.filter((i, element) => {
-                var approved = $(element).children("approvedCustomer").text() == "true";
-                var ask = $(element).children("ask").text() == "true";
-                return !ask || approved;
+                var approved = $(element).children("approvedCustomer").text() == "true",
+                    ask = $(element).children("ask").text() == "true",
+                    fromValue = $(element).children("fromValue"),
+                    toValue = $(element).children("toValue");
+
+                if (approved) {
+                    return true;
+                }
+
+                if (fromValue.length) {
+                    let fromValueInt = parseInt(fromValue.text());
+                    if (fromValueInt && fromValueInt > profile.revenue) {
+                        return false;
+                    }
+                }
+
+                if (toValue.length) {
+                    let toValueInt = parseInt(toValue.text());
+                    if (toValueInt && toValueInt < profile.revenue) {
+                        return false;
+                    }
+                }
+
+                return !ask;
             });
 
             if (!banks.length) {
@@ -546,7 +569,7 @@ module.exports = function(controller) {
         modal.createActions().cancel();
     });
 
-    controller.registerCall("icheques::antecipate::fidc", (data, element, checks) => {
+    controller.registerCall("icheques::antecipate::fidc", (data, element, checks, profile) => {
         var modal = controller.modal();
 
         if ((hasProcessingOnes && $(element).find("processingOnes").text() != "true") ||
@@ -600,14 +623,10 @@ module.exports = function(controller) {
                             });
                         }
                     })));
-            }, () => {
-                controller.call("icheques::antecipate::show", data, checks);
             });
         });
 
-        modal.createActions().cancel(() => {
-            controller.call("icheques::antecipate::show", data, checks);
-        });
+        modal.createActions().cancel();
     });
 
 };

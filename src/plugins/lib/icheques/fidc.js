@@ -315,6 +315,15 @@ module.exports = (controller) => {
             modal.paragraph("Configurando sua antecipadora você passa a receber cheques de nossos clientes e parceiros, seu perfil estará sujeito a avaliação cadastral.");
             var form = modal.createForm(),
                 logo = form.addInput("logo", "file", "Logomarca - 150x150"),
+                multifield = form.multiField(),
+                fromValue = form.addInput("value-from", "input", "De Faturamento (R$)", {
+                    append : multifield,
+                    labelPosition : "before",
+                }, "De Faturamento (R$)").mask("000.000.000.000.000,00", {reverse: true}).magicLabel(),
+                toValue = form.addInput("value-to", "input", "Até Faturamento (R$)", {
+                    append : multifield,
+                    labelPosition : "before",
+                }, "Até Faturamento (R$)").mask("000.000.000.000.000,00", {reverse: true}).magicLabel(),
                 bio = form.addTextarea("about", "História da Empresa (200 caracteres)").attr({
                     "maxlength": 200
                 });
@@ -355,6 +364,15 @@ module.exports = (controller) => {
             form.element().submit((e) => {
                 e.preventDefault();
 
+                var fromValueInput = numeral().unformat(fromValue.val()) * 100,
+                    toValueInput =  numeral().unformat(toValue.val()) * 100;
+
+                if (fromValueInput && toValueInput && fromValueInput >= toValueInput) {
+                    toastr.warning("O valor inicial de faturamento é superior ou igual ao valor final.",
+                        "Verifique as configurações de valor informadas.");
+                    return;
+                }
+
                 if (!logoImage || bio.val().replace(/s+/, " ").length < 100) {
                     toastr.warning("O campo história da empresa deve ter ao menos 100 caracteres e o logo deve estar preenchido.",
                         "Verifique o formulário e tente novamente.");
@@ -373,7 +391,9 @@ module.exports = (controller) => {
                             method: "POST",
                             data: {
                                 bio: bio.val(),
-                                logo: logoImage
+                                logo: logoImage,
+                                fromValue: fromValueInput,
+                                toValue: toValueInput
                             },
                             success: () => {
                                 controller.call("alert", {
@@ -445,7 +465,7 @@ module.exports = (controller) => {
                                     icon: "pass",
                                     title: "Antecipadora aprovada com sucesso.",
                                     subtitle: "A antecipadora foi aprovada e já pode ser utilizada pelos clientes e parceiros iCheques.",
-                                    paragraph: "Um e-mail foi enviado avisando da aprovação, também foram debitados os R$ 900,00 (novecentos reais), referentes ao primeiro mês de uso."
+                                    paragraph: "Um e-mail foi enviado avisando da aprovação."
                                 });
                                 report.close();
                             }

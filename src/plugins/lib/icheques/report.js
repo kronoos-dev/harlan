@@ -16,7 +16,18 @@ module.exports = function (controller) {
             if (report.showable(showAlert)) {
                 $(".app-content").prepend(report.element());
                 report.draw();
+            } else {
+                report.filter({
+                    expired : true,
+                    filter : "0"
+                });
+
+                if (report.showable(showAlert)) {
+                    $(".app-content").prepend(report.element());
+                    report.draw();
+                }
             }
+
         });
     }
 
