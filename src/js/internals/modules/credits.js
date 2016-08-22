@@ -214,6 +214,14 @@ module.exports = (controller) =>  {
                 if (minValue < 100000) {
                     list.add("fa-dollar", "Recarregar R$ 1.000,00.").click(charge(100000));
                 }
+                
+                if (minValue < 250000) {
+                    list.add("fa-dollar", "Recarregar R$ 2.500,00.").click(charge(250000));
+                }
+
+                if (minValue < 500000) {
+                    list.add("fa-dollar", "Recarregar R$ 5.000,00.").click(charge(500000));
+                }
 
                 form.cancelButton();
             });
