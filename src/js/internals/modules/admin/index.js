@@ -27,7 +27,7 @@ module.exports = function(controller) {
 
         require("./autocomplete")(controller);
         require("./instant-search")(controller);
-        require("./open-companys")(controller);
+        require("./open-companies")(controller);
         require("./create-company")(controller);
         require("./view-company")(controller);
         require("./change-password")(controller);
