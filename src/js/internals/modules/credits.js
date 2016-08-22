@@ -27,6 +27,10 @@ module.exports = (controller) =>  {
     };
 
     controller.registerCall("credits::has", (needed, callback) => {
+        if (!needed) {
+            callback();
+            return;
+        }
         controller.call("authentication::need", () => {
             var modal = controller.call("modal"),
                 missing = companyCredits - needed,
