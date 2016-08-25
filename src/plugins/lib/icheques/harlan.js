@@ -237,7 +237,6 @@ module.exports = function(controller) {
         }
 
         showChecks(task[1], result, section);
-
         if (controller.confs.ccf) {
             controller.serverCommunication.call("SELECT FROM 'CCF'.'CONSULTA'", {
                 data: {

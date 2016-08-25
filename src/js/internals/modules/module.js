@@ -84,10 +84,7 @@ module.exports = function (controller) {
         });
 
         form.addSubmit("continue", "Remover Módulo");
-        form.addSubmit("cancel", "Cancelar").click(function (e) {
-            e.preventDefault();
-            modal.close();
-        });
+        modal.createActions().cancel();
 
     };
 
@@ -110,10 +107,7 @@ module.exports = function (controller) {
 
         var module = form.addInput("module", "text", "Endereço do módulo.");
         form.addSubmit("continue", "Adicionar Módulo");
-        form.addSubmit("cancel", "Cancelar").click(function (e) {
-            e.preventDefault();
-            modal.close();
-        });
+        modal.createActions().cancel();
 
         form.element().submit(function (e) {
             e.preventDefault();
