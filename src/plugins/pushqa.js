@@ -58,14 +58,14 @@ const MAX_RESULTS = 5;
             };
 
             generateReport(filter(true), "Relatório de Push", "Consultas Realizadas com Sucesso",
-                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as \
-                manutenções possam ser orientadas com maior precisão em relação aos problemas. Para \
-                obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
+                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
+                "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
+                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
 
             generateReport(filter(false), "Relatório de Push", "Consultas Relizadas sem Sucesso",
-                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as \
-                manutenções possam ser orientadas com maior precisão em relação aos problemas. Para \
-                obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
+                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
+                "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
+                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
         }
     });
 
@@ -97,11 +97,11 @@ const MAX_RESULTS = 5;
                             result.addItem("Rótulo", push.attr("label"));
                             result.addItem("Consulta", push.find("data").text() || push.find("pushquery").text());
                             result.addItem("API", "").find(".value").append($("<a />").attr({
+                                target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
                                     apiKey: push.find("apikey").text(),
                                     q: "SELECT FROM 'PUSH'.'JOB'",
                                     id: task,
-                                    target: "_blank"
                                 })}`
                             }).text("Visualização API"));
                             items.push(result.element());

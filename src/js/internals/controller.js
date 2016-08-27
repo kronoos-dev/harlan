@@ -5,9 +5,9 @@ import _ from 'underscore';
 
 import ServerCommunication from './library/server-communication';
 import ImportXMLDocument from './library/import-xml-document';
-import Interface from './library/interface.js';
-import I18n from './library/i18n.js';
-import Store from './library/store.js';
+import Interface from './library/interface';
+import I18n from './library/i18n';
+import Store from './library/store';
 
 var Controller = function() {
 
@@ -179,7 +179,7 @@ var Controller = function() {
     require('./forms/receita-certidao')(this);
 
     /* Modules */
-    require('./modules/logs/watch-onerror.js')(this);
+    require('./modules/logs/watch-onerror')(this);
     require('./modules/analytics/google-analytics')(this);
     require('./modules/security/antiphishing')(this);
     require('./modules/i18n')(this);
@@ -231,6 +231,7 @@ var Controller = function() {
     require('./modules/billing-information')(this);
     require('./modules/bipbop')(this);
     require('./modules/admin/index')(this);
+    require('./modules/account-overview')(this);
     require('./modules/email-activation')(this);
     require('./modules/timeline')(this);
     require('./modules/data-company')(this);
