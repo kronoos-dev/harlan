@@ -11,6 +11,7 @@
     $("body").addClass("icheques-extension");
 
     controller.unregisterTrigger("findDatabase::instantSearch", "socialprofile");
+    controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
 
     controller.call("ccbusca::enable");
 
