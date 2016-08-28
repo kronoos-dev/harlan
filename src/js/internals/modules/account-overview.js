@@ -162,12 +162,12 @@ module.exports = function(controller) {
     });
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "accountOverview", function(data, cb) {
-        console.debug(data);
+        cb();
         if ((data.adminOf && data.adminOf.length) || data.contrato[4] === 'free') {
             return;
         }
 
-        cb();
+        controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
         controller.call("accountOverview", (graph) => {
             graph.gamification("levelUp");
         });
