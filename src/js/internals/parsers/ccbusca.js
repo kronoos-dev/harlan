@@ -38,12 +38,23 @@ module.exports = function (controller) {
                 "Complemento": "complemento",
                 "CEP": "cep",
                 "Bairro": "bairro",
-                "Cidade": "cidade",
-                "Estado": "estado"
+                "Cidade": ["cidade", "municipio"],
+                "Estado": ["estado", "uf"]
             }, jnode = $(node), address = [];
 
             for (var idx in nodes) {
-                var data = jnode.find(nodes[idx]).text();
+                var data = "";
+                if (Array.isArray(nodes[idx])) {
+                    for (let item in nodes[idx]) {
+                        let itemNode = jnode.find(nodes[idx][item]);
+                        if (itemNode.length) {
+                            data = itemNode.text();
+                            break;
+                        }
+                    }
+                } else {
+                    data = jnode.find(nodes[idx]).text();
+                }
                 nodes[idx] = (/^\**$/.test(data)) ? "" : data;
             }
 
@@ -114,7 +125,7 @@ module.exports = function (controller) {
             phones.push("(" + jnode.find("ddd").text() + ") " + jnode.find("numero").text());
         });
 
-        jdocument.find("BPQL > body email, BPQL > body > RFB > email").each(function (idx, node) {
+        jdocument.find("BPQL > body email").each(function (idx, node) {
             let email = $(node).text().trim();
             if (_.contains(emails, email)) return;
             emails.push(email);
@@ -168,15 +179,23 @@ module.exports = function (controller) {
 
         var nodes = {
             "Nome": "nome",
-            "Nome da Mãe" : "nomemae"
+            "Nome da Mãe" : "nomemae",
+            "Atividade Econômica" : "atividade-economica",
+            "Natureza Jurídica" : "natureza-juridica",
+            "Situação" : "situacao",
         };
 
-        var init = "BPQL > body > xml > cadastro > ";
+        var init = "BPQL > body ";
         for (var idx in nodes) {
-            var data = jdocument.find(init + nodes[idx]).text();
+            var data = jdocument.find(init + nodes[idx]).first().text();
             if (/^\**$/.test(data))
                 continue;
             result.addItem(idx, data, nodes[idx]);
+        }
+
+        var capitalSocial = jdocument.find("capitalSocial");
+        if (capitalSocial.length) {
+            result.addItem("Capital Social", numeral(capitalSocial.text()).format("$0,0.00"), "capitalSocial");
         }
 
         setAddress(result, jdocument);
