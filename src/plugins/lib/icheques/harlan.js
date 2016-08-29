@@ -4,7 +4,8 @@ var async = require("async"),
     StringMask = require("string-mask"),
     _ = require("underscore"),
     squel = require("squel"),
-    changeCase = require('change-case');
+    changeCase = require('change-case'),
+    CNPJ = require("cpf_cnpj").CNPJ;
 
 import {
     CMC7Parser
@@ -254,6 +255,54 @@ module.exports = function(controller) {
                         section[0].find("h3").text(`Este documento possui ${soma} ${soma > 1 ? "cheques" : "cheque"} sem fundo no BACEN.`);
                         section[0].addClass("warning");
                     }
+                }
+            });
+        }
+
+        if (CNPJ.isValid(task[0])) {
+            controller.serverCommunication.call("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'", {
+                cache: true,
+                data: {
+                    documento: task[0]
+                },
+                success: function(ret) {
+                    let xmlDocument = null,
+                        icon  = $("<i />").addClass("fa fa-building-o"),
+                        showing = false;
+
+                    section[2].prepend($("<li />").append(icon)
+                        .attr("title", "Informações do Cartão CNPJ"));
+
+                    section[2].find(".action-resize i").click(function () {
+                        if (!$(this).hasClass("fa-plus-square-o")) {
+                            icon.removeClass("fa-building");
+                            icon.addClass("fa-building-o");
+                            xmlDocument.remove();
+                            showing = false;
+                        }
+                    });
+
+                    icon.click((e) => {
+                        e.preventDefault();
+                        if (!showing) {
+                            xmlDocument = controller.call("xmlDocument", ret);
+                            section[2].find(".fa-plus-square-o").click();
+                            icon.addClass("fa-building");
+                            icon.removeClass("fa-building-o");
+                            result.element().prepend(xmlDocument);
+                        } else {
+                            icon.removeClass("fa-building");
+                            icon.addClass("fa-building-o");
+                            xmlDocument.remove();
+                        }
+                        showing = !showing;
+                    });
+                },
+                error: function() {
+                    result.content().prepend(result.addItem("Documento", task[0]));
+                },
+                complete: function() {
+                    section[0].removeClass("loading");
                 }
             });
         }
