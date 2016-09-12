@@ -7,6 +7,8 @@
         };
     });
 
+    controller.confs.smartsupp = "";
+
     require("./lib/kronoos/design")(controller);
     require("./lib/kronoos/authentication")(controller);
     require("./lib/kronoos/contact-us")(controller);
