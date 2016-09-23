@@ -239,20 +239,16 @@ module.exports = function(controller) {
 
         showChecks(task[1], result, section);
         if (controller.confs.ccf) {
-            controller.serverCommunication.call("SELECT FROM 'CCF'.'CONSULTA'", {
+            controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'ConsultaAssertiva'", {
                 data: {
-                    doc: task[0]
+                    documento: task[0]
                 },
                 success: (ret) => {
-                    let soma = 0;
-                    $(ret).find("BPQL > body > xml > ccfs > ccf > alinea12").each((i, el) => {
-                        let $el = $(el),
-                            tag = $el.prop("tagName");
-                        if (!tag.includes("aline")) return;
-                        soma += parseInt($el.text(), 10);
-                    });
-                    if (soma > 0) {
-                        section[0].find("h3").text(`Este documento possui ${soma} ${soma > 1 ? "cheques" : "cheque"} sem fundo no BACEN.`);
+                    let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
+                    let currentMessage = section[0].find("h3").text();
+                    totalRegistro = parseInt(totalRegistro);
+                    if (totalRegistro > 0) {
+                        section[0].find("h3").text(`${currentMessage}. Total de ocorrências de CCF: ${totalRegistro}`);
                         section[0].addClass("warning");
                     }
                 }
