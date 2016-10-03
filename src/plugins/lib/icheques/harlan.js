@@ -251,7 +251,7 @@ module.exports = function(controller) {
 
                     totalRegistro = parseInt(totalRegistro);
                     if (totalRegistro > 0) {
-                        section[0].find("h3").text(`${currentMessage} Total de CCF: ${totalRegistro} com total de ocorrências de ${qteOcorrencias}`);
+                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${totalRegistro} com total de ocorrências de ${qteOcorrencias}`);
                         section[0].addClass("warning");
                     }
                 }
