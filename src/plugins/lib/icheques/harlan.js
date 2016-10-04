@@ -248,10 +248,11 @@ module.exports = function(controller) {
                     let currentMessage = section[0].find("h3").text();
 
                     let qteOcorrencias = $(ret).find("BPQL > body > data > resposta > list > item0 > qteOcorrencias").text();
+                    let dataUltOcorrencia = $(ret).find("BPQL > body > data > resposta > list > item0 > dataUltOcorrencia").text();
 
                     totalRegistro = parseInt(totalRegistro);
                     if (totalRegistro > 0) {
-                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${totalRegistro} com total de ocorrências de ${qteOcorrencias}`);
+                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com total de ocorrências de ${dataUltOcorrencia}`);
                         section[0].addClass("warning");
                     }
                 }
