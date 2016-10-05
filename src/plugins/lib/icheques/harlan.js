@@ -252,7 +252,7 @@ module.exports = function(controller) {
 
                     totalRegistro = parseInt(totalRegistro);
                     if (totalRegistro > 0) {
-                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com total de ocorrências de ${dataUltOcorrencia}`);
+                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
                         section[0].addClass("warning");
                     }
                 }
