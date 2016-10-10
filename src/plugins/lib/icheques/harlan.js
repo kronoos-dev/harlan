@@ -237,7 +237,28 @@ module.exports = function(controller) {
             controller.call("icheques::report::overview", false, false);
         }
 
-        showChecks(task[1], result, section);            
+        showChecks(task[1], result, section);
+
+        if (controller.confs.ccf) {
+         controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'ConsultaAssertiva'", {
+             data: {
+                 documento: task[0]
+             },
+             success: (ret) => {
+                 let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
+                 let currentMessage = section[0].find("h3").text();
+
+                 let qteOcorrencias = $(ret).find("BPQL > body > data > resposta > list > item0 > qteOcorrencias").text();
+                 let dataUltOcorrencia = $(ret).find("BPQL > body > data > resposta > list > item0 > dataUltOcorrencia").text();
+
+                 totalRegistro = parseInt(totalRegistro);
+                 if (totalRegistro > 0) {
+                     section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
+                     section[0].addClass("warning");
+                 }
+             }
+         });
+        }
 
         let ccbuscaQuery = {
             documento: task[0]
