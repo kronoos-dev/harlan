@@ -240,6 +240,9 @@ module.exports = function(controller) {
         showChecks(task[1], result, section);
 
         if (controller.confs.ccf) {
+
+         let mensagem = null;
+
          controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'ConsultaAssertiva'", {
              data: {
                  documento: task[0]
@@ -253,11 +256,36 @@ module.exports = function(controller) {
 
                  totalRegistro = parseInt(totalRegistro);
                  if (totalRegistro > 0) {
+
+                     mensagem = `${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
+
                      section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
                      section[0].addClass("warning");
                  }
              }
          });
+
+         controller.serverCommunication.call("SELECT FROM 'PROTESTOS'.'CONSULTA'", {
+             data: {
+                 documento: task[0]
+             },
+             success: (ret) => {
+
+                 let totalRegistroProtA = $(ret).find("BPQL > body > protesto > protestos > node > cartorio >");
+
+                 let totalRegistroProtR = totalRegistroProtA.length.toString();
+
+                 if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
+
+                    console.info(totalRegistroProtR);
+
+                     section[0].find("h3").text(mensagem+` - Total de Protestos: ${totalRegistroProtR}`);
+                     section[0].addClass("warning");
+                 }
+             }
+         });
+
+
         }
 
         let ccbuscaQuery = {
