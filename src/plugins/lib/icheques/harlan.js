@@ -277,14 +277,13 @@ module.exports = function(controller) {
 
                  if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
 
-                    console.info(totalRegistroProtR);
+                     mensagem = (mensagem === null ? '': mensagem);
 
-                     section[0].find("h3").text(mensagem+` - Total de Protestos: ${totalRegistroProtR}`);
+                     section[0].find("h3").text(mensagem+` - Total de Cartórios com Protesto: ${totalRegistroProtR}`);
                      section[0].addClass("warning");
                  }
              }
          });
-
 
         }
 
