@@ -277,7 +277,7 @@ module.exports = function(controller) {
 
                  if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
 
-                     mensagem = (mensagem === null ? '': mensagem);
+                     mensagem = (mensagem === null ? 'Monitoramento de cheques.': mensagem);
 
                      section[0].find("h3").text(mensagem+` - Total de Cartórios com Protesto: ${totalRegistroProtR}`);
                      section[0].addClass("warning");
