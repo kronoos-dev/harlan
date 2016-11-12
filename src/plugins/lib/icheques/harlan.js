@@ -251,8 +251,8 @@ module.exports = function(controller) {
                  let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
                  let currentMessage = section[0].find("h3").text();
 
-                 let qteOcorrencias = $(ret).find("BPQL > body > data > resposta > list > item0 > qteOcorrencias").text();
-                 let dataUltOcorrencia = $(ret).find("BPQL > body > data > resposta > list > item0 > dataUltOcorrencia").text();
+                 let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
+                 let dataUltOcorrencia = $(ret).find("BPQL > body > data > ultimaOcorrencia").text();
 
                  totalRegistro = parseInt(totalRegistro);
                  if (totalRegistro > 0) {
