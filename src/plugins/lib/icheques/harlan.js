@@ -243,7 +243,7 @@ module.exports = function(controller) {
 
          let mensagem = null;
 
-         controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'ConsultaAssertiva'", {
+         controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
              data: {
                  documento: task[0]
              },
