@@ -367,8 +367,8 @@ module.exports = (controller) => {
             form.element().submit((e) => {
                 e.preventDefault();
 
-                var fromValueInput = numeral().unformat(fromValue.val()) * 100,
-                    toValueInput =  numeral().unformat(toValue.val()) * 100;
+                var fromValueInput = numeral().unformat(fromValue.val()),
+                    toValueInput =  numeral().unformat(toValue.val());
 
                 if (fromValueInput && toValueInput && fromValueInput >= toValueInput) {
                     toastr.warning("O valor inicial de faturamento é superior ou igual ao valor final.",
