@@ -135,6 +135,7 @@ var AccountOverview = function (closeable)  {
         }, _.object(situations, keys)));
 
         var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
+        var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.")[1];
 
         form.element().submit((e) =>  {
             e.preventDefault();
@@ -146,7 +147,8 @@ var AccountOverview = function (closeable)  {
                 initAmmount: parseValue(initAmmount.val()),
                 endAmmount: parseValue(endAmmount.val()),
                 filter: filter.val(),
-                expired : expiredInput.is(":checked")
+                expired : expiredInput.is(":checked"),
+                ccfOnly : ccfOnlyInput.is(":checked")
             });
             modal.close();
         });
@@ -233,6 +235,12 @@ var AccountOverview = function (closeable)  {
             //            filterLabels.push(report.label("Cheques com Ocorrência"));
         } else {
             expression.and("(SITUATION = ?)", f.filter);
+        }
+
+        if (f.ccfOnly) {
+            expression.and("CCF > 0");
+        } else {
+
         }
 
         if (f.expired) {
