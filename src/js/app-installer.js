@@ -39,8 +39,8 @@ require("pseudo-worker/polyfill");
             try {
                 (new Function(content.toString(encode)))();
             } catch (e) {
-                /* Try Load Again */
-                window.location.reload(true);
+                if (console && console.error)
+                    console.error(e);
             }
             inflateWorker.terminate(); /* goodbye! */
             return;

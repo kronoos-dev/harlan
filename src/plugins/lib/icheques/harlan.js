@@ -241,49 +241,50 @@ module.exports = function(controller) {
 
         if (controller.confs.ccf) {
 
-         let mensagem = null;
+            let mensagem = null;
 
-         controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
-             data: {
-                 documento: task[0]
-             },
-             success: (ret) => {
-                 let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
-                 let currentMessage = section[0].find("h3").text();
+            controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
+                data: {
+                    documento: task[0]
+                },
+                success: (ret) => {
+                    let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
+                    let currentMessage = section[0].find("h3").text();
 
-                 let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
-                 let dataUltOcorrencia = $(ret).find("BPQL > body > data > ultimaOcorrencia").text();
+                    let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
+                    let dataUltOcorrencia = $(ret).find("BPQL > body > data > ultimaOcorrencia").text();
 
-                 totalRegistro = parseInt(totalRegistro);
-                 if (totalRegistro > 0) {
+                    totalRegistro = parseInt(totalRegistro);
+                    if (totalRegistro > 0) {
+                        mensagem = `${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
+                        section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
+                        section[0].addClass("warning");
+                        /* adicionando campo de visão do cheque */
+                    }
 
-                     mensagem = `${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
+                    section[1].append(controller.call("xmlDocument", ret));
+                }
+            });
 
-                     section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
-                     section[0].addClass("warning");
-                 }
-             }
-         });
+            controller.serverCommunication.call("SELECT FROM 'PROTESTOS'.'CONSULTA'", {
+                data: {
+                    documento: task[0]
+                },
+                success: (ret) => {
 
-         controller.serverCommunication.call("SELECT FROM 'PROTESTOS'.'CONSULTA'", {
-             data: {
-                 documento: task[0]
-             },
-             success: (ret) => {
+                    let totalRegistroProtA = $(ret).find("BPQL > body > protesto > protestos > node > cartorio >");
 
-                 let totalRegistroProtA = $(ret).find("BPQL > body > protesto > protestos > node > cartorio >");
+                    let totalRegistroProtR = totalRegistroProtA.length.toString();
 
-                 let totalRegistroProtR = totalRegistroProtA.length.toString();
+                    if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
 
-                 if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
+                        mensagem = (mensagem === null ? 'Monitoramento de cheques.' : mensagem);
 
-                     mensagem = (mensagem === null ? 'Monitoramento de cheques.': mensagem);
-
-                     section[0].find("h3").text(mensagem+` - Total de Cartórios com Protesto: ${totalRegistroProtR}`);
-                     section[0].addClass("warning");
-                 }
-             }
-         });
+                        section[0].find("h3").text(mensagem + ` - Total de Cartórios com Protesto: ${totalRegistroProtR}`);
+                        section[0].addClass("warning");
+                    }
+                }
+            });
 
         }
 
@@ -293,7 +294,7 @@ module.exports = function(controller) {
 
         if (CNPJ.isValid(task[0])) {
             ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'CONSULTA'";
-            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
+            //ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
         }
 
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
@@ -301,13 +302,13 @@ module.exports = function(controller) {
             data: ccbuscaQuery,
             success: function(ret) {
                 let xmlDocument = null,
-                    icon  = $("<i />").addClass("fa fa-user-plus"),
+                    icon = $("<i />").addClass("fa fa-user-plus"),
                     showing = false;
 
                 section[2].prepend($("<li />").append(icon)
                     .attr("title", "Informações do Sacado"));
 
-                section[2].find(".action-resize i").click(function () {
+                section[2].find(".action-resize i").click(function() {
                     if (!$(this).hasClass("fa-plus-square-o")) {
                         icon.removeClass("fa-user-times");
                         icon.addClass("fa-user-plus");
