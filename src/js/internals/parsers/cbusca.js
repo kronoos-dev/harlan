@@ -1,7 +1,4 @@
-var _ = require("underscore"),
-        natural = require("natural");
-
-
+var _ = require("underscore");
 
 module.exports = function (controller) {
 

@@ -1,5 +1,4 @@
-var _ = require("underscore"),
-        natural = require("natural");
+var _ = require("underscore");
 
 module.exports = function (controller) {
 
@@ -51,7 +50,7 @@ module.exports = function (controller) {
             if (_.contains(addressElements, nodes["Endereço"]) ||
                     _.contains(cepElements, nodes.CEP) ||
                     Math.max(..._.map(addressElements, function (value) {
-                        return natural.JaroWinklerDistance(value, nodes["Endereço"]);
+                        return require('jaro-winkler')(value, nodes["Endereço"]);
                     })) > 0.85) {
                 return;
             }
