@@ -7,9 +7,7 @@ var async = require("async"),
     changeCase = require('change-case'),
     CNPJ = require("cpf_cnpj").CNPJ;
 
-import {
-    CMC7Parser
-} from "./cmc7-parser.js";
+import { CMC7Parser } from "./cmc7-parser.js";
 
 var SEARCH_REGEX = /cheq?u?e?/i,
     FIDC = /fid?c?/i,

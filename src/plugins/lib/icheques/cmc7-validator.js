@@ -8,7 +8,8 @@ export class CMC7Validator {
     constructor(code) {
         let execution = CMC7_GROUPS.exec(code.replace(NON_NUMBERS, ''));
         if (!execution) {
-            throw "Could not interpret the check code.";
+            return;
+            // throw "Could not interpret the check code.";
         }
         this.dv1 = execution[4];
         this.dv2 = execution[2];

@@ -140,7 +140,6 @@ var AccountOverview = function(closeable) {
         var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.");
 
         if (!controller.confs.ccf) {
-            debugger;
             ccfOnlyInput[0].hide();
         }
 

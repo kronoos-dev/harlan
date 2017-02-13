@@ -5,7 +5,8 @@ export class CMC7Parser {
     constructor(code) {
         let execution = CMC7_REGEX.exec(code.replace(NON_NUMBERS, ''));
         if (!execution) {
-            throw "Could not interpret the check code.";
+            // throw "Could not interpret the check code.";
+            return;
         }
         this.bank = execution[1];
         this.agency = execution[2];
