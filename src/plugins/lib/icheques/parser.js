@@ -28,6 +28,7 @@ module.exports = function (controller) {
             ocurrenceCode: databaseInteger(getElement("ocurrenceCode")),
             ocurrence: getElement("ocurrence"),
             operation: databaseInteger(getElement("operation")),
+            ccf: databaseInteger(getElement("ccf")),
         };
         return ret;
     });

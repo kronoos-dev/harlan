@@ -137,10 +137,11 @@ var AccountOverview = function(closeable) {
         }, _.object(situations, keys)));
 
         var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
-        var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.")[1];
+        var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.");
 
         if (!controller.confs.ccf) {
-            ccfOnlyInput.hide();
+            debugger;
+            ccfOnlyInput[0].hide();
         }
 
         form.element().submit((e) => {
@@ -154,7 +155,7 @@ var AccountOverview = function(closeable) {
                 endAmmount: parseValue(endAmmount.val()),
                 filter: filter.val(),
                 expired: expiredInput.is(":checked"),
-                ccfOnly: ccfOnlyInput.is(":checked")
+                ccfOnly: ccfOnlyInput[1].is(":checked")
             });
             modal.close();
         });
