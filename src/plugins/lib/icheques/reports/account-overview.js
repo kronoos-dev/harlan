@@ -482,6 +482,9 @@ var AccountOverview = function(closeable) {
         if (doughnut) {
             doughnut.clear();
             doughnut = null;
+            let newCanvas = report.canvas(250, 250);
+            $( canvas ).replaceWith( newCanvas );
+            canvas = newCanvas;
         }
 
         _.each(labels, (i) => {
