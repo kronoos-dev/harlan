@@ -104,6 +104,14 @@ const MAX_RESULTS = 5;
                                     id: task,
                                 })}`
                             }).text("Visualização API"));
+                            result.addItem("API", "").find(".value").append($("<a />").attr({
+                                target: '_blank',
+                                href: `https://irql.bipbop.com.br/?${qs.stringify({
+                                    apiKey: push.find("apikey").text(),
+                                    q: "SELECT FROM 'PUSH'.'DOCUMENT'",
+                                    id: task,
+                                })}`
+                            }).text("Documento"));
                             items.push(result.element());
                         },
                         complete: () => callback()
