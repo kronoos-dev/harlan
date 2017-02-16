@@ -260,27 +260,36 @@ module.exports = function(controller) {
                         /* adicionando campo de visão do cheque */
                     }
 
+                    $(ret).find("BPQL > body list > *").each((k, v) => {
+
+                        for (let check of task[1]) {
+                            let cmc = new CMC7Parser(check.cmc),
+                                agency = $("agencia", v).text().replace(/^[0]+/, ''),
+                                bank = $("banco", v).text().replace(/^[0]+/, '');
+
+                            if (agency == cmc.agency.replace(/^[0]+/, '') &&
+                                bank == cmc.bank.replace(/^[0]+/, '')) {
+                                    debugger;
+                                section[0].removeClass("warning").addClass("critical");
+                            }
+                        }
+
+                    });
+
                     section[1].append(controller.call("xmlDocument", ret));
                 }
             });
 
-            controller.serverCommunication.call("SELECT FROM 'PROTESTOS'.'CONSULTA'", {
+            controller.serverCommunication.call("SELECT FROM 'IEPTB'.'CONSULTA'", {
                 data: {
                     documento: task[0]
                 },
                 success: (ret) => {
-
-                    let totalRegistroProtA = $(ret).find("BPQL > body > protesto > protestos > node > cartorio >");
-
-                    let totalRegistroProtR = totalRegistroProtA.length.toString();
-
-                    if (totalRegistroProtA.length > 0 && totalRegistroProtA[0].innerHTML !== '') {
-
-                        mensagem = (mensagem === null ? 'Monitoramento de cheques.' : mensagem);
-
-                        section[0].find("h3").text(mensagem + ` - Total de Cartórios com Protesto: ${totalRegistroProtR}`);
-                        section[0].addClass("warning");
-                    }
+                    let totalProtestos = parseInt($(ret).find("BPQL > body > total").text());
+                    if (!totalProtestos) return;
+                    section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
+                    section[0].addClass("warning");
+                    section[1].append(controller.call("xmlDocument", ret));
                 }
             });
 
@@ -292,7 +301,7 @@ module.exports = function(controller) {
 
         if (CNPJ.isValid(task[0])) {
             ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'CONSULTA'";
-            //ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
+            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
         }
 
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
