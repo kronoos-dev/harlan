@@ -174,6 +174,7 @@ var Controller = function() {
     require('./parsers/cbusca')(this);
     require('./parsers/ccbusca')(this);
     require('./parsers/ccf')(this);
+    require('./parsers/ieptb')(this);
     require('./parsers/rfbcnpj')(this);
     require('./parsers/socialprofile')(this);
 

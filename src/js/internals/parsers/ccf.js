@@ -196,8 +196,8 @@ module.exports = function (controller) {
             result.addItem("Código Bancário", $("banco", element).text());
             result.addItem("Agência", $("agencia", element).text());
             result.addItem("Qtde. Ocorrências", $("qteOcorrencias", element).text());
-            result.addItem("Última Ocorrência", $("dataUltOcorrencia", element).text());
-            result.addItem("Primeiro Registro", $("ultimo", element).text());
+            result.addItem("Primeiro Registro", $("dataUltOcorrencia", element).text());
+            result.addItem("Última Ocorrência", $("ultimo", element).text());
             result.addItem("Alínea", $("motivo", element).text());
         });
 
