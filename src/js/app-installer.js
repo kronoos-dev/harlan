@@ -36,12 +36,7 @@ require("pseudo-worker/polyfill");
 
     inflateWorker.onmessage = function(message) {
         if (message.data === null) {
-            try {
-                (new Function(content.toString(encode)))();
-            } catch (e) {
-                if (console && console.error)
-                    console.error(e);
-            }
+            (new Function(content.toString(encode)))();
             inflateWorker.terminate(); /* goodbye! */
             return;
         }
