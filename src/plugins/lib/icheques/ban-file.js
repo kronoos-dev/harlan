@@ -54,10 +54,14 @@ module.exports = function (controller) {
     });
 
     var readBan = function (lines) {
-        var storage = [];
+        var storage = [],
+            runCount = 0;
 
         for (var key = 1; key < lines.length - 2; key++) {
-            if (key % 2 !== 0) {
+            if (lines[key][0] == "E") {
+                continue;
+            }
+            if (runCount++ % 2 !== 0) {
                 continue;
             }
 
@@ -78,7 +82,6 @@ module.exports = function (controller) {
     var readRem = function (lines) {
         var storage = [];
         for (var key = 1; key < lines.length - 2; key++) {
-            if (lines[key][0] == "E") continue;
             var expire = moment(lines[key].substring(120, 120 + 6), "DDMMYY");
             var data = {
                 cmc: lines[key].substring(351, 351 + 30),
