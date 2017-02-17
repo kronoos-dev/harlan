@@ -196,8 +196,12 @@ module.exports = function (controller) {
             result.addItem("Código Bancário", $("banco", element).text());
             result.addItem("Agência", $("agencia", element).text());
             result.addItem("Qtde. Ocorrências", $("qteOcorrencias", element).text());
-            result.addItem("Primeiro Registro", $("dataUltOcorrencia", element).text());
-            result.addItem("Última Ocorrência", $("ultimo", element).text());
+
+
+			let v1 = moment($("dataUltOcorrencia", element).text(), "DD/MM/YYYY"),
+				v2 = moment($("ultimo", element).text(), "DD/MM/YYYY");
+            result.addItem(`Primeiro Registro (${(v1.isAfter(v2) ? v2 : v1).fromNow()})`, (v1.isAfter(v2) ? v2 : v1).format("DD/MM/YYYY"));
+            result.addItem(`Última Ocorrência (${(v1.isAfter(v2) ? v1 : v2).fromNow()})`, (v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY"));
             result.addItem("Alínea", $("motivo", element).text());
         });
 
