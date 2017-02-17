@@ -269,7 +269,6 @@ module.exports = function(controller) {
 
                             if (agency == cmc.agency.replace(/^[0]+/, '') &&
                                 bank == cmc.bank.replace(/^[0]+/, '')) {
-                                    debugger;
                                 section[0].removeClass("warning").addClass("critical");
                             }
                         }
