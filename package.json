@@ -101,6 +101,7 @@
     "persistify": "^1.0.0",
     "pseudo-worker": "^1.0.2",
     "qs": "^6.2.1",
+    "random-material-color": "^1.0.3",
     "randomcolor": "^0.4.3",
     "raphael": "^2.1.4",
     "recordrtc": "^5.3.8",
