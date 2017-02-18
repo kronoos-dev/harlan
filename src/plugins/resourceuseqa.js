@@ -107,7 +107,7 @@ const MAX_RESULTS = 5;
             generateReport(data, "Consumo por Consulta na Última Execução", "Uso de Recursos Especiais",
                 "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
                 "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
-                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.", "lastAverageResourceUse");
+                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.", "lastAverageResourceUse", 0.01);
             generateReport(data, "Consumo da Última Execução", "Uso de Recursos Especiais",
                 "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
                 "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
