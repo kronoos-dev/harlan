@@ -7,25 +7,21 @@ module.exports = function (instance, controller) {
     instance.element().append(form);
 
     var createLabel = function (input, obj, labelText, placeholder) {
-        if (!obj) {
-            obj = {};
+        obj = obj || {};
+
+        input.addClass("has-label").attr('id', (obj.id = require('node-uuid').v4()));
+        obj.label = $("<label />")
+                .addClass("input-label")
+                .attr({'for': obj.id, 'title': obj.hoverHelp})
+                .html(labelText || placeholder);
+
+        if (obj.class) {
+            obj.label.addClass(obj.class);
+            input.addClass(obj.class);
         }
 
-        if (obj) {
-            input.addClass("has-label").attr('id', (obj.id = require('node-uuid').v4()));
-            obj.label = $("<label />")
-                    .addClass("input-label")
-                    .attr({'for': obj.id})
-                    .html(labelText || placeholder);
-
-            if (obj.class) {
-                obj.label.addClass(obj.class);
-                input.addClass(obj.class);
-            }
-
-            input[obj.labelPosition || "after"](obj.label);
-            input.parent().trigger("new-label");
-        }
+        input[obj.labelPosition || "after"](obj.label);
+        input.parent().trigger("new-label");
     };
 
     this.multiField = function () {
@@ -47,7 +43,8 @@ module.exports = function (instance, controller) {
 
         var select = $("<select />").attr({
             id: id,
-            name: name
+            name: name,
+            title: obj.hoverHelp
         });
 
         obj.options = {};
@@ -78,7 +75,8 @@ module.exports = function (instance, controller) {
             name: name,
             placeholder: placeholder,
             autocomplete: false,
-            autocapitalize: false
+            autocapitalize: false,
+            title: obj.hoverHelp
         }).text(value);
 
         (obj.append || form).append(input);
@@ -96,7 +94,8 @@ module.exports = function (instance, controller) {
             placeholder: placeholder,
             autocomplete: false,
             autocapitalize: false,
-            value: value
+            value: value,
+            title: obj.hoverHelp
         });
 
         (obj.append || form).append(input);
@@ -126,7 +125,8 @@ module.exports = function (instance, controller) {
             type: "checkbox",
             checked: checked,
             value: (typeof value === "undefined" ? "1" : value),
-            id: elementId
+            id: elementId,
+            title: item.hoverHelp
         });
 
         var lblItem;

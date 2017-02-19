@@ -127,8 +127,8 @@ module.exports = function(controller) {
                 "fields": [{
                         "name": "revenue",
                         "type": "text",
-                        "placeholder": "Faturamento (R$)",
-                        "labelText": "Faturamento (R$)",
+                        "placeholder": "Faturamento Mensal (R$)",
+                        "labelText": "Faturamento Mensal (R$)",
                         "mask": "000.000.000.000.000,00",
                         "maskOptions": {
                             "reverse": true
@@ -140,6 +140,7 @@ module.exports = function(controller) {
                         "type": "text",
                         "placeholder": "Prazo Médio de Venda (dias)",
                         "labelText": "Prazo Médio de Venda (dias)",
+                        "hoverHelp" : "Quantidade de dias, em média, para receber o total faturado.",
                         "mask": "999",
                         "numeral": true
                     }, {
@@ -147,6 +148,7 @@ module.exports = function(controller) {
                         "type": "text",
                         "placeholder": "Liquidez dos Cheques (%)",
                         "labelText": "Liquidez dos Cheques (%)",
+                        "hoverHelp" : "Qual a porcentagem dos que cheques liquidam.",
                         "numeralFormat" : "0.00%",
                         "mask": "##0,99%",
                         "maskOptions": {
@@ -159,6 +161,7 @@ module.exports = function(controller) {
                         "type": "text",
                         "placeholder": "* Pré-Faturamento (R$)",
                         "labelText": "* Pré-Faturamento (R$)",
+                        "hoverHelp" : "Emissão da NFe + Recebimento do valor antes da produção e entrega da mercadoria.",
                         "optional": true,
                         "mask": "000.000.000.000.000,00",
                         "maskOptions": {
@@ -221,7 +224,7 @@ module.exports = function(controller) {
                 "fields": [{
                     "name": "month-check-ammount",
                     "type": "text",
-                    "placeholder": "Quanto Desconta ao Mês (R$)",
+                    "placeholder": "Quanto Antecipa ao Mês (R$)",
                     "numeral": true,
                     "optional": true,
                     "labelText": "R$",
