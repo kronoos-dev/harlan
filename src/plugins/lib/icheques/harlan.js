@@ -11,8 +11,9 @@ import { CMC7Parser } from "./cmc7-parser.js";
 
 var SEARCH_REGEX = /cheq?u?e?/i,
     FIDC = /fid?c?/i,
-    LIMIT = 3;
-var CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
+    LIMIT = 3,
+    CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
+    QUERY_LIMIT = 2000;
 
 module.exports = function(controller) {
 
@@ -49,34 +50,40 @@ module.exports = function(controller) {
         var unregister = null,
             loaderTimeout = setTimeout(function() {
                 unregister = $.bipbopLoader.register();
-            }, 1000);
+            }, 1000),
+            hasResult = false,
+            skip = 0;
 
-        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
-            data: {
-                'q[0]': "SELECT FROM 'ICHEQUES'.'CHECKS'",
-                'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
-                'approved': 'true'
-            },
-            error: function() {
-                callback(Array.from(arguments));
-            },
-            success: function(ret) {
-                var storage = [];
-                $(ret).find("check").each(function() {
-                    storage.push(controller.call("icheques::parse::element", this));
-                });
+        async.doUntil((cb) => {
+            controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
+                data: {
+                    'q[0]': "SELECT FROM 'ICHEQUES'.'CHECKS'",
+                    'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
+                    'limit' : QUERY_LIMIT,
+                    'skip' : skip,
+                    'approved': 'true'
+                },
+                error: () => cb(Array.from(arguments)),
+                success: function(ret) {
+                    var storage = [];
+                    skip += QUERY_LIMIT;
+                    hasResult = false;
+                    $(ret).find("check").each(function() {
+                        hasResult = true;
+                        storage.push(controller.call("icheques::parse::element", this));
+                    });
 
-                controller.call("icheques::insertDatabase", storage);
-                registerSocket();
-                callback();
-            },
-            complete: function() {
-                callback();
-                clearTimeout(loaderTimeout);
-                if (unregister)
-                    unregister();
-            }
-        }));
+                    controller.call("icheques::insertDatabase", storage);
+                    cb();
+                },
+            }));
+        }, () => !hasResult, () => {
+            registerSocket();
+            clearTimeout(loaderTimeout);
+            if (unregister)
+                unregister();
+            callback();
+        });
     });
 
     var showCheck = function(check, result, section) {

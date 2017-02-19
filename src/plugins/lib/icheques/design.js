@@ -22,7 +22,7 @@ module.exports = function(controller) {
     document.title = "Proteja sua carteira de cheques | iCheques";
     controller.interface.helpers.changeFavicon("/images/icheques/favicon.png");
     require("../../styles/icheques.js");
-    
+
     $("body").append(siteTemplate);
     $("#input-q").attr("placeholder", "Pesquise por um CPF/CNPJ ou número de cheque cadastrado.");
     $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(11) 3661-4657 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
@@ -37,7 +37,8 @@ module.exports = function(controller) {
     }).css("cursor", "pointer");
 
     /* única forma segura de sair do sistema e voltar a home */
-    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function() {
+    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function(args, cb) {
+        cb();
         $("#action-logout").off().click(function(e) {
             e.preventDefault();
             window.location = "https://www.icheques.com.br/";
