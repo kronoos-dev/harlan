@@ -29,6 +29,7 @@ module.exports = function (controller) {
             ocurrence: getElement("ocurrence"),
             operation: databaseInteger(getElement("operation")),
             ccf: databaseInteger(getElement("ccf")),
+            protesto: databaseInteger(getElement("protesto")),
         };
         return ret;
     });
