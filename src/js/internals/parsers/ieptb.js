@@ -8,8 +8,8 @@ module.exports = function (controller) {
             jdocument = $(document);
 
         result.addSeparator("Protestos em Cartório",
-            "Detalhes acerca de protestos nos cartórios",
-            "Foram localizados protestos em cartórios em unidade federativas.");
+            "Detalhes acerca de protestos em cartórios",
+            "Foi localizado apontamento em cartórios de unidades federativas.");
 
 		_.each(jdocument.find("BPQL > body > protestos > void"), (element) => {
 			result.addItem($(element).attr("element"), $(element).text()).addClass("center");

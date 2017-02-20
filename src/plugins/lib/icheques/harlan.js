@@ -246,7 +246,7 @@ module.exports = function(controller) {
 
         if (controller.confs.ccf) {
 
-            let mensagem = null;
+            let mensagem = "";
 
             controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
                 data: {
@@ -261,7 +261,7 @@ module.exports = function(controller) {
 
                     totalRegistro = parseInt(totalRegistro);
                     if (totalRegistro > 0) {
-                        mensagem = `${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
+                        mensagem += `${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
                         section[0].find("h3").text(`${currentMessage} Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`);
                         section[0].addClass("warning");
                         /* adicionando campo de visão do cheque */

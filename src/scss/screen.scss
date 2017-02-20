@@ -268,6 +268,12 @@ label {
             &:hover {
                 background-color: #BAFFB9;
             }
+            &.invertBalance {
+                background-color: lighten(rgb(255,254,211), 5%);
+                &:hover {
+                    background-color: rgb(255,254,211);
+                }
+            }
         }
     }
     ul {

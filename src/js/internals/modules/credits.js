@@ -24,12 +24,12 @@ module.exports = (controller) =>  {
 
     var changeCredits = (credits, postPaid) =>  {
         companyCredits = credits;
-        $(".credits span").text(numeral(credits / 100).format('0,0.00'));
+        $(".credits span").text(numeral(Math.abs(credits) / 100).format('0,0.00'));
         isPostPaid = postPaid;
-        if (postPaid) {
-            $(".credits").hide();
+        if (credits < 0) {
+            $(".credits").addClass("invertBalance");
         } else {
-            $(".credits").show();
+            $(".credits").removeClass("invertBalance");
         }
     };
 
