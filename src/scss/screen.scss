@@ -1220,7 +1220,7 @@ input.link {
             li {
                 margin: 3px 0;
                 &:before {
-                    content: "●";
+                    content: "\2022";
                     position: absolute;
                     left: 0;
                 }
