@@ -250,7 +250,7 @@ module.exports = (controller) => {
 
             controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-bank")).click((e) => {
                 controller.call("confirm", {}, () => {
-                    controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
+                    controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'POSTPAID'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: {
                                 username: username,
