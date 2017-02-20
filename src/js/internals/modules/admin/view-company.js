@@ -70,7 +70,7 @@ module.exports = (controller) => {
         if (cnpj) result.addItem("CNPJ", CNPJ.format(cnpj));
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", CPF.format(cpf));
-        postPaidInput = result.addItem("Pós-pago", postPaid ? "Sim" : "Não");
+        var postPaidInput = result.addItem("Pós-pago", postPaid ? "Sim" : "Não");
         var creditsInput = null;
         if (credits) creditsInput = result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);
