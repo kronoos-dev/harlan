@@ -5,7 +5,8 @@ var sprintf = require("sprintf"),
 
 module.exports = (controller) =>  {
 
-    var companyCredits = 0;
+    var companyCredits = 0,
+        isPostPaid = false;
 
     var defaultChargeCallback = (ret, callback) =>  {
         var modal = controller.call("modal");
@@ -21,13 +22,19 @@ module.exports = (controller) =>  {
         form.addSubmit("cancel", "Sair");
     };
 
-    var changeCredits = (credits) =>  {
+    var changeCredits = (credits, postPaid) =>  {
         companyCredits = credits;
         $(".credits span").text(numeral(credits / 100).format('0,0.00'));
+        isPostPaid = postPaid;
+        if (postPaid) {
+            $(".credits").hide();
+        } else {
+            $(".credits").show();
+        }
     };
 
     controller.registerCall("credits::has", (needed, callback) => {
-        if (!needed) {
+        if (!needed || isPostPaid) {
             callback();
             return;
         }
@@ -92,17 +99,17 @@ module.exports = (controller) =>  {
             }
         }
 
-        changeCredits(credits);
+        changeCredits(credits, $("BPQL > body postPaid", ret).text() == "true");
         callback();
     });
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "credits", (data, callback) =>  {
-        changeCredits(data && data.credits ? data.credits : 0);
+        changeCredits(data && data.credits ? data.credits : 0, data ? data.postPaid : false);
         callback();
     });
 
     controller.registerTrigger("serverCommunication::websocket::credits", "credits", (data, callback) =>  {
-        changeCredits(data && data.credits ? data.credits : 0);
+        changeCredits(data && data.credits ? data.credits : 0, data ? data.postPaid : false);
         callback();
     });
 
@@ -214,7 +221,7 @@ module.exports = (controller) =>  {
                 if (minValue < 100000) {
                     list.add("fa-dollar", "Recarregar R$ 1.000,00.").click(charge(100000));
                 }
-                
+
                 if (minValue < 250000) {
                     list.add("fa-dollar", "Recarregar R$ 2.500,00.").click(charge(250000));
                 }

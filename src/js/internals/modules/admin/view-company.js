@@ -53,7 +53,8 @@ module.exports = (controller) => {
             cpf = company.children("cpf").text(),
             responsible = company.children("responsavel").text(),
             commercialReference = company.children("commercialReference").text(),
-            credits = parseInt(company.children("credits").text());
+            credits = parseInt(company.children("credits").text()),
+            postPaid = company.children("postPaid").text() == "true";
 
         var [section, results, actions] = controller.call("section",
             `Administração ${name || username}`,
@@ -69,6 +70,7 @@ module.exports = (controller) => {
         if (cnpj) result.addItem("CNPJ", CNPJ.format(cnpj));
         if (responsible) result.addItem("Responsável", responsible);
         if (cpf) result.addItem("CPF", CPF.format(cpf));
+        postPaidInput = result.addItem("Pós-pago", postPaid ? "Sim" : "Não");
         var creditsInput = null;
         if (credits) creditsInput = result.addItem("Créditos Sistema", numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem("Referência Comercial", commercialReference);
@@ -241,6 +243,22 @@ module.exports = (controller) => {
                             },
                             success: function() {
                                 acceptedContract.remove();
+                            }
+                        })));
+                });
+            });
+
+            controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-bank")).click((e) => {
+                controller.call("confirm", {}, () => {
+                    controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username,
+                                postPaid: postPaid ? "false" : "true"
+                            },
+                            success: function() {
+                                postPaid = !postPaid;
+                                postPaidInput.find(".value").text(postPaid ? "Sim" : "Não");
                             }
                         })));
                 });
