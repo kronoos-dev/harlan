@@ -59,7 +59,8 @@ var AccountOverview = function(closeable) {
 
     var status = report.paragraph().html(messages.overall),
         mainLabel = report.label("Visão Geral").hide(),
-        expression = squel.expr().and("(EXPIRE >= ?)", moment().format("YYYYMMDD"));
+        expression = squel.expr().and("(EXPIRE >= ?)", moment().format("YYYYMMDD")),
+        lastExpression = expression;
 
     var modalFilter = () => {
         /* How deep is your love? */
@@ -226,6 +227,7 @@ var AccountOverview = function(closeable) {
 
 
     this.filter = (f) => {
+        lastExpression = expression;
         expression = squel.expr();
 
         if (f.filter === "0") {
@@ -513,7 +515,6 @@ var AccountOverview = function(closeable) {
     this.draw = (showable = true) => {
 
         var dataset = generateDataset();
-
         if (!this.showable(showable, dataset)) {
             if (!showable) {
                 report.close();
@@ -554,6 +555,7 @@ var AccountOverview = function(closeable) {
             });
         }
 
+        expression = lastExpression;
         return false;
     };
 
