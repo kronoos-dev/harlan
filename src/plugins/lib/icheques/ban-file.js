@@ -56,12 +56,11 @@ module.exports = function (controller) {
     var readBan = function (lines) {
         var storage = [],
             runCount = 0;
-
         for (var key = 1; key < lines.length - 2; key++) {
             if (lines[key][0] == "E") {
                 continue;
             }
-            if (runCount++ % 2 !== 0) {
+            if (++runCount % 2 !== 0) {
                 continue;
             }
 
