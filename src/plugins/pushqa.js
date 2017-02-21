@@ -99,7 +99,7 @@ const MAX_RESULTS = 5;
                             result.addItem("API", "").find(".value").append($("<a />").attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text(),
+                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
                                     q: "SELECT FROM 'PUSH'.'JOB'",
                                     id: task,
                                 })}`
@@ -107,7 +107,7 @@ const MAX_RESULTS = 5;
                             result.addItem("API", "").find(".value").append($("<a />").attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text(),
+                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
                                     q: "SELECT FROM 'PUSH'.'DOCUMENT'",
                                     id: task,
                                 })}`

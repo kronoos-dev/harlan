@@ -86,7 +86,7 @@ const MAX_RESULTS = 5;
                 }
 
                 let q = queue(function(task, callback) {
-                    controller.server.call("SELECT FROM 'PUSH'.'REPORT'", {
+                    controller.server.call("SELECT FROM 'PUSHLICITACOES'.'REPORT'", {
                         data: {
                             id: task
                         },
@@ -99,16 +99,16 @@ const MAX_RESULTS = 5;
                             result.addItem("API", "").find(".value").append($("<a />").attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text(),
-                                    q: "SELECT FROM 'PUSH'.'JOB'",
+                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
+                                    q: "SELECT FROM 'PUSHLICITACOES'.'JOB'",
                                     id: task,
                                 })}`
                             }).text("Visualização API"));
                             result.addItem("API", "").find(".value").append($("<a />").attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text(),
-                                    q: "SELECT FROM 'PUSH'.'DOCUMENT'",
+                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
+                                    q: "SELECT FROM 'PUSHLICITACOES'.'DOCUMENT'",
                                     id: task,
                                 })}`
                             }).text("Documento"));
