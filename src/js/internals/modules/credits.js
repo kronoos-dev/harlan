@@ -8,6 +8,10 @@ module.exports = (controller) =>  {
     var companyCredits = 0,
         isPostPaid = false;
 
+    controller.registerCall("credits::get", () => {
+        return companyCredits;
+    });
+
     var defaultChargeCallback = (ret, callback) =>  {
         var modal = controller.call("modal");
         modal.title("Parabéns! Seus créditos foram carregados.");
