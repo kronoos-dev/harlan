@@ -161,7 +161,7 @@ module.exports = function(controller) {
                                 "placeholder": "Quanto Antecipa ao Mês (R$)",
                                 "numeral": true,
                                 "optional": true,
-                                "labelText": "R$",
+                                "labelText": "Quanto Antecipa ao Mês (R$)",
                                 "mask": "000.000.000.000.000,00",
                                 "maskOptions": {
                                     "reverse": true

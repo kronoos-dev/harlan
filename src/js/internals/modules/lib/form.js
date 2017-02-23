@@ -1,19 +1,27 @@
 /* global module */
 var CreateList = require("./create-list");
 
-module.exports = function (instance, controller) {
+module.exports = function(instance, controller) {
 
     var form = $("<form />");
     instance.element().append(form);
 
-    var createLabel = function (input, obj, labelText, placeholder) {
+    var createLabel = function(input, obj, labelText, placeholder) {
         obj = obj || {};
 
         input.addClass("has-label").attr('id', (obj.id = require('node-uuid').v4()));
+
+        if (obj.hoverHelp) {
+            labelText += " <a href=\"#\">(?)</a>";
+        }
+
         obj.label = $("<label />")
-                .addClass("input-label")
-                .attr({'for': obj.id, 'title': obj.hoverHelp})
-                .html(labelText || placeholder);
+            .addClass("input-label")
+            .attr({
+                'for': obj.id,
+                'title': obj.hoverHelp
+            })
+            .html(labelText || placeholder);
 
         if (obj.class) {
             obj.label.addClass(obj.class);
@@ -24,7 +32,7 @@ module.exports = function (instance, controller) {
         input.parent().trigger("new-label");
     };
 
-    this.multiField = function () {
+    this.multiField = function() {
         let div = $("<div />").addClass("multi-field");
         div.on("new-label", () => {
             let items = $(".input-label", div);
@@ -37,7 +45,7 @@ module.exports = function (instance, controller) {
         return div;
     };
 
-    this.addSelect = function (id, name, list, obj, labelText, value) {
+    this.addSelect = function(id, name, list, obj, labelText, value) {
 
         obj = obj || {};
 
@@ -64,11 +72,11 @@ module.exports = function (instance, controller) {
         return select;
     };
 
-    this.createList = function () {
+    this.createList = function() {
         return new CreateList(form);
     };
 
-    this.addTextarea = function (name, placeholder, obj, labelText, value) {
+    this.addTextarea = function(name, placeholder, obj, labelText, value) {
         obj = obj || {};
 
         var input = $("<textarea />").attr({
@@ -85,7 +93,7 @@ module.exports = function (instance, controller) {
         return input;
     };
 
-    this.addInput = function (name, type, placeholder, obj, labelText, value) {
+    this.addInput = function(name, type, placeholder, obj, labelText, value) {
         obj = obj || {};
 
         var input = $("<input />").attr({
@@ -106,8 +114,8 @@ module.exports = function (instance, controller) {
         return input;
     };
 
-    this.cancelButton = function (text, onCancel) {
-        return this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function (e) {
+    this.cancelButton = function(text, onCancel) {
+        return this.addSubmit("cancel", text || controller.i18n.system.cancel()).click(function(e) {
             e.preventDefault();
             if (onCancel) {
                 onCancel();
@@ -117,7 +125,7 @@ module.exports = function (instance, controller) {
         });
     };
 
-    this.addCheckbox = function (name, label, checked, value, item) {
+    this.addCheckbox = function(name, label, checked, value, item) {
         var elementId = require('node-uuid').v4();
         item = item || {};
 
@@ -131,15 +139,15 @@ module.exports = function (instance, controller) {
 
         var lblItem;
         var div = $("<div />")
-                .addClass("checkbox")
-                .append(checkbox)
-                .append(lblItem = $("<label/>").attr("for", elementId).html(label));
+            .addClass("checkbox")
+            .append(checkbox)
+            .append(lblItem = $("<label/>").attr("for", elementId).html(label));
 
         (item.append || form).append(div);
         return [div, checkbox, lblItem];
     };
 
-    this.addSubmit = function (name, value) {
+    this.addSubmit = function(name, value) {
         var submit = $("<input />").attr({
             type: "submit",
             value: value,
@@ -150,7 +158,7 @@ module.exports = function (instance, controller) {
         return submit;
     };
 
-    this.element = function () {
+    this.element = function() {
         return form;
     };
 

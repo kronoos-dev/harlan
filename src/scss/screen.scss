@@ -44,6 +44,10 @@ label {
     font-family: $font-open-sans;
     font-size: 15px;
     font-weight: 300;
+    a {
+        text-decoration: none;
+        padding: 0 4px;
+    }
 }
 * {
     outline: none;
@@ -620,6 +624,7 @@ label {
     h3,
     h4,
     h5 {
+        @include user-select('text');
         line-height: 120%;
         font-family: $font-open-sans-condensed;
         text-transform: uppercase;
@@ -680,6 +685,7 @@ label {
         }
     }
     .results-display {
+        @include user-select('text');
         font-family: $font-open-sans;
         font-size: 13px;
         display: inline-block;
