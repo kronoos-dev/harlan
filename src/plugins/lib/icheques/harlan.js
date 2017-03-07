@@ -256,11 +256,13 @@ module.exports = function(controller) {
                     let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
 
                     let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
-                    let dataUltOcorrencia = $(ret).find("BPQL > body > data > ultimaOcorrencia").text();
+
+                    let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
+        				v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
 
                     totalRegistro = parseInt(totalRegistro);
                     if (totalRegistro > 0) {
-                        mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${dataUltOcorrencia}`;
+                        mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`;
                         section[0].find("h3").text(mensagem);
                         section[0].addClass("warning");
                         /* adicionando campo de visão do cheque */

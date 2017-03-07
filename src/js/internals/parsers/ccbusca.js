@@ -124,6 +124,7 @@ module.exports = function (controller) {
 
         jdocument.find("BPQL > body email").each(function (idx, node) {
             let email = $(node).text().trim();
+            if (!email) return;
             if (_.contains(emails, email)) return;
             emails.push(email);
         });
