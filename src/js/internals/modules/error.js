@@ -2,14 +2,14 @@ import e from '../library/server-communication/exception-dictionary';
 
 module.exports = function(controller) {
 
-    controller.registerCall("error::server", (exceptionType, exceptionMessage, exceptionCode) => {
+    controller.registerCall("error::server", (exceptionType, exceptionMessage, exceptionCode, push) => {
 
         if (exceptionType === "ExceptionDatabase") {
             switch (exceptionCode) {
                 case e.ExceptionDatabase.authenticationFailure:
                     controller.call("buyit");
                     return;
-                    case e.ExceptionDatabase.missingBillingInformation:
+                case e.ExceptionDatabase.missingBillingInformation:
                         controller.confirm({
                             icon: 'fail',
                             title: "Sem informações de bilhetagem.",
@@ -38,6 +38,11 @@ module.exports = function(controller) {
                 return;
             }
 
+        }
+
+        if (push && exceptionMessage) {
+            toastr.error(exceptionMessage);
+            return;
         }
 
         toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
