@@ -1,10 +1,10 @@
-module.exports = function (controller, config) {
+module.exports = function (controller) {
 
     var siteTemplate = require('../../templates/dive-site.html.js'),
             emailRegex = require("email-regex");
 
     document.title = "Mergulhe sua cobrança em dados. | Dive";
-    controller.interface.helpers.changeFavicon(`${config.url}/favicon.png`);
+    controller.interface.helpers.changeFavicon(`'//cdn-dive.harlan.com.br/favicon.png`);
     require("../../styles/dive.js");
     $("body").append(siteTemplate);
 
