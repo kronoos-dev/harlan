@@ -19,6 +19,7 @@ module.exports = function (controller) {
             cmc: getElement("cmc"),
             cpf: getElement("cpf"),
             cnpj: getElement("cnpj"),
+            observation: getElement("observation"),
             expire: getElement("expire"),
             ammount: databaseInteger(getElement("ammount")),
             pushId: getElement("pushId"),
