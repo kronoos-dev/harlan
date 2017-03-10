@@ -137,6 +137,7 @@ var AccountOverview = function(closeable) {
             "4": "Cheques com ocorrências"
         }, _.object(situations, keys)));
 
+        var observationInput = form.addInput("observation", "text", "Arquivo / Observação").magicLabel();
         var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
         var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.");
         var protestoOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com protestos.");
@@ -156,6 +157,7 @@ var AccountOverview = function(closeable) {
                 initAmmount: parseValue(initAmmount.val()),
                 endAmmount: parseValue(endAmmount.val()),
                 filter: filter.val(),
+                observation: observationInput.val(),
                 expired: expiredInput.is(":checked"),
                 ccfOnly: ccfOnlyInput[1].is(":checked"),
                 protestoOnly: protestoOnlyInput[1].is(":checked"),
@@ -246,6 +248,10 @@ var AccountOverview = function(closeable) {
             //            filterLabels.push(report.label("Cheques com Ocorrência"));
         } else {
             expression.and("(SITUATION = ?)", f.filter);
+        }
+
+        if (f.observation && !/^\s*$/.test(f.observation)) {
+            expression.and("UPPER(OBSERVATION) LIKE ?", f.observation.trim().toUpperCase());
         }
 
         if (f.ccfOnly) {

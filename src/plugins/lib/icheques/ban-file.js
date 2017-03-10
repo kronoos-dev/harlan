@@ -49,11 +49,11 @@ module.exports = function (controller) {
     controller.registerCall("icheques::fidc::enter", function (file) {
         fileReaderStream(file).pipe(concat(function (buffer) {
             var lines = buffer.toString().split("\r\n");
-            readExtension[TEST_BAN_EXTENSION.exec(file.name)[1].toLowerCase()](lines);
+            readExtension[TEST_BAN_EXTENSION.exec(file.name)[1].toLowerCase()](lines, file.name);
         }));
     });
 
-    var readBan = function (lines) {
+    var readBan = function (lines, fileName) {
         var storage = [],
             runCount = 0;
         for (var key = 1; key < lines.length - 2; key++) {
@@ -68,7 +68,8 @@ module.exports = function (controller) {
 
             var data = {
                 expire: (expire.isValid() ? expire : moment().add(5, 'months')).format("YYYYMMDD"),
-                cmc: lines[key].substring(34, 34 + 32).trim().replace(/[^\d]/g, "")
+                cmc: lines[key].substring(34, 34 + 32).trim().replace(/[^\d]/g, ""),
+                observation: fileName
             }, document = lines[key - 1].substring(17, 17 + 14).trim();
 
             data[CPF.isValid(document) ? "cpf" : "cnpj"] = document;
@@ -78,14 +79,15 @@ module.exports = function (controller) {
         controller.call("icheques::checkout", storage);
     };
 
-    var readRem = function (lines) {
+    var readRem = function (lines, fileName) {
         var storage = [];
         for (var key = 1; key < lines.length - 2; key++) {
             var expire = moment(lines[key].substring(120, 120 + 6), "DDMMYY");
             var data = {
                 cmc: lines[key].substring(351, 351 + 30),
                 expire: (expire.isValid() ? expire : moment().add(5, 'months')).format("YYYYMMDD"),
-                ammount: parseInt(lines[key].substring(180, 192).replace(/^0+/, ''), 10)
+                ammount: parseInt(lines[key].substring(180, 192).replace(/^0+/, ''), 10),
+                observation: fileName
             };
 
             var document = lines[key].substring(220, 220 + 14);
