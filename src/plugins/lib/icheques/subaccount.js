@@ -16,14 +16,14 @@ module.exports = function (controller) {
                     [{
                         "name": "name",
                         "type": "text",
-                        "placeholder": "Nome do Responsável",
+                        "placeholder": "Nome do Responsável (opcional)",
                         "optional": true,
                         "labelText": "Nome do Responsável"
                     },
                     {
                         "name": "zipcode",
                         "type": "text",
-                        "placeholder": "CEP",
+                        "placeholder": "CEP (opcional)",
                         "optional": true,
                         "labelText": "CEP",
                         "mask": "00000-000"
