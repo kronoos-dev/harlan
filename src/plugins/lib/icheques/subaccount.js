@@ -7,7 +7,7 @@ module.exports = function (controller) {
     controller.call("subaccount::formDescription", {
         "title": "Criação de Subconta",
         "subtitle": "Preencha os dados abaixo.",
-        "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente. Cada subchave inicia uma cobrança de R$ 200,00 (duzentos reais) mensal.",
+        "paragraph": "As subchaves possibilitam você trabalhar em um cadastro independente.",
         "gamification": "star",
         "screens": [
             {
