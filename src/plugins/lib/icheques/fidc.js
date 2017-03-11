@@ -47,7 +47,20 @@ module.exports = (controller) => {
     };
 
 
+    controller.registerTrigger("call::authentication::loggedin", "icheques::father::fidc", function(args, callback) {
+        callback();
+        controller.server.call("SELECT FROM 'ICHEQUES'.'MyFatherFIDC'", {
+            dataType: "json",
+            success: (ret) => {
+                if (ret)
+                    controller.confs.ccf = true;
+            }
+        });
+    });
+
+
     controller.registerTrigger("call::authentication::loggedin", "icheques::fidc", function(args, callback) {
+        callback();
         controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'STATUS'", {
             success: (ret) => {
                 var id = $("BPQL > body > fidc > _id", ret);
@@ -57,7 +70,7 @@ module.exports = (controller) => {
                 }
 
                 controller.confs.ccf = true;
-                
+
                 var expireNode = $("BPQL > body > fidc > expire", ret),
                     expire = expireNode.length ? moment.unix(parseInt(expireNode.text())) : null;
 
@@ -422,7 +435,7 @@ module.exports = (controller) => {
     });
 
     controller.registerTrigger("admin", "icheques", (args, callback) => {
-
+        callback();
 
         controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'", {
             data: {
@@ -483,6 +496,7 @@ module.exports = (controller) => {
         });
 
         controller.registerTrigger("serverCommunication::websocket::ichequeFIDC::admin", "admin", (data, cb) => {
+            cb();
             data.name = data.company.nome || data.company.responsavel;
             controller.call("icheques::fidc::enable", data);
         });
