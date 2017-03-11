@@ -305,13 +305,15 @@ module.exports = (controller) => {
                     });
 
                 if (credits) {
-                    input.val(numeral(credits / 100.0).format('0,0.00'));
+                    input.val(numeral(Math.abs(credits) / 100.0).format('0,0.00'));
                 }
+
+                var invertCredits = form.addCheckbox("invert", "Saldo Devedor", credits < 0);
 
                 form.addSubmit("change-credits", "Alterar Créditos");
                 form.element().submit((e) => {
                     e.preventDefault();
-                    var ammount = Math.ceil(numeral().unformat(input.val()) * 100);
+                    var ammount = Math.ceil(numeral().unformat(input.val()) * 100) * invertCredits[1].is(":checked") ? -1 : 1;
                     controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
                         controller.call("loader::ajax", controller.call("error::ajax", {
                             data: {
