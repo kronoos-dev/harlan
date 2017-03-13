@@ -91,9 +91,9 @@ module.exports = function (controller) {
                 inputConfirmPassword.removeClass("error");
             }
 
-            if (errors) {
-                for (var i in errors.length) {
-                    toastr.warning(errors[i], "Não foi possível prosseguir devido a um erro.");
+            if (errors.length) {
+                for (let errorMessage of errors.length) {
+                    toastr.warning(errorMessage, "Não foi possível prosseguir devido a um erro.");
                 }
                 return;
             }
@@ -107,8 +107,10 @@ module.exports = function (controller) {
                             password: inputPassword.val()
                         },
                         success: function () {
+                            toastr.success("A senha foi alterada com sucesso.");
                             modal.close();
-                            callback();
+                            if (callback)
+                                callback();
                         }
                     })));
         });
