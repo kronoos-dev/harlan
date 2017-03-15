@@ -186,6 +186,7 @@ var Controller = function() {
     require('./modules/analytics/google-analytics')(this);
     require('./modules/security/antiphishing')(this);
     require('./modules/i18n')(this);
+    require('./modules/bank-account')(this);
     require('./modules/autocomplete')(this);
     require('./modules/find-database')(this);
     require('./modules/loader')(this);

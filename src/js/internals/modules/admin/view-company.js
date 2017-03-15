@@ -234,6 +234,23 @@ module.exports = (controller) => {
                 controller.call("admin::changeAddress", companyNode, username, section);
             });
 
+            controller.call("tooltip", actions, "Dados Bancários").append($("<i />").addClass("fa fa-bank")).click((e) => {
+                controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'bankAccount'", {
+                    dataType: "json",
+                    data: {username: username},
+                    success: (data) => {
+                        controller.call("bankAccount::update", null, data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
+                            username: username
+                        }, {
+                            title: "Dados Bancários",
+                            subtitle: "Preencha os dados bancários para depósito em conta.",
+                            paragraph: "É fundamental que o documento da conta para depósito seja o mesmo cadastrado em nosso sistema."
+                        });
+                    }
+                });
+            });
+
+
             controller.call("tooltip", actions, "Revogar Contrato").append($("<i />").addClass("fa fa-hand-paper-o")).click((e) => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'contractAccepted'",
@@ -248,7 +265,7 @@ module.exports = (controller) => {
                 });
             });
 
-            controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-bank")).click((e) => {
+            controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-credit-card")).click((e) => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'POSTPAID'",
                         controller.call("error::ajax", controller.call("loader::ajax", {

@@ -31,6 +31,8 @@ module.exports = function (controller) {
             operation: databaseInteger(getElement("operation")),
             ccf: databaseInteger(getElement("ccf")),
             protesto: databaseInteger(getElement("protesto")),
+            debtCollector: getElement("debtCollector"),
+            alinea: getElement("alinea"),
         };
         return ret;
     });

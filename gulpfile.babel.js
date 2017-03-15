@@ -48,7 +48,8 @@ externalJsSources = [
     `${vendors}/material-design-lite/material.js`,
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,
-    `${vendors}/pikaday/plugins/pikaday.jquery.js`
+    `${vendors}/pikaday/plugins/pikaday.jquery.js`,
+    `${vendors}/enjoyhint/enjoyhint.js`,
 ];
 
 function i18n(locale) {

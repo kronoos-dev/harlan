@@ -124,6 +124,7 @@ module.exports = function(controller) {
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "username", (data, callback) =>  {
         $("#logged-user").text(data.username);
+        controller.confs.user = data;
         callback();
     });
 

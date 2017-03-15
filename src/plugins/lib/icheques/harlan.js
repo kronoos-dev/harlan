@@ -17,6 +17,51 @@ var SEARCH_REGEX = /cheq?u?e?/i,
 
 module.exports = function(controller) {
 
+    controller.registerCall("icheques::debtCollector", (check) => {
+
+        controller.call("bankAccount::need", () => {
+            controller.call("form", function(formData) {
+                controller.serverCommunication.call("UPDATE 'ICHEQUES'.'DebtCollector'", controller.call("error::ajax", {
+                    method: "post",
+                    type: "json",
+                    data: Object.assign({}, check, formData, {debtCollector: controller.confs.debtCollector}),
+                    success: function() {
+                        controller.call("alert", {
+                            icon: "pass",
+                            title: "Parabéns, cheque enviado para cobrança!",
+                            subtitle: "Seu cheque foi enviado para cobrança.",
+                            paragraph: "A cobrança tentará recuperar os valores e em breve entrará em contato.",
+                            confirmText: "Compreendi"
+                        });
+                    }
+                }));
+            }).configure({
+                "title": "Envie o cheque para cobrança",
+                "subtitle": "Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.",
+                "gamification": "star",
+                "screens": [{
+                    "fields" : [{
+                        "name": "alinea",
+                        "type": "select",
+                        "labelText": "Alínea de Retorno",
+                        "optional": false,
+                        "list": {
+                            "": "Selecionar alínea de retorno.",
+                            11: "Alínea 11: Insuficiência de fundos – 1ª apresentação",
+                            12: "Alínea 12: Insuficiência de fundos – 2ª apresentação",
+                            13: "Alínea 13: Conta encerrada",
+                            14: "Alínea 14: Prática espúria",
+                            20: "Alínea 20: Folha de cheque cancelada por solicitação do correntista",
+                            21: "Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque",
+                            22: "Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)",
+                            31: "Alínea 31: Erro formal",
+                            44: "Alínea 44: Cheque prescrito",
+                            48: "Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido",
+                            51: "Alínea 51: Divergência no valor recebido"
+            }}]}]});
+        });
+    });
+
     var registerSocket = () => {
         controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {
             callback();
@@ -97,6 +142,35 @@ module.exports = function(controller) {
             e.preventDefault();
             controller.call("icheques::item::edit", check);
         });
+
+        if (controller.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
+            controller.call("tooltip", separatorData.menu, "Cobrar Cheque")
+                .append($("<i />").addClass("fa fa-life-buoy")).click((e) => {
+                    e.preventDefault();
+                    if (!check.debtCollector) {
+                        controller.call("icheques::debtCollector", check);
+                    } else {
+                        controller.confirm({
+                            title: "Você deseja realmente recuperar o cheque da cobrança?",
+                            subtitle: "O título não mais será cobrado por nossa equipe.",
+                            paragraph: "A cobrança não tentará recuperar os valores. Entraremos em contato para avisá-los após sua confirmação."
+                        }, () => {
+                            controller.serverCommunication.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
+                                data: check,
+                                success: () => {
+                                    controller.alert({
+                                        icon: "pass",
+                                        title: "Uoh! Cheque recuperado da cobrança!",
+                                        subtitle: "Seu cheque foi recuperado da cobrança.",
+                                        paragraph: "A cobrança não mais tentará recuperar os valores. Entramos em contato para informá-los.",
+                                        confirmText: "Compreendi"
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
+        }
 
         if (check.operation) {
             controller.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
@@ -187,6 +261,11 @@ module.exports = function(controller) {
 
                 if (check.queryStatus && check.queryStatus !== 10) {
                     rescan();
+
+                    if (check.debtCollector) {
+                        nodes.push(checkResult.addItem("Cobrança", "Ativa"));
+                    }
+
                     section[0].removeClass("loading");
 
                     var elementClass = "success",

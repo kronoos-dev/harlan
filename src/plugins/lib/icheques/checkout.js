@@ -18,6 +18,8 @@ const DATABASE_KEYS = [
     'situation',
     'display',
     'ocurrence',
+    'debtCollector',
+    'alinea',
     'lastUpdate',
     'operation',
     'ccf',

@@ -108,8 +108,6 @@ var AccountOverview = function(closeable) {
                 reverse: true
             });
 
-
-
         _.each([initCreation, endCreation, initExpiration, endExpiration], (e) => {
             e.pikaday();
         });
@@ -140,11 +138,13 @@ var AccountOverview = function(closeable) {
         var observationInput = form.addInput("observation", "text", "Arquivo / Observação").magicLabel();
         var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
         var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.");
+        var debtCollectorInput = form.addCheckbox("debtCollection", "Exibir emitentes em cobrança.");
         var protestoOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com protestos.");
 
         if (!controller.confs.ccf) {
             protestoOnlyInput[0].hide();
             ccfOnlyInput[0].hide();
+            debtCollectorInput[0].hide();
         }
 
         form.element().submit((e) => {
@@ -160,6 +160,7 @@ var AccountOverview = function(closeable) {
                 observation: observationInput.val(),
                 expired: expiredInput.is(":checked"),
                 ccfOnly: ccfOnlyInput[1].is(":checked"),
+                debtCollector: debtCollectorInput[1].is(':checked'),
                 protestoOnly: protestoOnlyInput[1].is(":checked"),
             });
             modal.close();
@@ -256,6 +257,11 @@ var AccountOverview = function(closeable) {
 
         if (f.ccfOnly) {
             expression.and("CCF > 0");
+        }
+
+        if (f.debtCollector) {
+            expression.and("(DEBT_COLLECTOR IS NOT NULL)");
+            expression.and("(DEBT_COLLECTOR != '')");
         }
 
         if (f.protestoOnly) {

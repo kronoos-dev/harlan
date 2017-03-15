@@ -46,9 +46,10 @@
     "jquery.payment": "~1.4.3",
     "pikaday": "~1.4.0",
     "material-design-icons": "~2.2.3",
-    "vis": "~4.16.1"
+    "vis": "~4.16.1",
+    "enjoyhint": "^3.1.0"
   },
   "resolutions": {
-    "jquery": ">=3.1"
+    "jquery": "~3.1.0"
   }
 }

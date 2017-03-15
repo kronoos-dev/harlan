@@ -61,9 +61,7 @@ module.exports = (controller) =>  {
                 });
                 form.addSubmit("submit", "Adquirir Créditos");
                 actions = modal.createActions();
-                actions.add("Cancelar").click(() => {
-                    modal.close();
-                });
+                actions.cancel();
             } else {
                 var credits = numeral(needed / 100.0).format("$0,0.00");
                 modal.title("Vamos debitar de seus créditos");
@@ -78,10 +76,7 @@ module.exports = (controller) =>  {
 
                 form.addSubmit("submit", "Prosseguir");
                 actions = modal.createActions();
-
-                actions.add("Cancelar").click(() => {
-                    modal.close();
-                });
+                actions.cancel();
             }
         });
     });
@@ -234,7 +229,7 @@ module.exports = (controller) =>  {
                     list.add("fa-dollar", "Recarregar R$ 5.000,00.").click(charge(500000));
                 }
 
-                form.cancelButton();
+                modal.createActions().cancel();
             });
         });
     });
