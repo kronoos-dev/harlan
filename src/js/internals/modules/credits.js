@@ -5,8 +5,7 @@ var sprintf = require("sprintf"),
 
 module.exports = (controller) =>  {
 
-    var companyCredits = 0,
-        isPostPaid = false;
+    var companyCredits = 0;
 
     controller.registerCall("credits::get", () => {
         return companyCredits;
@@ -26,10 +25,10 @@ module.exports = (controller) =>  {
         form.addSubmit("cancel", "Sair");
     };
 
-    var changeCredits = (credits, postPaid) =>  {
+    var changeCredits = (credits) =>  {
         companyCredits = credits;
         $(".credits span").text(numeral(Math.abs(credits) / 100).format('0,0.00'));
-        isPostPaid = postPaid;
+
         if (credits < 0) {
             $(".credits").addClass("invertBalance");
         } else {
@@ -38,7 +37,7 @@ module.exports = (controller) =>  {
     };
 
     controller.registerCall("credits::has", (needed, callback) => {
-        if (!needed || isPostPaid) {
+        if (!needed || controller.confs.user.postPaid) {
             callback();
             return;
         }
@@ -98,17 +97,17 @@ module.exports = (controller) =>  {
             }
         }
 
-        changeCredits(credits, $("BPQL > body postPaid", ret).text() == "true");
+        changeCredits(credits);
         callback();
     });
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "credits", (data, callback) =>  {
-        changeCredits(data && data.credits ? data.credits : 0, data ? data.postPaid : false);
+        changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });
 
     controller.registerTrigger("serverCommunication::websocket::credits", "credits", (data, callback) =>  {
-        changeCredits(data && data.credits ? data.credits : 0, data ? data.postPaid : false);
+        changeCredits(data && data.credits ? data.credits : 0);
         callback();
     });
 
