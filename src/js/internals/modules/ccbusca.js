@@ -38,6 +38,16 @@ module.exports = (controller) => {
             callback(sectionDocumentGroup[0]);
         }
 
+        controller.call("tooltip", sectionDocumentGroup[2], "Imprimir").append($("<i />").addClass("fa fa-print")).click((e) => {
+            e.preventDefault();
+            var html = sectionDocumentGroup[0].html(),
+                printWindow = window.open("about:blank", "", "_blank");
+            if (!printWindow) return;
+            printWindow.document.write(html);
+            printWindow.focus();
+            printWindow.print();
+        });
+
         var juntaEmpresaHTML = controller.call("xmlDocument", ret, "CCBUSCA", "CONSULTA");
         juntaEmpresaHTML.find(".container").first().addClass("xml2html")
             .data("document", $(ret))
