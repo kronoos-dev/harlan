@@ -174,7 +174,9 @@ module.exports = (controller) => {
         if (element !== false) {
             /* element can be undefined or null, false mean it will return only */
             (element || $(".app-content"))[method || "append"](section);
+            $("html, body").scrollTop(section.offset().top);
         }
+
 
         var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-unlock-alt" : "fa-lock"),
             lockProcess = false,
@@ -239,7 +241,7 @@ module.exports = (controller) => {
                     dataType: "json",
                     data: {username: username},
                     success: (data) => {
-                        controller.call("bankAccount::update", null, data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
+                        controller.call("bankAccount::update", null, !data ? {} : data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
                             username: username
                         }, {
                             title: "Dados Bancários",

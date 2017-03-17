@@ -1,6 +1,7 @@
 module.exports = (controller) => {
     controller.registerTrigger("call::icheques::welcome", "enjoyhint", (data, cb) => {
         cb();
+        if (!EnjoyHint || localStorage.alreadySeeEnjoyHint) return;
         var ei = new EnjoyHint();
             ei.set([ {
         		event: "next",
@@ -46,5 +47,6 @@ module.exports = (controller) => {
         ]);
 
         ei.run();
+        localStorage.alreadySeeEnjoyHint = true;
     });
 };
