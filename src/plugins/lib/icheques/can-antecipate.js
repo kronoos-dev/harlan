@@ -28,9 +28,9 @@ module.exports = (controller) => {
         var report = controller.call("report",
             "Você procura antecipar cheques?",
             "Receba o dinheiro antes, não espere até o vencimento.",
-            "Com o iCheques você pode solicitar a antecipação dos seus cheques através de uma das nossas antecipadoras. Clique no botão abaixo para iniciar o processo de cadastro.");
+            "Com o iCheques você pode solicitar a antecipação dos seus cheques através de um dos nossos parceiros financeiros. Clique no botão abaixo para iniciar o processo de cadastro.");
 
-        report.button("Cadastrar Antecipadora", () => {
+        report.button("Quero Antecipar Cheques!", () => {
             controller.call("icheques::register::all");
         }).addClass("green-button");
 
