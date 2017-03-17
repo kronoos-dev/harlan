@@ -20,6 +20,10 @@ export class CMC7Validator {
     }
 
     isValid() {
+        if (!this.dv1) {
+            return false;
+        }
+
         let dv1 = checkdigit.mod10.create(this.group1),
             dv2 = checkdigit.mod10.create(this.group2),
             dv3 = checkdigit.mod10.create(this.group3);

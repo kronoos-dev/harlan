@@ -3,7 +3,9 @@ var fileReaderStream = require("filereader-stream"),
         CPF = require("cpf_cnpj").CPF,
         CNPJ = require("cpf_cnpj").CNPJ,
         TEST_BAN_EXTENSION = /\.(rem|ban)$/i,
-        concat = require("concat-stream");
+        concat = require("concat-stream")
+
+import { CMC7Validator } from "./cmc7-validator";
 
 module.exports = function (controller) {
 
@@ -72,10 +74,14 @@ module.exports = function (controller) {
                 observation: fileName
             }, document = lines[key - 1].substring(17, 17 + 14).trim();
 
+            if (!data.cmc || !new CMC7Validator(data.cmc).isValid()) {
+                runCount--;
+                continue;
+            }
             data[CPF.isValid(document) ? "cpf" : "cnpj"] = document;
             storage.push(data);
         }
-
+        debugger;
         controller.call("icheques::checkout", storage);
     };
 
