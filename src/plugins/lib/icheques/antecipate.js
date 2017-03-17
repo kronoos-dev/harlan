@@ -66,6 +66,25 @@ module.exports = function(controller) {
         });
     });
 
+    controller.registerCall("icheques::register::all", function() {
+        controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
+            dataType: "json",
+            success: (profile) => {
+                controller.call("icheques::register::all::show", profile);
+            },
+            error: () => {
+                controller.alert({
+                    title: "Informações cadastrais são necessárias.",
+                    subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
+                    paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
+                }, () => {
+                    controller.call("icheques::form::company");
+                });
+            }
+        });
+    });
+
+
     controller.registerCall("icheques::antecipate", function(checks) {
         controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
             dataType: "json",
@@ -385,7 +404,7 @@ module.exports = function(controller) {
                     toValue = $(element).children("toValue");
 
                 if (approved) {
-                    return true;
+                    return checks.length > 0;
                 }
 
                 if (fromValue.length) {
@@ -629,4 +648,16 @@ module.exports = function(controller) {
         modal.createActions().cancel();
     });
 
+
+    controller.registerCall("icheques::register::all::show", (profile) => {
+        controller.serverCommunication.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'",
+            controller.call("loader::ajax", controller.call("error::ajax", {
+                data: {
+                    approved: "true"
+                },
+                success: function(ret) {
+                    controller.call("icheques::antecipate::show", ret, [], profile);
+                }
+            })));
+    });
 };

@@ -24,10 +24,29 @@ module.exports = (controller) => {
 
     var element = null;
 
+    controller.registerCall("icheques::cantAntecipate", () => {
+        var report = controller.call("report",
+            "Você procura antecipar cheques?",
+            "Receba o dinheiro antes, não espere até o vencimento.",
+            "Com o iCheques você pode solicitar a antecipação dos seus cheques através de uma das nossas antecipadoras. Clique no botão abaixo para iniciar o processo de cadastro.");
+
+        report.button("Cadastrar Antecipadora", () => {
+            controller.call("icheques::register::all");
+        }).addClass("green-button");
+
+        report.gamification("checkPoint");
+
+        if (element) {
+            element.replaceWith(report.element());
+        }
+        element = report.element();
+        $(".app-content").prepend(element);
+    });
+
     controller.registerCall("icheques::canAntecipate", () => {
         var [ammount, count] = controller.database.exec(checkQuery)[0].values[0];
         if (!count) {
-            if (element) element.remove();
+            controller.call("icheques::cantAntecipate");
             return;
         }
 
