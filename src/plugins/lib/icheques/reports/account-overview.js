@@ -12,6 +12,7 @@ var Harmonizer = require("color-harmony").Harmonizer,
     changeCase = require('change-case');
 
 var controller;
+var markdown = require("markdown").markdown;
 var updateRegister = [];
 var async = require("async");
 var harmonizer = new Harmonizer();
@@ -194,6 +195,45 @@ var AccountOverview = function(closeable) {
         controller.call("icheques::antecipate", query.values);
     };
 
+    var printDocuments = () => {
+        var querystr = squel
+            .select()
+            .from('ICHEQUES_CHECKS')
+            .where(expression)
+            .toString();
+
+        var query = controller.database.exec(querystr)[0];
+        if (!query || !query.values) {
+            return;
+        }
+        controller.call("icheques::resultDatabase", query);
+        query = query.values;
+        let sum = 0;
+        for (let check of query) {
+            check.name = check.cpf || check.cnpj;
+            check.protesto = check.protesto || 0;
+            check.ccf = check.ccf || 0;
+            check.cmc = `<${check.cmc}>`;
+            sum += check.ammount;
+            check.ammount = numeral(check.ammount / 100.0).format("$0,0.00");
+        }
+
+        var doc = require('./print'),
+            input = {
+                status: status.text(),
+                checks: query,
+                soma: numeral(sum / 100.0).format("$0,0.00")
+        };
+        let render = Mustache.render(doc, input);
+        var html =  markdown.toHTML(render, 'Maruku'),
+            printWindow = window.open("about:blank", "", "_blank");
+
+        if (!printWindow) return;
+        printWindow.document.write(html);
+        printWindow.focus();
+        printWindow.print();
+    };
+
     var openDocuments = (situation = false) => {
         let searchExpression = expression.clone();
         if (situation) {
@@ -353,6 +393,7 @@ var AccountOverview = function(closeable) {
         }
     };
 
+    report.newAction("fa-print", printDocuments, "Imprimir Documentos");
     report.newAction("fa-folder-open", openDocuments, "Abrir Cheques");
     report.newAction("fa-money", antecipateAction, "Antecipar Recebíveis");
 

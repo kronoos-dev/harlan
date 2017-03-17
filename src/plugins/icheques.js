@@ -64,6 +64,7 @@
     require("./lib/icheques/ban-url-download")(controller);
     require("./lib/icheques/operation-score")(controller);
     require("./lib/icheques/commercial-reference")(controller);
+    require("./lib/icheques/enjoyhint")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
