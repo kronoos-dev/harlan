@@ -78,7 +78,7 @@ module.exports = function(controller) {
                     subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
                     paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
                 }, () => {
-                    controller.call("icheques::form::company");
+                    controller.call("icheques::form::company", () => controller.call("icheques::register::all"));
                 });
             }
         });
@@ -97,7 +97,7 @@ module.exports = function(controller) {
                     subtitle: "Você precisa preencher suas informações cadastrais para poder continuar.",
                     paragraph: "Os fundos antecipadores necessitam de algumas informações para poder receber seus cheques. Preencha os dados a seguir para poder enviar seus títulos."
                 }, () => {
-                    controller.call("icheques::form::company");
+                    controller.call("icheques::form::company", () => controller.call("icheques::antecipate", checks));
                 });
             }
         });

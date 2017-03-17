@@ -332,20 +332,21 @@ module.exports = function(controller) {
                     documento: task[0]
                 },
                 success: (ret) => {
-                    let totalRegistro = $(ret).find("BPQL > body > data > resposta > totalRegistro").text();
+                    let totalRegistro =  parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
+
+                    if (!totalRegistro) {
+                        section[0].find("h3").text(mensagem += ` Não há cheques sem fundo.`);
+                        return;
+                    }
 
                     let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
 
                     let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
         				v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
 
-                    totalRegistro = parseInt(totalRegistro);
-                    if (totalRegistro > 0) {
-                        mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`;
-                        section[0].find("h3").text(mensagem);
-                        section[0].addClass("warning");
-                        /* adicionando campo de visão do cheque */
-                    }
+                    mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`;
+                    section[0].find("h3").text(mensagem);
+                    section[0].addClass("warning");
 
                     $(ret).find("BPQL > body list > *").each((k, v) => {
 
@@ -372,7 +373,10 @@ module.exports = function(controller) {
                 },
                 success: (ret) => {
                     let totalProtestos = parseInt($(ret).find("BPQL > body > total").text());
-                    if (!totalProtestos) return;
+                    if (!totalProtestos) {
+                        section[0].find("h3").text(mensagem += ` Não há protestos.`);
+                        return;
+                    }
                     section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
                     section[0].addClass("warning");
                     section[1].append(controller.call("xmlDocument", ret));
