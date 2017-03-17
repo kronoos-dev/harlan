@@ -229,6 +229,7 @@ var AccountOverview = function(closeable) {
             printWindow = window.open("about:blank", "", "_blank");
 
         if (!printWindow) return;
+        html += `<style>${require("./print-style")}</style>`;
         printWindow.document.write(html);
         printWindow.focus();
         printWindow.print();
