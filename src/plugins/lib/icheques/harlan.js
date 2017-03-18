@@ -367,16 +367,19 @@ module.exports = function(controller) {
                 }
             });
 
-            controller.serverCommunication.call("SELECT FROM 'IEPTB'.'CONSULTA'", {
+            controller.serverCommunication.call("SELECT FROM 'IEPTB'.'WS'", {
                 data: {
                     documento: task[0]
                 },
                 success: (ret) => {
-                    let totalProtestos = parseInt($(ret).find("BPQL > body > total").text());
-                    if (!totalProtestos) {
+                    if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
                         section[0].find("h3").text(mensagem += ` Não há protestos.`);
                         return;
                     }
+                    let totalProtestos = $("protestos", ret)
+                        .get()
+                        .map((p) => parseInt($(p).text()))
+                        .reduce((a, b) => a + b, 0);
                     section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
                     section[0].addClass("warning");
                     section[1].append(controller.call("xmlDocument", ret));

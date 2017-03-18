@@ -126,7 +126,8 @@
     "weevil": "^0.1.2",
     "weight-manager": "^1.0.0",
     "wordnet-db": "^3.1.2",
-    "wordwrap": "^1.0.0"
+    "wordwrap": "^1.0.0",
+    "gulp-strip-debug": "^1.1.0"
   },
   "jshintConfig": {
     "esnext": true

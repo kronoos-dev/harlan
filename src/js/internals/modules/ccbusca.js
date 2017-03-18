@@ -55,7 +55,6 @@ module.exports = (controller) => {
                 name: "documento",
                 value: val
             }]);
-
         sectionDocumentGroup[1].append(juntaEmpresaHTML);
 
         controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
@@ -69,13 +68,12 @@ module.exports = (controller) => {
             }
         });
 
-        controller.serverCommunication.call("SELECT FROM 'IEPTB'.'CONSULTA'", {
+        controller.serverCommunication.call("SELECT FROM 'IEPTB'.'WS'", {
             data: {
                 documento: val
             },
             success: (ret) => {
-                let totalProtestos = parseInt($(ret).find("BPQL > body > total").text());
-                if (!totalProtestos) return;
+                if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") return;
                 sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
             }
         });

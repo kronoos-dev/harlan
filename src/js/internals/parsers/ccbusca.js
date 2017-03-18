@@ -206,6 +206,7 @@ module.exports = function (controller) {
     controller.registerBootstrap("parserCCbusca", function (callback) {
         callback();
         controller.importXMLDocument.register("CCBUSCA", "CONSULTA", parserConsultas);
+        controller.importXMLDocument.register("CCBUSCA", "BILLING", parserConsultas);
     });
 
 };

@@ -207,6 +207,7 @@ gulp.task("build:plugins", [
         .pipe(buffer())
         .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
         .pipe($.if(PRODUCTION, $.uglify()))
+        .pipe($.if(PRODUCTION, $.stripDebug()))
         .pipe($.if(DEVEL, $.sourcemaps.write(".")))
         .pipe(gulp.dest(`${dist}/js`))
         .pipe($.size({title: ">>> build:plugins"}));
@@ -262,6 +263,7 @@ gulp.task("inflate", () => {
     .pipe(buffer())
     .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
     .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
     .pipe($.concat("app-inflate.js"))
     .pipe($.if(DEVEL, $.sourcemaps.write(".")))
     .pipe(gulp.dest(`${dist}/js`))
@@ -279,6 +281,7 @@ gulp.task("service-worker", () => {
     .pipe(buffer())
     .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
     .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
     .pipe($.concat("service-worker.js"))
     .pipe($.if(DEVEL, $.sourcemaps.write(".")))
     .pipe(gulp.dest(dist))
@@ -296,6 +299,7 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe(buffer())
     .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
     .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
     .pipe($.concat("app-installer.js"))
     .pipe($.preprocess({context: {
         COMPRESSED_SIZE: fs.statSync(`${dist}/js/app.js.gz`).size,
@@ -320,6 +324,7 @@ gulp.task("build:application", ["jshint", "i18n"], () => {
     .pipe($.addSrc(externalJsSources))
     .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
     .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
     .pipe($.concat("app.js"))
     .pipe($.if(DEVEL, $.sourcemaps.write(".")))
     .pipe(gulp.dest(`${dist}/js`))
