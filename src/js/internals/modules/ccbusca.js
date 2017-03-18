@@ -16,11 +16,18 @@ module.exports = (controller) => {
     });
 
     controller.registerCall("ccbusca", function(val, callback) {
+        let ccbuscaQuery = {
+            documento: val
+        };
+
+        if (CNPJ.isValid(val)) {
+            ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'BILLING'";
+            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
+        }
+
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'BILLING'",
         controller.call("error::ajax", controller.call("loader::ajax", {
-            data: {
-                documento: val
-            },
+            data: ccbuscaQuery,
             success: function(ret) {
                 controller.call("ccbusca::parse", ret, val, callback);
             }
@@ -48,7 +55,7 @@ module.exports = (controller) => {
             printWindow.print();
         });
 
-        var juntaEmpresaHTML = controller.call("xmlDocument", ret, "CCBUSCA", "CONSULTA");
+        var juntaEmpresaHTML = controller.call("xmlDocument", ret);
         juntaEmpresaHTML.find(".container").first().addClass("xml2html")
             .data("document", $(ret))
             .data("form", [{
