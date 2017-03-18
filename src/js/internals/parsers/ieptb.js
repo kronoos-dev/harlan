@@ -15,8 +15,8 @@ module.exports = function (controller) {
             result.addItem("Protestos", $("protestos", element).text()).addClass("center");
             result.addItem("Telefone", $("telefone", element).text());
             result.addItem("Cidade", $("cidade", element).text());
-            result.addItem("Data da Atualização", moment($("dt_atualizacao", element).text(), "YYYY-MM-DD")
-                .format("DD/MM/YYYY")).addClass("center");
+            // result.addItem("Data da Atualização", moment($("dt_atualizacao", element).text(), "YYYY-MM-DD")
+            //     .format("DD/MM/YYYY")).addClass("center");
 		});
 
         return result.element();
