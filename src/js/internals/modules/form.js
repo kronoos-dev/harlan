@@ -152,7 +152,7 @@ module.exports = (controller) => {
 
             if (input.element.attr("type") === "text") {
                 if (input.numeral) {
-                    return numeral().unformat(input.element.val());
+                    return numeral(input.element.val()).value();
                 }
                 if (input.pikaday) {
                     var m = moment(input.element.val(), controller.i18n.pikaday.format);

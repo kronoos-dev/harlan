@@ -67,7 +67,7 @@ module.exports = (controller) => {
         })), (value) => _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
+                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
                 a.label = "Outros";
                 return a;
             }
@@ -172,13 +172,13 @@ module.exports = (controller) => {
 
             dataset.push({
                 value: Math.round(total * 10000) / 100,
-                color: colorInstance.hslString(),
-                highlight: colorInstance.lighten(0.1).hslString(),
+                color: colorInstance.hsl().string(),
+                highlight: colorInstance.lighten(0.1).hsl().string(),
                 label: status
             });
 
             report.label(sprintf("%s: %s", status, numeral(total || 0).format("0,0.000"))).css({
-                "background-color": colorInstance.hslString(),
+                "background-color": colorInstance.hsl().string(),
                 "color": colorInstance.light() ? "#000" : "#fff"
             }).insertAfter(paragraph);
 
@@ -189,7 +189,7 @@ module.exports = (controller) => {
                     Ctotal = parseFloat($(name, ret).text().replace(",", ".") || '0'),
                     cColorInstance = new Color(harmonyColors[i++]);
             report.label(sprintf("%s: %s", cStatus, numeral(cTotal).format("0,0.000"))).css({
-                "background-color": cColorInstance.hslString(),
+                "background-color": cColorInstance.hsl().string(),
                 "color": cColorInstance.light() ? "#000" : "#fff"
             }).insertAfter(paragraph);
 
@@ -227,13 +227,13 @@ module.exports = (controller) => {
 
             dataset.push({
                 value: total,
-                color: colorInstance.hslString(),
-                highlight: colorInstance.lighten(0.1).hslString(),
+                color: colorInstance.hsl().string(),
+                highlight: colorInstance.lighten(0.1).hsl().string(),
                 label: status
             });
 
             report.label(sprintf("%s: %d", status, total)).css({
-                "background-color": colorInstance.hslString(),
+                "background-color": colorInstance.hsl().string(),
                 "color": colorInstance.light() ? "#000" : "#fff"
             });
         });

@@ -18,48 +18,93 @@ var SEARCH_REGEX = /cheq?u?e?/i,
 module.exports = function(controller) {
 
     controller.registerCall("icheques::debtCollector", (check) => {
+        var inputExpire;
+        let dispachEvent = (formData) => {
+            check.expire = moment(inputExpire.val(), "DD/MM/YYYY").format("YYYYMMDD");
+            controller.serverCommunication.call("UPDATE 'ICHEQUES'.'DebtCollector'", controller.call("error::ajax", {
+                method: "post",
+                type: "json",
+                data: Object.assign({}, check, formData, {debtCollector: controller.confs.debtCollector}),
+                success: () => {
+                    controller.call("alert", {
+                        icon: "pass",
+                        title: "Parabéns, cheque enviado para cobrança!",
+                        subtitle: "Seu cheque foi enviado para cobrança.",
+                        paragraph: "A cobrança tentará recuperar os valores e em breve entrará em contato.",
+                        confirmText: "Compreendi"
+                    });
+                }
+            }));
+        };
 
-        controller.call("bankAccount::need", () => {
-            controller.call("form", function(formData) {
-                controller.serverCommunication.call("UPDATE 'ICHEQUES'.'DebtCollector'", controller.call("error::ajax", {
-                    method: "post",
-                    type: "json",
-                    data: Object.assign({}, check, formData, {debtCollector: controller.confs.debtCollector}),
-                    success: function() {
-                        controller.call("alert", {
-                            icon: "pass",
-                            title: "Parabéns, cheque enviado para cobrança!",
-                            subtitle: "Seu cheque foi enviado para cobrança.",
-                            paragraph: "A cobrança tentará recuperar os valores e em breve entrará em contato.",
-                            confirmText: "Compreendi"
-                        });
-                    }
-                }));
-            }).configure({
-                "title": "Envie o cheque para cobrança",
-                "subtitle": "Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.",
-                "gamification": "star",
-                "screens": [{
-                    "fields" : [{
-                        "name": "alinea",
-                        "type": "select",
-                        "labelText": "Alínea de Retorno",
-                        "optional": false,
-                        "list": {
-                            "": "Selecionar alínea de retorno.",
-                            11: "Alínea 11: Insuficiência de fundos – 1ª apresentação",
-                            12: "Alínea 12: Insuficiência de fundos – 2ª apresentação",
-                            13: "Alínea 13: Conta encerrada",
-                            14: "Alínea 14: Prática espúria",
-                            20: "Alínea 20: Folha de cheque cancelada por solicitação do correntista",
-                            21: "Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque",
-                            22: "Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)",
-                            31: "Alínea 31: Erro formal",
-                            44: "Alínea 44: Cheque prescrito",
-                            48: "Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido",
-                            51: "Alínea 51: Divergência no valor recebido"
-            }}]}]});
-        });
+        let collectBill = () => controller.call("form", dispachEvent).configure({
+            "title": "Envie o cheque para cobrança",
+            "subtitle": "Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.",
+            "gamification": "star",
+            "screens": [{
+                "fields" : [{
+                    "name": "alinea",
+                    "type": "select",
+                    "labelText": "Alínea de Retorno",
+                    "optional": false,
+                    "list": {
+                        "": "Selecionar alínea de retorno.",
+                        11: "Alínea 11: Insuficiência de fundos – 1ª apresentação",
+                        12: "Alínea 12: Insuficiência de fundos – 2ª apresentação",
+                        13: "Alínea 13: Conta encerrada",
+                        14: "Alínea 14: Prática espúria",
+                        20: "Alínea 20: Folha de cheque cancelada por solicitação do correntista",
+                        21: "Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque",
+                        22: "Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)",
+                        31: "Alínea 31: Erro formal",
+                        44: "Alínea 44: Cheque prescrito",
+                        48: "Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido",
+                        51: "Alínea 51: Divergência no valor recebido"
+        }}]}]});
+
+        let sendBill = () => controller.call("bankAccount::need", collectBill);
+        let createList = (modal, form) => {
+            inputExpire = form.addInput("Vencimento", "text", "Vencimento do Cheque").mask("00/00/0000").val(moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
+            inputExpire.pikaday();
+            var list;
+            let renderList = (inputMoment) => {
+                if (list) {
+                    let newList = form.createList();
+                    list.element().replaceWith(newList.element());
+                    list = newList;
+                } else {
+                    list = form.createList();
+                }
+                let days = moment().diff(inputMoment || moment(check.expire, "YYYYMMDD"), 'days');
+                list.item(days <= 180 ? "fa-check-square" : "fa-square", ["De 1 até 180 dias de atraso", "10% - do Principal", numeral((check.ammount / 100) * 0.9).format("$0,0.00")]);
+                list.item(days >= 181 && days <= 364 ? "fa-check-square" : "fa-square", ["De 181 Até 364 dias de atraso", "15% - do Principal", numeral((check.ammount / 100) * 0.85).format("$0,0.00")]);
+                list.item(days >= 365 && days <= 729 ? "fa-check-square" : "fa-square", ["De 365 Até 729 dias de atraso", "20% - do Principal", numeral((check.ammount / 100) * 0.8).format("$0,0.00")]);
+                list.item(days >= 730 && days <= 1094 ? "fa-check-square" : "fa-square", ["De 730 Até 1094 dias de atraso", "30% - do Principal", numeral((check.ammount / 100) * 0.7).format("$0,0.00")]);
+                list.item(days >= 1095 && days <= 1459 ? "fa-check-square" : "fa-square", ["De 1095 Até 1459 dias de atraso", "40% - do Principal", numeral((check.ammount / 100) * 0.6).format("$0,0.00")]);
+                list.item(days >= 1460 && days <= 1824 ? "fa-check-square" : "fa-square", ["De 1460 Até 1824 dias de atraso", "50% - do Principal", numeral((check.ammount / 100) * 0.5).format("$0,0.00")]);
+                list.item(days >= 1825 ? "fa-check-square" : "fa-square", ["Mais de 1825 dias de atraso", "Acima 60% - do Principal", numeral((check.ammount / 100) * 0.4).format("$0,0.00")]);
+            };
+            renderList();
+            inputExpire.change(() => renderList(moment(inputExpire.val(), "DD/MM/YYYY")));
+
+        };
+
+        let confirm = (err) => {
+            if (err) return;
+            controller.confirm({
+                title: "Enviar seu cheque para cobrança?",
+                subtitle: "Não há custos na cobrança; é retido a comissão (%) somente se há sucesso na recuperação de seu cheque.",
+                paragraph: "Veja abaixo a tabela de comissionamento, e caso aceite nossos termos de serviço, pode enviar seu cheque para cobrança.  Caso seja recuperado o valor cobrado, será creditado na conta bancária cadastrada. O contrato de serviço está disponível <a target='_blank' href='legal/icheques/TERMOS COBRANCA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta.",
+            }, sendBill, null, createList, true, () => {
+                if (moment().isAfter(moment(inputExpire.val(), "DD/MM/YYYY").format("YYYYMMDD"))) {
+                    inputExpire.addClass("error");
+                    return false;
+                }
+                return true;
+            });
+        };
+        if (!check.ammount) controller.call("icheques::item::edit", check, confirm, false, null, false);
+        else confirm();
     });
 
     var registerSocket = () => {

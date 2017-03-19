@@ -380,8 +380,8 @@ module.exports = (controller) => {
             form.element().submit((e) => {
                 e.preventDefault();
 
-                var fromValueInput = numeral().unformat(fromValue.val()),
-                    toValueInput =  numeral().unformat(toValue.val());
+                var fromValueInput = numeral(fromValue.val()).value(),
+                    toValueInput =  numeral(toValue.val()).value();
 
                 if (fromValueInput && toValueInput && fromValueInput >= toValueInput) {
                     toastr.warning("O valor inicial de faturamento é superior ou igual ao valor final.",
@@ -741,7 +741,7 @@ module.exports = (controller) => {
                     },
                     "numeral": true,
                     validate: function(item) {
-                        return numeral().unformat(item.element.val()) > 0;
+                        return numeral(item.element.val()).value() > 0;
                     }
                 }, {
                     "value": value.interest,
@@ -756,7 +756,7 @@ module.exports = (controller) => {
                     },
                     "numeral": true,
                     validate: function(item) {
-                        return numeral().unformat(item.element.val()) > 0;
+                        return numeral(item.element.val()).value() > 0;
                     }
                 }, {
                     "value": value.otherOccurrences,

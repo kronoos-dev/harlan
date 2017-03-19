@@ -101,7 +101,7 @@ module.exports = (controller) => {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
+                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
                 a.label = "Outros";
                 return a;
             });

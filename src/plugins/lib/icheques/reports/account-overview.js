@@ -440,7 +440,7 @@ var AccountOverview = function(closeable) {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
+                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
                 a.ammount = (a.ammount || 0) + (b.ammount || 0);
                 a.label = "Outros" + (a.ammount ? " " + numeral(a.ammount / 100.0).format("$0,0.00") : "");
                 return a;
@@ -493,8 +493,8 @@ var AccountOverview = function(closeable) {
 
             data.push({
                 value: queryResult[i][3],
-                color: color.hslString(),
-                highlight: color.lighten(0.1).hslString(),
+                color: color.hsl().string(),
+                highlight: color.lighten(0.1).hsl().string(),
                 label: queryResult[i][2] ? numeral(queryResult[i][2] / 100.0).format("$0,0.00") : "",
                 ammount: queryResult[i][2],
                 situation: queryResult[i][0],
@@ -554,7 +554,7 @@ var AccountOverview = function(closeable) {
         labels = _.map(dataset, (element) => {
             var color = new Color(element.color);
             return report.label(sprintf("%s: %d", element.situation, element.value)).css({
-                "background-color": color.hslString(),
+                "background-color": color.hsl().string(),
                 "color": color.light() ? "#000" : "#fff",
                 "cursor": "pointer"
             }).click((e) => {

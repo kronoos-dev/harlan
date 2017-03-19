@@ -27,7 +27,7 @@ module.exports = function(controller) {
                             luminosity: 'bright',
                             format: 'rgb' // e.g. 'rgb(225,200,20)'
                         })),
-                        fillColor = color.clone().clearer(0.7);
+                        fillColor = new Color(color.object()).clearer(0.7);
 
                     datasets[id] = {
                         color: color,

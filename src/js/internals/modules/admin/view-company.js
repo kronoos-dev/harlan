@@ -332,7 +332,7 @@ module.exports = (controller) => {
                 form.addSubmit("change-credits", "Alterar Créditos");
                 form.element().submit((e) => {
                     e.preventDefault();
-                    var ammount = Math.ceil(numeral().unformat(input.val()) * 100) * (invertCredits[1].is(":checked") ? -1 : 1);
+                    var ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(":checked") ? -1 : 1);
                     controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
                         controller.call("loader::ajax", controller.call("error::ajax", {
                             data: {

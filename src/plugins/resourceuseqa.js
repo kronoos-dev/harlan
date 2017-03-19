@@ -49,7 +49,7 @@ const MAX_RESULTS = 5;
                     a.value += (b.value / qtd);
                 }
                 a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
+                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
                 a.label = "Outros";
                 return a;
             });
@@ -69,10 +69,10 @@ const MAX_RESULTS = 5;
 
             return {
                 value: Math.floor(element.value[variable] * 100) / 100,
-                color: color.hslString(),
+                color: color.hsl().string(),
                 trys: trys,
                 label: label,
-                highlight: color.lighten(0.1).hslString(),
+                highlight: color.lighten(0.1).hsl().string(),
                 colorInstance: color,
                 element: element
             };

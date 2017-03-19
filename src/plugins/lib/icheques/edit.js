@@ -24,14 +24,14 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true, edit = null) {
+    controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true, edit = null, confirm = true) {
 
         var xhr, cmc7Data = new CMC7Parser(check.cmc),
             form = controller.call("form", (parameters) => {
                 if (xhr) xhr.abort();
                 parameters.cmc = check.cmc;
                 parameters.ammount = Math.floor(parameters.ammount * 100);
-                controller.call("confirm", {}, () => {
+                let dispachEvent = () => {
                     controller.serverCommunication.call("UPDATE 'ICHEQUES'.'CHECKDATA'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
                             data: parameters,
@@ -46,9 +46,9 @@ module.exports = function(controller) {
                                 if (callback) callback(null, check);
                             }
                         }, true)));
-                }, () => {
-                    controller.call("icheques::item::edit", check, callback, optionalAmmount, edit);
-                });
+                };
+                if (confirm) controller.confirm({}, dispachEvent, () => controller.call("icheques::item::edit", check, callback, optionalAmmount, edit));
+                else dispachEvent();
             }, () => {
                 if (xhr) xhr.abort();
                 if (callback) callback("can't edit", check);

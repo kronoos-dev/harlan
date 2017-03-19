@@ -44,7 +44,7 @@ externalJsSources = [
     `${vendors}/mustache/mustache.js`,
     `${vendors}/moment/min/moment-with-locales.js`,
     `${vendors}/numeral/numeral.js`,
-    `${vendors}/numeral/languages.js`,
+    `${vendors}/numeral/locales/pt-br.js`,
     `${vendors}/material-design-lite/material.js`,
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,

@@ -17,7 +17,7 @@ module.exports = function (controller) {
         controller.call("confirm", {
             title: "Você aceita com o contrato de serviço?",
             subtitle: "Para continuar é necessário que você aceite o contrato de serviço desta ferramenta.",
-            paragraph: `O contrato de serviço estão disponíveis <a target='_blank' href='legal/kronoos/MINUTA___CONTRATO___CONTA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar do Kronoos.`,
+            paragraph: `O contrato de serviço está disponível <a target='_blank' href='legal/kronoos/MINUTA___CONTRATO___CONTA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar do Kronoos.`,
             confirmText: "Aceitar"
         }, function () {
             controller.serverCommunication.call("SELECT FROM 'KRONOOSUSER'.'CONTRACTACCEPTED'");

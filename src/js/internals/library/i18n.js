@@ -39,9 +39,9 @@ module.exports = function (locale, controller) {
 
     try {
         moment.locale(language);
-        numeral.language(numeralConversor[language]);
+        numeral.locale(numeralConversor[language]);
     } catch (e) {
-        console.log(e);
+        (console.error || console.log)(e);
     }
 
     var validLanguage = validLanguages[language];

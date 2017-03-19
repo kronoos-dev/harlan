@@ -42,7 +42,7 @@ const MAX_RESULTS = 5;
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hslString();
+                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
                 a.label = "Outros";
                 return a;
             });
@@ -139,9 +139,9 @@ const MAX_RESULTS = 5;
 
             return {
                 value: counter,
-                color: color.hslString(),
+                color: color.hsl().string(),
                 label: label,
-                highlight: color.lighten(0.1).hslString(),
+                highlight: color.lighten(0.1).hsl().string(),
                 colorInstance: color
             };
         }), 'value');
@@ -204,10 +204,10 @@ const MAX_RESULTS = 5;
 
             return {
                 value: _.reduce(_.pluck(_.pluck(element, "value"), "count"), (a, b) => a + b),
-                color: color.hslString(),
+                color: color.hsl().string(),
                 trys: trys,
                 label: label,
-                highlight: color.lighten(0.1).hslString(),
+                highlight: color.lighten(0.1).hsl().string(),
                 colorInstance: color,
                 element: element
             };

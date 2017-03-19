@@ -2,7 +2,7 @@
 
 module.exports = function(controller) {
 
-    controller.registerCall("confirm", controller.confirm = function(parameters, onConfirm, onCancel) {
+    controller.registerCall("confirm", controller.confirm = function(parameters, onConfirm, onCancel, formTrick, useCheckbox, validateCallback) {
         parameters = parameters || {};
         var modal = controller.call("modal");
         modal.gamification(parameters.icon || "hammer");
@@ -13,14 +13,27 @@ module.exports = function(controller) {
         }
 
         var form = modal.createForm();
+        if (formTrick) formTrick(modal, form);
+
+        var checkbox;
+
         form.element().submit(function(e) {
             e.preventDefault();
+            if (checkbox && !checkbox[1].is(":checked")) {
+                checkbox[0].addClass("error");
+                return;
+            }
+            if (validateCallback && !validateCallback) {
+                return;
+            }
             modal.close();
             if (onConfirm)
                 onConfirm();
         });
 
         form.addSubmit("continue", parameters.confirmText || controller.i18n.system.confirm());
+
+        checkbox = useCheckbox ? form.addCheckbox("confirm", "Eu <strong>aceito as condições</strong> para continuar.") : null;
 
         var actions = modal.createActions();
 
