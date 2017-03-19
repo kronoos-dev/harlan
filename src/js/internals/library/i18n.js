@@ -40,9 +40,7 @@ module.exports = function (locale, controller) {
     try {
         moment.locale(language);
         numeral.locale(numeralConversor[language]);
-    } catch (e) {
-        (console.error || console.log)(e);
-    }
+    } catch (e) {}
 
     var validLanguage = validLanguages[language];
     validLanguage.pikaday = validPikaday[language];
