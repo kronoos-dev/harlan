@@ -27,16 +27,16 @@ var _ = require("underscore"),
                             luminosity: 'bright',
                             format: 'rgb' // e.g. 'rgb(225,200,20)'
                         })),
-                        fillColor = new Color(color.object()).clearer(0.7);
+                        fillColor = new Color(color.object()).fade(0.7);
 
                     datasets[id] = {
                         color: color,
-                        fillColor: fillColor.rgbaString(),
-                        strokeColor: color.rgbString(),
-                        pointColor: color.rgbString(),
+                        fillColor: fillColor.hsl().string(),
+                        strokeColor: color.string(),
+                        pointColor: color.string(),
                         pointStrokeColor: color.light() ? "#fff" : "#000",
                         pointHighlightFill: color.light() ? "#fff" : "#000",
-                        pointHighlightStroke: color.rgbString(),
+                        pointHighlightStroke: color.string(),
                         id: reader.children("id").text(),
                         label: reader.children("name").text(),
                         description: reader.children("description").text(),

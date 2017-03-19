@@ -82,11 +82,11 @@ module.exports = function(controller) {
                 list.item(days >= 730 && days <= 1094 ? "fa-check-square" : "fa-square", ["De 730 Até 1094 dias de atraso", "30% - do Principal", numeral((check.ammount / 100) * 0.7).format("$0,0.00")]);
                 list.item(days >= 1095 && days <= 1459 ? "fa-check-square" : "fa-square", ["De 1095 Até 1459 dias de atraso", "40% - do Principal", numeral((check.ammount / 100) * 0.6).format("$0,0.00")]);
                 list.item(days >= 1460 && days <= 1824 ? "fa-check-square" : "fa-square", ["De 1460 Até 1824 dias de atraso", "50% - do Principal", numeral((check.ammount / 100) * 0.5).format("$0,0.00")]);
-                list.item(days >= 1825 ? "fa-check-square" : "fa-square", ["Mais de 1825 dias de atraso", "Acima 60% - do Principal", numeral((check.ammount / 100) * 0.4).format("$0,0.00")]);
+                list.item(days >= 1825 ? "fa-check-square" : "fa-square", ["Mais de 1825 dias de atraso", "60% - do Principal", numeral((check.ammount / 100) * 0.4).format("$0,0.00")]);
             };
             renderList();
             inputExpire.change(() => renderList(moment(inputExpire.val(), "DD/MM/YYYY")));
-
+            modal.paragraph("Os valores podem mudar pelo pagamento de taxas e afins.").addClass("observation");
         };
 
         let confirm = (err) => {
@@ -96,7 +96,7 @@ module.exports = function(controller) {
                 subtitle: "Não há custos na cobrança; é retido a comissão (%) somente se há sucesso na recuperação de seu cheque.",
                 paragraph: "Veja abaixo a tabela de comissionamento, e caso aceite nossos termos de serviço, pode enviar seu cheque para cobrança.  Caso seja recuperado o valor cobrado, será creditado na conta bancária cadastrada. O contrato de serviço está disponível <a target='_blank' href='legal/icheques/TERMOS COBRANCA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta.",
             }, sendBill, null, createList, true, () => {
-                if (moment().isAfter(moment(inputExpire.val(), "DD/MM/YYYY").format("YYYYMMDD"))) {
+                if (moment(inputExpire.val(), "DD/MM/YYYY").isAfter(moment())) {
                     inputExpire.addClass("error");
                     return false;
                 }
@@ -196,9 +196,9 @@ module.exports = function(controller) {
                         controller.call("icheques::debtCollector", check);
                     } else {
                         controller.confirm({
-                            title: "Você deseja realmente recuperar o cheque da cobrança?",
-                            subtitle: "O título não mais será cobrado por nossa equipe.",
-                            paragraph: "A cobrança não tentará recuperar os valores. Entraremos em contato para avisá-los após sua confirmação."
+                            title: "Você deseja REMOVER o cheque da cobrança?",
+                            subtitle: "Não há custo para cancelar ou enviar para cobrança.",
+                            paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
                         }, () => {
                             controller.serverCommunication.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
                                 data: check,

@@ -172,10 +172,18 @@
         box-sizing: border-box;
     }
 }
+
 .cc-number {
     background: url("../images/cc/blue-yellow-stripes.png");
     background-repeat: no-repeat;
     background-position: right center;
     /* padding-left: 65px; */
     background-origin: content-box;
+}
+
+.observation {
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 11px;
+    margin: 8px 0;
 }

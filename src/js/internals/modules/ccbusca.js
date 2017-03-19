@@ -50,7 +50,9 @@ module.exports = (controller) => {
             var html = sectionDocumentGroup[0].html(),
                 printWindow = window.open("about:blank", "", "_blank");
             if (!printWindow) return;
-            printWindow.document.write(html);
+            printWindow.document.write($("<html />")
+                .append($("<head />"))
+                .append($("<body />").html(html)).html());
             printWindow.focus();
             printWindow.print();
         });

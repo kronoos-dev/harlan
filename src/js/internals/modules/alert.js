@@ -23,7 +23,7 @@ module.exports = function(controller) {
                 checkbox[0].addClass("error");
                 return;
             }
-            if (validateCallback && !validateCallback) {
+            if (validateCallback && !validateCallback()) {
                 return;
             }
             modal.close();

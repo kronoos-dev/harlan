@@ -213,6 +213,7 @@ var AccountOverview = function(closeable) {
             check.name = check.cpf || check.cnpj;
             check.protesto = check.protesto || 0;
             check.ccf = check.ccf || 0;
+            check.expire = moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY");
             check.cmc = `<${check.cmc}>`;
             sum += check.ammount;
             check.ammount = numeral(check.ammount / 100.0).format("$0,0.00");
@@ -230,7 +231,9 @@ var AccountOverview = function(closeable) {
 
         if (!printWindow) return;
         html += `<style>${require("./print-style")}</style>`;
-        printWindow.document.write(html);
+        printWindow.document.write($("<html />")
+            .append($("<head />"))
+            .append($("<body />").html(html)).html());
         printWindow.focus();
         printWindow.print();
     };

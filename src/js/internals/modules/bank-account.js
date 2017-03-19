@@ -160,7 +160,21 @@ module.exports = function (controller) {
             "paragraph": formData.paragraph || "É fundamental que o documento da conta para depósito seja o mesmo cadastrado em nosso sistema.",
             "screens": [{
                 "magicLabel": true,
-                "fields": [{
+                "fields": [[{
+                    "name": "name",
+                    "optional": false,
+                    "type": "text",
+                    "value": parameters.nome || controller.confs.user.nome || controller.confs.user.responsavel,
+                    "disabled": true,
+                    "placeholder": "Nome",
+                }, {
+                    "name": "name",
+                    "optional": false,
+                    "type": "text",
+                    "value": parameters.documento || controller.confs.user.cnpj || controller.confs.user.cpf,
+                    "disabled": true,
+                    "placeholder": "Documento",
+                }], {
                     "name": "bank",
                     "optional": false,
                     "type": "select",
