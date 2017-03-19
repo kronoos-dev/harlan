@@ -26,6 +26,7 @@ module.exports = function(controller) {
                 type: "json",
                 data: Object.assign({}, check, formData, {debtCollector: controller.confs.debtCollector}),
                 success: () => {
+                    check.debtCollector = true;
                     controller.call("alert", {
                         icon: "pass",
                         title: "Parabéns, cheque enviado para cobrança!",
@@ -203,6 +204,7 @@ module.exports = function(controller) {
                             controller.serverCommunication.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
                                 data: check,
                                 success: () => {
+                                    delete check.debtCollector;
                                     controller.alert({
                                         icon: "pass",
                                         title: "Uoh! Cheque recuperado da cobrança!",
