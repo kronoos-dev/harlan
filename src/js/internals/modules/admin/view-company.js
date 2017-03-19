@@ -244,6 +244,8 @@ module.exports = (controller) => {
                         controller.call("bankAccount::update", null, !data ? {} : data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
                             username: username
                         }, {
+                            documento: cnpj ? CNPJ.format(cnpj) : CPF.format(cpf),
+                            nome: name || responsible,
                             title: "Dados Bancários",
                             subtitle: "Preencha os dados bancários para depósito em conta.",
                             paragraph: "É fundamental que o documento da conta para depósito seja o mesmo cadastrado em nosso sistema."

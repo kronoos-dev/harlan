@@ -1,5 +1,5 @@
 import _ from 'underscore';
-
+import {CPF,CNPJ} from 'cpf_cnpj';
 var banks = (function() {
     var obj = {
         "246" : "246 - Banco ABC Brasil S.A. ",
@@ -152,7 +152,7 @@ module.exports = function (controller) {
                 }
             }, true)));
         });
-
+        var documento = formData.documento || controller.confs.user.cnpj || controller.confs.user.cpf;
         form.configure({
             "title": formData.title || "Seus Dados Bancários",
             "subtitle": formData.subtitle || "Preencha os seus dados bancários para depósito em conta.",
@@ -164,14 +164,14 @@ module.exports = function (controller) {
                     "name": "name",
                     "optional": false,
                     "type": "text",
-                    "value": parameters.nome || controller.confs.user.nome || controller.confs.user.responsavel,
+                    "value": formData.nome || controller.confs.user.nome || controller.confs.user.responsavel,
                     "disabled": true,
                     "placeholder": "Nome",
                 }, {
                     "name": "name",
                     "optional": false,
                     "type": "text",
-                    "value": parameters.documento || controller.confs.user.cnpj || controller.confs.user.cpf,
+                    "value": documento ? (CNPJ.isValid(documento) ? CNPJ.format(documento) : CPF.format(documento)) : undefined,
                     "disabled": true,
                     "placeholder": "Documento",
                 }], {
