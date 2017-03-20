@@ -35,7 +35,7 @@ externalJsSources = [
     `${vendors}/react/react.${PRODUCTION ? 'min.js' : 'js'}`,
     `${vendors}/react/react-dom.${PRODUCTION ? 'min.js' : 'js'}`,
     `${vendors}/jquery/dist/jquery.js`,
-    `${vendors}/enjoyhint/enjoyhint.js`,
+    `${vendors}/enjoyhint/enjoyhint.min.js`,
     `${vendors}/jquery.bipbop/dist/jquery.bipbop.js`,
     `${vendors}/jquery.payment/lib/jquery.payment.js`,
     `${vendors}/jquery-mask-plugin/src/jquery.mask.js`,
