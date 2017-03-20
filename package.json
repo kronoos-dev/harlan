@@ -19,6 +19,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "apk-signer": "^0.1.0",
     "async": "~2.1.5",
     "babel-core": "^6.24.0",
     "babel-plugin-syntax-async-functions": "^7.0.0-alpha.1",
@@ -36,6 +37,7 @@
     "color": "^1.0.3",
     "color-harmony": "^0.3.0",
     "concat-stream": "^1.6.0",
+    "cordova": "^6.5.0",
     "cpf_cnpj": "0.2.0",
     "crypto-js": "^3.1.9-1",
     "detect-gender": "^1.0.0",
@@ -53,6 +55,7 @@
     "gulp-autoprefixer": "^3.1.1",
     "gulp-compass": "^2.1.0",
     "gulp-concat": "~2.6.1",
+    "gulp-cordova": "^6.0.0",
     "gulp-css2js": "~1.0.2",
     "gulp-cssnano": "^2.1.2",
     "gulp-file-include": "~1.0.0",
@@ -126,8 +129,7 @@
     "weevil": "^0.1.2",
     "weight-manager": "^1.0.1",
     "wordnet-db": "^3.1.2",
-    "wordwrap": "^1.0.0",
-    "gulp-strip-debug": "^1.1.0"
+    "wordwrap": "^1.0.0"
   },
   "jshintConfig": {
     "esnext": true
