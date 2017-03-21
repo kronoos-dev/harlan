@@ -130,7 +130,7 @@ module.exports = (controller) => {
 
         this.result = () => {
             var result = controller.call("result");
-            elementResults.append(result.element());
+            elementResults.prepend(result.element());
             return result;
         };
 

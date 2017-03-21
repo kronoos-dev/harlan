@@ -409,11 +409,12 @@ module.exports = (controller) => {
         };
     };
 
-    var buildReport = (document, name, ccbusca = null, results = [], specialParameters = {}) => {
+    var buildReport = (document, name, ccbusca = null, results = [], specialParameters = {}, callback = null) => {
         let report = controller.call("report"),
             isCPF = CPF.isValid(document);
 
         report.element().addClass("social-profile");
+        if (callback) callback(report);
 
         report.title(corrigeArtigos(titleCase(name)));
         report.subtitle(`Informações relacionadas ao documento
@@ -493,23 +494,23 @@ module.exports = (controller) => {
         $("html, body").scrollTop(relement.offset().top);
     };
 
-    var ccbusca = (document, name, results = [], specialParameters = {}) => {
+    var ccbusca = (document, name, results = [], specialParameters = {}, callback = null) => {
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'",
             controller.call("loader::ajax", controller.call("loader::ajax", controller.call("error::ajax", {
                 data: {
                     documento: document
                 },
                 success: (ret) => {
-                    buildReport(document, name, ret, results, specialParameters);
+                    buildReport(document, name, ret, results, specialParameters, callback);
                 },
                 bipbopError: (exceptionType, exceptionMessage, exceptionCode) => {
-                    buildReport(document, name, null, results, specialParameters);
+                    buildReport(document, name, null, results, specialParameters, callback);
                     controller.call("error::server", exceptionType, exceptionMessage, exceptionCode);
                 }
             })), true));
     };
 
-    controller.registerCall("socialprofile", (document, specialParameters = {}, results = []) => {
+    controller.registerCall("socialprofile", (document, specialParameters = {}, results = [], callback = null) => {
         let isCPF = CPF.isValid(document);
 
         /* Social Profile é para CPF ou CNPJ */
@@ -524,7 +525,7 @@ module.exports = (controller) => {
                     documento: document
                 }, specialParameters),
                 success: (ret) => {
-                    ccbusca(document, $("BPQL > body nome", ret).text(), results, specialParameters);
+                    ccbusca(document, $("BPQL > body nome", ret).text(), results, specialParameters, callback);
                 },
                 bipbopError: (exceptionType, exceptionMessage, exceptionCode) => {
                     if (isCPF && exceptionType == "ExceptionDatabase" &&
@@ -532,7 +533,7 @@ module.exports = (controller) => {
                         askBirthday(CPF.format(document), (birthday) => {
                             controller.call("socialprofile", document, $.extend({}, specialParameters, {
                                 nascimento: birthday
-                            }), results);
+                            }), results, callback);
                         });
                         return;
                     }

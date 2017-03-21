@@ -10,7 +10,9 @@ module.exports = (controller) => {
         $(".app-content").prepend(section);
 
         controller.call("tooltip", actions, "Pesquisar").append($("<i />").addClass("fa fa-search"))
-            .click((e) => controller.click(e, "socialprofile", data.entity.label));
+            .click((e) => controller.click(e, "socialprofile", data.entity.label, undefined, undefined, (report) => {
+            report.element().append(section);
+        }));
 
         for (let hyperlink of data.entity.hyperlink) {
             controller.call("dive::plugin", hyperlink, {
