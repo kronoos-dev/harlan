@@ -20,7 +20,7 @@ module.exports = (controller) => {
         }
 
         for (let push of data.entity.push) {
-            controller.server.call("SELECT FROM 'PUSH'.'DOCUMENT'",
+            controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
                 controller.call("loader::ajax", {
                     data: {
                         id: push.id
