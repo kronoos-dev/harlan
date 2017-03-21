@@ -3,7 +3,7 @@ module.exports = (controller) => {
     controller.registerCall("dive::open", (data) => {
         var sectionDocumentGroup = controller.call("section", "Informações Cadastrais",
             `Informações cadastrais para o documento ${data.entity.label}`,
-            "Telefone, endereço e e-mails.");
+            "Dívida, telefone, endereço, e-mails e outras informações.");
         var [section, results, actions] = sectionDocumentGroup;
         $("html, body").scrollTop(section.offset().top);
 
@@ -19,17 +19,23 @@ module.exports = (controller) => {
             });
         }
 
-        for (let push of data.entity.push) {
-            controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
-                controller.call("loader::ajax", {
-                    data: {
-                        id: push.id
-                    },
-                    success: (ret) => {
-                        results.append(controller.call("xmlDocument", ret));
-                    }
-                }, true));
-        }
+        controller.call("tooltip", actions, "Informações Globais").append($("<i />").addClass("fa fa-database"))
+            .click((e) => {
+            e.preventDefault();
+            for (let push of data.entity.push) {
+                controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
+                    controller.call("loader::ajax", {
+                        data: {
+                            id: push.id
+                        },
+                        success: (ret) => {
+                            results.prepend(controller.call("xmlDocument", ret));
+                        }
+                    }, true));
+            }
+        });
+
+
     });
 
     controller.registerTrigger("authentication::authenticated", "dive::authenticated", function(arg, cb) {
