@@ -104,7 +104,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall("bipbop::createAccount", function () {
+    controller.registerCall("bipbop::createAccount", function (email) {
 
         var form = controller.call("form", function (formData) {
             controller.call("getCreditCard", function (creditCard) {
@@ -137,7 +137,8 @@ module.exports = function (controller) {
                                 "optional": false,
                                 "type": "text",
                                 "placeholder": "Endereço de E-mail",
-                                "labelText": "E-mail"
+                                "labelText": "E-mail",
+                                "value": email
                             }, {
                                 "name": "cpf",
                                 "optional": false,

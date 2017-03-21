@@ -4,7 +4,7 @@ module.exports = function (controller) {
             emailRegex = require("email-regex");
 
     document.title = "Mergulhe sua cobrança em dados. | Dive";
-    controller.interface.helpers.changeFavicon(`'//cdn-dive.harlan.com.br/favicon.png`);
+    controller.interface.helpers.changeFavicon('//cdn-dive.harlan.com.br/favicon.png');
     require("../../styles/dive.js");
     $("body").append(siteTemplate);
 
@@ -35,7 +35,7 @@ module.exports = function (controller) {
             return;
         }
         emailInput.removeClass("error");
-        controller.call("bipbop::createAccount", this);
+        controller.call("bipbop::createAccount", emailInput.val());
     });
 
     $(".dive-site .action-buy").click(function (e) {

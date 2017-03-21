@@ -48,20 +48,19 @@ module.exports = function(controller) {
                     "type": "select",
                     "labelText": "Alínea de Retorno",
                     "optional": false,
-                    "list": {
-                        "": "Selecionar alínea de retorno.",
-                        11: "Alínea 11: Insuficiência de fundos – 1ª apresentação",
-                        12: "Alínea 12: Insuficiência de fundos – 2ª apresentação",
-                        13: "Alínea 13: Conta encerrada",
-                        14: "Alínea 14: Prática espúria",
-                        20: "Alínea 20: Folha de cheque cancelada por solicitação do correntista",
-                        21: "Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque",
-                        22: "Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)",
-                        31: "Alínea 31: Erro formal",
-                        44: "Alínea 44: Cheque prescrito",
-                        48: "Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido",
-                        51: "Alínea 51: Divergência no valor recebido"
-        }}]}]});
+                    "list": [
+                        "Alínea 11: Insuficiência de fundos – 1ª apresentação",
+                        "Alínea 12: Insuficiência de fundos – 2ª apresentação",
+                        "Alínea 13: Conta encerrada",
+                        "Alínea 14: Prática espúria",
+                        "Alínea 20: Folha de cheque cancelada por solicitação do correntista",
+                        "Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque",
+                        "Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)",
+                        "Alínea 31: Erro formal",
+                        "Alínea 44: Cheque prescrito",
+                        "Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido",
+                        "Alínea 51: Divergência no valor recebido"
+        ]}]}]});
 
         let sendBill = () => controller.call("bankAccount::need", collectBill);
         let createList = (modal, form) => {

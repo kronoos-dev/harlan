@@ -92,7 +92,7 @@ module.exports = (controller) => {
 
         var i = 0;
         controller.call("dive::smartReport::doughnut::show",
-        "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX'",
+                "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX'",
                 "Restituição do Imposto de Renda",
                 "Exercício do Ano Corrente",
                 require("../../markdown/dive/restituicao.html"),
@@ -102,7 +102,7 @@ module.exports = (controller) => {
 
         i = 0;
         controller.call("dive::smartReport::doughnut::show",
-        "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX' WHERE 'LASTYEAR' = 'TRUE'",
+                "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX' WHERE 'LASTYEAR' = 'TRUE'",
                 "Restituição do Imposto de Renda",
                 "Exercício do Ano Anterior",
                 require("../../markdown/dive/restituicao.html"),

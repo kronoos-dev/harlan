@@ -488,13 +488,14 @@ module.exports = (controller) => {
         for (let result of results) {
             report.element().find(".results").append(result.element());
         }
-
-        $(".app-content").prepend(report.element());
+        let relement = report.element();
+        $(".app-content").prepend(relement);
+        $("html, body").scrollTop(relement.offset().top);
     };
 
     var ccbusca = (document, name, results = [], specialParameters = {}) => {
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'",
-            controller.call("loader::ajax", controller.call("error::ajax", {
+            controller.call("loader::ajax", controller.call("loader::ajax", controller.call("error::ajax", {
                 data: {
                     documento: document
                 },
@@ -505,7 +506,7 @@ module.exports = (controller) => {
                     buildReport(document, name, null, results, specialParameters);
                     controller.call("error::server", exceptionType, exceptionMessage, exceptionCode);
                 }
-            })));
+            })), true));
     };
 
     controller.registerCall("socialprofile", (document, specialParameters = {}, results = []) => {

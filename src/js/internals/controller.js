@@ -136,6 +136,11 @@ var Controller = function() {
         };
     };
 
+    this.click = (e, name, ...parameters) => {
+        e.preventDefault();
+        this.call(name, ...parameters);
+    };
+
     this.call = (name, ...parameters) => {
         console.log(':: call ::', name, parameters);
         assert.ok(name in calls);

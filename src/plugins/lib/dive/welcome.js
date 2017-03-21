@@ -1,5 +1,37 @@
 module.exports = (controller) => {
 
+    controller.registerCall("dive::open", (data) => {
+        var sectionDocumentGroup = controller.call("section", "Informações Cadastrais",
+            `Informações cadastrais para o documento ${data.entity.label}`,
+            "Telefone, endereço e e-mails.");
+        var [section, results, actions] = sectionDocumentGroup;
+        $("html, body").scrollTop(section.offset().top);
+
+        $(".app-content").prepend(section);
+
+        controller.call("tooltip", actions, "Pesquisar").append($("<i />").addClass("fa fa-search"))
+            .click((e) => controller.click(e, "socialprofile", data.entity.label));
+
+        for (let hyperlink of data.entity.hyperlink) {
+            controller.call("dive::plugin", hyperlink, {
+                data: data,
+                section : sectionDocumentGroup
+            });
+        }
+
+        for (let push of data.entity.push) {
+            controller.server.call("SELECT FROM 'PUSH'.'DOCUMENT'",
+                controller.call("loader::ajax", {
+                    data: {
+                        id: push.id
+                    },
+                    success: (ret) => {
+                        results.append(controller.call("xmlDocument", ret));
+                    }
+                }, true));
+        }
+    });
+
     controller.registerTrigger("authentication::authenticated", "dive::authenticated", function(arg, cb) {
         cb();
         var report = controller.call("report",
@@ -29,25 +61,7 @@ module.exports = (controller) => {
             };
 
             return [
-                ["fa-folder-open", "Abrir", (obj) => {
-                    var sectionDocumentGroup = controller.call("section", "Informações Cadastrais",
-                        `Informações cadastrais para o documento ${data.entity.label}`,
-                        "Telefone, endereço e e-mails.");
-
-                    $(".app-content").prepend(sectionDocumentGroup[0]);
-
-                    for (let push of data.entity.push) {
-                        controller.server.call("SELECT FROM 'PUSH'.'DOCUMENT'",
-                            controller.call("loader::ajax", {
-                                data: {
-                                    id: push.id
-                                },
-                                success: (ret) => {
-                                    sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
-                                }
-                            }, true));
-                    }
-                }],
+                ["fa-folder-open", "Abrir", () => controller.call("dive::open", data)],
                 ["fa-check", "Relevante", update("true")],
                 ["fa-times", "Irrelevante", update("false")],
             ];

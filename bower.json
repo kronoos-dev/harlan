@@ -49,7 +49,8 @@
     "vis": "~4.19.1",
     "enjoyhint": "https://github.com/bipbop/enjoyhint.git#master",
     "jquery.scrollTo": "^2.1.2",
-    "konva": "kinetic#^1.5.0"
+    "konva": "kinetic#^1.5.0",
+    "csshake": "^1.5.1"
   },
   "resolutions": {
     "jquery": "~3.2.0",
