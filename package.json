@@ -117,6 +117,7 @@
     "stream-http": "^2.6.3",
     "string-mask": "^0.3.0",
     "true-html-escape": "1.0.0",
+    "truncate": "^2.0.0",
     "underscore": "^1.8.3",
     "unicode": "^0.6.1",
     "uniqid": "^4.1.1",

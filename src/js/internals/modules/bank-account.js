@@ -203,8 +203,7 @@ module.exports = function (controller) {
                     }
                 }]]
             }
-        ]
+        ]});
     });
-});
 
 };

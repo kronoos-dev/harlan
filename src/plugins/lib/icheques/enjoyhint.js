@@ -54,7 +54,7 @@ module.exports = (controller) => {
             var ei = new EnjoyHint();
             ei.set(config);
             ei.run();
-        }, 1000);
+        }, 5000);
         localStorage.seeEnjoyhint = true;
     });
 };

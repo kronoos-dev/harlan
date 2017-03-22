@@ -48,7 +48,7 @@
     "material-design-icons": "~3.0.1",
     "vis": "~4.19.1",
     "enjoyhint": "https://github.com/bipbop/enjoyhint.git#master",
-    "jquery.scrollTo": "^2.1.2",
+    "jquery.scrollTo": "~1.4.14",
     "konva": "kinetic#^1.5.0",
     "csshake": "^1.5.1"
   },

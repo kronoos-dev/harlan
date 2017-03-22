@@ -5,7 +5,7 @@ module.exports = function (controller) {
     var registered = {};
 
     var generateKey = function (database, table) {
-        return database.toUpperCase()  + "::" + table.toUpperCase();        
+        return (database || "").toUpperCase()  + "::" + (database || "").toUpperCase();        
     };
 
     this.register = function (database, table, callback) {
@@ -84,13 +84,13 @@ module.exports = function (controller) {
         database = database || query.attr("database");
         table = table || query.attr("table");
         var ret = parse(jdocument, document, database, table);
-        
+
         controller.trigger("importXMLDocument::generated::" + database, {
             document: document,
             table: table,
             parsedResult: ret
         });
-        
+
         return ret;
     };
 

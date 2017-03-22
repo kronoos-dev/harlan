@@ -1,8 +1,8 @@
 module.exports = (controller) => {
 
-    controller.registerCall("dive::open", (data) => {
+    controller.registerCall("dive::open", (entity) => {
         var sectionDocumentGroup = controller.call("section", "Informações Cadastrais",
-            `Informações cadastrais para o documento ${data.entity.label}`,
+            `Informações cadastrais para o documento ${entity.label}`,
             "Dívida, telefone, endereço, e-mails e outras informações.");
         var [section, results, actions] = sectionDocumentGroup;
         $("html, body").scrollTop(section.offset().top);
@@ -10,21 +10,33 @@ module.exports = (controller) => {
         $(".app-content").prepend(section);
 
         controller.call("tooltip", actions, "Pesquisar").append($("<i />").addClass("fa fa-search"))
-            .click((e) => controller.click(e, "socialprofile", data.entity.label, undefined, undefined, (report) => {
+            .click((e) => controller.click(e, "socialprofile", entity.label, undefined, undefined, (report) => {
             report.element().append(section);
         }));
 
-        for (let hyperlink of data.entity.hyperlink) {
+        for (let hyperlink of entity.hyperlink) {
             controller.call("dive::plugin", hyperlink, {
-                data: data,
+                data: entity,
                 section : sectionDocumentGroup
             });
         }
 
+        controller.call("tooltip", actions, "Apagar").append($("<i />").addClass("fa fa-trash"))
+            .click((e) => {
+            controller.call("dive::delete", entity, () => {
+                section.remove();
+            });
+        });
+
+        controller.call("tooltip", actions, "Histórico").append($("<i />").addClass("fa fa-archive"))
+            .click((e) => {
+            controller.call("dive::history", entity);
+        });
+
         controller.call("tooltip", actions, "Informações Globais").append($("<i />").addClass("fa fa-database"))
             .click((e) => {
             e.preventDefault();
-            for (let push of data.entity.push) {
+            for (let push of entity.push) {
                 controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
                     controller.call("loader::ajax", {
                         data: {
@@ -54,6 +66,8 @@ module.exports = (controller) => {
                 return (obj) => {
                     obj.item.remove();
                     controller.server.call("UPDATE 'DIVE'.'EVENT'", {
+                        contentType: "application/json",
+                        type: "POST",
                         data: {
                             useful: useful,
                             id: data._id
@@ -69,9 +83,11 @@ module.exports = (controller) => {
             };
 
             return [
-                ["fa-folder-open", "Abrir", () => controller.call("dive::open", data)],
-                ["fa-check", "Relevante", update("true")],
-                ["fa-times", "Irrelevante", update("false")],
+                ["fa-search", "Pesquisar", () => controller.call("socialprofile", data.entity.label)],
+                ["fa-archive", "Histórico", () => controller.call("dive::history", data.entity)],
+                ["fa-folder-open", "Abrir", () => controller.call("dive::open", data.entity)],
+                ["fa-check", "Relevante", update(true)],
+                ["fa-times", "Irrelevante", update(false)],
             ];
         };
 
