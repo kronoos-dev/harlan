@@ -8,26 +8,27 @@ var async = require("async"),
     CNPJ = require("cpf_cnpj").CNPJ;
 
 import { CMC7Parser } from "./cmc7-parser.js";
+import truncate from "truncate";
 
 var SEARCH_REGEX = /cheq?u?e?/i,
     FIDC = /fid?c?/i,
-    LIMIT = 3,
+    LIMIT = 5,
     CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
     QUERY_LIMIT = 2000;
 
-module.exports = function(controller) {
+module.exports = function(c) {
 
-    controller.registerCall("icheques::debtCollector", (check) => {
+    c.registerCall("icheques::debtCollector", (check) => {
         var inputExpire;
         let dispachEvent = (formData) => {
             check.expire = moment(inputExpire.val(), "DD/MM/YYYY").format("YYYYMMDD");
-            controller.serverCommunication.call("UPDATE 'ICHEQUES'.'DebtCollector'", controller.call("error::ajax", {
+            c.server.call("UPDATE 'ICHEQUES'.'DebtCollector'", c.call("error::ajax", {
                 method: "post",
                 type: "json",
-                data: Object.assign({}, check, formData, {debtCollector: controller.confs.debtCollector}),
+                data: Object.assign({}, check, formData, {debtCollector: c.confs.debtCollector}),
                 success: () => {
                     check.debtCollector = true;
-                    controller.call("alert", {
+                    c.call("alert", {
                         icon: "pass",
                         title: "Parabéns, cheque enviado para cobrança!",
                         subtitle: "Seu cheque foi enviado para cobrança.",
@@ -38,7 +39,7 @@ module.exports = function(controller) {
             }));
         };
 
-        let collectBill = () => controller.call("form", dispachEvent).configure({
+        let collectBill = () => c.call("form", dispachEvent).configure({
             "title": "Envie o cheque para cobrança",
             "subtitle": "Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.",
             "gamification": "star",
@@ -63,7 +64,7 @@ module.exports = function(controller) {
                     }
         }]}]});
 
-        let sendBill = () => controller.call("bankAccount::need", collectBill);
+        let sendBill = () => c.call("bankAccount::need", collectBill);
         let createList = (modal, form) => {
             inputExpire = form.addInput("Vencimento", "text", "Vencimento do Cheque").mask("00/00/0000").val(moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY"));
             inputExpire.pikaday();
@@ -92,7 +93,7 @@ module.exports = function(controller) {
 
         let confirm = (err) => {
             if (err) return;
-            controller.confirm({
+            c.confirm({
                 title: "Enviar seu cheque para cobrança?",
                 subtitle: "Não há custos na cobrança; é retido a comissão (%) somente se há sucesso na recuperação de seu cheque.",
                 paragraph: "Veja abaixo a tabela de comissionamento, e caso aceite nossos termos de serviço, pode enviar seu cheque para cobrança.  Caso seja recuperado o valor cobrado, será creditado na conta bancária cadastrada. O contrato de serviço está disponível <a target='_blank' href='legal/icheques/TERMOS COBRANCA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para aceitar os termos.",
@@ -104,36 +105,36 @@ module.exports = function(controller) {
                 return true;
             });
         };
-        if (!check.ammount) controller.call("icheques::item::edit", check, confirm, false, null, false);
+        if (!check.ammount) c.call("icheques::item::edit", check, confirm, false, null, false);
         else confirm();
     });
 
     var registerSocket = () => {
-        controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {
+        c.registerTrigger("serverCommunication::websocket::ichequeUpdate", "icheques::pushUpdate", function(data, callback) {
             callback();
 
-            var dbResponse = controller.database.exec(squel
+            var dbResponse = c.database.exec(squel
                 .select()
                 .from("ICHEQUES_CHECKS")
                 .where("PUSH_ID = ?", data.pushId).toString());
 
             if (!dbResponse.length) {
-                controller.call("icheques::insertDatabase", data);
+                c.call("icheques::insertDatabase", data);
                 return;
             }
 
-            controller.database.exec(squel
+            c.database.exec(squel
                 .update()
                 .table("ICHEQUES_CHECKS")
                 .where("PUSH_ID = ?", data.pushId)
-                .setFields(controller.call("icheques::databaseObject", data)).toString());
+                .setFields(c.call("icheques::databaseObject", data)).toString());
 
-            controller.call("icheques::item::upgrade", data);
+            c.call("icheques::item::upgrade", data);
         });
     };
 
-    controller.registerTrigger("authentication::authenticated", "icheques::sync::authentication::authenticated", function(data, callback) {
-        if (controller.serverCommunication.freeKey()) {
+    c.registerTrigger("authentication::authenticated", "icheques::sync::authentication::authenticated", function(data, callback) {
+        if (c.server.freeKey()) {
             callback();
             return;
         }
@@ -146,7 +147,7 @@ module.exports = function(controller) {
             skip = 0;
 
         async.doUntil((cb) => {
-            controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
+            c.server.call("SELECT FROM 'ICHEQUES'.'CHECKS'", c.call("error::ajax", {
                 data: {
                     'q[0]': "SELECT FROM 'ICHEQUES'.'CHECKS'",
                     'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",
@@ -161,10 +162,10 @@ module.exports = function(controller) {
                     hasResult = false;
                     $(ret).find("check").each(function() {
                         hasResult = true;
-                        storage.push(controller.call("icheques::parse::element", this));
+                        storage.push(c.call("icheques::parse::element", this));
                     });
 
-                    controller.call("icheques::insertDatabase", storage);
+                    c.call("icheques::insertDatabase", storage);
                     cb();
                 },
             }));
@@ -184,28 +185,92 @@ module.exports = function(controller) {
                 "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")),
                 separatorData);
 
-        controller.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => {
+        c.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => {
             e.preventDefault();
-            controller.call("icheques::item::edit", check);
+            c.call("icheques::item::edit", check);
         });
 
-        if (controller.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
-            controller.call("tooltip", separatorData.menu, "Cobrar Cheque")
+        if (c.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
+            c.call("tooltip", separatorData.menu, "Histórico de Cobrança").append($("<i />").addClass("fa fa-bullseye")).click((e) => {
+                c.server.call("SELECT FROM 'ICHEQUES'.'DebtCollectorHistory'", c.call("error::ajax", c.call("loader::ajax", {
+                    dataType: "json",
+                    data: {cmc : check.cmc},
+                    success : (entity) => {
+                        let skip = 0,
+                            modal = c.call("modal");
+                        modal.gamification();
+                        modal.title("Atualização da Cobrança");
+                        modal.subtitle("Arquivo de Contato com o Sacado");
+                        modal.paragraph("Este um histórico do que houve no contato com o sacado informado pela operadora de cobranças.");
+                        let list = modal.createForm().createList(),
+                            actions = modal.createActions();
+                        actions.add("Novo Contato").click((e) => c.click(e, "dive::history::new", entity, () => more(null, 0, e)));
+                        let more,
+                            observation = actions.observation("Carregando"),
+                            backButton = actions.add("Voltar Página").click((e) => more(e, -1)),
+                            nextButton = actions.add("Próxima Página").click((e) => more(e));
+
+                        more = (e, direction = 1, newEntity = null) => {
+                            if (newEntity) entity = newEntity;
+                            if (e) e.preventDefault();
+                            skip += LIMIT * direction;
+                            list.empty();
+                            if (!entity.history || !entity.history.length) {
+                                modal.close();
+                                c.alert({
+                                    title: "Não há histórico de cobrança disponível.",
+                                    subtitle: "Pode ser que os operadores de cobrança estejam tentando entrar em contato ainda.",
+                                    paragraph: "Fique tranquilo, a cobrança que opera para a iCheques é competente e logo teremos um retorno."
+                                });
+                                return;
+                            }
+
+                            let pages = Math.ceil(entity.history.length / LIMIT),
+                                page = (skip ? skip / LIMIT : 0) + 1;
+
+                            nextButton[page == pages ? 'hide' : 'show']();
+                            backButton[page == 1 ? 'hide' : 'show']();
+                            observation.text(`Página ${page} de ${pages}`);
+
+                            for (let contact of entity.history.slice(skip, skip + LIMIT)) {
+                                let when = moment.unix(contact.when),
+                                    next = moment.unix(contact.next);
+
+                                list.item("fa-archive", [
+                                    truncate(contact.observation, 40),
+                                    when.fromNow()
+                                ]).click((e) => {
+                                    e.preventDefault();
+                                    let modal = c.call("modal");
+                                    modal.title("Atualização da Cobrança");
+                                    modal.subtitle(`Histórico do Contato ${when.format('LLLL')}`);
+                                    modal.paragraph(contact.observation);
+                                    modal.createActions().cancel();
+                                });
+                            }
+                        };
+
+                        more(null, 0);
+                        actions.cancel();
+                    }
+                })));
+            });
+            c.call("tooltip", separatorData.menu, "Cobrar Cheque")
                 .append($("<i />").addClass("fa fa-life-buoy")).click((e) => {
                     e.preventDefault();
                     if (!check.debtCollector) {
-                        controller.call("icheques::debtCollector", check);
+                        c.call("icheques::debtCollector", check);
                     } else {
-                        controller.confirm({
+                        c.confirm({
                             title: "Você deseja REMOVER o cheque da cobrança?",
                             subtitle: "Não há custo para cancelar ou enviar para cobrança.",
                             paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
                         }, () => {
-                            controller.serverCommunication.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
+                            c.server.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
                                 data: check,
                                 success: () => {
                                     delete check.debtCollector;
-                                    controller.alert({
+                                    c.alert({
                                         icon: "pass",
                                         title: "Uoh! Cheque recuperado da cobrança!",
                                         subtitle: "Seu cheque foi recuperado da cobrança.",
@@ -220,15 +285,15 @@ module.exports = function(controller) {
         }
 
         if (check.operation) {
-            controller.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
+            c.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
                 e.preventDefault();
-                controller.confirm({
+                c.confirm({
                     title: "Você deseja realmente devolver o cheque?",
                     subtitle: "Esta operação não pode ser desfeita.",
                     paragraph: "Atenção! Caso devolver o cheque, ele sumirá de sua carteira, e esta operação não poderá ser desfeita!"
                 }, () => {
-                    controller.server.call("DELETE FROM 'ICHEQUESFIDC'.'OPERATION'",
-                        controller.call("error::ajax", controller.call("loader::ajax", {
+                    c.server.call("DELETE FROM 'ICHEQUESFIDC'.'OPERATION'",
+                        c.call("error::ajax", c.call("loader::ajax", {
                             data: {
                                 cmc: check.cmc
                             }
@@ -236,12 +301,12 @@ module.exports = function(controller) {
                 });
             });
         } else {
-            controller.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click((e) => {
+            c.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click((e) => {
                 e.preventDefault();
-                controller.confirm({
+                c.confirm({
                     title: "Remover Cheque da Carteira"
                 }, () => {
-                    controller.server.call("DELETE FROM 'ICHEQUES'.'CHECK'", {
+                    c.server.call("DELETE FROM 'ICHEQUES'.'CHECK'", {
                         data: {
                             cmc: check.cmc
                         },
@@ -253,13 +318,13 @@ module.exports = function(controller) {
             });
         }
 
-        controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
+        c.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
             e.preventDefault();
-            controller.call("icheques::item::add::time", check);
+            c.call("icheques::item::add::time", check);
         });
 
         separator.addClass("external-source loading");
-        var checkResult = controller.call("result");
+        var checkResult = c.call("result");
         checkResult.element().insertAfter(separator);
         if (check.ammount) {
             checkResult.addItem("Valor", numeral(check.ammount / 100).format("$0,0.00"));
@@ -356,25 +421,25 @@ module.exports = function(controller) {
     };
 
     var showDocument = function(task) {
-        var section = controller.call("section",
+        var section = c.call("section",
                 "iCheques",
                 "Monitoramento de cheques.",
                 "CPF/CNPJ " + task[0], false, true),
-            result = controller.call("result");
+            result = c.call("result");
         section[1].append(result.element());
         section[0].addClass("icheque loading");
 
         if (!$(".ichequesAccountOverview").length) {
-            controller.call("icheques::report::overview", false, false);
+            c.call("icheques::report::overview", false, false);
         }
 
         showChecks(task[1], result, section);
 
-        if (controller.confs.ccf) {
+        if (c.confs.ccf) {
 
             let mensagem = section[0].find("h3").text();
 
-            controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
+            c.server.call("SELECT FROM 'SEEKLOC'.'CCF'", {
                 data: {
                     documento: task[0]
                 },
@@ -410,11 +475,11 @@ module.exports = function(controller) {
 
                     });
 
-                    section[1].append(controller.call("xmlDocument", ret));
+                    section[1].append(c.call("xmlDocument", ret));
                 }
             });
 
-            controller.serverCommunication.call("SELECT FROM 'IEPTB'.'WS'", {
+            c.server.call("SELECT FROM 'IEPTB'.'WS'", {
                 data: {
                     documento: task[0]
                 },
@@ -429,7 +494,7 @@ module.exports = function(controller) {
                         .reduce((a, b) => a + b, 0);
                     section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
                     section[0].addClass("warning");
-                    section[1].append(controller.call("xmlDocument", ret));
+                    section[1].append(c.call("xmlDocument", ret));
                 }
             });
 
@@ -444,7 +509,7 @@ module.exports = function(controller) {
             ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
         }
 
-        controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
+        c.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
             cache: true,
             data: ccbuscaQuery,
             success: function(ret) {
@@ -467,7 +532,7 @@ module.exports = function(controller) {
                 icon.click((e) => {
                     e.preventDefault();
                     if (!showing) {
-                        xmlDocument = controller.call("xmlDocument", ret);
+                        xmlDocument = c.call("xmlDocument", ret);
                         section[2].find(".fa-plus-square-o").click();
                         icon.addClass("fa-user-times");
                         icon.removeClass("fa-user-plus");
@@ -491,7 +556,7 @@ module.exports = function(controller) {
         return section[0];
     };
 
-    controller.registerCall("icheques::resultDatabase", function(databaseResult) {
+    c.registerCall("icheques::resultDatabase", function(databaseResult) {
         if (!databaseResult) {
             return [{
                 columns: [],
@@ -510,20 +575,20 @@ module.exports = function(controller) {
         return databaseResult;
     });
 
-    controller.registerCall("icheques::show::query", function(query, callback, element) {
+    c.registerCall("icheques::show::query", function(query, callback, element) {
         if (!query) {
             return;
         }
-        controller.call("icheques::resultDatabase", query);
-        controller.call("icheques::show", query.values, callback, element);
+        c.call("icheques::resultDatabase", query);
+        c.call("icheques::show", query.values, callback, element);
     });
 
-    controller.registerCall("icheques::show", function(storage, callback, element) {
+    c.registerCall("icheques::show", function(storage, callback, element) {
         var documents = _.pairs(_.groupBy(storage, function(a) {
             return a.cpf || a.cnpj;
         }));
 
-        var moreResults = controller.call("moreResults", 5);
+        var moreResults = c.call("moreResults", 5);
         moreResults.callback((cb) => {
             cb(_.map(documents.splice(0, documents.length > 5 ? 5 : documents.length), showDocument));
         });
@@ -536,7 +601,7 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall("icheques::item::delete", function(cmc) {
+    c.registerCall("icheques::item::delete", function(cmc) {
         var node = $(".cmc-" + cmc);
         if (!node.length) {
             return;
@@ -550,7 +615,7 @@ module.exports = function(controller) {
         removeItem();
     });
 
-    controller.registerCall("icheques::item::upgrade", function(item) {
+    c.registerCall("icheques::item::upgrade", function(item) {
         var node = $(".pushid-" + item.pushId);
         if (!node.length) {
             return;
@@ -564,15 +629,15 @@ module.exports = function(controller) {
         upgrade(item);
     });
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUnset", "icheques::pushDelete", function(data, callback) {
+    c.registerTrigger("serverCommunication::websocket::ichequeUnset", "icheques::pushDelete", function(data, callback) {
         callback();
 
-        controller.database.exec(squel
+        c.database.exec(squel
             .delete()
             .from("ICHEQUES_CHECKS")
             .where("CMC = ?", data).toString());
 
-        controller.call("icheques::item::delete", data);
-        controller.trigger("icheques::deleted", data);
+        c.call("icheques::item::delete", data);
+        c.trigger("icheques::deleted", data);
     });
 };

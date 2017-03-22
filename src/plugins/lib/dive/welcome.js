@@ -1,3 +1,5 @@
+import _ from 'underscore';
+
 module.exports = (controller) => {
 
     controller.registerCall("dive::open", (entity) => {
@@ -14,7 +16,8 @@ module.exports = (controller) => {
             report.element().append(section);
         }));
 
-        for (let hyperlink of entity.hyperlink) {
+
+        for (let hyperlink of _.values(entity.hyperlink)) {
             controller.call("dive::plugin", hyperlink, {
                 data: entity,
                 section : sectionDocumentGroup
@@ -115,7 +118,6 @@ module.exports = (controller) => {
         });
 
         report.gamification("dive");
-
         $(".app-content").append(report.element());
     });
 
