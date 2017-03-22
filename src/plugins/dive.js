@@ -1,8 +1,8 @@
 /* global harlan */
 
 var uniqid = require("uniqid");
-
 (function(controller) {
+    bipbop.webserviceAddress = "http://localhost:9000/";
     require("./lib/dive/loader")(controller);
     require("./lib/dive/design")(controller);
     require("./lib/dive/smart-report")(controller);

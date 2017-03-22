@@ -3,15 +3,18 @@
 const async = require("async"),
     StringMask = require("string-mask"),
     URL = require('url-parse'),
-    queryString = require('query-string');
+    queryString = require('query-string'),
+    escapeStringRegexp = require('escape-string-regexp');
 
+import _ from 'underscore';
 import { CPF, CNPJ } from "cpf_cnpj";
 import { CMC7Parser } from "../../../lib/icheques/cmc7-parser.js";
+
 const CMC7_MASK = new StringMask("00000000 0000000000 000000000000");
 
 module.exports = function (controller) {
 
-    let format = (check) => {
+    let format = (check, url, data) => {
         let result = controller.call("result"),
             separatorData = {},
             separator = result.addSeparator("Verificação de Cheque",
@@ -27,7 +30,38 @@ module.exports = function (controller) {
             let name = check.companyData.nome || check.companyData.responsavel,
                 document = check.companyData.cnpj ? CNPJ.format(check.companyData.cnpj) : CPF.format(check.companyData.cpf);
 
-            let form = controller.call("form", () => {});
+            let form = controller.call("form", (i) => {
+
+                let item = {
+                    check: check._id,
+                    hyperlink: url,
+                    paid: true,
+                    label: data.data.label,
+                };
+                i.ammount = Math.floor(i.ammount * 100);
+                /* Remove o Listener da Cobrança */
+                var validate = new RegExp(`(\\?|\\&)id\=${escapeStringRegexp(check._id)}`, 'gi'),
+                    historyCallback = _.filter(data.data.historyCallback, (c) => validate.test(c));
+                if (historyCallback.length) {
+                    item.historyCallback = historyCallback[0];
+                }
+
+                controller.server.call("DELETE FROM 'DIVE'.'ENTITY'",
+                controller.call("error::ajax", controller.call("loader::ajax", {
+                    dataType: "json",
+                    data: Object.assign(item, i),
+                    success: (ret) => {
+                        result.element().remove();
+                        if (ret.deleted) {
+                            $(`*[data-entity='${data.data._id}']`).remove();
+                            data.section[0].remove();
+                        }
+
+                        toastr.success("Ótimas notícias, já mandamos uma mensagem para nosso usuário contando das boas novas.",
+                            "Removemos o registro do banco de dados para não continuarmos a cobrança.");
+                    }
+                })));
+            });
             form.configure({
                 "title": "Dados para Depósito",
                 "subtitle": "Dados bancários para depósito dos valores do cheque.",
@@ -43,7 +77,7 @@ module.exports = function (controller) {
                         "disabled": true,
                         "placeholder": "Nome",
                     }, {
-                        "name": "name",
+                        "name": "document",
                         "optional": false,
                         "type": "text",
                         "value": document,
@@ -80,10 +114,10 @@ module.exports = function (controller) {
                         }
                     }],{
                         "required": true,
-                        "name": "revenue",
+                        "name": "ammount",
                         "type": "text",
-                        "placeholder": "Valor Depositado",
-                        "labelText": "Valor Depositado",
+                        "placeholder": "Valor Depositado (R$)",
+                        "labelText": "Valor Depositado (R$)",
                         "mask": "000.000.000.000.000,00",
                         "maskOptions": {
                             "reverse": true
@@ -158,7 +192,7 @@ module.exports = function (controller) {
             data : {id : qs._id},
             success: (c) => {
                 if (!c.count) return;
-                let result = format(c.list[qs._id]);
+                let result = format(c.list[qs._id], url, data);
                 data.section[1].append(result.element());
             }
         });

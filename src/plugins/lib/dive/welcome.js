@@ -97,7 +97,7 @@ module.exports = (controller) => {
                 data: data || {},
                 success: function(ret) {
                     for (let data of ret.events) {
-                        timeline.add(data.created, data.title, data.description, generateActions(data));
+                        timeline.add(data.created, data.title, data.description, generateActions(data)).attr("data-entity", data.entity._id);
                     }
                 }
             });
@@ -107,7 +107,7 @@ module.exports = (controller) => {
 
         controller.registerTrigger("serverCommunication::websocket::diveEvent", "diveEvent", (data, cb) => {
             cb();
-            timeline.add(data.created, data.title, data.description, generateActions(data));
+            timeline.add(data.created, data.title, data.description, generateActions(data)).attr("data-entity", data.entity._id);
         });
 
         report.button("Adicionar Documentos", function() {

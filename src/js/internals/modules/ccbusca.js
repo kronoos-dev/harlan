@@ -39,6 +39,8 @@ module.exports = (controller) => {
         "Informações agregadas do CPF ou CNPJ",
         "Registro encontrado");
 
+        let subtitle = $(".results-display", sectionDocumentGroup[0]);
+
         if (!callback) {
             $(".app-content").prepend(sectionDocumentGroup[0]);
         } else {
