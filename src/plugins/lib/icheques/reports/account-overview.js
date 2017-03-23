@@ -139,8 +139,8 @@ var AccountOverview = function(closeable) {
         var observationInput = form.addInput("observation", "text", "Arquivo / Observação").magicLabel();
         var expiredInput = form.addCheckbox("expired", "Exibir cheques vencidos.")[1];
         var ccfOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com CCF.");
-        var debtCollectorInput = form.addCheckbox("debtCollection", "Exibir emitentes em cobrança.");
         var protestoOnlyInput = form.addCheckbox("ccf", "Exibir emitentes com protestos.");
+        var debtCollectorInput = form.addCheckbox("debtCollection", "Exibir emitentes em cobrança.");
 
         if (!controller.confs.ccf) {
             protestoOnlyInput[0].hide();
@@ -312,7 +312,7 @@ var AccountOverview = function(closeable) {
             expression.and("PROTESTO > 0");
         }
 
-        if (f.expired) {
+        if (f.expired || f.debtCollector) {
 
         } else {
             expression.and("(EXPIRE >= ?)", moment().format("YYYYMMDD"));
