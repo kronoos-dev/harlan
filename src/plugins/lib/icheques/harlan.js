@@ -129,6 +129,7 @@ module.exports = function(c) {
                 .where("PUSH_ID = ?", data.pushId)
                 .setFields(c.call("icheques::databaseObject", data)).toString());
 
+            c.trigger("icheques::update", data);
             c.call("icheques::item::upgrade", data);
         });
     };

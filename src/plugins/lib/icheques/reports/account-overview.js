@@ -645,11 +645,11 @@ AccountOverview.prototype.about = {
 module.exports = (c) => {
     controller = c;
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUnset", "draw::accountOverview", (obj, cb) => {
+    controller.registerTrigger("icheques::deleted", "draw::accountOverview", (obj, cb) => {
         async.parallel(updateRegister, cb);
     });
 
-    controller.registerTrigger("serverCommunication::websocket::ichequeUpdate", "draw::accountOverview", (obj, cb) => {
+    controller.registerTrigger("icheques::update", "draw::accountOverview", (obj, cb) => {
         async.parallel(updateRegister, cb);
     });
 
