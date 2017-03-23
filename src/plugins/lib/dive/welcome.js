@@ -12,7 +12,7 @@ module.exports = (controller) => {
                 let document;
                 if (!data.count) return;
                 for (let row of _.values(data.items)) {
-                    document = CPF.isValid(row.label) ? CPF.format(row.label) : CNPJ.format(row.label),
+                    document = CPF.isValid(row.label) ? CPF.format(row.label) : CNPJ.format(row.label);
                     args[1].item("Dive", "Abertura de Registro", sprintf("Nome: %s, Documento: %s", row.reduce.name, document))
                         .addClass("dive")
                         .click((e) => {

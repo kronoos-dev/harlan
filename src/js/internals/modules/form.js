@@ -83,13 +83,13 @@ module.exports = (controller) => {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText, item.value);
             } else if (item.type === "textarea") {
                 item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
-                if (configuration.magicLabel || screen.magicLabel || item.magicLabel) {
+                if ((configuration.magicLabel || screen.magicLabel || item.magicLabel) && !item.hoverHelp) {
                     item.element.magicLabel(item.label);
                 }
             } else {
                 item.element = form.addInput(item.name, item.type, item.placeholder, item, item.labelText, item.value);
 
-                if (screen.magicLabel || item.magicLabel || configuration.magicLabel) {
+                if ((screen.magicLabel || item.magicLabel || configuration.magicLabel) && !item.hoverHelp) {
                     item.element.magicLabel(item.label);
                 }
 
