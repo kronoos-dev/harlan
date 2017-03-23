@@ -160,7 +160,7 @@ module.exports = (controller) => {
         let item = args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
             "Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.", [
                 ["fa-folder-open", "Abrir", () => {
-                    let email = Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a).unique()[0],
+                    let email = _.uniq(Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a))[0],
                         modal = controller.call("modal");
 
                     modal.title("E-mail para Cruzamento");

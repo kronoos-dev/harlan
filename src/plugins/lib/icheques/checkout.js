@@ -23,7 +23,8 @@ const DATABASE_KEYS = [
     'lastUpdate',
     'operation',
     'ccf',
-    'protesto'
+    'protesto',
+    'lastDebtCollectorMessage'
 ];
 
 var squel = require("squel"),

@@ -7,6 +7,38 @@ $color: #2A332E;
     :-ms-input-placeholder      {@content}
 }
 
+
+.autocomplete {
+
+    li.dive {
+        background: url(../images/textures/brilliant.png),linear-gradient(164deg,#ff7f00 -55%,#ffffff 100%);
+        border-bottom: 1px solid #ffefc0;
+
+        &:after {
+            font-family: "FontAwesome";
+            content: '\f132';
+            font-size: 12px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        &:hover, &.selected  {
+            background: url(../images/textures/brilliant.png),linear-gradient(164deg,#ff7f00 0%,#ffffff 100%);
+            border-bottom: 1px solid #ffefc0;
+        }
+
+        .item-title {
+            text-transform: inherit;
+        }
+
+        .item-subtitle {
+            text-transform: inherit;
+        }
+    }
+}
+
+
 .dive-site {
 
     .logo {

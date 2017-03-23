@@ -1,6 +1,29 @@
 import _ from 'underscore';
+import { CPF, CNPJ } from 'cpf_cnpj';
+import sprintf from 'sprintf';
 
 module.exports = (controller) => {
+
+    controller.registerTrigger("findDatabase::instantSearch", "icheques::search::document", function(args, callback) {
+        controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
+            dataType: "json",
+            data: {text: args[0], limit: 3},
+            success: (data) => {
+                let document;
+                if (!data.count) return;
+                for (let row of _.values(data.items)) {
+                    document = CPF.isValid(row.label) ? CPF.format(row.label) : CNPJ.format(row.label),
+                    args[1].item("Dive", "Abertura de Registro", sprintf("Nome: %s, Documento: %s", row.reduce.name, document))
+                        .addClass("dive")
+                        .click((e) => {
+                            e.preventDefault();
+                            controller.call("dive::open", row);
+                        });
+                }
+            },
+            complete: () => callback()
+        });
+    });
 
     controller.registerCall("dive::open", (entity) => {
         var sectionDocumentGroup = controller.call("section", "Informações Cadastrais",

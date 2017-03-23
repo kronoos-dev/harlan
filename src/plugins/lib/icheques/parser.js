@@ -33,6 +33,7 @@ module.exports = function (controller) {
             protesto: databaseInteger(getElement("protesto")),
             debtCollector: getElement("debtCollector"),
             alinea: getElement("alinea"),
+            lastDebtCollectorMessage: getElement("lastDebtCollectorMessage")
         };
         return ret;
     });

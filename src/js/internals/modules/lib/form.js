@@ -12,7 +12,7 @@ module.exports = function(instance, controller) {
         input.addClass("has-label").attr('id', (obj.id = require('node-uuid').v4()));
 
         if (obj.hoverHelp) {
-            labelText += " <a href=\"#\">(?)</a>";
+            labelText += " <a href=\"#\">(Ajuda?)</a>";
         }
 
         obj.label = $("<label />")

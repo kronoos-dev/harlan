@@ -378,6 +378,10 @@ module.exports = function(c) {
                         nodes.push(checkResult.addItem("Cobrança", "Ativa"));
                     }
 
+                    if (check.lastDebtCollectorMessage) {
+                        nodes.push(checkResult.addItem("Última Histórico do Sacado", check.lastDebtCollectorMessage));
+                    }
+
                     section[0].removeClass("loading");
 
                     var elementClass = "success",
