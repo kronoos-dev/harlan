@@ -1,3 +1,4 @@
+androidHome/
 src/js/sw.js
 *.log
 test/spec

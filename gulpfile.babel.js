@@ -310,6 +310,25 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
+gulp.task("build:cordova:copy-files", ["build:application"], () => {
+    return gulp.src([
+        `${src}/**`
+    ])
+    .pipe(gulp.dest("cordova/icheques/www"))
+    .pipe(gulp.dest("cordova/harlan/www"))
+    .pipe($.size({title: ">>> build:cordova"}));
+});
+
+gulp.task("build:cordova:icheques", ["build:cordova:copy-files"], $.shell.task("cordova build", {
+    cwd: './cordova/icheques'
+}));
+
+gulp.task("build:cordova:harlan", ["build:cordova:copy-files"], $.shell.task("cordova build", {
+    cwd: './cordova/harlan'
+}));
+
+gulp.task("build:cordova", ["build:cordova:icheques", "build:cordova:harlan"]);
+
 gulp.task("build:application", ["jshint", "i18n"], () => {
     return browserify({
         entries: `${src}/js/app.js`,
@@ -411,6 +430,8 @@ gulp.task("styles", () => {
 gulp.task("default", cb => {
     return runSequence("build", "watch", cb);
 });
+
+
 
 gulp.task("build", cb => {
     const leaves = [

@@ -10,9 +10,9 @@ var Harmonizer = require("color-harmony").Harmonizer,
     ChartJS = require("chart.js"),
     squel = require("squel"),
     changeCase = require('change-case');
-
+import { CMC7Parser } from '../cmc7-parser';
 var controller;
-var markdown = require("markdown").markdown;
+var MarkdownIt = require('markdown-it');
 var updateRegister = [];
 var async = require("async");
 var harmonizer = new Harmonizer();
@@ -214,7 +214,7 @@ var AccountOverview = function(closeable) {
             check.protesto = check.protesto || 0;
             check.ccf = check.ccf || 0;
             check.expire = moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY");
-            check.cmc = `<${check.cmc}>`;
+            check.number = new CMC7Parser(check.cmc).number;
             sum += check.ammount;
             check.ammount = numeral(check.ammount / 100.0).format("$0,0.00");
         }
@@ -226,14 +226,12 @@ var AccountOverview = function(closeable) {
                 soma: numeral(sum / 100.0).format("$0,0.00")
         };
         let render = Mustache.render(doc, input);
-        var html =  markdown.toHTML(render, 'Maruku'),
+        var html =  new MarkdownIt().render(render),
             printWindow = window.open("about:blank", "", "_blank");
 
         if (!printWindow) return;
         html += `<style>${require("./print-style")}</style>`;
-        printWindow.document.write($("<html />")
-            .append($("<head />"))
-            .append($("<body />").html(html)).html());
+        printWindow.document.write(html);
         printWindow.focus();
         printWindow.print();
     };

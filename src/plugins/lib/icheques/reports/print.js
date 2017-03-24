@@ -9,9 +9,9 @@ Situação dos Cheques Cadastrados
 Sacado | Número | Vencimento | Valor | Situação | CCF | Protestos
 -------|--------| -----------|-------|----------|-----|-----------
 {{#checks}}
-{{ name }} | {{{ cmc }}} | {{ expire }} | {{ ammount }} | {{ status }} | {{ ccf }} | {{ protesto }}
+{{ name }} | {{{ number }}} | {{ expire }} | {{ ammount }} | {{ status }} | {{ ccf }} | {{ protesto }}
 {{/checks}}
 TOTAL  |  |  | {{ soma }} |  |  |
 
-Muito obrigado e bons negócios,     
+Muito obrigado e bons negócios,  	
 Equipe iCheques.`;
