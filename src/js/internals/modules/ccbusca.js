@@ -35,11 +35,17 @@ module.exports = (controller) => {
     });
 
     controller.registerCall("ccbusca::parse", function(ret, val, callback) {
+
         var sectionDocumentGroup = controller.call("section", "Busca Consolidada",
         "Informações agregadas do CPF ou CNPJ",
         "Registro encontrado");
 
         let subtitle = $(".results-display", sectionDocumentGroup[0]);
+        let messages = [subtitle.text()];
+        let appendMessage = (message) => {
+            messages.push(message);
+            subtitle.text(messages.join(", "));
+        };
 
         if (!callback) {
             $(".app-content").prepend(sectionDocumentGroup[0]);
@@ -74,7 +80,13 @@ module.exports = (controller) => {
             },
             success: (ret) => {
                 let totalRegistro = parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
-                if (!totalRegistro) return;
+                if (!totalRegistro) {
+                    appendMessage("sem cheques devolvidos");
+                    return;
+                }
+                let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
+                    v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
+                appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
                 sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
             }
         });
@@ -84,7 +96,15 @@ module.exports = (controller) => {
                 documento: val
             },
             success: (ret) => {
-                if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") return;
+                if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
+                    appendMessage("sem protestos");
+                    return;
+                }
+                let totalProtestos = $("protestos", ret)
+                    .get()
+                    .map((p) => parseInt($(p).text()))
+                    .reduce((a, b) => a + b, 0);
+                appendMessage(`total de protestos: ${totalProtestos}`);
                 sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
             }
         });

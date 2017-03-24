@@ -1138,8 +1138,9 @@ input.link {
         text-align: left;
         bottom: -10px;
         margin-left: 16px;
-        display: none;
-        &.magic-label-hide,
+            &.magic-label-hide {
+            display: none;
+        }
         &.magic-label-show {
             display: block;
         }
@@ -1466,4 +1467,8 @@ input.link {
     line-height: 21px;
     padding: 4px;
     font-weight: 600;
+}
+
+a.help {
+    cursor: 'help';
 }
