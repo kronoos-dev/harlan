@@ -400,6 +400,10 @@ module.exports = function(c) {
 
                     nodes.push(checkResult.addItem("Situação (" + check.queryStatus + ")", situation));
                     nodes.push(checkResult.addItem("Exibição", display));
+                    if (check.lastUpdate) {
+                        let lastUpdate = moment.unix(check.lastUpdate);
+                        nodes.push(checkResult.addItem("Última Alteração ("+lastUpdate.fromNow()+")", lastUpdate.format("DD/MM/YYYY")));
+                    }
 
                     if (check.ocurrenceCode) {
                         nodes.push(checkResult.addItem("Ocorrência (" + check.ocurrenceCode + ")", ocurrence));
