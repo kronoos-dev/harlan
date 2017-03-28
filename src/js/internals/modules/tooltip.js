@@ -13,7 +13,12 @@ module.exports = (controller) => {
             .text(content);
 
         materialTip.insertAfter(element);
-        componentHandler.upgradeElement(materialTip.get(0), "MaterialTooltip");
+        let interval;
+        interval = setInterval(() => {
+            if (!element.is(":visible")) return;
+            clearInterval(interval);
+            componentHandler.upgradeElement(materialTip.get(0), "MaterialTooltip");
+        }, 150);
 
         return element;
     });
