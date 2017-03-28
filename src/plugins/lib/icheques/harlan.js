@@ -18,6 +18,44 @@ var SEARCH_REGEX = /cheq?u?e?/i,
 
 module.exports = function(c) {
 
+    c.registerCall("icheques::history", (check) => {
+        c.server.call("SELECT FROM 'ICHEQUES'.'HISTORY'", c.call("loader::ajax",  c.call("error::ajax", {
+            data: {id: check.pushId},
+            dataType: "json",
+            success: (data) => {
+                let modal = c.call("modal");
+                modal.gamification();
+                modal.title("Consultas e Protocolos");
+                modal.subtitle("Últimas Consultas Realizadas e Protocolos");
+                modal.paragraph("Através deste relatório você poderá visualizar as consultas realizadas e respectivos protocolos.");
+                let form = modal.createForm(),
+                    list = form.createList(),
+                    values = _.values(data.data);
+                for (let row of values) {
+                    let doc = $.parseXML(row.document.data),
+                        exception = $("exception", doc);
+                    if (exception.length) {
+                        list.item("fa-close", [moment.unix(row.created).fromNow(), "Ocorreu uma exceção na consulta",
+                            "A consulta ao cheque fracassou, tentando novamente em alguns instantes."]);
+                    } else {
+                        list.item("fa-check", [moment.unix(row.created).fromNow(), $("situacaoConsultaCheque situacao", doc).text(),
+                            `Protocolo: ${$("numProtCons", doc).text()}`]);
+                    }
+                }
+                modal.createActions().cancel();
+                if (!values.length) {
+                    modal.close();
+                    c.alert({
+                        title: "Não há registros para serem exibidos",
+                        subtitle: "Tente novamente mais tarde quando já teremos consultas realizadas para este cheque.",
+                        paragraph: "Tentaremos consultar este cheque em instantes, tenha um pouco de paciência e tente novamente mais tarde."
+                    });
+                }
+
+            }
+        }, true)));
+    });
+
     c.registerCall("icheques::debtCollector", (check) => {
         var inputExpire;
         let dispachEvent = (formData) => {
@@ -186,10 +224,8 @@ module.exports = function(c) {
                 "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")),
                 separatorData);
 
-        c.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => {
-            e.preventDefault();
-            c.call("icheques::item::edit", check);
-        });
+        c.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => c.call(e, "icheques::item::edit", check));
+        c.call("tooltip", separatorData.menu, "Histórico do Cheque").append($("<i />").addClass("fa fa-history")).click((e) => c.click(e, "icheques::history", check));
 
         if (c.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
             c.call("tooltip", separatorData.menu, "Histórico de Cobrança").append($("<i />").addClass("fa fa-bullseye")).click((e) => {
