@@ -38,7 +38,7 @@ module.exports = function(c) {
                         list.item("fa-close", [moment.unix(row.created).fromNow(), "Ocorreu uma exceção na consulta",
                             "A consulta ao cheque fracassou, tentando novamente em alguns instantes."]);
                     } else {
-                        list.item("fa-check", [moment.unix(row.created).fromNow(), $("situacaoConsultaCheque situacao", doc).text(),
+                        list.item("fa-check", [moment.unix(row.created).fromNow(), $("ocorrencias descricao", doc).text(),
                             `Protocolo: ${$("numProtCons", doc).text()}`]);
                     }
                 }
