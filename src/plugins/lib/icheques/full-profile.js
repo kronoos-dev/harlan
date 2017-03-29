@@ -66,7 +66,7 @@ module.exports = function(controller) {
                             }]
                         }, {
                             "magicLabel": true,
-                            "fields": [{
+                            "fields": [[{
                                 "name": "revenue",
                                 "type": "text",
                                 "placeholder": "Faturamento Mensal (R$)",
@@ -76,7 +76,12 @@ module.exports = function(controller) {
                                     "reverse": true
                                 },
                                 "numeral": true
-                            },
+                            }, {
+                                "name": "activity-branch",
+                                "type": "text",
+                                "placeholder": "Ramo de Atividade",
+                                "labelText": "Ramo de Atividade",
+                            }],
                             [{
                                 "name": "medium-term-sale",
                                 "type": "text",

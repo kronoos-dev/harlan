@@ -134,7 +134,7 @@ module.exports = function(controller) {
                 'background-repeat': 'no-repeat',
                 height: '100%',
                 left: '0',
-                'z-index': 10,
+                'z-index': 99999999,
                 overflow: 'hidden',
                 position: 'fixed',
                 top: '0',

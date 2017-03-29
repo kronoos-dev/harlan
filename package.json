@@ -86,6 +86,7 @@
     "gulp-uglify": "~1.5.4",
     "gulp-util": "^3.0.8",
     "hash-object": "^0.1.7",
+    "hash.js": "^1.0.3",
     "html2canvas": "^0.5.0-beta4",
     "jaro-winkler": "^0.2.8",
     "jdataview": "^2.5.0",

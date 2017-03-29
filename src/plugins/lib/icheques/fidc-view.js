@@ -124,7 +124,7 @@ module.exports = function(controller) {
                     "mask": "(00) 0000-00009"
                 }]
             }, {
-                "fields": [{
+                "fields": [[{
                         "name": "revenue",
                         "type": "text",
                         "placeholder": "Faturamento Mensal (R$)",
@@ -134,7 +134,12 @@ module.exports = function(controller) {
                             "reverse": true
                         },
                         "numeral": true
-                    },
+                    }, {
+                        "name": "activity-branch",
+                        "type": "text",
+                        "placeholder": "Ramo de Atividade",
+                        "labelText": "Ramo de Atividade",
+                    }],
                     [{
                         "name": "medium-term-sale",
                         "type": "text",
