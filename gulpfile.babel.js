@@ -312,7 +312,9 @@ gulp.task("build:installer", ["build:application"], () => {
 
 gulp.task("build:cordova:copy-files", ["build:application"], () => {
     return gulp.src([
-        `${src}/**`
+        `Server/web/**`,
+        `!Server/web/images/bg/**/*.{jpg,jpeg}`,
+        `!Server/web/js/**/*.{gz,map}`
     ])
     .pipe(gulp.dest("cordova/icheques/www"))
     .pipe(gulp.dest("cordova/harlan/www"))
