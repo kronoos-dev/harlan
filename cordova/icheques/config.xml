@@ -2,10 +2,10 @@
 <widget id="com.bipbop.icheques" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>ICheques</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        Saiba em tempo real a situação de seus cheques
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="dev@bipbop.com.br" href="http://www.bipbop.com.br">
+        BIPBOP
     </author>
     <content src="icheques-cordova.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
@@ -34,4 +34,28 @@
     <plugin name="phonegap-plugin-push" spec="~1.10.0">
         <variable name="SENDER_ID" value="85075801930" />
     </plugin>
+    <preference name="loadUrlTimeoutValue" value="700000" />
+    <preference name="SplashScreen" value="screen"/>
+    <preference name="splashScreenDelay" value="10000" />
+    <preference name="ErrorUrl" value="cordova-error.html" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="BackgroundColor" value="0xffefefef"/>
+    <preference name="SplashMaintainAspectRatio" value="true" />
+    <preference name="InAppBrowserStorageEnabled" value="false"/>
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="AutoHideSplashScreen" value="false" />
+    <platform name="android">
+        <splash src="res/screen/android/splash-land-hdpi.png" density="land-hdpi"/>
+        <splash src="res/screen/android/splash-land-ldpi.png" density="land-ldpi"/>
+        <splash src="res/screen/android/splash-land-mdpi.png" density="land-mdpi"/>
+        <splash src="res/screen/android/splash-land-xhdpi.png" density="land-xhdpi"/>
+        <splash src="res/screen/android/splash-port-hdpi.png" density="port-hdpi"/>
+        <splash src="res/screen/android/splash-port-ldpi.png" density="port-ldpi"/>
+        <splash src="res/screen/android/splash-port-mdpi.png" density="port-mdpi"/>
+        <splash src="res/screen/android/splash-port-xhdpi.png" density="port-xhdpi"/>
+        <icon src="res/icon/android/icon-ldpi.png" density="ldpi" />
+        <icon src="res/icon/android/icon-mdpi.png" density="mdpi" />
+        <icon src="res/icon/android/icon-hdpi.png" density="hdpi" />
+        <icon src="res/icon/android/icon-xhdpi.png" density="xhdpi" />
+    </platform>
 </widget>

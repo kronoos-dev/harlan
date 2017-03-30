@@ -248,6 +248,7 @@ var Controller = function() {
     require('./modules/generate-relations')(this);
     require('./modules/admin/contact-types')(this);
     require('./modules/smartsupp')(this);
+    require('./modules/cordova')(this);
 
     /**
      * From day to night and night to day

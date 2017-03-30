@@ -317,7 +317,6 @@ gulp.task("build:cordova:copy-files", ["build:application"], () => {
         `!Server/web/js/**/*.{gz,map}`
     ])
     .pipe(gulp.dest("cordova/icheques/www"))
-    .pipe(gulp.dest("cordova/harlan/www"))
     .pipe($.size({title: ">>> build:cordova"}));
 });
 
