@@ -35,7 +35,7 @@
         <variable name="SENDER_ID" value="85075801930" />
     </plugin>
     <preference name="loadUrlTimeoutValue" value="700000" />
-    <preference name="SplashScreen" value="screen"/>
+    <!-- <preference name="SplashScreen" value="screen"/> -->
     <preference name="splashScreenDelay" value="10000" />
     <preference name="ErrorUrl" value="cordova-error.html" />
     <preference name="Orientation" value="portrait" />
@@ -45,6 +45,7 @@
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="AutoHideSplashScreen" value="false" />
     <platform name="android">
+        <!-- splash screen -->
         <splash src="res/screen/android/splash-land-hdpi.png" density="land-hdpi"/>
         <splash src="res/screen/android/splash-land-ldpi.png" density="land-ldpi"/>
         <splash src="res/screen/android/splash-land-mdpi.png" density="land-mdpi"/>
@@ -53,9 +54,13 @@
         <splash src="res/screen/android/splash-port-ldpi.png" density="port-ldpi"/>
         <splash src="res/screen/android/splash-port-mdpi.png" density="port-mdpi"/>
         <splash src="res/screen/android/splash-port-xhdpi.png" density="port-xhdpi"/>
-        <icon src="res/icon/android/icon-ldpi.png" density="ldpi" />
-        <icon src="res/icon/android/icon-mdpi.png" density="mdpi" />
-        <icon src="res/icon/android/icon-hdpi.png" density="hdpi" />
-        <icon src="res/icon/android/icon-xhdpi.png" density="xhdpi" />
+
+        <!-- ícones -->
+        <icon src="res/icon/android/icon@ldpi.png" density="ldpi" />
+        <icon src="res/icon/android/icon@mdpi.png" density="mdpi" />
+        <icon src="res/icon/android/icon@hdpi.png" density="hdpi" />
+        <icon src="res/icon/android/icon@xhdpi.png" density="xhdpi" />
+        <icon src="res/icon/android/icon@xhdpi.png" density="xxhdpi" />
+        <icon src="res/icon/android/icon@xhdpi.png" density="xxxhdpi" />
     </platform>
 </widget>

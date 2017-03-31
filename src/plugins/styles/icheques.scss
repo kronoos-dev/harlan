@@ -18,7 +18,7 @@ $color: #feefc4;
 
     & > span {
         top: 0;
-        background: url(../images/icheques/logo.svg) no-repeat;
+        background: url(images/icheques/logo.svg) no-repeat;
         background-size: contain;
         background-repeat: no-repeat;
         width: 180px;
@@ -46,7 +46,7 @@ $color: #feefc4;
         display: table;
         min-height: 580px;
         width: 100%;
-        background-image: url('../images/icheques/texture.jpg');
+        background-image: url('/images/icheques/texture.jpg');
         background-size: 1020.25px 680px;
         background-position: 50% 50%;
         background-repeat: no-repeat;
@@ -58,7 +58,7 @@ $color: #feefc4;
         }
 
         .logo {
-            background-image: url('../images/icheques/logo.svg');
+            background-image: url('/images/icheques/logo.svg');
             height: 80px;
             width: 230px;
             margin: auto;
@@ -155,7 +155,7 @@ $color: #feefc4;
     .site {
 
         .photo {
-            background-image: url(../images/icheques/founder.jpg);
+            background-image: url(images/icheques/founder.jpg);
             height: 200px;
             width: 200px;
             border-radius: 100px;
@@ -274,7 +274,7 @@ $color: #feefc4;
 .autocomplete {
 
     li.icheque {
-        background: url(../images/textures/brilliant.png),linear-gradient(200deg,#33F700 -370%,#FFFFFF 80%);
+        background: url(images/textures/brilliant.png),linear-gradient(200deg,#33F700 -370%,#FFFFFF 80%);
         border-bottom: 1px solid #F3FFF0;
 
         &:after {
@@ -315,7 +315,7 @@ $color: #feefc4;
 .group-type.icheque-ban {
 
     & > header {
-        background: url(../images/textures/brilliant.png),linear-gradient(180deg,#0033f7 -00%,#FFF 160%);
+        background: url(images/textures/brilliant.png),linear-gradient(180deg,#0033f7 -00%,#FFF 160%);
         color: #fff;
         h2 {
             text-transform: inherit;
@@ -330,7 +330,7 @@ $color: #feefc4;
 .group-type.icheque {
 
     & > header {
-        background: url(../images/textures/brilliant.png),linear-gradient(180deg,#33F700 -00%,#FFF 160%);
+        background: url(images/textures/brilliant.png),linear-gradient(180deg,#33F700 -00%,#FFF 160%);
     }
 
     h2, h3 {
@@ -338,18 +338,18 @@ $color: #feefc4;
     }
 
     .separator {
-        background: url(../images/textures/brilliant.png),linear-gradient(260deg,#A9C3A3 -319%,#FFF 130%);
+        background: url(images/textures/brilliant.png),linear-gradient(260deg,#A9C3A3 -319%,#FFF 130%);
     }
 
     &.loadingCheck {
         & > header {
-            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);
+            background: url(images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);
         }
     }
 
     &.warning {
         & > header {
-            background: url(../images/textures/brilliant.png),linear-gradient(180deg,rgb(255, 210, 210),#fff 160%);
+            background: url(images/textures/brilliant.png),linear-gradient(180deg,rgb(255, 210, 210),#fff 160%);
 
             h2:before {
                 font-family: "FontAwesome";
@@ -361,14 +361,14 @@ $color: #feefc4;
     }
     &.critical {
         & > header {
-            background: url(../images/textures/brilliant.png),linear-gradient(180deg,rgb(255, 0, 0),rgb(183, 0, 0) 160%);
+            background: url(images/textures/brilliant.png),linear-gradient(180deg,rgb(255, 0, 0),rgb(183, 0, 0) 160%);
             color: rgb(255, 255, 255);
         }
     }
 
     &.loading {
         & > header {
-            background: url(../images/textures/brilliant.png),linear-gradient(180deg,#33F700 -200%,#FFF 130%);
+            background: url(images/textures/brilliant.png),linear-gradient(180deg,#33F700 -200%,#FFF 130%);
             animation: ichequeLegalLoading infinite 3s ease-in-out;
 
             .actions {
@@ -404,7 +404,7 @@ label.help.cmc7 {
             height: 325px;
             margin-top: -162px;
             margin-left: -261px;
-            background-image: url("../images/icheques/cheque.svg");
+            background-image: url("/images/icheques/cheque.svg");
         }
     }
 }

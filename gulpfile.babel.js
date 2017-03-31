@@ -310,7 +310,7 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
-gulp.task("build:cordova:copy-files", ["build:application"], () => {
+gulp.task("build:cordova:copy-files", ["build"], () => {
     return gulp.src([
         `Server/web/**`,
         `!Server/web/images/bg/**/*.{jpg,jpeg}`,

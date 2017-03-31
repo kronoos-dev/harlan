@@ -10,7 +10,7 @@ module.exports = function (controller) {
         }
     });
 
-    controller.registerTrigger("bootstrap::end", function (arg, callback) {
+    controller.registerTrigger("bootstrap::end", "splashscreen", function (arg, callback) {
         if (controller.confs.isCordova)
             navigator.splashscreen.hide();
         callback();

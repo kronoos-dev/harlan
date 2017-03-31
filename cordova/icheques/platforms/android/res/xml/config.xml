@@ -57,13 +57,14 @@
     <splash density="port-ldpi" src="res/screen/android/splash-port-ldpi.png" />
     <splash density="port-mdpi" src="res/screen/android/splash-port-mdpi.png" />
     <splash density="port-xhdpi" src="res/screen/android/splash-port-xhdpi.png" />
-    <icon density="ldpi" src="res/icon/android/icon-ldpi.png" />
-    <icon density="mdpi" src="res/icon/android/icon-mdpi.png" />
-    <icon density="hdpi" src="res/icon/android/icon-hdpi.png" />
-    <icon density="xhdpi" src="res/icon/android/icon-xhdpi.png" />
+    <icon density="ldpi" src="res/icon/android/icon@ldpi.png" />
+    <icon density="mdpi" src="res/icon/android/icon@mdpi.png" />
+    <icon density="hdpi" src="res/icon/android/icon@hdpi.png" />
+    <icon density="xhdpi" src="res/icon/android/icon@xhdpi.png" />
+    <icon density="xxhdpi" src="res/icon/android/icon@xhdpi.png" />
+    <icon density="xxxhdpi" src="res/icon/android/icon@xhdpi.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="loadUrlTimeoutValue" value="700000" />
-    <preference name="SplashScreen" value="screen" />
     <preference name="splashScreenDelay" value="10000" />
     <preference name="ErrorUrl" value="cordova-error.html" />
     <preference name="Orientation" value="portrait" />
