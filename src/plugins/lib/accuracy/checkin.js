@@ -1,0 +1,1 @@
+module.exportes = (controller) => {};

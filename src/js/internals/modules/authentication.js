@@ -174,6 +174,11 @@ module.exports = function(controller) {
             })));
     });
 
+    controller.registerBootstrap("authentication::cordova::clear", (callback) => {
+        callback();
+        $("#form-login").trigger("reset");
+    });
+
     controller.registerCall("authentication::need", function(callback) {
         if (controller.serverCommunication.freeKey()) {
             controller.interface.helpers.activeWindow(".login");
