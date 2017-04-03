@@ -11,8 +11,9 @@ module.exports = function (controller) {
         var inputContainer = $("<div />").addClass("autocomplete");
         /* Input Element First */
 
+        input.replaceWith(inputContainer);
+        inputContainer.append(input);
 
-        input.parent().prepend(inputContainer.append(input));
         input.attr("autocomplete", "off");
         var options = $("<ul />");
         inputContainer.append(options);
@@ -74,7 +75,7 @@ module.exports = function (controller) {
         };
 
         var addOption = function (prepend) {
-            var item = $("<li />"), 
+            var item = $("<li />"),
                     fnc  = prepend ? "prepend" : "append";
             options[fnc](item);
             return item;

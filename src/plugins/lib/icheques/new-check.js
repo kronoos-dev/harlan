@@ -127,7 +127,8 @@ module.exports = function (controller) {
         var form = modal.createForm();
         var dataCMC7 = {};
         var dataCPF = {};
-        var inputCMC7 = form.addInput("CMC7", "text", "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 <a href=\"#\">(Ajuda)</a>").val(cmcValue).mask("00000000 0000000000 000000000000");
+        var inputCMC7 = form.addInput("CMC7", "text", controller.confs.isPhone ? "Impresso na parte inferior."
+            : "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 <a href=\"#\">(Ajuda)</a>").val(cmcValue).mask("00000000 0000000000 000000000000");
         var options = {
             onKeyPress: function (input, e, field, options) {
                 var masks = ['000.000.000-009', '00.000.000/0000-00'],

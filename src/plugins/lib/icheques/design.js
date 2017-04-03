@@ -19,12 +19,34 @@ module.exports = function(controller) {
     /* Sem demonstração */
     $("#demonstration").parent().hide();
 
+    /* Cadastrar no Login */
+    $(".login .actions").append($("<li />").append($("<a />").text("Cadastrar").click((e) => {
+        e.preventDefault();
+        controller.call("icheques::createAccount", function(data) {
+            var modal = controller.call("modal");
+            modal.title("Você completou sou cadastro no iCheques");
+            modal.subtitle("Parabéns! Sua conta foi criada com sucesso.");
+            modal.addParagraph("A última etapa necessária é confirmar seu endereço de e-mail na sua caixa de entrada.");
+            modal.addParagraph("Esperamos que tenha uma ótima experiência com nosso produto, a partir de agora nunca mais se preocupe se seus cheques estão seguros em sua carteira.");
+            var form = modal.createForm();
+            form.element().submit(function(e) {
+                e.preventDefault();
+                modal.close();
+            });
+            form.addSubmit("exit", "Entrar");
+        }, "retail", {
+            type: "retail"
+        });
+    })));
+
     document.title = "Proteja sua carteira de cheques | iCheques";
     controller.interface.helpers.changeFavicon("/images/icheques/favicon.png");
     require("../../styles/icheques.js");
 
     $("body").append(siteTemplate);
-    $("#input-q").attr("placeholder", "Pesquise por um CPF/CNPJ ou número de cheque cadastrado.");
+    $("#input-q").attr("placeholder",
+        controller.confs.isPhone ? "Pesquise por um cheque." :
+        "Pesquise por um CPF/CNPJ ou número de cheque cadastrado." );
     $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(11) 3661-4657 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
     $("body > .icheques-site .call-to-action").css({
         "height": window.innerHeight
@@ -54,7 +76,8 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("default::page", function() {
-        controller.interface.helpers.activeWindow(".icheques-site");
+        controller.interface.helpers.activeWindow(controller.confs.isCordova ?
+            ".login" : ".icheques-site");
     });
 
     var emailInput = $("body > .icheques-site .email");

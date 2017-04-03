@@ -28,11 +28,20 @@ module.exports = function(instance, controller) {
             input.addClass(obj.class);
         }
 
+        if (controller.confs.isPhone) {
+            /* no multi field */
+            obj.labelPosition = "after";
+        }
+
         input[obj.labelPosition || "after"](obj.label);
         input.parent().trigger("new-label");
     };
 
     this.multiField = function() {
+        if (controller.confs.isPhone) {
+            return form;
+        }
+
         let div = $("<div />").addClass("multi-field");
         div.on("new-label", () => {
             let items = $(".input-label", div);

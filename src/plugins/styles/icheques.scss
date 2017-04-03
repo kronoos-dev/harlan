@@ -46,7 +46,7 @@ $color: #feefc4;
         display: table;
         min-height: 580px;
         width: 100%;
-        background-image: url('/images/icheques/texture.jpg');
+        background-image: url(images/icheques/texture.jpg);
         background-size: 1020.25px 680px;
         background-position: 50% 50%;
         background-repeat: no-repeat;
@@ -58,7 +58,7 @@ $color: #feefc4;
         }
 
         .logo {
-            background-image: url('/images/icheques/logo.svg');
+            background-image: url(images/icheques/logo.svg);
             height: 80px;
             width: 230px;
             margin: auto;
@@ -404,7 +404,7 @@ label.help.cmc7 {
             height: 325px;
             margin-top: -162px;
             margin-left: -261px;
-            background-image: url("/images/icheques/cheque.svg");
+            background-image: url(images/icheques/cheque.svg);
         }
     }
 }

@@ -24,7 +24,8 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("default::page", function () {
-        controller.interface.helpers.activeWindow(".dive-site");
+        controller.interface.helpers.activeWindow(controller.confs.isPhone ?
+            ".login" : ".dive-site");
     });
 
     var emailInput = $("body > .dive-site .email");
