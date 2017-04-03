@@ -54,7 +54,6 @@ module.exports = function(controller) {
                 append: form.multiField(),
                 labelPosition: "before"
             },
-            inputEmail = form.addInput("email", "email", "E-mail", objEmail),
             inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou?", objEmail),
             inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00"),
             inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00"),
@@ -73,7 +72,6 @@ module.exports = function(controller) {
                 cpf = inputCpf.val(),
                 cnpj = inputCnpj.val(),
                 zipcode = inputZipcode.val(),
-                email = inputEmail.val(),
                 commercialReference = inputCommercialReference.val();
 
             if (!VALIDATE_NAME.test(name)) {
@@ -102,13 +100,6 @@ module.exports = function(controller) {
                 }
             } else {
                 inputCnpj.removeClass("error");
-            }
-
-            if (!emailRegex().test(email)) {
-                inputEmail.addClass("error");
-                errors.push("O endereço de e-mail informado não é válido.");
-            } else {
-                inputEmail.removeClass("error");
             }
 
             if (zipcode) {
@@ -181,7 +172,7 @@ module.exports = function(controller) {
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
         var form = modal.createForm(),
-            inputUsername = form.addInput("user", "text", "Usuário"),
+            inputEmail = form.addInput("email", "email", "E-mail", objEmail),
             inputPassword = form.addInput("password", "password", "Senha"),
             inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha"),
             inputAgree = form.addCheckbox("agree", sprintf("Eu li e aceito o <a href=\"%s\" target=\"_blank\">contrato de usuário</a>.",
@@ -193,23 +184,21 @@ module.exports = function(controller) {
             e.preventDefault();
 
             var errors = [],
-                username = inputUsername.val(),
+                email = inputEmail.val(),
                 password = inputPassword.val(),
                 confirmPassword = inputConfirmPassword.val();
+
+            if (!emailRegex().test(email)) {
+                inputEmail.addClass("error");
+                errors.push("O endereço de e-mail informado não é válido.");
+            } else {
+                inputEmail.removeClass("error");
+            }
 
             if (!inputAgree[1].is(':checked')) {
                 errors.push("Você precisa aceitar o contrato de usuário.");
             }
 
-            if (/^\s*$/.test(username)) {
-                inputUsername.addClass("error");
-                errors.push("O nome de usuário esta em branco.");
-            } else if (!/^[a-z]{4,}$/i.test(username)) {
-                inputUsername.addClass("error");
-                errors.push("O nome de usuário deve ter mais de 3 dígitos e não pode conter caracteres especiais.");
-            } else {
-                inputUsername.removeClass("error");
-            }
 
             if (!SAFE_PASSWORD.test(password)) {
                 inputPassword.addClass("error");
@@ -238,7 +227,8 @@ module.exports = function(controller) {
                     success: function() {
                         modal.close();
                         controller.call("icheques::createAccount::1", $.extend(parameters, {
-                            username: username,
+                            username: email,
+                            email: email,
                             password: password
                         }), callback);
                     }
