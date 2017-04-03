@@ -96,6 +96,9 @@ module.exports = function(controller) {
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
             data: check,
             success: function(ret) {
+                if (!$("new", ret).length) {
+                    toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, "Efetue uma busca no sistema e tente novamente.");
+                }
                 $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
                 insertDatabase(check);
             },
