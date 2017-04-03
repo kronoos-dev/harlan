@@ -23,5 +23,6 @@ CREATE TABLE IF NOT EXISTS 'ICHEQUES_CHECKS' (
     'LAST_UPDATE' INT,
     'OPERATION' INT,
     'LAST_DEBT_COLLECTOR_MESSAGE' TEXT,
+    'IMAGE' TEXT, /* check image url or base64 jpeg */
     CHECK ('CPF' NOT NULL OR 'CNPJ' NOT NULL)
 ); /* iCheques Checks */

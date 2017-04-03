@@ -24,7 +24,8 @@ const DATABASE_KEYS = [
     'operation',
     'ccf',
     'protesto',
-    'lastDebtCollectorMessage'
+    'lastDebtCollectorMessage',
+    'image'
 ];
 
 var squel = require("squel"),
