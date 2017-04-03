@@ -129,7 +129,7 @@ module.exports = function (controller) {
             /* alreadyExists */
             if (cmcValue) callback(cmcValue);
             else controller.server.call("SELECT FROM 'ICHEQUES'.'IMAGECMC'", {
-                data: imageData
+                data: imageData,
                 dataType: "json",
                 success: callback(cmc7),
                 error: callback()
@@ -144,9 +144,9 @@ module.exports = function (controller) {
                     paragraph: "Tire uma foto da face do cheque onde o mesmo não esteja amassado ou dobrado, cheques rasurados podem não serem reconhecidos automáticamente."
                 }, () => {
                     navigator.camera.getPicture(
-                        /* on success */ (imageData) => controller.call("icheques::chequePicture::confirm", imageData, callback),
-                        /* on error */ () => controller.alert({
-                        title: "Uoh! Não conseguimos capturar a foto do cheque."
+                        (imageData) => controller.call("icheques::chequePicture::confirm", imageData, callback),
+                        () => controller.alert({
+                        title: "Uoh! Não conseguimos capturar a foto do cheque.",
                         subtitle: "Talvez não tenha autorizado nosso aplicativo a utilizar a câmera de seu dispositivo",
                         paragraph: "Não tem problema, tentaremos novamente ou você pode cancelar e cadastrar manual seu cheque."
                     }, () => controller.call("icheques::checkPicture", callback)), {
