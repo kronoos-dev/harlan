@@ -30,10 +30,10 @@ module.exports = (controller) =>  {
             items.resultsDisplay = $("<div />").addClass("results-display").text(description);
 
             items.headerContainer.append(items.headerContent);
+            items.headerContent.append(items.menu);
             items.headerContent.append(items.headerTitle);
             items.headerContent.append(items.headerSubtitle);
             items.headerContent.append(items.resultsDisplay);
-            items.headerContent.append(items.menu);
 
             items.addItem = (icon) =>  {
                 var item = $('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon));

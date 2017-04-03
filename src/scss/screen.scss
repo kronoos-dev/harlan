@@ -707,13 +707,14 @@ label {
     .actions {
         @include user-select(none);
         display: inline-block;
-        position: absolute;
-        right: 0;
-        top: 50%;
-        margin-top: -5px;
+        float: right;
+        // position: absolute;
+        // right: 0;
+        // top: 50%;
+        // margin-top: -5px;
         cursor: pointer;
         @media (max-width: 420px) {
-             @include border-radius(3px);
+            @include border-radius(3px);
             top: 15px;
             margin: 0;
         }

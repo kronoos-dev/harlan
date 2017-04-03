@@ -35,6 +35,8 @@ var header = function (name, description, subdescription, section, disableDefaul
             actions = $("<ul />").addClass("actions"),
             formShow = null;
 
+    headerContent.append(actions);
+
     if (!disableDefaultActions) {
         var maximizeButton = $("<li />").addClass("action-resize").append($("<i />").addClass("fa fa-minus-square-o"));
         actions.append(maximizeButton);
@@ -57,7 +59,6 @@ var header = function (name, description, subdescription, section, disableDefaul
 
 
     headerContent.append(metadataElements);
-    headerContent.append(actions);
     headerContainer.append(headerContent);
     header.append(headerContainer);
 

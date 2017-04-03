@@ -119,14 +119,13 @@ module.exports = function (controller) {
 
         var actions = $("<ul />").addClass("actions");
         actions.append($("<li />").addClass("display-loader").append($("<i />").addClass("fa fa-spinner fa-spin")));
-
         var maximizeButton = $("<li />").addClass("action-resize").append($("<i />").addClass("fa fa-minus-square-o"));
         var closeButton = $("<li />").addClass("action-close").append($("<i />").addClass("fa fa-times-circle"));
         maximizeButton.click(factoryShowForm(section, maximizeButton));
         closeButton.click(factoryCloseSection(section));
         actions.append(maximizeButton);
         actions.append(closeButton);
-        content.append(actions);
+        content.prepend(actions);
 
         header.append(container.append(content)).append(form);
         section.append(header);
