@@ -24,7 +24,7 @@ var dictMessage = {
 module.exports = function(c) {
 
     c.registerCall("icheques::history", (check) => {
-        const LIMIT = 3;
+        const LIMIT = 5;
         var modal = c.call("modal"),
         skipResults = 0;
 
