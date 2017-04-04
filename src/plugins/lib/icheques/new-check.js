@@ -142,8 +142,7 @@ module.exports = function (controller) {
                     title: "Vamos tirar uma foto do seu cheque?",
                     subtitle: "Com a foto do cheque podemos preencher alguns dados automágicamente.",
                     paragraph: "Tire uma foto da face do cheque onde o mesmo não esteja amassado ou dobrado, cheques rasurados podem não serem reconhecidos automáticamente."
-                }, () => {
-                    navigator.camera.getPicture(
+                }, () => navigator.camera.getPicture(
                         (imageData) => controller.call("icheques::chequePicture::confirm", imageData, callback),
                         () => controller.alert({
                         title: "Uoh! Não conseguimos capturar a foto do cheque.",
@@ -152,8 +151,7 @@ module.exports = function (controller) {
                     }, () => controller.call("icheques::checkPicture", callback)), {
                         quality: 90,
                         destinationType: Camera.DestinationType.DATA_URL,
-                    });
-                }, () => callback(null))
+                    }), () => callback(null));
             }
             callback(null);
         });

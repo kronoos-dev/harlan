@@ -202,4 +202,22 @@ $color-complementary: #7c66c2;
             color: darken($color-link, 5%);
         }
     }
+
+    .view-row {
+        i {
+            margin-right: 15px;
+            vertical-align: baseline;
+        }
+        background: rgba(0, 0, 0, 0.9);
+        background-blend-mode: color-burn;
+        box-shadow: 0 0 5px rgb(0, 0, 0) inset;
+        font-size: 20px;
+        font-kerning: initial;
+        font-stretch: semi-condensed;
+        font-weight: normal;
+        line-height: 34px;
+        padding: 10px 0;
+        color: rgb(197, 197, 197);
+    }
+
 }

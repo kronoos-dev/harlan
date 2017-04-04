@@ -8,6 +8,7 @@ import async from "async";
 import _ from "underscore";
 import VMasker from 'vanilla-masker';
 import pad from 'pad';
+import {KronoosParse} from './parser';
 
 var removeDiacritics = require('diacritics').remove;
 
@@ -15,22 +16,6 @@ const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
 const R_EARTH = 6378137;
-const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
-const NAMESPACE_DESCRIPTION = {
-    'peps': ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
-    'congressmen': ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
-    'state_representatives': ['Deputado Estadual', 'Representante eleito para a Assembleia Legislativa Estadual'],
-    'corruption_scandals': ['Escândalo de Corrupção', 'Fatos políticos marcantes chamados de escândalos'],
-    'slave_work': ['Trabalho Escravo', 'Lista de Trabalho Escravo'],
-    'green_peace': ['Apontamento Greenpeace', 'Organização não governamental de preservação do meio ambiente'],
-    'ibama': ['Apontamento Ibama', 'Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis'],
-    'gas_station': ['Postos de Gasolina Cassados', 'Estão sujeitos à fiscalização postos de combustíveis, distribuidoras e transportadoras'],
-    'interpol': ['Interpol', 'A Organização Internacional de Polícia Criminal'],
-    'ceaf': ['Cadastro de Expulsões da Administração Federal', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'ceispj': ['Pessoa Jurídica listada no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'ceispf': ['Pessoas Físicas listadas no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
-};
 
 const BACKGROUND_IMAGES = {
     calculator: "/images/bg/kronoos/photodune-11794453-desk-office-business-financial-accounting-calculate-l.jpg",
@@ -42,12 +27,11 @@ module.exports = function(controller) {
 
     var xhr = [],
         photos = [],
+        parsers = [],
         registered,
         backgroundTimeout,
         mapQueue,
-        photosQueue,
-        graphTrack,
-        graphParallel;
+        photosQueue;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
@@ -65,13 +49,9 @@ module.exports = function(controller) {
 
     var clearAll;
     controller.registerCall("kronoos::clearAll", clearAll = () => {
-        if (graphTrack) {
-            graphTrack.kill();
-            graphTrack = null;
-        }
-        if (graphParallel) {
-            graphParallel.kill();
-            graphParallel = null;
+
+        for (let parser of parsers) {
+            parser.kill();
         }
 
         if (mapQueue) {
@@ -139,148 +119,9 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, jusSearch = null, procs = []) => {
-        let kelements = [];
-        $("BPQL body item", kronoosData).each((idx, element) => {
-            let namespace = $("namespace", element).text(),
-                [title, description] = NAMESPACE_DESCRIPTION[namespace],
-                kelement = controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description),
-                notes = $("notes node", element),
-                source = $("source node", element),
-                position = $("position", element),
-                insertMethod = "append";
-
-            if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
-                insertMethod = "prepend";
-                kelements.unshift(kelement);
-                controller.server.call("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
-                    data: {
-                        name: name
-                    },
-                    dataType: "json",
-                    success: (ret) => {
-                        for (let picture of ret) {
-                            kelement.picture(picture);
-                            return;
-                        }
-                    }
-                });
-            } else {
-                kelements.push(kelement);
-            }
-
-            if (notes.length) {
-                let knotes = kelement.list("Notas");
-                notes.each((idx) => {
-                    knotes(notes.eq(idx).text());
-                });
-            }
-
-            if (source.length || position.length) {
-                if (source.length && !position.length) {
-                    let ksources = kelement.list("Fontes");
-                    source.each((idx) => {
-                        let s = source.eq(idx).text();
-                        ksources($("<a />").attr("href", s).text(s).html());
-                    });
-
-                } else if (!source.length && position.length) {
-                    kelement.list("Marcação")(position.text());
-                } else {
-                    let ktable = kelement.table("Marcação", "Fontes");
-                    source.each((i) => {
-                        let s = source.eq(i).text();
-                        ktable(position.eq(i).text(), $("<a />").attr("href", s).text(s).html());
-                    });
-                }
-            }
-
-            $(".kronoos-result")[insertMethod](kelement.element());
-            SEARCH_BAR.addClass("minimize").removeClass("full");
-        });
-
-        for (let proc in procs) {
-            let jelement = controller.call("kronoos::element", `Processo Nº ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
-                "Foram encontradas informações, confirmação pendente.");
-            kelements.push(jelement);
-            let [article, match] = procs[proc];
-            jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
-            $(".kronoos-result").append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
-        }
-
-        if (!kelements.length) {
-            let [title, description] = NAMESPACE_DESCRIPTION.clear,
-                nelement = controller.call("kronoos::element", title, "Não consta nenhum apontamento cadastral.", description);
-            $(".kronoos-result").append(nelement.element());
-            kelements.push(nelement);
-            SEARCH_BAR.addClass("minimize").removeClass("full");
-        }
-
-        let m = moment();
-        kelements[0].header(document, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
-
-        if (!cbuscaData) {
-            return;
-        }
-
-        let generateRelations = controller.call("generateRelations");
-        generateRelations.appendDocument(cbuscaData, document);
-
-        let lastData, documents = {};
-        documents[document] = true;
-
-        let query = (query, document, elements) => {
-                let key = `${query}.'${document}'`;
-                if (documents[key]) {
-                    return;
-                }
-
-                documents[key] = true;
-                elements.push((callback) => xhr.push(controller.server.call(query,
-                    controller.call("kronoos::status::ajax", "fa-eye", `Capturando dados de conexão através do documento ${document}.`, {
-                        data: {
-                            documento: document
-                        },
-                        success: (data) => generateRelations.appendDocument(data, document),
-                        complete: () => callback()
-                    }, true))));
-            };
-
-        graphTrack = async.times(5, (i, cb) => generateRelations.track((data) => {
-            let elements = [];
-            for (let node of data.nodes) {
-                let unformattedDocument = pad(node.id.length > 11 ? 14 : 11, node.id, '0'),
-                    document = (CPF.isValid(unformattedDocument) ? CPF : CNPJ).format(unformattedDocument);
-                query("SELECT FROM 'RFB'.'CERTIDAO'", unformattedDocument, elements);
-                query("SELECT FROM 'CBUSCA'.'CONSULTA'", unformattedDocument, elements);
-                query("SELECT FROM 'CCBUSCA'.'CONSULTA'", unformattedDocument, elements);
-
-                if (!documents[document]) {
-                    documents[document] = true;
-                    elements.push((cb) => xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
-                        controller.call("kronoos::status::ajax", "fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${document}.`, {
-                            data: {
-                                documento: document,
-                                name: `"${node.label.replace("\n", "")}"`
-                            },
-                            success: (data) => {
-                                controller.call("kronoos::parse", node.label, document, data);
-                            },
-                            complete: () => cb()
-                        })))));
-                }
-            }
-            graphParallel = async.parallel(elements, cb);
-            lastData = data;
-        }), () => {
-            generateRelations.track((data) => {
-                if (!data.nodes.length)
-                    return;
-                kelements[0].addNetwork(data.nodes, data.edges, {
-                    groups: data.groups
-                });
-            });
-        });
-
+        let kronoosParse = new KronoosParse(controller, xhr, name, document, kronoosData, cbuscaData, jusSearch, procs);
+        parsers.push(kronoosParse);
+        return kronoosParse;
     });
 
     controller.registerCall("kronoos::juristek::cnj", (cnj, name, document, ret) => {
