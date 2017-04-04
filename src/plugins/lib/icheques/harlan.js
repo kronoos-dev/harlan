@@ -359,6 +359,11 @@ module.exports = function(c) {
                             });
                         }
 
+                        c.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
+                            e.preventDefault();
+                            c.call("icheques::item::add::time", check);
+                        });
+
                         if (check.operation) {
                             c.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
                                 e.preventDefault();
@@ -392,11 +397,6 @@ module.exports = function(c) {
                                 });
                             });
                         }
-
-                        c.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
-                            e.preventDefault();
-                            c.call("icheques::item::add::time", check);
-                        });
 
                         separator.addClass("external-source loading");
                         var checkResult = c.call("result");

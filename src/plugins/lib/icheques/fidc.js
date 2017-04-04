@@ -3,6 +3,7 @@ import browserImageSize from 'browser-image-size';
 import _ from 'underscore';
 import fileReaderStream from "filereader-stream";
 import concat from "concat-stream";
+import MarkdownIt from 'markdown-it';
 import { CMC7Parser } from './cmc7-parser';
 import { titleCase } from 'change-case';
 import { CPF, CNPJ } from 'cpf_cnpj';
@@ -613,6 +614,48 @@ module.exports = (controller) => {
         report.label(`Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}`);
         report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
+
+        report.newAction("fa-print", function() {
+            controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {
+                data: {
+                    id: args._id
+                },
+                success: function(ret) {
+                    var storage = [];
+                    $(ret).find("check").each(function() {
+                        storage.push(controller.call("icheques::parse::element", this));
+                    });
+
+                    let sum = 0;
+                    for (let check of storage) {
+                        check.name = check.cpf || check.cnpj;
+                        check.protesto = check.protesto || 0;
+                        check.ccf = check.ccf || 0;
+                        check.expire = moment(check.expire, "YYYYMMDD").format("DD/MM/YYYY");
+                        check.number = new CMC7Parser(check.cmc).number;
+                        sum += check.ammount;
+                        check.ammount = numeral(check.ammount / 100.0).format("$0,0.00");
+                    }
+
+                    var doc = require('./reports/print'),
+                        input = {
+                            message: `Usuário\: ${args.company.username}, Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}, Nome: ${args.company.nome || args.company.responsavel || args.company.username}`,
+                            checks: storage,
+                            soma: numeral(sum / 100.0).format("$0,0.00")
+                    };
+                    debugger;
+                    let render = Mustache.render(doc, input);
+                    var html =  new MarkdownIt().render(render),
+                        printWindow = window.open("about:blank", "", "_blank");
+
+                    if (!printWindow) return;
+                    html += `<style>${require("./reports/print-style")}</style>`;
+                    printWindow.document.write(html);
+                    printWindow.focus();
+                    printWindow.print();
+                }
+            }));
+        });
 
         report.newAction("fa-cloud-download", function() {
             controller.server.call("SELECT FROM 'iChequesFIDC'.'OPERATION'", controller.call("error::ajax", {

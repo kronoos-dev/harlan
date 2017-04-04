@@ -221,7 +221,7 @@ var AccountOverview = function(closeable) {
 
         var doc = require('./print'),
             input = {
-                status: status.text(),
+                message: status.text(),
                 checks: query,
                 soma: numeral(sum / 100.0).format("$0,0.00")
         };

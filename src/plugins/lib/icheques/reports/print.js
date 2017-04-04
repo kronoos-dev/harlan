@@ -4,7 +4,7 @@ module.exports = `Relatório da Conta
 Situação dos Cheques Cadastrados
 --------------------------------
 
-{{{ status }}}
+{{{ message }}}
 
 Sacado | Número | Vencimento | Valor | Situação | CCF | Protestos
 -------|--------| -----------|-------|----------|-----|-----------
@@ -13,5 +13,5 @@ Sacado | Número | Vencimento | Valor | Situação | CCF | Protestos
 {{/checks}}
 TOTAL  |  |  | {{ soma }} |  |  |
 
-Muito obrigado e bons negócios,  	
+Muito obrigado e bons negócios,
 Equipe iCheques.`;
