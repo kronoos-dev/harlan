@@ -118,8 +118,8 @@ module.exports = function(controller) {
             })));
     });
 
-    controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, jusSearch = null, procs = []) => {
-        let kronoosParse = new KronoosParse(controller, xhr, name, document, kronoosData, cbuscaData, jusSearch, procs);
+    controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, jusSearch = null, procs = [], style = "maximized", parameters = {}) => {
+        let kronoosParse = new KronoosParse(controller, name, document, kronoosData, cbuscaData, jusSearch, procs, style, parameters);
         parsers.push(kronoosParse);
         return kronoosParse;
     });

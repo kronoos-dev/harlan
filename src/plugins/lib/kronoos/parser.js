@@ -26,13 +26,15 @@ const NAMESPACE_DESCRIPTION = {
 
 export class KronoosParse {
 
-    constructor(controller, xhr, name, cpf_cnpj, kronoosData, cbuscaData = null, jusSearch = null, procs = []) {
-
+    constructor(controller, name, cpf_cnpj, kronoosData,
+            cbuscaData = null, jusSearch = null, procs = [], defaultType = "maximized", parameters = {}) {
+        this.parameters = parameters;
+        this.name = name;
         this.controller = controller;
         this.kelements = [];
         this.cpf_cnpjs = {};
         this.searchBar = $(".kronoos-application .search-bar");
-        this.xhr = xhr || [];
+        this.xhr = [];
 
         if (CPF.isValid(cpf_cnpj)) {
             this.cpf = this.cpf_cnpj = CPF.format(cpf_cnpj);
@@ -44,11 +46,13 @@ export class KronoosParse {
         }
 
         this.appendElement = $("<div />").addClass("record");
+        this.generateHeader(defaultType);
 
         $(".kronoos-result").append(this.appendElement);
 
         if (kronoosData) this.parseKronoos(kronoosData);
         if (procs) this.parseProcs(procs);
+        this.searchMandado();
         this.emptyChecker();
 
         let m = moment();
@@ -64,6 +68,90 @@ export class KronoosParse {
         this.graphTrack();
     }
 
+    searchMandado() {
+        if (!this.cpf || !CPF.isValid(this.cpf)) return;
+        this.controller.server.call("SELECT FROM 'PROCURADOS'.'CONSULTA'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cpf
+                },
+                success: (data) => {
+                    let namespace = $("namespace", element).text(),
+                    [title, description] = NAMESPACE_DESCRIPTION["sinesp"],
+                    kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
+
+                    /*  */
+
+                },
+            }, true));
+    }
+
+    generateHeader(defaultType = "minimized") {
+        let observation = ''; /* empty */
+        if (this.parameters.observation)
+            observation = `, ${this.parameters.observation}`;
+
+        this.header = {
+            container: $("<div />").addClass("container"),
+            content: $("<div />").addClass("content"),
+            element: $("<div />").addClass("kronoos-header"),
+            actions: $("<ul />").addClass("kronoos-actions"),
+            title: $("<div />").addClass("kronoos-title").text(`Informações Kronoos - ${this.name}`),
+            subtitle: $("<div />").addClass("kronoos-subtitle").text(`${this.cpf ? "CPF" : "CNPJ"}: ${this.cpf_cnpj} ${observation}`)
+        };
+        this.appendElement.prepend(this.header.element).addClass(defaultType);
+        this.header.element.append(this.header.container);
+        this.header.container.append(this.header.content);
+        this.header.content.append(this.header.actions);
+        this.header.content.append(this.header.title);
+        this.header.content.append(this.header.subtitle);
+
+        var icon = "fa-minus-square-o";
+        if (defaultType == "minimized") {
+            icon = "fa-plus-square-o";
+        }
+
+        this.header.actionElements = {
+            push: $("<i />").addClass(`fa fa-eye`),
+            windowResize: $("<i />").addClass(`fa ${icon}`),
+            trash: $("<i />").addClass("fa fa-trash")
+        };
+
+        this.header.actionElements.push.click((e) => {
+            e.preventDefault();
+            this.controller.confirm({
+                title: `Deseja acompanhar o documento?`,
+                subtitle: `Acompanhamento para o ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj}.`,
+                paragraph: "O sistema irá te informar a respeito de quaisquer novas alterações das informações deste relatório / target.",
+            }, () => {
+                this.controller.alert({});
+            });
+        });
+
+
+        this.header.actionElements.windowResize.click((e) => {
+            e.preventDefault();
+            let isMinimized = this.appendElement.hasClass("minimized");
+            this.appendElement[isMinimized ? "removeClass" : "addClass"]("minimized");
+            this.appendElement[isMinimized ? "addClass" : "removeClass"]("maximized");
+            this.header.actionElements.windowResize[isMinimized ? "removeClass" : "addClass"]("fa-plus-square-o");
+            this.header.actionElements.windowResize[isMinimized ? "addClass" : "removeClass"]("fa-minus-square-o");
+        });
+
+        this.header.actionElements.trash.click((e) => {
+            e.preventDefault();
+            this.kill();
+            this.appendElement.remove();
+        });
+
+        this.controller.call("tooltip", this.header.actions, "Remover")
+            .append(this.header.actionElements.trash);
+        this.controller.call("tooltip", this.header.actions, "Expandir / Minimizar")
+            .append(this.header.actionElements.windowResize);
+        this.controller.call("tooltip", this.header.actions, "Acompanhar")
+                .append(this.header.actionElements.push);
+    }
+
     parseKronoos(kronoosData) {
         if (!kronoosData) return;
         $("BPQL body item", kronoosData).each((idx, element) => {
@@ -73,10 +161,16 @@ export class KronoosParse {
             notes = $("notes node", element),
             source = $("source node", element),
             position = $("position", element),
-            insertMethod = "append";
+            insertMethod = "append",
+            insertElement = this.appendElement;
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
-                insertMethod = "prepend";
+                // insertMethod = "prepend";
+                // if (this.header) {
+                //     insertMethod = "insertAfter";
+                //     insertElement = this.header.element;
+                //     debugger;
+                // }
                 this.kelements.unshift(kelement);
                 this.controller.server.call("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
                     data: {
@@ -120,7 +214,7 @@ export class KronoosParse {
                 }
             }
 
-            this.appendElement[insertMethod](kelement.element());
+            insertElement[insertMethod](kelement.element());
             this.searchBar.addClass("minimize").removeClass("full");
         });
     }
@@ -164,6 +258,8 @@ export class KronoosParse {
     }
 
     kill () {
+        for (let xhr of this.xhr)
+            xhr.abort();
         if (this.taskGraphTrack) this.taskGraphParallel.kill();
         if (this.taskGraphParallel) this.taskGraphParallel.kill();
     }
@@ -172,11 +268,11 @@ export class KronoosParse {
         this.taskGraphTrack = async.times(5, (i, cb) => this.generateRelations.track((data) => {
             let elements = [];
             for (let node of data.nodes) {
-                let unformatted_document = pad(node.id.length > 11 ? 14 : 11, node.id, '0'),
-                    cpf_cnpj = (CPF.isValid(unformatted_document) ? CPF : CNPJ).format(unformatted_document);
-                this.query("SELECT FROM 'RFB'.'CERTIDAO'", unformatted_document, elements);
-                this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", unformatted_document, elements);
-                this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", unformatted_document, elements);
+                let formatted_document = pad(node.id.length > 11 ? 14 : 11, node.id, '0'),
+                    cpf_cnpj = (CPF.isValid(formatted_document) ? CPF : CNPJ).format(formatted_document);
+                this.query("SELECT FROM 'RFB'.'CERTIDAO'", formatted_document, elements);
+                this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
+                this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
@@ -187,7 +283,9 @@ export class KronoosParse {
                             name: `"${node.label.replace("\n", "")}"`
                         },
                         success: (data) => {
-                            this.controller.call("kronoos::parse", node.label, this.cpf_cnpj, data);
+                            this.controller.call("kronoos::parse", node.label, formatted_document, data, null, null, [], "minimized", {
+                                observation: `relacionado ao ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj} - ${this.name}.`
+                            });
                         },
                         complete: () => cb()
                     })))));

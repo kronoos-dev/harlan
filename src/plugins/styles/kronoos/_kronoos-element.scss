@@ -1,3 +1,38 @@
+.kronoos-result {
+    .record {
+        &.minimized .kronoos-element {
+            display: none;
+        }
+        & > .kronoos-header {
+            background-color: #17884d;
+            padding: 17px;
+            color: #fff;
+            box-shadow: 0 3px 3px 3px #cecece;
+            .kronoos-actions {
+                float: right;
+                display: inline-block;
+                li {
+                    vertical-align: bottom;
+                    display: inline-block;
+                    padding: 0 10px;
+                    height: 20px;
+                    width: 15px;
+                }
+            }
+            .kronoos-title {
+                text-transform: uppercase;
+                margin: 5px 0;
+                font-size: 18px;
+                font-weight: bolder;
+                text-shadow: 1px 1px #000;
+            }
+            .kronoos-subtitle {
+                font-weight: 300;
+            }
+        }
+    }
+}
+
 .kronoos-element {
     margin: 30px 0;
     border-bottom: 1px solid rgb(213, 213, 213);

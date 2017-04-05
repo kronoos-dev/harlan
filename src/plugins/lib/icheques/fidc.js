@@ -643,7 +643,6 @@ module.exports = (controller) => {
                             checks: storage,
                             soma: numeral(sum / 100.0).format("$0,0.00")
                     };
-                    debugger;
                     let render = Mustache.render(doc, input);
                     var html =  new MarkdownIt().render(render),
                         printWindow = window.open("about:blank", "", "_blank");
