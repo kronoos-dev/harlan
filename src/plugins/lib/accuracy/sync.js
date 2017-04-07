@@ -1,4 +1,4 @@
-module.exportes = (controller) => {
+module.exports = function (controller) {
 
     controller.registerTrigger("accuracy::loggedin", "sync", (authData, callback) => {
         callback();

@@ -1,15 +1,19 @@
-module.exportes = (controller) => {
+import _ from 'underscore';
 
-    controller.registerTrigger("accuracy::loggedin", "campaign", (authData, callback) => {
-        let cb = () => callback();
-        controller.call("accuracy::campaign", authData, cb, cb);
+module.exports = function (controller) {
+
+    controller.registerCall("accuracy::campaigns", (cb, onError) => {
+        controller.call("accuracy::campaigns::get", (data) => cb(controller.call("accuracy::campaigns::parse", data)), onError);
     });
 
-    controller.registerCall("accuracy::campaign::render", (data) => {
-        /* select and go to checkin screen */
+    controller.registerCall("accuracy::campaigns::parse", (data) => {
+        return _.filter(data[0], (campaignObject) => {
+            return moment(campaignObject.period_end, "YYYY-MM-DD").isAfter();
+        });
     });
 
-    controller.registerCall("accuracy::campaign", (authData, callback, errorCallback) => {
+    controller.registerCall("accuracy::campaigns::get", (callback, errorCallback) => {
+        let authData = controller.call("accuracy::authentication::data");
         controller.accuracyServer.call(`./getCampaignsByUser/${authData[0].id}`, {}, {
             success: (data) => {
                 localStorage.accuracyCampaign = JSON.stringify(data);
@@ -21,7 +25,7 @@ module.exportes = (controller) => {
                     if (errorCallback) errorCallback();
                     return;
                 }
-                if (callback) callback(data);
+                if (callback) callback(JSON.parse(localStorage.accuracyCampaign));
             }
         });
     });

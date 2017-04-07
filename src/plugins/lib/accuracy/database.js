@@ -1,1 +1,1 @@
-module.exportes = (controller) => {};
+module.exports = function (controller) {};

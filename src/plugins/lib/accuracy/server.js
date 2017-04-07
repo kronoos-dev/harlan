@@ -1,30 +1,36 @@
 import urljoin from 'url-join';
 
-module.exportes = (controller) => {
+var tokenId;
 
-    var tokenId;
+module.exports = function (controller) {
 
-    controller.registerCall("accuracy::server::auh", (authData) => {
-        controller.trigger("accuracy::loggedin", authData);
+    controller.registerCall("accuracy::server::auth", (authData) => {
         tokenId = authData[0].token;
+        controller.trigger("accuracy::authenticated", authData);
     });
 
-    controller.accuracyServer.call = (path, data, dict) => {
+    controller.registerCall("accuracy::server::reset", (authData) => {
+        tokenId = null;
+    });
 
-        let ajaxCall = Object.assign({}, dict, {
-            dataType: json,
-            type: Object.keys(data).length > 0 ? 'POST' : 'GET', /* */
-            contentType:'application/json', /* sempre envia dados em JSON */
-            data: JSON.stringify(data),
-            url: urljoin(controller.confs.accuracy.webserver, path)
-        });
+    controller.accuracyServer = {
+        call : (path, data, dict) => {
+            let dataLength = Object.keys(data).length;
+            let ajaxCall = Object.assign({}, dict, {
+                dataType: "json",
+                type: dataLength ? 'POST' : 'GET', /* */
+                contentType:'application/json', /* sempre envia dados em JSON */
+                data: dataLength ? JSON.stringify(data) : null,
+                url: urljoin(controller.confs.accuracy.webserver, path)
+            });
 
-        if (tokenId) {
-            ajaxCall.headers = ajaxCall.headers || {};
-            ajaxCall.headers.Authorization = `Bearer ${tokenId}`;
+            if (tokenId) {
+                ajaxCall.headers = ajaxCall.headers || {};
+                ajaxCall.headers.Authorization = `Bearer ${tokenId}`;
+            }
+
+            return $.ajax(ajaxCall);
         }
-
-        return $.ajax(ajaxCall);
     };
 
 };

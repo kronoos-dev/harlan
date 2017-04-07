@@ -52,7 +52,8 @@ export class KronoosParse {
 
         if (kronoosData) this.parseKronoos(kronoosData);
         if (procs) this.parseProcs(procs);
-        this.searchMandado();
+        // this.searchMandado();
+        this.searchBovespa();
         this.emptyChecker();
 
         let m = moment();
@@ -68,6 +69,11 @@ export class KronoosParse {
         this.graphTrack();
     }
 
+    searchBovespa() {
+        let [title, description] = NAMESPACE_DESCRIPTION.bovespa,
+        kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
+    }
+
     searchMandado() {
         if (!this.cpf || !CPF.isValid(this.cpf)) return;
         this.controller.server.call("SELECT FROM 'PROCURADOS'.'CONSULTA'",
@@ -76,8 +82,7 @@ export class KronoosParse {
                     documento: this.cpf
                 },
                 success: (data) => {
-                    let namespace = $("namespace", element).text(),
-                    [title, description] = NAMESPACE_DESCRIPTION["sinesp"],
+                    let [title, description] = NAMESPACE_DESCRIPTION.sinesp,
                     kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
 
                     /*  */

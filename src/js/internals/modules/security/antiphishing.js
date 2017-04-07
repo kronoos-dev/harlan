@@ -23,6 +23,8 @@ module.exports = function (controller) {
         callback();
 
         var canvas = $(".antiphishing:first");
+        if (!canvas.length) return;
+
         var context = canvas.get(0).getContext("2d");
 
         if (localStorage.getItem("antiphishing")) {
@@ -57,7 +59,7 @@ module.exports = function (controller) {
             }
             enabled = !enabled;
         });
-        
+
         canvas.dblclick(function (e) {
             context.clearRect(0, 0, canvas.width(), canvas.height());
             localStorage.setItem("antiphishing", canvas.get(0).toDataURL());

@@ -1,22 +1,31 @@
-module.exportes = (controller) => {
+let _authData = null;
+
+module.exports = function (controller) {
 
     /* Verifica se o usuário já está autenticado */
-    controller.call("accuracy::login", (login, logged) => {
-        if (controller.accuracyServer) {
-            let authData = JSON.parse(controller.accuracyServer);
+    controller.registerCall("accuracy::authentication", (authentication, logged) => {
+        if (localStorage.accuracyAuth) {
+            let authData = JSON.parse(localStorage.accuracyAuth);
+            _authData = authData;
             controller.call("accuracy::server::auth", authData);
-            return login();
+            return logged();
         }
-        return logged();
+        return authentication();
+    });
+
+    controller.registerCall("accuracy::authentication::data", () => {
+        return _authData || JSON.parse(localStorage.accuracyAuth);
     });
 
     /* Sai da conta do usuário */
     controller.registerCall("accuracy::logout", (callback) => {
         delete localStorage.accuracyAuth;
+        _authData = null;
+        controller.call("accuracy::server::reset");
         if (callback) callback();
     });
 
-    controller.registerCall("accuracy::login::auth", (cpf, callback, errorCallback) => {
+    controller.registerCall("accuracy::authentication::auth", (cpf, callback, errorCallback) => {
         controller.accuracyServer.call("./auth", {cpf: cpf}, {
             success: (authData) => {
                 if (!authData[0].token) {
@@ -26,6 +35,7 @@ module.exportes = (controller) => {
                 }
                 localStorage.accuracyAuth = JSON.stringify(authData);
                 controller.call("accuracy::server::auth", authData);
+                _authData = authData;
                 if (callback) callback();
             },
             error: () => {

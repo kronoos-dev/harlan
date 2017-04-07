@@ -1,0 +1,29 @@
+.accuracy {
+
+    background: #2f2f2f !important;
+
+    #input-cpf {
+        text-align: center;
+    }
+
+    .accuracy-app {
+        color: #fff;
+    }
+
+
+    .accuracy-campaigns {
+        text-align: center;
+        .accuracy-campaign {
+            text-align: center;
+            display: inline-block;
+            padding: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            .accuracy-campaign-image {
+                width: 128px;
+                display: block;
+                margin: 10px;
+            }
+        }
+    }
+}
