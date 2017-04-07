@@ -4,8 +4,8 @@
     <description>
 	Aplicativo para checkin de promoteres de evento.
     </description>
-    <author email="dev@bipbop.com.br" href="http://www.bipbop.com.br">
-        BIPBOP
+    <author email="lf.amorim@bipbop.com.br" href="http://www.bipbop.com.br">
+        Lucas Fernando Amorim
     </author>
     <content src="accuracy-cordova.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
