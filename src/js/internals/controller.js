@@ -8,6 +8,7 @@ import ImportXMLDocument from './library/import-xml-document';
 import Interface from './library/interface';
 import I18n from './library/i18n';
 import Store from './library/store';
+import Sync from './library/sync';
 
 var Controller = function() {
 
@@ -18,6 +19,8 @@ var Controller = function() {
     this.i18n = new I18n(localStorage.language ||
         navigator.language ||
         navigator.userLanguage || 'pt', this);
+
+    this.sync = new Sync(this);
 
     this.language = () => {
         return language;
@@ -249,6 +252,11 @@ var Controller = function() {
     require('./modules/admin/contact-types')(this);
     require('./modules/smartsupp')(this);
     require('./modules/cordova')(this);
+    require('./modules/sync')(this);
+
+    this.registerBootstrap("bootstrap::end", "sync::register", () => {
+        this.sync.register(); /* register sync */
+    });
 
     /**
      * From day to night and night to day

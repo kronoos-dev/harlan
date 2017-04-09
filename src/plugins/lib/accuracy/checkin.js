@@ -1,5 +1,6 @@
 
 import { DistanceMeter } from './distance-meter';
+import { Sync } from './sync';
 
 function basename(str){
     var base = new String(str).substring(str.lastIndexOf('/') + 1);
@@ -10,10 +11,15 @@ function basename(str){
 
 module.exports = function (controller) {
 
-    controller.registerCall("accuracy::checkin::picture", (obj, failed) => {
+    controller.registerCall("accuracy::checkin::init", (campaign, store, callback, errorCallback, cameraError, type='checkin') =>
+        controller.call("accuracy::checkin::object", campaign, store, (obj) =>
+            controller.call("accuracy::checkin::picture", obj, () => callback(obj), cameraError), errorCallback, type));
+
+    controller.registerCall("accuracy::checkin::picture", (obj, callback, failed) => {
         navigator.camera.getPicture(() => {
             obj.file = basename(imageURI);
             obj.uri = imageURI;
+            callback();
         }, failed, {
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI
@@ -21,6 +27,11 @@ module.exports = function (controller) {
     });
 
 
+    controller.registerCall("accuracy::checkin::send", (obj) => {
+        controller.accuracyServer.call("./saveAnswer/", obj, {
+            
+        });
+    });
 
     controller.registerCall("accuracy::checkin::object", (campaign, store, callback, errorCallback, type="checkIn") => {
         navigator.geolocation.getCurrentPosition((position) => callback([{
