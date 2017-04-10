@@ -38,7 +38,6 @@ export default class Sync {
                     if (!job) return null;
                     let jobid = job.replace(/^%/, '');
                     try {
-                        debugger;
                         yield [jobid, JSON.parse(localStorage[jobid])];
                     } catch (e) {
                         console.error(e);
@@ -50,6 +49,7 @@ export default class Sync {
 
     queueLength() {
         /* Captura o tamanho da fila */
+        if (!localStorage.syncTasks) return 0;
         return (localStorage.syncTasks.match(LENGTH_REGEX) || []).length;
     }
 
@@ -58,7 +58,6 @@ export default class Sync {
         todos juntos em paralelo, grandes tarefas não podem
         usar o localStorage. E como o uso disso é no mobile,
         não quero esgotar a banda da pessoa e começar a ter problemas */
-        debugger;
         this.stop = false;
         if (callback) this.callbacks.push(callback);
         if (taskCallback) this.taskCallbacks.push(taskCallback);

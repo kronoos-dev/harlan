@@ -1,7 +1,7 @@
 <div class="container">
     <div class="content">
         <div class="logo"><span></span><h1>Accuracy</h1></div>
-        <p id="login-about" data-i18n="login.accuracy.about">Realize o login para informar a respeito do checkin no aplicativo.</p>
+        <p id="login-about" data-i18n="login.accuracy.about">Realize o login para informar a respeito do check-in no aplicativo.</p>
         <form method="POST" action="#" name="login-accuracy" id="form-login-accuracy">
             <div class="content">
                 <input type="tel" name="cpf" id="input-cpf" data-i18n-placeholder="login.cpf" placeholder="CPF do Usuário" />

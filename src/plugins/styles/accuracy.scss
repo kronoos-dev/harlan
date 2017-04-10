@@ -2,21 +2,85 @@
 
     background: #2f2f2f !important;
 
+    .login > .container > .content {
+        background: #2f2f2f;
+        color: #fff;
+    }
+
+    .modal > div > div > div {
+        background: #2f2f2f;
+        border: 1px solid #2f2f2f;
+        color: #fff;
+        .input-label {
+            color: #fff;
+        }
+    }
+
+    .logo-container {
+        text-align: center;
+        padding: 30px 0;
+        box-shadow: 1px 1px 10px #000;
+    }
+
     #input-cpf {
         text-align: center;
+    }
+
+    button.button, input.button, select.button, textarea.button {
+        background-color: #e64203;
+        border-bottom-color: #000;
+        color: #fff;
+    }
+
+    button, input, select, textarea {
+        border-bottom-color: #e64203;
+
+    }
+
+    .logo {
+        span {
+            background-image: url(/images/accuracy/icon.png);
+            background-size: contain;
+            vertical-align: baseline;
+        }
+        h1 {
+            background-image: url(/images/accuracy/text.png);
+            height: 38px;
+            width: 162px;
+            color: rgba(0,0,0,0);
+            background-origin: initial;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            display: inline-block;
+        }
     }
 
     .accuracy-app {
         &.hide {
             display: none;
         }
-
-        color: #fff;
+        color: #505355;
     }
 
 
     .accuracy-campaigns {
         text-align: center;
+        padding: 40px 20px;
+        margin-bottom: 34px;
+        color: #fff;
+
+        .actions {
+            padding: 8px 0;
+            background: #2f2f2f;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            box-shadow: 1px -1px 10px #000;
+        }
+
         .accuracy-campaign {
             text-align: center;
             display: inline-block;

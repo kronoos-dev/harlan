@@ -21,8 +21,8 @@ module.exports = function (controller) {
         }
 
         navigator.camera.getPicture((imageURI) => {
-            obj.file = basename(imageURI);
-            obj.uri = imageURI;
+            obj[0].file = basename(imageURI);
+            obj[0].uri = imageURI;
             callback(obj);
         }, cameraErrorCallback, {
             quality: 50,

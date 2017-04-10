@@ -491,22 +491,22 @@ gulp.task("watch", () => {
 });
 
 gulp.task("install:cordova:icheques",
-$.shell.task("cordova run browser", {
+$.shell.task("cordova run android", {
     cwd: './cordova/icheques'
 }));
 
 gulp.task("install:cordova:accuracy" ,
-$.shell.task("cordova run browser", {
+$.shell.task("cordova run android", {
     cwd: './cordova/accuracy',
 }));
 
-gulp.task("watch:cordova:accuracy", ["watch"], () => {
+gulp.task("watch:cordova:accuracy", ["watch", "install:cordova:accuracy"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
         return runSequence("install:cordova:accuracy");
     });
 });
 
-gulp.task("watch:cordova:icheques", ["watch"], () => {
+gulp.task("watch:cordova:icheques", ["watch", "install:cordova:icheques"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
         return runSequence("install:cordova:icheques");
     });

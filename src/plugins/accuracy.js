@@ -12,6 +12,7 @@
     require("./lib/accuracy/controller")(controller);
     require("./lib/accuracy/server")(controller);
     require("./lib/accuracy/design")(controller);
+    require("./lib/accuracy/create-store")(controller);
 
- 
+
 })(harlan);

@@ -39,7 +39,8 @@ module.exports = function (controller) {
             }, () => {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
                 (response) => {
-                    obj.questions = response;
+                    debugger;
+                    obj[0].questions = response;
                     objectConfirm(obj, () => {
                         render({
                             status: 'checkin',
@@ -70,7 +71,8 @@ module.exports = function (controller) {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
                     return q.is_checkin == "Y";
                 }), (response) => {
-                    obj.questions = response;
+                    debugger;
+                    obj[0].questions = response;
                     objectConfirm(obj, () => {
                         render({
                             status: 'checkout',
@@ -90,17 +92,33 @@ module.exports = function (controller) {
             let content = $("<div />").addClass("content");
             let list = $("<ul />");
 
+            campaignContainer.prepend($("<p />").text("Selecione uma das campanhas abaixo para começar."))
+                             .prepend($("<h2 />").text("Seleção de Campanha"));
             campaignContainer.append(content);
             content.append(list);
             applicationElement.append(campaignContainer);
 
-            content.append($("<a />").attr({
+            let contentMenu = $("<ul />").addClass("actions");
+            campaignContainer.append(contentMenu);
+
+            let registration = controller.call("accuracy::authentication::data")[0].registration;
+            if (registration === "Y" || registration === true) {
+                contentMenu.append($("<li />").append($("<a />").attr({
+                    href: "#"
+                }).text("Cadastrar Loja").click((e) => {
+                    e.preventDefault();
+                    controller.call("accuracy::createStore");
+                })));
+            }
+
+            contentMenu.append($("<li />").append($("<a />").attr({
                 href: "#"
-            }).text("Logout").addClass("logout").click((e) => {
+            }).text("Sair").click((e) => {
                 e.preventDefault();
                 controller.call("accuracy::logout");
                 controller.interface.helpers.activeWindow(".login");
-            }));
+            })));
+
 
             _.each(campaigns, (campaign) => {
                 let campaignElement = $("<li />").addClass("accuracy-campaign").click((e) => {
