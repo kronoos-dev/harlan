@@ -1,7 +1,7 @@
 import { ApplicationState } from './application-state';
 import _ from 'underscore';
 
-let as, clearState;
+let as, campaignContainer;
 
 const applicationElement = $(".accuracy-app");
 
@@ -32,15 +32,19 @@ module.exports = function (controller) {
 
     let checkout = () => {
         controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
-            controller.confirm({}, () => {
+            controller.confirm({
+                title: `Realizar checkout em ${as.applicationState.campaign.name}`,
+                subtitle: `Prosseguir com checkout do local ${as.applicationState.store.name}.`,
+                paragraph: `Será lhe apresentado um questionário para prosseguir com o checkout. ${distantMessage(obj)}`
+            }, () => {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
-                    (response) => {
-                        obj.questions = response;
-                        objectConfirm(obj, () => {
-                            render({
-                                status: 'checkin',
-                                checkout: obj
-                            });
+                (response) => {
+                    obj.questions = response;
+                    objectConfirm(obj, () => {
+                        render({
+                            status: 'checkin',
+                            checkout: obj
+                        });
                     });
                 });
             }, () => {
@@ -51,12 +55,17 @@ module.exports = function (controller) {
         }, geolocationErrorCallback, cameraErrorCallback, "checkout");
     };
 
+    let distantMessage = (obj) => {
+        return obj.approved === "Y" ? "Esta ação está pré-aprovada pelo administrador." :
+        "<strong>Você está distante da loja, esta ação depende da aprovação de um administrador.</strong>";
+    };
+
     let checkin = () => {
         controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
             controller.confirm({
                 title: `Realizar check-in em ${as.applicationState.campaign.name}`,
-                subtitle: `Selecionado local ${as.applicationState.store} para check-in`,
-                paragraph: "Ao realizar o check-in será lhe informado "
+                subtitle: `Prosseguir com local ${as.applicationState.store.name}.`,
+                paragraph: `Será lhe apresentado um questionário para prosseguir com o check-in. ${distantMessage(obj)}`
             }, () => {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
                     return q.is_checkin == "Y";
@@ -73,33 +82,44 @@ module.exports = function (controller) {
         }, geolocationErrorCallback, cameraErrorCallback);
     };
 
-    let campaign = (campaigns) => {
-        let container = $("<div />").addClass("container accuracy-campaigns"),
-        content = $("<div />").addClass("content"),
-        list = $("<ul />");
+    let campaign = () => {
+        controller.call("accuracy::campaigns", (campaigns) => {
+            if (campaignContainer) campaignContainer.remove();
+            campaignContainer = $("<div />").addClass("container accuracy-campaigns"),
+            content = $("<div />").addClass("content"),
+            list = $("<ul />");
 
-        container.append(content);
-        content.append(list);
-        applicationElement.append(container);
-
-        _.each(campaigns, (campaign) => {
-            let campaignElement = $("<li />").addClass("accuracy-campaign").click((e) => {
+            content.append($("<a />").attr({
+                href: "#"
+            }).text("Logout").addClass("logout").click((e) => {
                 e.preventDefault();
-                campaignStores(campaign);
+                controller.call("accuracy::logout");
+                controller.interface.helpers.activeWindow(".login");
+            }));
+
+            campaignContainer.append(content);
+            content.append(list);
+            applicationElement.append(campaignContainer);
+
+            _.each(campaigns, (campaign) => {
+                let campaignElement = $("<li />").addClass("accuracy-campaign").click((e) => {
+                    e.preventDefault();
+                    campaignStores(campaign);
+                });
+
+                campaignElement
+                    .append($("<img />").attr({
+                        src: campaign.avatar
+                    }).addClass("accuracy-campaign-image"))
+                    .append($("<span />")
+                    .text(campaign.name)
+                    .addClass("accuracy-campaign-title"));
+
+                list.append(campaignElement);
             });
 
-            campaignElement
-            .append($("<img />").attr({
-                src: campaign.avatar
-            }).addClass("accuracy-campaign-image"))
-            .append($("<span />")
-            .text(campaign.name)
-            .addClass("accuracy-campaign-title"));
-
-            list.append(campaignElement);
-        });
-
-        return () => container.remove();
+        }, () => fatalError("Não há como baixar as campanhas.",
+            "É necessária ao menos uma campanha para continuar."));
     };
 
     let campaignStores = (campaign) => {
@@ -108,17 +128,26 @@ module.exports = function (controller) {
         modal.subtitle("Escolha a loja em que será realizada a ação.");
         modal.paragraph("Selecione abaixo a loja em que será realizada a ação.");
         let form = modal.createForm(),
-        storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, (s) => s.name));
+            storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, (s) => s.name));
         form.addSubmit("submit", "Selecionar Loja");
         modal.createActions().cancel();
         form.element().submit((e) => {
             e.preventDefault();
             /* quando a pessoa seleciona já podemos configurar o local para
             realizar o checkin */
-            render({status: 'checkin', campaign: campaign, store: campaign.store[storeSelector.val()]});
+            render({
+                status: 'checkin',
+                campaign: campaign,
+                store: campaign.store[storeSelector.val()]
+            });
             modal.close();
         });
         return modal;
+    };
+
+    let createStore = () => {
+        let form = controller.call("form");
+        form.configure();
     };
 
     let render = (data = null) => {
@@ -126,19 +155,15 @@ module.exports = function (controller) {
             as.render(data);
         }
         if (!as) return;
-        if (clearState) clearState(); /* limpa estado anterior da tela */
         switch (as.applicationState.status) {
             case 'checkout':
-                clearState = checkout();
+                checkout();
                 break;
             case 'checkin':
-                clearState = checkin();
+                checkin();
                 break;
             default:
-                controller.call("accuracy::campaigns", (campaigns) => {
-                    clearState = campaign(campaigns);
-                }, () => fatalError("Não há como baixar as campanhas.",
-                    "É necessária ao menos uma campanha para continuar."));
+                campaign();
         }
     };
 
