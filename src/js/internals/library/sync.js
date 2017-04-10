@@ -18,7 +18,7 @@ export default class Sync {
         registerTask = () => {
             if (this.stop) return;
             setTimeout(() => this.sync(registerTask), interval);
-        }
+        };
         this.sync(registerTask);
     }
 
@@ -65,11 +65,9 @@ export default class Sync {
         });
 
         this.q.drain = () => {
-            for (this.callbacks) {
-                for (let cb of this.callbacks) cb();
-                this.callbacks = [];
-                this.taskCallbacks = [];
-            }
+            for (let cb of this.callbacks) cb();
+            this.callbacks = [];
+            this.taskCallbacks = [];
             this.running = false;
         };
 
@@ -90,12 +88,12 @@ export default class Sync {
 
     progressHelper(cb) {
         /* Envia para o callback o progresso da operação, útil para barras de progresso */
-        var l1 = this.queueLength()
+        var l1 = this.queueLength();
         return () => {
             let perc = (this.queueLength() / l1) * 100;
             if (perc > 100) perc = 100;
             cb(Math.floor(perc * 10) / 2, l1, this.queueLength());
-        }
+        };
     }
 
     drop(jobId) {

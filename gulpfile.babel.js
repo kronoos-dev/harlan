@@ -165,8 +165,7 @@ gulp.task("build:plugins:css", () => {
     }))
     .pipe($.css2js())
     .pipe(gulp.dest(`${plugins}/styles/`))
-    .pipe($.size({title: ">>> build:plugins:css"}))
-    .pipe(reload({stream: true}));
+    .pipe($.size({title: ">>> build:plugins:css"}));
 });
 
 gulp.task("build:plugins:sass", () => {
@@ -180,8 +179,7 @@ gulp.task("build:plugins:sass", () => {
     }))
     .pipe($.css2js())
     .pipe(gulp.dest(`${plugins}/styles`))
-    .pipe($.size({title: ">>> build:plugins:sass"}))
-    .pipe(reload({stream: true}));
+    .pipe($.size({title: ">>> build:plugins:sass"}));
 });
 
 gulp.task("build:plugins:styles", ["build:plugins:sass", "build:plugins:css"]);
@@ -310,25 +308,26 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
-gulp.task("build:cordova:copy-files", ["build"], () => {
+gulp.task("cordova:copy-files", () => {
     return gulp.src([
         `Server/web/**`,
         `!Server/web/images/bg/**/*.{jpg,jpeg}`,
         `!Server/web/js/**/*.{gz,map}`
     ])
+    .pipe(gulp.dest("cordova/accuracy/www"))
     .pipe(gulp.dest("cordova/icheques/www"))
-    .pipe($.size({title: ">>> build:cordova"}));
+    .pipe($.size({title: ">>> cordova:copy-files"}));
 });
 
-gulp.task("build:cordova:icheques", ["build:cordova:copy-files"], $.shell.task("cordova build", {
+gulp.task("build:cordova:icheques", ["cordova:copy-files"], $.shell.task("cordova build android", {
     cwd: './cordova/icheques'
 }));
 
-gulp.task("build:cordova:harlan", ["build:cordova:copy-files"], $.shell.task("cordova build", {
-    cwd: './cordova/harlan'
+gulp.task("build:cordova:accuracy", ["cordova:copy-files"], $.shell.task("cordova build android", {
+    cwd: './cordova/accuracy'
 }));
 
-gulp.task("build:cordova", ["build:cordova:icheques", "build:cordova:harlan"]);
+gulp.task("build:cordova", ["build:cordova:icheques", "build:cordova:accuracy"]);
 
 gulp.task("build:application", ["jshint", "i18n"], () => {
     return browserify({
@@ -460,12 +459,12 @@ gulp.task("watch", () => {
         open: false,
         port: 3000,
         server: {
-            baseDir: [dist, src]
+            baseDir: [dist]
         }
     });
-    gulp.watch("src/js/internals/i18n/**/*.json", ["i18n", "build:installer", "build:application", reload]);
+    gulp.watch("src/js/internals/i18n/**/*.json", () => runSequence("build:installer", reload));
     gulp.watch(["src/scss/*", "src/scss/*.scss"], ["styles"]);
-    gulp.watch(["src/js/service-worker.js"], ["service-worker", reload]);
+    gulp.watch(["src/js/service-worker.js"], () => runSequence("service-worker", reload));
     gulp.watch([
         "src/js/*.js",
         "src/js/internals/**/*.js",
@@ -473,11 +472,11 @@ gulp.task("watch", () => {
         "!src/js/app-installer.js",
         "!src/js/app-inflate.js",
         "!src/js/internals/i18n/**/*.js"
-    ], ["jshint", "build:application", "build:installer", reload]);
-    gulp.watch("src/js/app-inflate.js", ["jshint", "inflate", reload]);
-    gulp.watch("src/js/app-installer.js", ["jshint", "build:installer", reload]);
-    gulp.watch("src/js/tests/**/*.js", ["jshint", "build:tests", reload]);
-    gulp.watch(["src/**/*.html", "src/**/*.tpl"], ["html", "templates", reload]);
+    ], () => runSequence("jshint", "build:installer", reload));
+    gulp.watch("src/js/app-inflate.js", () => runSequence("jshint", "inflate", reload));
+    gulp.watch("src/js/app-installer.js", () => runSequence("jshint", "build:installer", reload));
+    gulp.watch("src/js/tests/**/*.js", () => runSequence("jshint", "build:tests", reload));
+    gulp.watch(["src/**/*.html", "src/**/*.tpl"], () => runSequence("html", "templates", reload));
     gulp.watch([
         "src/plugins/styles/**/*.{css,scss}",
         "src/plugins/templates/**/*.html",
@@ -488,5 +487,27 @@ gulp.task("watch", () => {
         "!src/plugins/templates/**/*.js",
         "!src/plugins/sql/**/*.js",
         "!src/plugins/styles/**/*.js"
-    ], ["build:plugins", reload]);
+    ], () => runSequence("build:plugins", reload));
+});
+
+gulp.task("install:cordova:icheques",
+$.shell.task("cordova run browser", {
+    cwd: './cordova/icheques'
+}));
+
+gulp.task("install:cordova:accuracy" ,
+$.shell.task("cordova run browser", {
+    cwd: './cordova/accuracy',
+}));
+
+gulp.task("watch:cordova:accuracy", ["watch"], () => {
+    gulp.watch(["Server/web/**/*"], function (event) {
+        return runSequence("install:cordova:accuracy");
+    });
+});
+
+gulp.task("watch:cordova:icheques", ["watch"], () => {
+    gulp.watch(["Server/web/**/*"], function (event) {
+        return runSequence("install:cordova:icheques");
+    });
 });

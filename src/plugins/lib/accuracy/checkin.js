@@ -1,5 +1,5 @@
 import { DistanceMeter } from './distance-meter';
-import { Sync } from './sync';
+import Guid from 'guid';
 
 function basename(str){
     var base = new String(str).substring(str.lastIndexOf('/') + 1);
@@ -15,10 +15,15 @@ module.exports = function (controller) {
             controller.call("accuracy::checkin::picture", obj, () => callback(obj), cameraErrorCallback), geolocationErrorCallback, type));
 
     controller.registerCall("accuracy::checkin::picture", (obj, callback, cameraErrorCallback) => {
+        if (!navigator.camera || !navigator.camera.getPicture) {
+            callback(obj);
+            return;
+        }
+
         navigator.camera.getPicture((imageURI) => {
             obj.file = basename(imageURI);
             obj.uri = imageURI;
-            callback();
+            callback(obj);
         }, cameraErrorCallback, {
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI
@@ -47,7 +52,9 @@ module.exports = function (controller) {
         controller.accuracyServer.call("./saveAnswer/", obj, {
             success: () => {
                 cb();
-                controller.sync.job("accuracy::checkin::sendImage", obj);
+                if (obj.uri) {
+                    controller.sync.job("accuracy::checkin::sendImage", obj);
+                }
             },
             error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
         });
@@ -56,8 +63,8 @@ module.exports = function (controller) {
     controller.registerCall("accuracy::checkin::object", (campaign, store, callback, geolocationErrorCallback, type="checkIn") => {
         navigator.geolocation.getCurrentPosition((position) => callback([{
             type: type,
-            time: moment().parse("HH:mm"),
-            created_date: moment().parse("DD/MM/YYYY"),
+            time: moment().format("HH:mm"),
+            created_date: moment().format("DD/MM/YYYY"),
             store_id: store.id,
             campaign_id: campaign.id,
             employee_id: controller.call("accuracy::authentication::data")[0].id,
@@ -66,9 +73,9 @@ module.exports = function (controller) {
             questions: [],
             verifyCoordinates: {
                 local: `${position.coords.latitude},${position.coords.longitude}`,
-                store: as.applicationState.store.coordinates
+                store: store.coordinates
             },
-            approved: DistanceMeter(as.applicationState.store.coordinates, position.coords) >
+            approved: DistanceMeter(store.coordinates, position.coords) >
                 controller.confs.accuracy.geofenceLimit ? "N" : "Y"
         }]), geolocationErrorCallback);
     });

@@ -7,6 +7,10 @@
     }
 
     .accuracy-app {
+        &.hide {
+            display: none;
+        }
+
         color: #fff;
     }
 
@@ -26,4 +30,6 @@
             }
         }
     }
+
+
 }

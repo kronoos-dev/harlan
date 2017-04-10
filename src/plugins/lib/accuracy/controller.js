@@ -85,9 +85,10 @@ module.exports = function (controller) {
     let campaign = () => {
         controller.call("accuracy::campaigns", (campaigns) => {
             if (campaignContainer) campaignContainer.remove();
-            campaignContainer = $("<div />").addClass("container accuracy-campaigns"),
-            content = $("<div />").addClass("content"),
-            list = $("<ul />");
+
+            let campaignContainer = $("<div />").addClass("container accuracy-campaigns");
+            let content = $("<div />").addClass("content");
+            let list = $("<ul />");
 
             content.append($("<a />").attr({
                 href: "#"
@@ -152,7 +153,7 @@ module.exports = function (controller) {
 
     let render = (data = null) => {
         if (data) {
-            as.render(data);
+            as.configure(data);
         }
         if (!as) return;
         switch (as.applicationState.status) {

@@ -174,9 +174,6 @@ var Controller = function() {
     /* Service Worker */
     require('./modules/service-worker')(this);
 
-    /* Web3 */
-    require('./modules/web3');
-
     /* Parsers */
     require('./parsers/placas-wiki')(this);
     require('./parsers/cbusca')(this);
