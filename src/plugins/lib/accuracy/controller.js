@@ -46,7 +46,7 @@ module.exports = function (controller) {
                             checkout: obj
                         });
                     });
-                });
+                }, () => render(), {title: "Perguntas do checkout"});
             }, () => {
                 if (navigator.app && navigator.app.exitApp) {
                     navigator.app.exitApp();
@@ -57,7 +57,7 @@ module.exports = function (controller) {
 
     let distantMessage = (obj) => {
         return obj.approved === "Y" ? "Esta ação está pré-aprovada pelo administrador." :
-        "<strong>Você está distante da loja, esta ação depende da aprovação de um administrador.</strong>";
+        "<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>";
     };
 
     let checkin = () => {
@@ -86,9 +86,13 @@ module.exports = function (controller) {
         controller.call("accuracy::campaigns", (campaigns) => {
             if (campaignContainer) campaignContainer.remove();
 
-            let campaignContainer = $("<div />").addClass("container accuracy-campaigns");
+            campaignContainer = $("<div />").addClass("container accuracy-campaigns");
             let content = $("<div />").addClass("content");
             let list = $("<ul />");
+
+            campaignContainer.append(content);
+            content.append(list);
+            applicationElement.append(campaignContainer);
 
             content.append($("<a />").attr({
                 href: "#"
@@ -97,10 +101,6 @@ module.exports = function (controller) {
                 controller.call("accuracy::logout");
                 controller.interface.helpers.activeWindow(".login");
             }));
-
-            campaignContainer.append(content);
-            content.append(list);
-            applicationElement.append(campaignContainer);
 
             _.each(campaigns, (campaign) => {
                 let campaignElement = $("<li />").addClass("accuracy-campaign").click((e) => {
@@ -144,11 +144,6 @@ module.exports = function (controller) {
             modal.close();
         });
         return modal;
-    };
-
-    let createStore = () => {
-        let form = controller.call("form");
-        form.configure();
     };
 
     let render = (data = null) => {

@@ -5,6 +5,12 @@ module.exports = function (controller) {
     /* Design SCSS do Accuracy APP */
     require("../../styles/accuracy.js");
 
+    controller.unregisterTrigger("authentication::authenticated", "welcomeScreen::authenticated");
+    controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
+    controller.unregisterTrigger("bootstrap::end", "smartsupp");
+    controller.unregisterTrigger("bootstrap::end", "authentication::bootstrap");
+    controller.unregisterTrigger("bootstrap::end", "authentication::centralized");
+
     /* Input de authentication */
     const inputDocument = $(".login #input-cpf")
         .mask('000.000.000-00', {reverse: true});

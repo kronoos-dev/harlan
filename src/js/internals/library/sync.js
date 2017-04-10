@@ -2,6 +2,7 @@ const LENGTH_REGEX = /%+/g;
 const JOB_REGEX = /%([^%]+)/g;
 
 import queue from 'async/queue';
+import Guid from 'guid';
 
 export default class Sync {
 
@@ -31,10 +32,18 @@ export default class Sync {
     getTasks() {
         return (function* () {
             /* Captura uma tarefa */
-            let jobs = localStorage.syncTasks.match(JOB_REGEX);
-            for (let job of jobs) {
-                if (!job) return null;
-                yield [job[1], JSON.parse(localStorage[job[1]])];
+            if (localStorage.syncTasks) {
+                let jobs = localStorage.syncTasks.match(JOB_REGEX);
+                for (let job of jobs) {
+                    if (!job) return null;
+                    let jobid = job.replace(/^%/, '');
+                    try {
+                        debugger;
+                        yield [jobid, JSON.parse(localStorage[jobid])];
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
             }
         })();
     }
@@ -45,18 +54,30 @@ export default class Sync {
     }
 
     sync(callback = null, taskCallback = null) {
-
         /* Andei pensando e enviar um de cada vez é melhor que enviar
         todos juntos em paralelo, grandes tarefas não podem
         usar o localStorage. E como o uso disso é no mobile,
         não quero esgotar a banda da pessoa e começar a ter problemas */
-
+        debugger;
         this.stop = false;
         if (callback) this.callbacks.push(callback);
         if (taskCallback) this.taskCallbacks.push(taskCallback);
         if (this.running) return;
 
         this.running = true;
+
+        var end = () => {
+            for (let cb of this.callbacks) cb();
+            this.callbacks = [];
+            this.taskCallbacks = [];
+            this.running = false;
+        };
+
+        if (!this.queueLength()) {
+            end();
+            return;
+        }
+
         this.q = new queue((task, cb) => {
             this.controller.call(task.call, (err) => {
                 if (!err) this.drop(task.jobId);
@@ -64,14 +85,10 @@ export default class Sync {
             }, ...task.parameters);
         });
 
-        this.q.drain = () => {
-            for (let cb of this.callbacks) cb();
-            this.callbacks = [];
-            this.taskCallbacks = [];
-            this.running = false;
-        };
+        this.q.drain = end;
 
-        let tasks = getTasks();
+        let tasks = this.getTasks();
+
         for (let task of tasks) {
             let [jobId, job] = task;
             let [call, parameters] = job;
@@ -103,7 +120,8 @@ export default class Sync {
 
     job(call, ...parameters) {
         let key = `sync-task-${Guid.raw()}`;
-        localStorage[key] = JSON.stringify(call, parameters);
+        localStorage[key] = JSON.stringify([call, parameters]);
+        if (!localStorage.syncTasks) localStorage.syncTasks = "";
         localStorage.syncTasks += `%${key}`;
     }
 

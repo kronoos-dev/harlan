@@ -34,7 +34,7 @@ module.exports = function(controller) {
     });
 
 
-    controller.registerTrigger("bootstrap::end", "authentcation::centralized", (obj, callback) => {
+    controller.registerTrigger("bootstrap::end", "authentication::centralized", (obj, callback) => {
         const loginElement = $(".login");
 
         let centralizedLogin = () => {

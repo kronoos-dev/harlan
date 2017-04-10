@@ -161,13 +161,9 @@ var Controller = function() {
         var calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
 
-        var me = this;
-
-        //debugDevil(calls, me);
-
         async.auto(calls, (err, results) => {
             console.log(':: bootstrap ::', err, results);
-            me.trigger('bootstrap::end');
+            this.trigger('bootstrap::end');
         });
     };
 
@@ -250,7 +246,8 @@ var Controller = function() {
     require('./modules/smartsupp')(this);
     require('./modules/cordova')(this);
 
-    this.registerBootstrap("bootstrap::end", "sync::register", () => {
+    this.registerBootstrap("bootstrap::end", (cb) => {
+        cb();
         this.sync.register(this.confs.syncInterval); /* register sync */
     });
 
