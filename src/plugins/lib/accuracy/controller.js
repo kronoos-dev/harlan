@@ -7,32 +7,70 @@ const applicationElement = $(".accuracy-app");
 
 module.exports = function (controller) {
 
-    let fatalError = () => {};
+    let cameraErrorCallback = (message) => {
+        return fatalError("Não foi possível abrir a câmera do dispositivo.", message);
+    };
+
+    let geolocationErrorCallback = (e) => {
+        return fatalError("Não foi possível capturar a sua localização.", `${e.code} - ${e.message}`);
+    };
+
+    let fatalError = (title, message) => {
+        return controller.alert({
+            title: title,
+            message: message,
+            paragraph: "Ocorreu um erro fatal e o programa será finalizado, tente novamente mais tarde."
+        }, () => navigator.app.exitApp());
+    };
+
+    let objectConfirm = (obj, callback) => {
+        controller.confirm({}, () => {
+            controller.sync.job("accuracy::checkin::send", obj);
+            callback();
+        }, () => render());
+    };
 
     let checkout = () => {
         controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
             controller.confirm({}, () => {
-                controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
-                    return q.is_checkin == "Y";
-                }), (response) => {
-                    obj.questions = response;
-                    controller.cal("accuracy::checkin::confirm", obj, () => {})
+                controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
+                    (response) => {
+                        obj.questions = response;
+                        objectConfirm(obj, () => {
+                            render({
+                                status: 'checkin',
+                                checkout: obj
+                            });
+                    });
                 });
+            }, () => {
+                if (navigator.app && navigator.app.exitApp) {
+                    navigator.app.exitApp();
+                }
             });
-        }, fatalError, fatalError, "checkout");
+        }, geolocationErrorCallback, cameraErrorCallback, "checkout");
     };
 
     let checkin = () => {
         controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
-            controller.confirm({}, () => {
+            controller.confirm({
+                title: `Realizar check-in em ${as.applicationState.campaign.name}`,
+                subtitle: `Selecionado local ${as.applicationState.store} para check-in`,
+                paragraph: "Ao realizar o check-in será lhe informado "
+            }, () => {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
                     return q.is_checkin == "Y";
                 }), (response) => {
                     obj.questions = response;
-                    controller.cal("accuracy::checkin::confirm", obj, () => {})
+                    objectConfirm(obj, () => {
+                        render({
+                            status: 'checkout',
+                            checkin: obj
+                        });
+                    });
                 });
-            });
-        }, fatalError, fatalError);
+            }, () => render({status: 'campaign'}));
+        }, geolocationErrorCallback, cameraErrorCallback);
     };
 
     let campaign = (campaigns) => {
@@ -77,26 +115,30 @@ module.exports = function (controller) {
             e.preventDefault();
             /* quando a pessoa seleciona já podemos configurar o local para
             realizar o checkin */
-            as.configure({status: 'checkin', campaign: campaign, store: campaign.store[storeSelector.val()]});
-            render();
+            render({status: 'checkin', campaign: campaign, store: campaign.store[storeSelector.val()]});
             modal.close();
         });
+        return modal;
     };
 
-    let render = () => {
+    let render = (data = null) => {
+        if (data) {
+            as.render(data);
+        }
         if (!as) return;
         if (clearState) clearState(); /* limpa estado anterior da tela */
         switch (as.applicationState.status) {
             case 'checkout':
-            clearState = checkout();
-            break;
+                clearState = checkout();
+                break;
             case 'checkin':
-            clearState = checkin();
-            break;
+                clearState = checkin();
+                break;
             default:
-            controller.call("accuracy::campaigns", (campaigns) => {
-                clearState = campaign(campaigns);
-            }, fatalError);
+                controller.call("accuracy::campaigns", (campaigns) => {
+                    clearState = campaign(campaigns);
+                }, () => fatalError("Não há como baixar as campanhas.",
+                    "É necessária ao menos uma campanha para continuar."));
         }
     };
 

@@ -37,12 +37,10 @@ module.exports = {
     },
     oauthKey: "AYY0iBNDo95aIcw--iWIqa71ZJs",
     checkoutUrl: 'https://irql.bipbop.com.br/api/checkout.html',
-    inboxTime: 50000,
     googleAnalyticsId: "UA-36688252-3", /* Universal Analytics */
-    web3: {
-        endpoint: "http://localhost:8545"
-    },
+
     gcm: {
         apiKey : "AIzaSyAwitAYDKWMC4WYfF4YW5pTVN_GS1yxa-8"
-    }
+    },
+    syncInterval: 300
 };

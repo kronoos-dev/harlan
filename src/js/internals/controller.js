@@ -252,10 +252,9 @@ var Controller = function() {
     require('./modules/admin/contact-types')(this);
     require('./modules/smartsupp')(this);
     require('./modules/cordova')(this);
-    require('./modules/sync')(this);
 
     this.registerBootstrap("bootstrap::end", "sync::register", () => {
-        this.sync.register(); /* register sync */
+        this.sync.register(this.confs.syncInterval); /* register sync */
     });
 
     /**

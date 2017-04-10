@@ -16,13 +16,13 @@ module.exports = function (controller) {
     controller.accuracyServer = {
         call : (path, data, dict) => {
             let dataLength = Object.keys(data).length;
-            let ajaxCall = Object.assign({}, dict, {
+            let ajaxCall = Object.assign({
                 dataType: "json",
                 type: dataLength ? 'POST' : 'GET', /* */
                 contentType:'application/json', /* sempre envia dados em JSON */
                 data: dataLength ? JSON.stringify(data) : null,
                 url: urljoin(controller.confs.accuracy.webserver, path)
-            });
+            }, dict);
 
             if (tokenId) {
                 ajaxCall.headers = ajaxCall.headers || {};

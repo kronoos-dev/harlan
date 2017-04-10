@@ -13,7 +13,8 @@ module.exports = function(controller) {
         }
 
         var form = modal.createForm();
-        if (formTrick) formTrick(modal, form);
+        var actions = modal.createActions();
+        if (formTrick) formTrick(modal, form, actions);
 
         var checkbox;
 
@@ -36,7 +37,6 @@ module.exports = function(controller) {
 
         form.addSubmit("continue", parameters.confirmText || controller.i18n.system.confirm());
         checkbox = useCheckbox ? form.addCheckbox("confirm", "Eu <strong>aceito as condições</strong> para continuar.") : null;
-        var actions = modal.createActions();
 
         actions.add(controller.i18n.system.cancel()).click(function(e) {
             e.preventDefault();
