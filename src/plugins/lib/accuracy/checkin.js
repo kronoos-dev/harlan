@@ -31,23 +31,26 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::checkin::sendImage", (cb, obj) => {
-        console.log("debug----------------------");
-        console.log(obj);
         window.resolveLocalFileSystemURL(obj[0].uri,
-            (fileEntry) => fileEntry.file(function(imageFile) {
-                var formdata = new FormData();
-                formdata.append('file', imageFile);
-                formdata.append('token', obj[0].token);
-                formdata.append('employee_id', obj[0].employee_id);
-                controller.accuracyServer.call("saveImages", {}, {
-                    type: 'POST',
-                    data: formdata,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: () => cb(),
-                    error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
-                });
+            (fileEntry) => fileEntry.file((imageFile) => {
+                var reader = new FileReader();
+                reader.onloadend = function (e) {
+                    let formdata = new FormData();
+                    let imageBlob = new Blob([ this.result ], { type: "image/jpeg" } );
+                    formdata.append('file', imageBlob, obj[0].file + ".jpg");
+                    formdata.append('token', obj[0].file);
+                    formdata.append('employee_id', obj[0].employee_id);
+                    controller.accuracyServer.call("saveImages", {}, {
+                        type: 'POST',
+                        data: formdata,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: () => cb(),
+                        error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
+                    });
+                };
+                reader.readAsArrayBuffer(imageFile);
             }, (e) => {
                 console.error(e);
                 cb();
