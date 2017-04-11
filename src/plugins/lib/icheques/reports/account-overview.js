@@ -143,7 +143,6 @@ var AccountOverview = function(closeable) {
         var debtCollectorInput = form.addCheckbox("debtCollection", "Exibir emitentes em cobrança.");
 
         if (!controller.confs.ccf) {
-            protestoOnlyInput[0].hide();
             ccfOnlyInput[0].hide();
             debtCollectorInput[0].hide();
         }

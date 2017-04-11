@@ -1,21 +1,21 @@
 /* global toastr, require, module, numeral, moment */
 
 var async = require("async"),
-    StringMask = require("string-mask"),
-    _ = require("underscore"),
-    squel = require("squel"),
-    changeCase = require('change-case'),
-    CNPJ = require("cpf_cnpj").CNPJ;
+StringMask = require("string-mask"),
+_ = require("underscore"),
+squel = require("squel"),
+changeCase = require('change-case'),
+CNPJ = require("cpf_cnpj").CNPJ;
 
 import { CMC7Parser } from "./cmc7-parser.js";
 import truncate from "truncate";
 import hash from "hash.js";
 
 var SEARCH_REGEX = /cheq?u?e?/i,
-    FIDC = /fid?c?/i,
-    LIMIT = 5,
-    CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
-    QUERY_LIMIT = 2000;
+FIDC = /fid?c?/i,
+LIMIT = 5,
+CMC7_MASK = new StringMask("00000000 0000000000 000000000000"),
+QUERY_LIMIT = 2000;
 
 var dictMessage = {
     'a0ff6ee5f68cdbb5132568fd4cec7eca519725a7186d24866a6c55d0a42b3ca6' : "Consulta realizada com sucesso sem ocorrência no cheque",
@@ -35,14 +35,14 @@ module.exports = function(c) {
 
 
         let form = modal.createForm(),
-            list = form.createList();
+        list = form.createList();
 
         let actions = modal.createActions();
         actions.cancel();
 
         var count = actions.observation(),
-            backButton = actions.add("Página Anterior").click(e => updateAjax(e, -1)),
-            nextButton = actions.add("Próxima Página").click(e => updateAjax(e));
+        backButton = actions.add("Página Anterior").click(e => updateAjax(e, -1)),
+        nextButton = actions.add("Próxima Página").click(e => updateAjax(e));
 
         let error = () => {
             modal.close();
@@ -71,9 +71,9 @@ module.exports = function(c) {
                     "A consulta ao cheque fracassou, tentando novamente em alguns instantes."]);
                 } else {
                     let message = $("ocorrencias descricao", doc).text() || $("situacaoConsultaCheque exibicao", doc).text(),
-                        hashMessage = hash.sha256().update(message).digest('hex');
+                    hashMessage = hash.sha256().update(message).digest('hex');
                     list.item("fa-check", [moment.unix(row.created).fromNow(), dictMessage[hashMessage] || message,
-                        `Protocolo: ${$("numProtCons", doc).text()}`]);
+                    `Protocolo: ${$("numProtCons", doc).text()}`]);
                 }
             }
 
@@ -518,9 +518,10 @@ module.exports = function(c) {
 
                         showChecks(task[1], result, section);
 
+                        let mensagem = section[0].find("h3").text();
+
                         if (c.confs.ccf) {
 
-                            let mensagem = section[0].find("h3").text();
 
                             c.server.call("SELECT FROM 'SEEKLOC'.'CCF'", {
                                 data: {
@@ -562,26 +563,26 @@ module.exports = function(c) {
                                 }
                             });
 
-                            c.server.call("SELECT FROM 'IEPTB'.'WS'", {
-                                data: {
-                                    documento: task[0]
-                                },
-                                success: (ret) => {
-                                    if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
-                                        section[0].find("h3").text(mensagem += ` Não há protestos.`);
-                                        return;
-                                    }
-                                    let totalProtestos = $("protestos", ret)
-                                    .get()
-                                    .map((p) => parseInt($(p).text()))
-                                    .reduce((a, b) => a + b, 0);
-                                    section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
-                                    section[0].addClass("warning");
-                                    section[1].append(c.call("xmlDocument", ret));
-                                }
-                            });
-
                         }
+
+                        c.server.call("SELECT FROM 'IEPTB'.'WS'", {
+                            data: {
+                                documento: task[0]
+                            },
+                            success: (ret) => {
+                                if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
+                                    section[0].find("h3").text(mensagem += ` Não há protestos.`);
+                                    return;
+                                }
+                                let totalProtestos = $("protestos", ret)
+                                .get()
+                                .map((p) => parseInt($(p).text()))
+                                .reduce((a, b) => a + b, 0);
+                                section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
+                                section[0].addClass("warning");
+                                section[1].append(c.call("xmlDocument", ret));
+                            }
+                        });
 
                         let ccbuscaQuery = {
                             documento: task[0]
