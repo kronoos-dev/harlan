@@ -125,14 +125,15 @@ module.exports = function (controller) {
             });
         });
 
-        controller.registerCall("icheques::imagetocmc", (callback, cmcValue, imageData) => {
+        controller.registerCall("icheques::imagetocmc", (imageData, cmcValue, callback) => {
             /* alreadyExists */
             if (cmcValue) callback(cmcValue);
+            else if (!imageData) callback();
             else controller.server.call("SELECT FROM 'ICHEQUES'.'IMAGECMC'", {
                 data: imageData,
                 dataType: "json",
-                success: callback(cmc7),
-                error: callback()
+                success: (cmcValue) => callback(cmcValue),
+                error: () => callback()
             });
         });
 
