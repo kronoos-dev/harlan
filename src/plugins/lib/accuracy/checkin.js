@@ -10,9 +10,9 @@ function basename(str){
 
 module.exports = function (controller) {
 
-    controller.registerCall("accuracy::checkin::init", (campaign, store, callback, geolocationErrorCallback, cameraErrorCallback, type='checkin') =>
+    controller.registerCall("accuracy::checkin::init", (campaign, store, callback, geolocationErrorCallback, type='checkin') =>
         controller.call("accuracy::checkin::object", campaign, store, (obj) =>
-            controller.call("accuracy::checkin::picture", obj, () => callback(obj), cameraErrorCallback), geolocationErrorCallback, type));
+            controller.call("accuracy::checkin::picture", obj, callback, cameraErrorCallback), geolocationErrorCallback, type));
 
     controller.registerCall("accuracy::checkin::picture", (obj, callback, cameraErrorCallback) => {
         if (!navigator.camera || !navigator.camera.getPicture) {
@@ -31,13 +31,16 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::checkin::sendImage", (cb, obj) => {
-        window.resolveLocalFileSystemURL(obj.uri,
+        console.log("debug----------------------");
+        console.log(obj);
+        window.resolveLocalFileSystemURL(obj[0].uri,
             (fileEntry) => fileEntry.file(function(imageFile) {
                 var formdata = new FormData();
                 formdata.append('file', imageFile);
-                formdata.append('token', obj.token);
-                formdata.append('employee_id', obj.employee_id);
-                controller.accuracyServer.call("./saveImage/", null, {
+                formdata.append('token', obj[0].token);
+                formdata.append('employee_id', obj[0].employee_id);
+                controller.accuracyServer.call("saveImages", {}, {
+                    type: 'POST',
                     data: formdata,
                     cache: false,
                     contentType: false,
@@ -45,14 +48,20 @@ module.exports = function (controller) {
                     success: () => cb(),
                     error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
                 });
-            }, () => cb()), () => cb());
+            }, (e) => {
+                console.error(e);
+                cb();
+            }), (e) => {
+                console.error(e);
+                cb();
+            });
     });
 
     controller.registerCall("accuracy::checkin::send", (cb, obj) => {
-        controller.accuracyServer.call("./saveAnswer/", obj, {
+        controller.accuracyServer.call("saveAnswer/", obj, {
             success: () => {
                 cb();
-                if (obj.uri) {
+                if (obj[0].uri) {
                     controller.sync.job("accuracy::checkin::sendImage", obj);
                 }
             },

@@ -27,6 +27,7 @@ export default class Sync {
         if (this.q) this.q.kill();
         this.q = null;
         this.stop = true;
+        this.running = false;
     }
 
     getTasks() {

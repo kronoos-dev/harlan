@@ -490,24 +490,24 @@ gulp.task("watch", () => {
     ], () => runSequence("build:plugins", reload));
 });
 
-gulp.task("install:cordova:icheques",
+gulp.task("install:cordova:icheques", ["cordova:copy-files"],
 $.shell.task("cordova run android", {
     cwd: './cordova/icheques'
 }));
 
-gulp.task("install:cordova:accuracy" ,
+gulp.task("install:cordova:accuracy", ["cordova:copy-files"],
 $.shell.task("cordova run android", {
     cwd: './cordova/accuracy',
 }));
 
-gulp.task("watch:cordova:accuracy", ["watch", "install:cordova:accuracy"], () => {
+gulp.task("watch:cordova:accuracy", ["watch"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
-        return runSequence("install:cordova:accuracy");
+        return runSequence("cordova:copy-files", "install:cordova:accuracy");
     });
 });
 
-gulp.task("watch:cordova:icheques", ["watch", "install:cordova:icheques"], () => {
+gulp.task("watch:cordova:icheques", ["watch"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
-        return runSequence("install:cordova:icheques");
+        return runSequence("cordova:copy-files", "install:cordova:icheques");
     });
 });

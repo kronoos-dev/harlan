@@ -25,6 +25,15 @@
     <feature name="NativeStorage">
         <param name="android-package" value="NativeStorage" />
     </feature>
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <allow-navigation href="cdvfile:*" />
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <name>Accuracy</name>
     <description>
 	Aplicativo para checkin de promoteres de evento.

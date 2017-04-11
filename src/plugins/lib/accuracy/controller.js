@@ -24,14 +24,16 @@ module.exports = function (controller) {
     };
 
     let objectConfirm = (obj, callback) => {
-        controller.confirm({}, () => {
-            controller.sync.job("accuracy::checkin::send", obj);
-            callback();
-        }, () => render());
+        controller.call("accuracy::checkin::picture", obj, () => {
+            controller.confirm({}, () => {
+                controller.sync.job("accuracy::checkin::send", obj);
+                callback();
+            }, () => render());
+        }, cameraErrorCallback);
     };
 
     let checkout = () => {
-        controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
+        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, (obj) => {
             controller.confirm({
                 title: `Realizar checkout em ${as.applicationState.campaign.name}`,
                 subtitle: `Prosseguir com checkout do local ${as.applicationState.store.name}.`,
@@ -39,7 +41,7 @@ module.exports = function (controller) {
             }, () => {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
                 (response) => {
-                    debugger;
+                    obj[0].token = as.applicationState.checkin[0].token;
                     obj[0].questions = response;
                     objectConfirm(obj, () => {
                         render({
@@ -53,7 +55,7 @@ module.exports = function (controller) {
                     navigator.app.exitApp();
                 }
             });
-        }, geolocationErrorCallback, cameraErrorCallback, "checkout");
+        }, geolocationErrorCallback, "checkout");
     };
 
     let distantMessage = (obj) => {
@@ -62,7 +64,7 @@ module.exports = function (controller) {
     };
 
     let checkin = () => {
-        controller.call("accuracy::checkin::init", as.applicationState.campaign, as.applicationState.store, (obj) => {
+        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, (obj) => {
             controller.confirm({
                 title: `Realizar check-in em ${as.applicationState.campaign.name}`,
                 subtitle: `Prosseguir com local ${as.applicationState.store.name}.`,
@@ -71,7 +73,6 @@ module.exports = function (controller) {
                 controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
                     return q.is_checkin == "Y";
                 }), (response) => {
-                    debugger;
                     obj[0].questions = response;
                     objectConfirm(obj, () => {
                         render({
@@ -81,7 +82,7 @@ module.exports = function (controller) {
                     });
                 });
             }, () => render({status: 'campaign'}));
-        }, geolocationErrorCallback, cameraErrorCallback);
+        }, geolocationErrorCallback);
     };
 
     let campaign = () => {

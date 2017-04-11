@@ -2,6 +2,10 @@
 
     background: #2f2f2f !important;
 
+    .modal-content {
+        border-radius: 0;
+    }
+
     .login > .container > .content {
         background: #2f2f2f;
         color: #fff;
@@ -39,12 +43,12 @@
 
     .logo {
         span {
-            background-image: url(/images/accuracy/icon.png);
+            background-image: url(images/accuracy/icon.png);
             background-size: contain;
             vertical-align: baseline;
         }
         h1 {
-            background-image: url(/images/accuracy/text.png);
+            background-image: url(images/accuracy/text.png);
             height: 38px;
             width: 162px;
             color: rgba(0,0,0,0);

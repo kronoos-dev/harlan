@@ -26,7 +26,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::authentication::auth", (cpf, callback, errorCallback) => {
-        controller.accuracyServer.call("./auth", {cpf: cpf}, {
+        controller.accuracyServer.call("auth", {cpf: cpf}, {
             success: (authData) => {
                 if (!authData[0].token) {
                     if (!errorCallback) return;
