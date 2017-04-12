@@ -73,23 +73,40 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::checkin::object", (campaign, store, callback, geolocationErrorCallback, type="checkIn") => {
-        navigator.geolocation.getCurrentPosition((position) => callback([{
-            type: type,
-            time: moment().format("HH:mm"),
-            created_date: moment().format("DD/MM/YYYY"),
-            store_id: store.id,
-            campaign_id: campaign.id,
-            employee_id: controller.call("accuracy::authentication::data")[0].id,
-            token: Guid.raw(),
-            file: Guid.raw(),
-            questions: [],
-            verifyCoordinates: {
-                local: `${position.coords.latitude},${position.coords.longitude}`,
-                store: store.coordinates
-            },
-            approved: DistanceMeter(store.coordinates, position.coords) >
-                controller.confs.accuracy.geofenceLimit ? "N" : "Y"
-        }]), geolocationErrorCallback);
+        let blockui = controller.call("blockui", {
+            icon: "fa-location-arrow",
+            message: "Aguarde enquanto capturamos sua localização."
+        });
+
+        let timeout = setTimeout(() => {
+            blockui.message.text("Estamos demorando para capturar sua localização. Experimente ir para um local aberto, certifique de ativar o Wi-Fi, dados e GPS.");
+        }, 6000);
+
+        navigator.geolocation.getCurrentPosition((position) => {
+            clearTimeout(timeout);
+            blockui.mainContainer.remove();
+            callback([{
+                type: type,
+                time: moment().format("HH:mm"),
+                created_date: moment().format("DD/MM/YYYY"),
+                store_id: store.id,
+                campaign_id: campaign.id,
+                employee_id: controller.call("accuracy::authentication::data")[0].id,
+                token: Guid.raw(),
+                file: Guid.raw(),
+                questions: [],
+                verifyCoordinates: {
+                    local: `${position.coords.latitude},${position.coords.longitude}`,
+                    store: store.coordinates
+                },
+                approved: store.coordinates ? (DistanceMeter(store.coordinates, position.coords) >
+                    controller.confs.accuracy.geofenceLimit ? "N" : "Y") : "Y"
+            }]);
+        }, (...args) => {
+            clearTimeout(timeout);
+            blockui.mainContainer.remove();
+            geolocationErrorCallback(...args);
+        });
     });
 
 };

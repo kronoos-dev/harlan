@@ -5,6 +5,7 @@ module.exports = function (controller) {
     controller.registerCall("accuracy::field", (question, reasons = {}) => {
         if (question.question_type === "multichoice") {
             return {
+                labelPosition: "before",
                 name: `id_${question.id}`,
                 type: "select",
                 placeholder: question.question,
@@ -47,6 +48,7 @@ module.exports = function (controller) {
             placeholder: question.question,
             labelText: question.question,
             optional: false,
+            labelPosition: "before",
         };
     });
 
@@ -63,7 +65,6 @@ module.exports = function (controller) {
         let form = controller.call("form", (ret) => {
             let questionResponse = [];
             for (let key in ret) {
-                debugger;
                 let questionId = parseInt(key.replace(/^id\_/, ''));
                 let val;
                 if (_.find(questions, x => x.id == questionId).question_type === "multichoice") {

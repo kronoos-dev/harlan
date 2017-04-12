@@ -21,12 +21,13 @@ module.exports = function (controller) {
                 if (callback) callback(data);
             },
             error: () => {
-                if (localStorage.accuracyCampaign) {
+                if (!localStorage.accuracyCampaign) {
                     if (errorCallback) errorCallback();
                     return;
                 }
+                toastr.warning("Parece que você está off-line, pegamos as informações de campanha do cache.", "Sua conexão não está disponível para as campanhas.");
                 if (callback) callback(JSON.parse(localStorage.accuracyCampaign));
             }
-        });
+        }, true);
     });
 };

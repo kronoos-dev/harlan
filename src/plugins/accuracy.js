@@ -2,8 +2,11 @@
 
     controller.confs.accuracy = {
         webserver: "http://app.accuracyapp.4vconnect.com.br/api/v2/", /* local da API */
-        geofenceLimit: 150 /* metros*/
+        geofenceLimit: 150, /* metros*/
+        ajaxTimeout: 25000
     };
+
+    controller.confs.phoneLabelPosition = "before";
 
     require("./lib/accuracy/question")(controller);
     require("./lib/accuracy/authentication")(controller);

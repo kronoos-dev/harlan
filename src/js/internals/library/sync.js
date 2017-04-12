@@ -78,6 +78,8 @@ export default class Sync {
             return;
         }
 
+        controller.trigger("sync::start");
+
         this.q = new queue((task, cb) => {
             this.controller.call(task.call, (err) => {
                 if (!err) this.drop(task.jobId);
@@ -85,7 +87,10 @@ export default class Sync {
             }, ...task.parameters);
         });
 
-        this.q.drain = end;
+        this.q.drain = (...args) => {
+            controller.trigger("sync::end", args);
+            end(...args);
+        };
 
         let tasks = this.getTasks();
 

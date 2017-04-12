@@ -30,7 +30,7 @@ module.exports = function(instance, controller) {
 
         if (controller.confs.isPhone) {
             /* no multi field */
-            obj.labelPosition = "after";
+            obj.labelPosition = controller.confs.phoneLabelPosition || "after";
         }
 
         input[obj.labelPosition || "after"](obj.label);

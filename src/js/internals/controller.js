@@ -245,6 +245,7 @@ var Controller = function() {
     require('./modules/admin/contact-types')(this);
     require('./modules/smartsupp')(this);
     require('./modules/cordova')(this);
+    require('./modules/blockui')(this);
 
     this.registerBootstrap("bootstrap::end", (cb) => {
         cb();

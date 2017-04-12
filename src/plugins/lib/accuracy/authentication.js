@@ -46,7 +46,7 @@ module.exports = function (controller) {
                     paragraph: "Verifique se a sua conexão com a internet está funcionando"
                 });
             }
-        });
+        }, true);
     });
 
 

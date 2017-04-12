@@ -34,23 +34,23 @@ module.exports = function(controller) {
     });
 
 
-    controller.registerTrigger("bootstrap::end", "authentication::centralized", (obj, callback) => {
-        const loginElement = $(".login");
-
-        let centralizedLogin = () => {
-            if (loginElement.height() < $(window).height())
-                loginElement.css({top: '50%', 'margin-top' : (loginElement.height() / 2) * - 1});
-        };
-
-        callback();
-
-        let loginVisible = setInterval(() => {
-            if (loginElement.is(":visible"))
-                clearInterval(loginVisible);
-            centralizedLogin();
-            $(window).on('resize', centralizedLogin);
-        }, 500); /* @TODO verifica a cada 500ms, substituir no futuro por evento de login */
-    });
+    // controller.registerTrigger("bootstrap::end", "authentication::centralized", (obj, callback) => {
+    //     const loginElement = $(".login");
+    //
+    //     let centralizedLogin = () => {
+    //         if (loginElement.height() < $(window).height())
+    //             loginElement.css({top: '50%', 'margin-top' : (loginElement.height() / 2) * - 1});
+    //     };
+    //
+    //     callback();
+    //
+    //     let loginVisible = setInterval(() => {
+    //         if (loginElement.is(":visible"))
+    //             clearInterval(loginVisible);
+    //         centralizedLogin();
+    //         $(window).on('resize', centralizedLogin);
+    //     }, 500); /* @TODO verifica a cada 500ms, substituir no futuro por evento de login */
+    // });
 
     /**
      * Registra o formulário

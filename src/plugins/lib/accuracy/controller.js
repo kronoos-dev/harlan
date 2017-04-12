@@ -24,12 +24,10 @@ module.exports = function (controller) {
     };
 
     let objectConfirm = (obj, callback) => {
-        controller.call("accuracy::checkin::picture", obj, () => {
-            controller.confirm({}, () => {
-                controller.sync.job("accuracy::checkin::send", obj);
-                callback();
-            }, () => render());
-        }, cameraErrorCallback);
+        controller.confirm({}, () => {
+            controller.sync.job("accuracy::checkin::send", obj);
+            callback();
+        }, () => render());
     };
 
     let checkout = () => {
@@ -39,17 +37,19 @@ module.exports = function (controller) {
                 subtitle: `Prosseguir com checkout do local ${as.applicationState.store.name}.`,
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o checkout. ${distantMessage(obj)}`
             }, () => {
-                controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
-                (response) => {
-                    obj[0].token = as.applicationState.checkin[0].token;
-                    obj[0].questions = response;
-                    objectConfirm(obj, () => {
-                        render({
-                            status: 'checkin',
-                            checkout: obj
+                controller.call("accuracy::checkin::picture", obj, () => {
+                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
+                    (response) => {
+                        obj[0].token = as.applicationState.checkin[0].token;
+                        obj[0].questions = response;
+                        objectConfirm(obj, () => {
+                            render({
+                                status: 'campaign',
+                                checkout: obj
+                            });
                         });
-                    });
-                }, () => render(), {title: "Perguntas do checkout"});
+                    }, () => render(), {title: "Perguntas do checkout"});
+                }, cameraErrorCallback);
             }, () => {
                 if (navigator.app && navigator.app.exitApp) {
                     navigator.app.exitApp();
@@ -70,17 +70,19 @@ module.exports = function (controller) {
                 subtitle: `Prosseguir com local ${as.applicationState.store.name}.`,
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o check-in. ${distantMessage(obj)}`
             }, () => {
-                controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
-                    return q.is_checkin == "Y";
-                }), (response) => {
-                    obj[0].questions = response;
-                    objectConfirm(obj, () => {
-                        render({
-                            status: 'checkout',
-                            checkin: obj
+                controller.call("accuracy::checkin::picture", obj, () => {
+                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
+                        return q.is_checkin == "Y";
+                    }), (response) => {
+                        obj[0].questions = response;
+                        objectConfirm(obj, () => {
+                            render({
+                                status: 'checkout',
+                                checkin: obj
+                            });
                         });
                     });
-                });
+                }, cameraErrorCallback);
             }, () => render({status: 'campaign'}));
         }, geolocationErrorCallback);
     };
@@ -94,7 +96,7 @@ module.exports = function (controller) {
             let list = $("<ul />");
 
             campaignContainer.prepend($("<p />").text("Selecione uma das campanhas abaixo para começar."))
-                             .prepend($("<h2 />").text("Seleção de Campanha"));
+            .prepend($("<h2 />").text("Seleção de Campanha"));
             campaignContainer.append(content);
             content.append(list);
             applicationElement.append(campaignContainer);
@@ -114,6 +116,14 @@ module.exports = function (controller) {
 
             contentMenu.append($("<li />").append($("<a />").attr({
                 href: "#"
+            }).text("Atualizar").click((e) => {
+                e.preventDefault();
+                render();
+            })));
+
+
+            contentMenu.append($("<li />").append($("<a />").attr({
+                href: "#"
             }).text("Sair").click((e) => {
                 e.preventDefault();
                 controller.call("accuracy::logout");
@@ -128,18 +138,18 @@ module.exports = function (controller) {
                 });
 
                 campaignElement
-                    .append($("<img />").attr({
-                        src: campaign.avatar
-                    }).addClass("accuracy-campaign-image"))
-                    .append($("<span />")
-                    .text(campaign.name)
-                    .addClass("accuracy-campaign-title"));
+                .append($("<img />").attr({
+                    src: campaign.avatar
+                }).addClass("accuracy-campaign-image"))
+                .append($("<span />")
+                .text(campaign.name)
+                .addClass("accuracy-campaign-title"));
 
                 list.append(campaignElement);
             });
 
         }, () => fatalError("Não há como baixar as campanhas.",
-            "É necessária ao menos uma campanha para continuar."));
+        "É necessária ao menos uma campanha para continuar."));
     };
 
     let campaignStores = (campaign) => {
@@ -148,7 +158,7 @@ module.exports = function (controller) {
         modal.subtitle("Escolha a loja em que será realizada a ação.");
         modal.paragraph("Selecione abaixo a loja em que será realizada a ação.");
         let form = modal.createForm(),
-            storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, (s) => s.name));
+        storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, (s) => s.name));
         form.addSubmit("submit", "Selecionar Loja");
         modal.createActions().cancel();
         form.element().submit((e) => {
@@ -172,13 +182,13 @@ module.exports = function (controller) {
         if (!as) return;
         switch (as.applicationState.status) {
             case 'checkout':
-                checkout();
-                break;
+            checkout();
+            break;
             case 'checkin':
-                checkin();
-                break;
+            checkin();
+            break;
             default:
-                campaign();
+            campaign();
         }
     };
 
