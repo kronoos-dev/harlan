@@ -13,7 +13,7 @@ module.exports = (controller) => {
         modal.paragraph("É importante manter um histórico do que houve no contato com o cliente, por favor, conte para nós.");
         let list = modal.createForm().createList(),
             actions = modal.createActions();
-        actions.add("Novo Contato").click((e) => controller.click(e, "dive::history::new", entity, () => more(null, 0, e)));
+        actions.add("Novo Contato").click(controller.click("dive::history::new", entity, () => more(null, 0, e)));
         let more,
             observation = actions.observation("Carregando"),
             backButton = actions.add("Voltar Página").click((e) => more(e, -1)),

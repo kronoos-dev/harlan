@@ -35,7 +35,7 @@ module.exports = (controller) => {
         $(".app-content").prepend(section);
 
         controller.call("tooltip", actions, "Pesquisar").append($("<i />").addClass("fa fa-search"))
-            .click((e) => controller.click(e, "socialprofile", entity.label, undefined, undefined, (report) => {
+            .click(controller.click("socialprofile", entity.label, undefined, undefined, (report) => {
             report.element().append(section);
         }));
 

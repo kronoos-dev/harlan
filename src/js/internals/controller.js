@@ -139,14 +139,22 @@ var Controller = function() {
         };
     };
 
-    this.click = (e, name, ...parameters) => {
-        e.preventDefault();
-        this.call(name, ...parameters);
+    this.click = (name, ...parameters) => {
+        return e => {
+            e.preventDefault();
+            this.call(name, ...parameters);
+        };
     };
+
+    this.event = this.click;
 
     this.call = (name, ...parameters) => {
         console.log(':: call ::', name, parameters);
-        assert.ok(name in calls);
+        if (!(name in calls)) {
+            console.error(`Failed! ${name} not found.`);
+            return null;
+        }
+
         var data = calls[name](...parameters);
         this.trigger(`call::${name}`, parameters);
         return data;
