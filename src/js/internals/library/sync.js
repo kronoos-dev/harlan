@@ -78,7 +78,7 @@ export default class Sync {
             return;
         }
 
-        controller.trigger("sync::start");
+        this.controller.trigger("sync::start");
 
         this.q = new queue((task, cb) => {
             this.controller.call(task.call, (err) => {
@@ -88,7 +88,7 @@ export default class Sync {
         });
 
         this.q.drain = (...args) => {
-            controller.trigger("sync::end", args);
+            this.controller.trigger("sync::end", args);
             end(...args);
         };
 
