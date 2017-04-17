@@ -262,8 +262,8 @@ module.exports = function(c) {
                         "Cheque CMC7 " + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, "")),
                         separatorData);
 
-                        c.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click((e) => c.click(e, "icheques::item::edit", check));
-                        c.call("tooltip", separatorData.menu, "Histórico do Cheque").append($("<i />").addClass("fa fa-history")).click((e) => c.click(e, "icheques::history", check));
+                        c.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click(c.click("icheques::item::edit", check));
+                        c.call("tooltip", separatorData.menu, "Histórico do Cheque").append($("<i />").addClass("fa fa-history")).click(c.click("icheques::history", check));
 
                         if (c.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
                             c.call("tooltip", separatorData.menu, "Histórico de Cobrança").append($("<i />").addClass("fa fa-bullseye")).click((e) => {
@@ -279,7 +279,7 @@ module.exports = function(c) {
                                         modal.paragraph("Este um histórico do que houve no contato com o sacado informado pela operadora de cobranças.");
                                         let list = modal.createForm().createList(),
                                         actions = modal.createActions();
-                                        actions.add("Novo Contato").click((e) => c.click(e, "dive::history::new", entity, () => more(null, 0, e)));
+                                        // actions.add("Novo Contato").click(c.click("dive::history::new", entity, () => more(null, 0)));
                                         let more,
                                         observation = actions.observation("Carregando"),
                                         backButton = actions.add("Voltar Página").click((e) => more(e, -1)),
