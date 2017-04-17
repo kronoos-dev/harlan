@@ -49,7 +49,9 @@ externalJsSources = [
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`,
-];
+],
+ichequesKeystore = "icheques.keystore",
+accuracyKeystore = "accuracy.keystore";
 
 function i18n(locale) {
     return gulp.src("src/js/internals/i18n/" + locale + "/**/*.json")
@@ -308,7 +310,7 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
-gulp.task("cordova:copy-files", () => {
+gulp.task("app:copy-files", () => {
     return gulp.src([
         `Server/web/**`,
         `!Server/web/images/bg/**/*.{jpg,jpeg}`,
@@ -316,18 +318,10 @@ gulp.task("cordova:copy-files", () => {
     ])
     .pipe(gulp.dest("cordova/accuracy/www"))
     .pipe(gulp.dest("cordova/icheques/www"))
-    .pipe($.size({title: ">>> cordova:copy-files"}));
+    .pipe($.size({title: ">>> app:copy-files"}));
 });
 
-gulp.task("build:cordova:icheques", ["cordova:copy-files"], $.shell.task("cordova build android", {
-    cwd: './cordova/icheques'
-}));
-
-gulp.task("build:cordova:accuracy", ["cordova:copy-files"], $.shell.task("cordova build android", {
-    cwd: './cordova/accuracy'
-}));
-
-gulp.task("build:cordova", ["build:cordova:icheques", "build:cordova:accuracy"]);
+gulp.task("build:cordova", ["build:app:icheques", "build:app:accuracy"]);
 
 gulp.task("build:application", ["jshint", "i18n"], () => {
     return browserify({
@@ -431,7 +425,10 @@ gulp.task("default", cb => {
     return runSequence("build", "watch", cb);
 });
 
-
+gulp.task("clean", () => {
+    return gulp.src(["Server/web", "cordova/*/www"])
+        .pipe($.clean({force:true}));
+})
 
 gulp.task("build", cb => {
     const leaves = [
@@ -446,8 +443,8 @@ gulp.task("build", cb => {
         "inflate"
     ];
 
-    return runSequence(
-        ["build:plugins", "build:installer", "build:tests", "build:images"],
+    return runSequence("clean", "build:images",
+        ["build:plugins", "build:installer", "build:tests"],
         leaves,
         cb
     );
@@ -490,24 +487,45 @@ gulp.task("watch", () => {
     ], () => runSequence("build:plugins", reload));
 });
 
-gulp.task("install:cordova:icheques", ["cordova:copy-files"],
+gulp.task("build:app:icheques", ["app:copy-files"],
+$.shell.task(`cordova build android --release -- "--keystore=${ichequesKeystore}" --alias=icheques --password=icheques`, {
+    cwd: './cordova/icheques'
+}));
+
+gulp.task("build:app", ["build:app:icheques", "build:app:accuracy"]);
+
+gulp.task("build:app:accuracy", ["app:copy-files"],
+$.shell.task(`cordova build android --release -- "--keystore=${accuracyKeystore}" --alias=accuracy --password=accuracy`, {
+    cwd: './cordova/accuracy'
+}));
+
+gulp.task("release:app:accuracy", () => {
+    return runSequence("build", "build:app:accuracy");
+});
+
+gulp.task("release:app:icheques", () => {
+    return runSequence("build", "build:app:icheques");
+});
+
+
+gulp.task("install:app:icheques", ["app:copy-files"],
 $.shell.task("cordova run android", {
     cwd: './cordova/icheques'
 }));
 
-gulp.task("install:cordova:accuracy", ["cordova:copy-files"],
+gulp.task("install:app:accuracy", ["app:copy-files"],
 $.shell.task("cordova run android", {
     cwd: './cordova/accuracy',
 }));
 
-gulp.task("watch:cordova:accuracy", ["watch"], () => {
+gulp.task("watch:app:accuracy", ["watch"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
-        return runSequence("cordova:copy-files", "install:cordova:accuracy");
+        return runSequence("app:copy-files", "install:app:accuracy");
     });
 });
 
-gulp.task("watch:cordova:icheques", ["watch"], () => {
+gulp.task("watch:app:icheques", ["watch"], () => {
     gulp.watch(["Server/web/**/*"], function (event) {
-        return runSequence("cordova:copy-files", "install:cordova:icheques");
+        return runSequence("app:copy-files", "install:app:icheques");
     });
 });

@@ -39,7 +39,7 @@ module.exports = function (controller) {
                     blockui.mainContainer.remove();
                 } else {
                     if (!--rcounter) {
-                        logo.css({animation:null});
+                        logo.css({animation:"none"});
                     }
                 }
                 if (complete) complete(...args);
