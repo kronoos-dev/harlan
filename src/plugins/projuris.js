@@ -96,7 +96,7 @@
         var resultNode = controller.call("result");
         resultNode.addItem("Título", jnode.attr("label"));
         resultNode.addItem("Versão", jnode.attr("version") || "0").addClass("center");
-        resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center").addClass("center");
+        resultNode.addItem("Criação", moment(jnode.attr("created")).format('L')).addClass("center");
         resultNode.addItem("Atualização", moment(jnode.attr("nextJob")).fromNow());
 
         var sigla = jnode.find("data").text().match(REGEX_SIGLA);
@@ -113,6 +113,20 @@
         if (parameter) {
             resultNode.addItem(parameter[1], parameter[2]);
         }
+
+        resultNode.addIcon("Remover", "fa-times", () => {
+            controller.confirm({}, () => {
+                controller.server.call("DELETE FROM 'PUSHJURISTEK'.'JOB'",
+                    controller.call("error::ajax", controller.call("loader::ajax", {
+                    data: {
+                        id: jnode.attr("id")
+                    },
+                    success: data => {
+                        resultNode.element().remove();
+                    }
+                })));
+            });
+        });
 
         return resultNode.element().addClass("table");
     });

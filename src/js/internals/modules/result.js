@@ -115,6 +115,21 @@ module.exports = (controller) =>  {
             return this.addItem(name, moment(value, fromFormat).format(toFormat), tagname);
         };
 
+        this.addIcon = (name, icon, action) => {
+            var node = $("<div />").addClass("field icon");
+
+            node.append($("<div />").addClass("value")
+                .append($("<i />").addClass(`fa ${icon}`))).click((e) => {
+                    e.preventDefault();
+                    if (action) action();
+            });
+
+            node.append($("<div />").addClass("name").text(name));
+            content.append(node);
+
+            return node;
+        };
+
         this.addItem = (name, value, tagname) =>  {
             var node = $("<div />").addClass("field");
 

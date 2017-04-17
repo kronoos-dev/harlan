@@ -453,6 +453,18 @@ label {
             &.strong .value {
                 font-weight: bolder;
             }
+            &.icon {
+                text-align: center;
+                width: 50px;
+                .value {
+                    text-align: center;
+                    background: #fff;
+                    border-radius: 5px;
+                    vertical-align: top;
+                    cursor: pointer;
+                    padding: 6px;
+                }
+            }
         }
         &.table {
             .field {
