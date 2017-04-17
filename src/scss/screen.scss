@@ -22,6 +22,11 @@
 @import "mixins";
 @import "keyframes";
 
+input, button, textarea {
+    -webkit-appearance: none;
+    -webkit-border-radius: 0px;
+}
+
 input {
     @include input-placeholder {
         color: rgb(169, 169, 169);

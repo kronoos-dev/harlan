@@ -27,9 +27,7 @@ module.exports = function(controller) {
                             luminosity: 'bright',
                             format: 'rgb' // e.g. 'rgb(225,200,20)'
                         })),
-                    fillColor = new Color(color.object());
-
-                    fillColor.fade(0.7);
+                    fillColor = new Color(color.object()).fade(0.7);
 
                     datasets[id] = {
                         color: color,
