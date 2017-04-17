@@ -74,39 +74,29 @@ module.exports = (controller) => {
             }]);
         sectionDocumentGroup[1].append(juntaEmpresaHTML);
 
-        controller.serverCommunication.call("SELECT FROM 'SEEKLOC'.'CCF'", {
-            data: {
-                documento: val
-            },
-            success: (ret) => {
-                let totalRegistro = parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
-                if (!totalRegistro) {
-                    appendMessage("sem cheques devolvidos");
-                    return;
-                }
-                let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
-                    v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
-                appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
-                sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+        (function () {
+            let totalRegistro = parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
+            if (!totalRegistro) {
+                appendMessage("sem cheques devolvidos");
+                return;
             }
-        });
+            let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
+                v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
+            appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
+            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+        })();
 
-        controller.serverCommunication.call("SELECT FROM 'IEPTB'.'WS'", {
-            data: {
-                documento: val
-            },
-            success: (ret) => {
-                if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
-                    appendMessage("sem protestos");
-                    return;
-                }
-                let totalProtestos = $("protestos", ret)
-                    .get()
-                    .map((p) => parseInt($(p).text()))
-                    .reduce((a, b) => a + b, 0);
-                appendMessage(`total de protestos: ${totalProtestos}`);
-                sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+        (function () {
+            if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
+                appendMessage("sem protestos");
+                return;
             }
-        });
+            let totalProtestos = $("protestos", ret)
+                .get()
+                .map((p) => parseInt($(p).text()))
+                .reduce((a, b) => a + b, 0);
+            appendMessage(`total de protestos: ${totalProtestos}`);
+            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+        })();
     });
 };
