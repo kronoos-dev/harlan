@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.bipbop.accuracy" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Accuracy</name>
+<widget id="com.bipbop.accuracy" version="3.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>AccuracyAPP</name>
     <description>
-	Aplicativo para checkin de promoteres de evento.
+        Aplicativo voltado para promotoras de Pontos de Venda (PDV) para realizar o check-in e check-out.
     </description>
+    <preference name="android-minSdkVersion" value="16"/>
     <author email="lf.amorim@bipbop.com.br" href="http://www.bipbop.com.br">
         Lucas Fernando Amorim
     </author>
@@ -55,7 +56,7 @@
         <icon src="res/android/icon/drawable-mdpi-icon.png" density="mdpi" />
         <icon src="res/android/icon/drawable-hdpi-icon.png" density="hdpi" />
         <icon src="res/android/icon/drawable-xhdpi-icon.png" density="xhdpi" />
-        <icon src="res/android/icon/drawable-xhdpi-icon.png" density="xxhdpi" />
-        <icon src="res/android/icon/drawable-xhdpi-icon.png" density="xxxhdpi" />
+        <icon src="res/android/icon/drawable-xxhdpi-icon.png" density="xxhdpi" />
+        <icon src="res/android/icon/drawable-xxxhdpi-icon.png" density="xxxhdpi" />
     </platform>
 </widget>

@@ -17,6 +17,12 @@ module.exports = function (controller) {
     let rcounter = 0;
     controller.accuracyServer = {
         call : (path, data, dict, loader = false) => {
+            if (controller.confs.isCordova && navigator.connection && navigator.connection.type === Connection.NONE) {
+                if (dict.error) dict.error();
+                if (dict.error) dict.complete();
+                return;
+            }
+
             let blockui, timeout;
             if (loader) {
                 blockui = controller.call("blockui", {

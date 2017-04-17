@@ -26,7 +26,12 @@ module.exports = function (controller) {
             callback(obj);
         }, cameraErrorCallback, {
             quality: 50,
-            destinationType: Camera.DestinationType.FILE_URI
+            targetWidth: 600,
+            targetHeight: 600,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            destinationType: Camera.DestinationType.FILE_URI,
+            saveToPhotoAlbum: false,
+            correctOrientation: true
         });
     });
 
@@ -82,9 +87,11 @@ module.exports = function (controller) {
             blockui.message.text("Estamos demorando para capturar sua localização. Experimente ir para um local aberto, certifique de ativar o Wi-Fi, dados e GPS.");
         }, 6000);
 
+
         navigator.geolocation.getCurrentPosition((position) => {
             clearTimeout(timeout);
             blockui.mainContainer.remove();
+            let distance = DistanceMeter(store.coordinates, position.coords);
             callback([{
                 type: type,
                 time: moment().format("HH:mm"),
@@ -99,7 +106,7 @@ module.exports = function (controller) {
                     local: `${position.coords.latitude},${position.coords.longitude}`,
                     store: store.coordinates
                 },
-                approved: store.coordinates ? (DistanceMeter(store.coordinates, position.coords) >
+                approved: store.coordinates ? (distance >
                     controller.confs.accuracy.geofenceLimit ? "N" : "Y") : "Y"
             }]);
         }, (...args) => {

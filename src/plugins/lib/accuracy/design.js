@@ -1,5 +1,7 @@
 import { CPF } from 'cpf_cnpj';
 
+const logoCaller = $(".accuracy-app .logo span i");
+
 module.exports = function (controller) {
 
     /* Design SCSS do Accuracy APP */
@@ -15,6 +17,16 @@ module.exports = function (controller) {
     const inputDocument = $(".login #input-cpf")
         .mask('000.000.000-00', {reverse: true});
 
+
+    let showCounter = () => {
+        let length = controller.sync.queueLength();
+        logoCaller.text(length ? length.toString() : "");
+    };
+
+    controller.registerTrigger("sync::change", "accuracy", (opts, cb) => {
+        cb();
+        showCounter();
+    });
 
     /* Verifica se o usuário já está logado */
     controller.call("accuracy::authentication", () => {

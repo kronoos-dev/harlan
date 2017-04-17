@@ -8,9 +8,9 @@ module.exports = function (controller) {
                 labelPosition: "before",
                 name: `id_${question.id}`,
                 type: "select",
-                placeholder: question.question,
                 labelText: question.question,
                 optional: false,
+                placeholder: "",
                 list: {
                     "" : "Selecione uma resposta",
                     "Y": "Sim",
@@ -45,7 +45,7 @@ module.exports = function (controller) {
         return {
             name: `id_${question.id}`,
             type: "textarea",
-            placeholder: question.question,
+            placeholder: "",
             labelText: question.question,
             optional: false,
             labelPosition: "before",

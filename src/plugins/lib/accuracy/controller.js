@@ -18,7 +18,7 @@ module.exports = function (controller) {
     let fatalError = (title, message) => {
         return controller.alert({
             title: title,
-            message: message,
+            subtitle: message,
             paragraph: "Ocorreu um erro fatal e o programa será finalizado, tente novamente mais tarde."
         }, () => navigator.app.exitApp());
     };
@@ -59,7 +59,7 @@ module.exports = function (controller) {
     };
 
     let distantMessage = (obj) => {
-        return obj.approved === "Y" ? "Esta ação está pré-aprovada pelo administrador." :
+        return obj[0].approved === "Y" ? "Esta ação está pré-aprovada pelo administrador." :
         "<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>";
     };
 

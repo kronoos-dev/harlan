@@ -82,7 +82,10 @@ export default class Sync {
 
         this.q = new queue((task, cb) => {
             this.controller.call(task.call, (err) => {
-                if (!err) this.drop(task.jobId);
+                if (!err) {
+                    this.drop(task.jobId);
+                    this.controller.trigger("sync::change");
+                }
                 cb(err);
             }, ...task.parameters);
         });
@@ -128,6 +131,7 @@ export default class Sync {
         localStorage[key] = JSON.stringify([call, parameters]);
         if (!localStorage.syncTasks) localStorage.syncTasks = "";
         localStorage.syncTasks += `%${key}`;
+        this.controller.trigger("sync::change");
     }
 
 }
