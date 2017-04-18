@@ -7,7 +7,14 @@ module.exports = function (controller) {
 
     controller.registerCall("accuracy::createStore", () => {
         var form = controller.call("form", (opts) => {
-            controller.accuracyServer.call("./saveStore/", opts, {
+            let formdata = new FormData();
+            for (let key in opts) formdata.append(key, opts[key]);
+            controller.accuracyServer.call("./saveStore", {}, {
+                type: 'POST',
+                data: formdata,
+                cache: false,
+                contentType: false,
+                processData: false,
                 success: (ret) => toastr.success("Loja criada com sucesso", "Já está disponível a loja no dashboard de usuário para começar a realizar os check-ins."),
                 error: () => toastr.error("Não foi possível criar a loja", "Verifique sua conexão com a internet e tente novamente mais tarde.")
             });
@@ -57,6 +64,11 @@ module.exports = function (controller) {
                         "optional": true,
                         "placeholder": "Complemento"
                     }, {
+                        "name": "neighborhood",
+                        "optional": false,
+                        "type": "text",
+                        "placeholder": "Bairro"
+                    }, {
                         "name": "city",
                         "optional": false,
                         "type": "text",
@@ -68,33 +80,33 @@ module.exports = function (controller) {
                         "placeholder": "Estado",
                         "list": {
                             "": "Escolha um estado",
-                            "AC": "Acre",
-                            "AL": "Alagoas",
-                            "AM": "Amazonas",
-                            "AP": "Amapá",
-                            "BA": "Bahia",
-                            "CE": "Ceará",
-                            "DF": "Distrito Federal",
-                            "ES": "Espírito Santo",
-                            "GO": "Goiás",
-                            "MA": "Maranhão",
-                            "MT": "Mato Grosso",
-                            "MS": "Mato Grosso do Sul",
-                            "MG": "Minas Gerais",
-                            "PA": "Pará",
-                            "PB": "Paraíba",
-                            "PR": "Paraná",
-                            "PE": "Pernambuco",
-                            "PI": "Piauí",
-                            "RJ": "Rio de Janeiro",
-                            "RN": "Rio Grande do Norte",
-                            "RS": "Rio Grande do Sul",
-                            "RO": "Rondônia",
-                            "RR": "Roraima",
-                            "SC": "Santa Catarina",
-                            "SP": "São Paulo",
-                            "SE": "Sergipe",
-                            "TO": "Tocantins"
+                            "Acre": "Acre",
+                            "Alagoas": "Alagoas",
+                            "Amazonas": "Amazonas",
+                            "Amapá": "Amapá",
+                            "Bahia": "Bahia",
+                            "Ceará": "Ceará",
+                            "Distrito Federal": "Distrito Federal",
+                            "Espírito Santo": "Espírito Santo",
+                            "Goiás": "Goiás",
+                            "Maranhão": "Maranhão",
+                            "Mato Grosso": "Mato Grosso",
+                            "Mato Grosso do Sul": "Mato Grosso do Sul",
+                            "Minas Gerais": "Minas Gerais",
+                            "Pará": "Pará",
+                            "Paraíba": "Paraíba",
+                            "Paraná": "Paraná",
+                            "Pernambuco": "Pernambuco",
+                            "Piauí": "Piauí",
+                            "Rio de Janeiro": "Rio de Janeiro",
+                            "Rio Grande do Norte": "Rio Grande do Norte",
+                            "Rondônia": "Rondônia",
+                            "Rio Grande do Sul": "Rio Grande do Sul",
+                            "Roraima": "Roraima",
+                            "Santa Catarina": "Santa Catarina",
+                            "Sergipe": "Sergipe",
+                            "São Paulo": "São Paulo",
+                            "Tocantins": "Tocantins"
                         }
                     },
                     {
@@ -115,7 +127,7 @@ module.exports = function (controller) {
                             return PHONE_REGEX.test(item.element.val());
                         }
                     },{
-                        "name": "cell",
+                        "name": "cellphone",
                         "optional": false,
                         "type": "text",
                         "mask": "(00) 0000-00009",
