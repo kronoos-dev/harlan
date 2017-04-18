@@ -43,8 +43,7 @@ module.exports = function(controller) {
             e.preventDefault();
             controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'", {
                 data: {
-                    postPaid: "true",
-                    limit: 3
+                    postPaid: "true"
                 },
                 success: function(response) {
                     $("BPQL > body > company", response).each(function(idx, companyNode) {
