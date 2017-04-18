@@ -12,7 +12,7 @@ module.exports = function (controller) {
     controller.unregisterTrigger("bootstrap::end", "authentication::bootstrap");
     controller.unregisterTrigger("bootstrap::end", "authentication::centralized");
 
-    $(".accuracy-app").css({display: "block"});
+    $(".accuracy-app").removeAttr("style");
 
     /* Input de authentication */
     const inputDocument = $(".login #input-cpf")

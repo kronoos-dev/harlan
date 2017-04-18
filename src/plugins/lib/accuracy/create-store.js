@@ -45,7 +45,7 @@ module.exports = function (controller) {
                     }, {
                         "name": "ie",
                         "placeholder": "Inscrição Estadual",
-                        "optional": false,
+                        "optional": true,
                     }, {
                         "name": "address",
                         "optional": false,
@@ -65,7 +65,7 @@ module.exports = function (controller) {
                         "placeholder": "Complemento"
                     }, {
                         "name": "neighborhood",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "placeholder": "Bairro"
                     }, {
@@ -111,7 +111,7 @@ module.exports = function (controller) {
                     },
                     {
                         "name": "email",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "placeholder": "E-mail",
                         "validate": (item) => {
@@ -119,7 +119,7 @@ module.exports = function (controller) {
                         }
                     } ,{
                         "name": "phone",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "mask": "(00) 0000-00009",
                         "placeholder": "Telefone de Contato",
@@ -128,7 +128,7 @@ module.exports = function (controller) {
                         }
                     },{
                         "name": "cellphone",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "mask": "(00) 0000-00009",
                         "placeholder": "Celular de Contato",
@@ -156,13 +156,13 @@ module.exports = function (controller) {
                     },
                     {
                         "name": "manager",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "placeholder": "Gerente"
                     },
                     {
                         "name": "note",
-                        "optional": false,
+                        "optional": true,
                         "type": "text",
                         "placeholder": "Nota"
                     },
