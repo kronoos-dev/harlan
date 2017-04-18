@@ -59,8 +59,8 @@ module.exports = function (controller) {
     };
 
     let distantMessage = (obj) => {
-        return obj[0].approved === "Y" ? "Esta ação está pré-aprovada pelo administrador." :
-        "<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>";
+        return obj[0].approved === "Y" ? "" :
+            "<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>";
     };
 
     let checkin = () => {
