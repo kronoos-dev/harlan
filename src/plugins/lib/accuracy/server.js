@@ -19,7 +19,7 @@ module.exports = function (controller) {
         call : (path, data, dict, loader = false) => {
             if (controller.confs.isCordova && navigator.connection && navigator.connection.type === Connection.NONE) {
                 if (dict.error) dict.error();
-                if (dict.error) dict.complete();
+                if (dict.complete) dict.complete();
                 return;
             }
 
