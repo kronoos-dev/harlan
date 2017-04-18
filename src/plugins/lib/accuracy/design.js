@@ -1,17 +1,18 @@
 import { CPF } from 'cpf_cnpj';
 
-const logoCaller = $(".accuracy-app .logo span i");
+const logoCaller = $(".accuracy-app .logo i");
 
 module.exports = function (controller) {
 
     /* Design SCSS do Accuracy APP */
     require("../../styles/accuracy.js");
-
     controller.unregisterTrigger("authentication::authenticated", "welcomeScreen::authenticated");
     controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
     controller.unregisterTrigger("bootstrap::end", "smartsupp");
     controller.unregisterTrigger("bootstrap::end", "authentication::bootstrap");
     controller.unregisterTrigger("bootstrap::end", "authentication::centralized");
+
+    $(".accuracy-app").css({display: "block"});
 
     /* Input de authentication */
     const inputDocument = $(".login #input-cpf")

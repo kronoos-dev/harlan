@@ -14,7 +14,7 @@ module.exports = function (controller) {
 
     controller.registerCall("accuracy::campaigns::get", (callback, errorCallback) => {
         let authData = controller.call("accuracy::authentication::data");
-        controller.accuracyServer.call(`./getCampaignsByUser/${authData[0].id}`, {}, {
+        controller.accuracyServer.call(`getCampaignsByUser/${authData[0].id}`, {}, {
             success: (data) => {
                 localStorage.accuracyCampaign = JSON.stringify(data);
                 /* save cache, continue */

@@ -9,7 +9,7 @@ module.exports = function (controller) {
         var form = controller.call("form", (opts) => {
             let formdata = new FormData();
             for (let key in opts) formdata.append(key, opts[key]);
-            controller.accuracyServer.call("./saveStore", {}, {
+            controller.accuracyServer.call("saveStore", {}, {
                 type: 'POST',
                 data: formdata,
                 cache: false,

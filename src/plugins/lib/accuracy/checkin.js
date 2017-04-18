@@ -66,7 +66,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::checkin::send", (cb, obj) => {
-        controller.accuracyServer.call("saveAnswer/", obj, {
+        controller.accuracyServer.call("saveAnswer", obj, {
             success: () => {
                 cb();
                 if (obj[0].uri) {

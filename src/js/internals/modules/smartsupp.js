@@ -2,7 +2,7 @@ module.exports = (controller) => {
 
     controller.registerTrigger('bootstrap::end', 'smartsupp', (data, cb, _smartsupp = {}) => {
         cb();
-
+        if (!controller.confs.smartsupp) return;
         window._smartsupp = _smartsupp;
         window._smartsupp.key = controller.confs.smartsupp;
         (window.smartsupp || (function(d) {
