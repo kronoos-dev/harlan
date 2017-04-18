@@ -426,7 +426,7 @@ gulp.task("default", cb => {
 });
 
 gulp.task("clean", () => {
-    return gulp.src(["Server/web", "cordova/*/www"])
+    return gulp.src(["cordova/*/www"])
         .pipe($.clean({force:true}));
 })
 
