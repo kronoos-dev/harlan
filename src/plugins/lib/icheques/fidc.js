@@ -7,6 +7,7 @@ import MarkdownIt from 'markdown-it';
 import { CMC7Parser } from './cmc7-parser';
 import { titleCase } from 'change-case';
 import { CPF, CNPJ } from 'cpf_cnpj';
+import fdicPrint from './print/fidc.js';
 
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
@@ -132,19 +133,45 @@ module.exports = (controller) => {
                     return element[1] == "financeiro";
                 });
 
+                let companyElement = $.extend({
+                    name: value.company.nome || value.company.responsavel || value.company.username,
+                    document: value.company.cnpj || value.company.cpf,
+                    endereco: value.company.endereco[0],
+                    zipcode: value.company.endereco[5],
+                    numero: value.company.endereco[1],
+                    complemento: value.company.endereco[2],
+                    estado: value.company.endereco[6],
+                    cidade: value.company.endereco[4],
+                    email: emails.length ? emails[0][0] : 0,
+                }, value.profile);
                 var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`, !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
                     ["fa-user", "Informações", () => {
-                        controller.call("icheques::fidc::company::view", $.extend({
-                            name: value.company.nome || value.company.responsavel || value.company.username,
-                            document: value.company.cnpj || value.company.cpf,
-                            endereco: value.company.endereco[0],
-                            zipcode: value.company.endereco[5],
-                            numero: value.company.endereco[1],
-                            complemento: value.company.endereco[2],
-                            estado: value.company.endereco[6],
-                            cidade: value.company.endereco[4],
-                            email: emails.length ? emails[0][0] : 0,
-                        }, value.profile));
+                        controller.call("icheques::fidc::company::view", companyElement);
+                    }],
+                    ["fa-print", "Imprimir", () => {
+
+                        let printData = $.extend({}, companyElement);
+                        printData.document = CNPJ.format(printData.document);
+                        printData.revenue = numeral(printData.revenue).format('$0,0.00');
+                        printData.preBilling = numeral(printData.preBilling).format('$0,0.00');
+                        printData.totalPayroll = numeral(printData.totalPayroll).format('$0,0.00');
+                        printData.locationValue = numeral(printData.locationValue).format('$0,0.00');
+                        printData.monthCheckAmmount = numeral(printData.monthCheckAmmount).format('$0,0.00');
+                        printData.avgCheckAmmount = numeral(printData.avgCheckAmmount).format('$0,0.00');
+                        printData.ownProperty = ["Próprio", "Alugado"][printData.ownProperty];
+                        printData.bulk = ["Concentrados", "Pulverizados", "Mistura de ambos"][printData.bulk];
+                        printData.ownSend = ["Não Possuo", "Própria", "Terceirizada", "Própia e Terceirizada"][printData.ownSend];
+                        printData.checkLiquidity = numeral(printData.checkLiquidity).format("0.00%");
+
+                        let render = Mustache.render(fdicPrint, printData);
+                        let html =  new MarkdownIt().render(render);
+                        let printWindow = window.open("about:blank", "", "_blank");
+
+                        if (!printWindow) return;
+                        html += `<style>${require("./reports/print-style")}</style>`;
+                        printWindow.document.write(html);
+                        printWindow.focus();
+                        printWindow.print();
                     }],
                     [!value.approved ? "fa-check" : "fa-edit", !value.approved ? "Aceitar" : "Editar", () => {
                         controller.confirm({}, () => controller.call("icheques::fidc::allowedCompany::edit", value, t));
