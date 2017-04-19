@@ -24,6 +24,7 @@ module.exports = function (controller) {
         logoCaller.text(length ? length.toString() : "");
     };
 
+    showCounter();
     controller.registerTrigger("sync::change", "accuracy", (opts, cb) => {
         cb();
         showCounter();
