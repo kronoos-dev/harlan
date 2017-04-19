@@ -50,6 +50,14 @@ externalJsSources = [
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`,
 ],
+accuracyJsSources = [
+    `${vendors}/jquery/dist/jquery.js`,
+    `${vendors}/jquery-mask-plugin/src/jquery.mask.js`,
+    `${vendors}/toastr/toastr.js`,
+    `${vendors}/moment/min/moment-with-locales.js`,
+    `${vendors}/numeral/numeral.js`,
+    `${vendors}/numeral/locales/pt-br.js`,
+],
 ichequesKeystore = "icheques.keystore",
 accuracyKeystore = "accuracy.keystore";
 
@@ -310,20 +318,62 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
-gulp.task("app:copy-files", () => {
+gulp.task("app:copy-files:accuracy", () => {
+    return gulp.src([
+        "Server/web/images/accuracy/icon.png",
+        "Server/web/images/accuracy/text.png",
+        "Server/web/images/gamification.png",
+        "Server/web/accuracy-cordova.html",
+        "Server/web/js/app-accuracy.js",
+        "Server/web/js/accuracy.js",
+        "Server/web/css/app.css",
+        "Server/web/fonts/fontawesome-webfont.eot",
+        "Server/web/fonts/fontawesome-webfont.svg",
+        "Server/web/fonts/FontAwesome.otf",
+        "Server/web/fonts/fontawesome-webfont.woff",
+        "Server/web/fonts/fontawesome-webfont.woff2",
+        "Server/web/fonts/fontawesome-webfont.ttf",
+    ], {base: "Server/web"})
+    .pipe(gulp.dest("cordova/accuracy/www"))
+    .pipe($.size({title: ">>> app:copy-files"}));
+});
+
+
+gulp.task("app:copy-files", ["app:copy-files:accuracy"], () => {
     return gulp.src([
         `Server/web/**`,
         `!Server/web/images/bg/**/*.{jpg,jpeg}`,
         `!Server/web/js/**/*.{gz,map}`
     ])
-    .pipe(gulp.dest("cordova/accuracy/www"))
     .pipe(gulp.dest("cordova/icheques/www"))
     .pipe($.size({title: ">>> app:copy-files"}));
 });
 
 gulp.task("build:cordova", ["build:app:icheques", "build:app:accuracy"]);
 
-gulp.task("build:application", ["jshint", "i18n"], () => {
+gulp.task("build:application:accuracy", ["jshint"], () => {
+    return browserify({
+        entries: `${src}/js/app-accuracy.js`,
+        debug: true
+    })
+    .transform(babelify, {presets: ["es2015"]})
+    .bundle()
+    .pipe(source("app-accuracy.js"))
+    .pipe(buffer())
+    .pipe($.preprocess(PREPROCESSOR_CONTEXT))
+    .pipe($.addSrc(accuracyJsSources))
+    .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
+    .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.concat("app-accuracy.js"))
+    .pipe($.if(DEVEL, $.sourcemaps.write(".")))
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.pako.gzip())
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.size({title: ">>> build:application"}));
+});
+
+gulp.task("build:application:main", ["jshint", "i18n"], () => {
     return browserify({
         entries: `${src}/js/app.js`,
         debug: true
@@ -344,6 +394,8 @@ gulp.task("build:application", ["jshint", "i18n"], () => {
     .pipe(gulp.dest(`${dist}/js`))
     .pipe($.size({title: ">>> build:application"}));
 });
+
+gulp.task("build:application", ["build:application:accuracy", "build:application:main"]);
 
 gulp.task("build:images:vector", () => {
     return gulp.src([

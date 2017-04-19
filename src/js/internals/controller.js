@@ -3,34 +3,18 @@ import assert from 'assert';
 import url from 'url';
 import _ from 'underscore';
 
-import ServerCommunication from './library/server-communication';
-import ImportXMLDocument from './library/import-xml-document';
-import Interface from './library/interface';
-import I18n from './library/i18n';
-import Store from './library/store';
 import Sync from './library/sync';
 
 var Controller = function() {
 
-    this.database = new SQL.Database();
     this.confs = require('./config');
-    var language = null;
-
-    this.i18n = new I18n(localStorage.language ||
-        navigator.language ||
-        navigator.userLanguage || 'pt', this);
-
-    this.sync = new Sync(this);
-
-    this.language = () => {
-        return language;
-    };
 
     var bootstrapCalls = {};
     var calls = {};
     var events = {};
 
     this.endpoint = {};
+    this.sync = new Sync(this);
 
     /**
      * List all possible calls
@@ -47,7 +31,6 @@ var Controller = function() {
         return this;
     };
 
-    this.interface = new Interface(this);
 
     this.unregisterTriggers = (name, except = []) => {
         for (let i in events[name]) {
@@ -160,10 +143,6 @@ var Controller = function() {
         return data;
     };
 
-    this.server = this.serverCommunication = new ServerCommunication(this);
-    this.xml = this.importXMLDocument = new ImportXMLDocument(this);
-
-    this.store = new Store(this);
 
     this.run = () => {
         var calls = bootstrapCalls; /* prevent race cond */
@@ -175,97 +154,10 @@ var Controller = function() {
         });
     };
 
-    /* Service Worker */
-    require('./modules/service-worker')(this);
-
-    /* Parsers */
-    require('./parsers/placas-wiki')(this);
-    require('./parsers/cbusca')(this);
-    require('./parsers/ccbusca')(this);
-    require('./parsers/ccf')(this);
-    require('./parsers/ieptb')(this);
-    require('./parsers/rfbcnpj')(this);
-    require('./parsers/socialprofile')(this);
-
-    /* Forms */
-    require('./forms/receita-certidao')(this);
-
-    /* Modules */
-    require('./modules/logs/watch-onerror')(this);
-    require('./modules/analytics/google-analytics')(this);
-    require('./modules/security/antiphishing')(this);
-    require('./modules/i18n')(this);
-    require('./modules/bank-account')(this);
-    require('./modules/autocomplete')(this);
-    require('./modules/find-database')(this);
-    require('./modules/loader')(this);
-    require('./modules/error')(this);
-    require('./modules/geolocation')(this);
-    require('./modules/endpoint')(this);
-    require('./modules/database-search')(this);
-    require('./modules/modal')(this);
-    require('./modules/welcome-screen')(this);
-    require('./modules/authentication')(this);
-    require('./modules/report')(this);
-    require('./modules/module')(this);
-    require('./modules/selected-results')(this);
-    require('./modules/find-company')(this);
-    require('./modules/find-document')(this);
-    require('./modules/xml-document')(this);
-    require('./modules/section')(this);
-    require('./modules/iugu')(this);
-    require('./modules/database-error')(this);
-    require('./modules/messages')(this);
-    require('./modules/main-search')(this);
-    require('./modules/oauth-io')(this);
-    require('./modules/url-parameter')(this);
-    require('./modules/result')(this);
-    require('./modules/demonstrate')(this);
-    require('./modules/download')(this);
-    require('./modules/form')(this);
-    require('./modules/forgot-password')(this);
-    require('./modules/iframe-embed')(this);
-    require('./modules/site')(this);
-    require('./modules/placas-wiki')(this);
-    require('./modules/credits')(this);
-    require('./modules/alert')(this);
-    //require('./modules/push-notification')(this);
-    require('./modules/softphone')(this);
-    require('./modules/password')(this);
-    require('./modules/progress')(this);
-    require('./modules/subaccount')(this);
-    require('./modules/more-results')(this);
-    require('./modules/instant-search')(this);
-    require('./modules/tooltip')(this);
-    require('./modules/icheques')(this);
-    require('./modules/dive')(this);
-    require('./modules/socialprofile')(this);
-    require('./modules/kronoos')(this);
-    require('./modules/billing-information')(this);
-    require('./modules/bipbop')(this);
-    require('./modules/admin/index')(this);
-    require('./modules/account-overview')(this);
-    require('./modules/email-activation')(this);
-    require('./modules/timeline')(this);
-    require('./modules/data-company')(this);
-    require('./modules/ccbusca')(this);
-    require('./modules/generate-relations')(this);
-    require('./modules/admin/contact-types')(this);
-    require('./modules/smartsupp')(this);
-    require('./modules/cordova')(this);
-    require('./modules/blockui')(this);
-
     this.registerBootstrap("bootstrap::end", (cb) => {
         cb();
         this.sync.register(this.confs.syncInterval); /* register sync */
     });
-
-    /**
-     * From day to night and night to day
-     * An endless sea of choice
-     * If you should ever lose your way
-     * Just listen to your voice
-     */
 
     return this;
 };

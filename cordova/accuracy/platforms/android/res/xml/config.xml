@@ -66,6 +66,9 @@
     <icon density="xxxhdpi" src="res/android/icon/drawable-xxxhdpi-icon.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="android-minSdkVersion" value="16" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="UIWebViewBounce" value="false" />
+    <preference name="DisallowOverscroll" value="true" />
     <preference name="loadUrlTimeoutValue" value="700000" />
     <preference name="splashScreenDelay" value="10000" />
     <preference name="ErrorUrl" value="cordova-error.html" />
