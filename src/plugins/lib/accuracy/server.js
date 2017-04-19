@@ -18,8 +18,7 @@ module.exports = function (controller) {
     controller.accuracyServer = {
         call : (path, data, dict, loader = false) => {
             let conn = typeof Connection === 'undefined' ? navigator.connection : Connection;
-            if (controller.confs.isCordova && navigator.connection && conn
-                    && navigator.connection.type === conn.NONE) {
+            if (controller.confs.isCordova && navigator.connection && conn && navigator.connection.type === conn.NONE) {
                 if (dict.error) dict.error();
                 if (dict.complete) dict.complete();
                 return;
