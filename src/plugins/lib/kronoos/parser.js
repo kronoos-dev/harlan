@@ -2,6 +2,7 @@ import { CPF, CNPJ } from 'cpf_cnpj';
 import async from "async";
 import _ from "underscore";
 import pad from 'pad';
+import VMasker from 'vanilla-masker';
 
 const NON_NUMBER = /[^\d]/g;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
@@ -63,10 +64,55 @@ export class KronoosParse {
             return;
         }
 
+        this.showCBusca(cbuscaData);
         this.generateRelations = this.controller.call("generateRelations");
         this.generateRelations.appendDocument(cbuscaData, this.cpf_cnpj);
         this.cpf_cnpjs[this.cpf_cnpj] = true;
         this.graphTrack();
+    }
+
+    cbuscaMae(cbuscaData) {
+        let row = {};
+        let maeNode = $("nomemae", cbuscaData);
+        if (maeNode.length && maeNode.text()) {
+            row["Nome da Mãe"] = maeNode.text();
+        }
+
+        let dtNascimento = $("dtnascimento", cbuscaData);
+        if (dtNascimento.length && dtNascimento.text()) {
+            row["Data de Nascimento"] =
+                moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
+        }
+
+        if (!_.keys(row).length) return;
+        this.kelements[0].table(..._.keys(row))(..._.values(row));
+    }
+
+    cbuscaTelefone(cbuscaData) {
+        let telefones = $("telefones telefone", cbuscaData);
+        if (!telefones.length) return;
+
+        let klist = this.kelements[0].list("Telefones");
+        telefones.each(function () {
+            klist(VMasker.toPattern($("ddd", this).text() +
+                $("numero", this).text(), "(99) 9999-99999"));
+        });
+    };
+
+    cbuscaEnderecos(cbuscaData) {
+        let enderecos = $("enderecos endereco", cbuscaData);
+        if (!enderecos.length) return;
+        let klist = this.kelements[0].list("Endereço");
+        enderecos.each(function () {
+            let v = x => $(x, this).text();
+            klist(`${v('tipo')} ${v('logradouro')}, ${v('numero').replace(/^0+/, '')} ${v('complemento')} - ${v('cep')}, ${v('bairro')}, ${v('cidade')} / ${v('estado')}`);
+        });
+    };
+
+    showCBusca(cbuscaData) {
+        this.cbuscaMae(cbuscaData);
+        this.cbuscaTelefone(cbuscaData);
+        this.cbuscaEnderecos(cbuscaData);
     }
 
     searchBovespa() {

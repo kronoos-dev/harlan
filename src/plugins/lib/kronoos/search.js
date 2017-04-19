@@ -269,15 +269,15 @@ module.exports = function(controller) {
             }))));
     });
 
-    controller.registerCall("kronoos::search", (document, name, cbusca) => {
+    controller.registerCall("kronoos::search", (document, name, cbuscaData) => {
         xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
             controller.call("kronoos::status::ajax", "fa-user", `Pesquisando correlações através do nome ${name}, documento ${document}.`, {
                 data: {
                     documento: document,
                     name: `"${name}"`
                 },
-                success: (ret) => {
-                    controller.call("kronoos::jussearch", name, document, ret, cbusca);
+                success: (kronoosData) => {
+                    controller.call("kronoos::parse", name, document, kronoosData, cbuscaData);
                 }
             }))));
     });
