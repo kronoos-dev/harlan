@@ -82,8 +82,8 @@ module.exports = (controller) => {
             }
             let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
                 v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
-            appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
-            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+            appendMessage(`total de registros CCF: ${totalRegistro} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
+            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret, "SEEKLOC", "CCF"));
         })();
 
         (function () {
@@ -96,7 +96,7 @@ module.exports = (controller) => {
                 .map((p) => parseInt($(p).text()))
                 .reduce((a, b) => a + b, 0);
             appendMessage(`total de protestos: ${totalProtestos}`);
-            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret));
+            sectionDocumentGroup[1].append(controller.call("xmlDocument", ret, "IEPTB", "WS"));
         })();
     });
 };

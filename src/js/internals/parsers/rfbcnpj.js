@@ -100,6 +100,7 @@ module.exports = function (controller) {
 
         jdocument.find("BPQL > body telefones").each(function (idx, node) {
             var phone = $(node).text();
+            if (!phone) return;
             phones.push("(" + phone.substring(0,2) + ") " + phone.substring(3, 12));
         });
 
@@ -151,7 +152,7 @@ module.exports = function (controller) {
 
         var capitalSocial = jdocument.find("capitalSocial");
         if (capitalSocial.length) {
-            result.addItem("Capital Social", numeral(capitalSocial.text()).format("'$0,0.00'"), "capitalSocial");
+            result.addItem("Capital Social", numeral(capitalSocial.text().replace('.', ',')).format("'$0,0.00'"), "capitalSocial");
         }
 
         setContact(result, jdocument);
