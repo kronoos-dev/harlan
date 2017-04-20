@@ -31,7 +31,7 @@ module.exports = function(controller) {
     controller.registerTrigger("findDatabase::instantSearch", "admin::postPaid", function(args, callback) {
         callback();
         var [argument, autocomplete] = args;
-        if (argument.length < 3 && argument.test(/(pós|pago)/)) {
+        if (argument.length < 3 || !argument.test(/(pós|pago)/)) {
             return;
         }
 
