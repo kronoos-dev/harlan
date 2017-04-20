@@ -193,7 +193,7 @@ module.exports = function (controller) {
 
         var capitalSocial = jdocument.find("capitalSocial");
         if (capitalSocial.length) {
-            result.addItem("Capital Social", numeral(capitalSocial.text()).format("$0,0.00"), "capitalSocial");
+            result.addItem("Capital Social", numeral(capitalSocial.text().replace(".", ",")).format("$0,0.00"), "capitalSocial");
         }
 
         setAddress(result, jdocument);
