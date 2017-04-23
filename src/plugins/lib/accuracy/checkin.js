@@ -35,34 +35,32 @@ module.exports = function (controller) {
         });
     });
 
+    var getBlob = (uri, cb) => {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function(){
+            if (this.readyState == 4) cb(this.response);
+        }
+        xhr.open('GET', uri, true);
+        xhr.responseType = 'blob';
+        xhr.send();
+    };
+
     controller.registerCall("accuracy::checkin::sendImage", (cb, obj) => {
-        window.resolveLocalFileSystemURL(obj[0].uri,
-            (fileEntry) => fileEntry.file((imageFile) => {
-                var reader = new FileReader();
-                reader.onloadend = function (e) {
-                    let formdata = new FormData();
-                    let imageBlob = new Blob([ this.result ], { type: "image/jpeg" } );
-                    formdata.append('file', imageBlob, obj[0].file + ".jpg");
-                    formdata.append('token', obj[0].file);
-                    formdata.append('employee_id', obj[0].employee_id);
-                    controller.accuracyServer.call("saveImages", {}, {
-                        type: 'POST',
-                        data: formdata,
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        success: () => cb(),
-                        error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
-                    });
-                };
-                reader.readAsArrayBuffer(imageFile);
-            }, (e) => {
-                console.error(e);
-                cb();
-            }), (e) => {
-                console.error(e);
-                cb();
+        getBlob(obj[0].uri, imageBlob => {
+            let formdata = new FormData();
+            formdata.append('file', imageBlob, obj[0].file + ".jpg");
+            formdata.append('token', obj[0].file);
+            formdata.append('employee_id', obj[0].employee_id);
+            controller.accuracyServer.call("saveImages", {}, {
+                type: 'POST',
+                data: formdata,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: () => cb(),
+                error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
             });
+        });
     });
 
     controller.registerCall("accuracy::checkin::send", (cb, obj) => {
