@@ -14,17 +14,32 @@ module.exports = function (controller) {
         controller.call("accuracy::checkin::object", campaign, store, (obj) =>
             controller.call("accuracy::checkin::picture", obj, callback, cameraErrorCallback), geolocationErrorCallback, type));
 
+    let cameraResume = null;
+    document.addEventListener('resume', event => {
+        if (event.pendingResult && event.pendingResult.pluginStatus === 'OK' &&
+            event.pendingResult.pluginServiceName === "Camera") {
+            cameraResume = event.pendingResult.result;
+        }
+    }, false);
+
     controller.registerCall("accuracy::checkin::picture", (obj, callback, cameraErrorCallback) => {
         if (!navigator.camera || !navigator.camera.getPicture) {
             callback(obj);
             return;
         }
 
-        navigator.camera.getPicture((imageURI) => {
+        let successCallback = imageURI => {
             obj[0].file = basename(imageURI);
             obj[0].uri = imageURI;
             callback(obj);
-        }, cameraErrorCallback, {
+        };
+
+        if (cameraResume) {
+            successCallback(cameraResume);
+            cameraResume = null; 
+        }
+
+        navigator.camera.getPicture(successCallback, cameraErrorCallback, {
             quality: 50,
             targetWidth: 600,
             targetHeight: 600,
@@ -35,31 +50,18 @@ module.exports = function (controller) {
         });
     });
 
-    var getBlob = (uri, cb) => {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function (){
-            if (this.readyState == 4) cb(this.response);
-        };
-        xhr.open('GET', uri, true);
-        xhr.responseType = 'blob';
-        xhr.send();
-    };
-
     controller.registerCall("accuracy::checkin::sendImage", (cb, obj) => {
-        getBlob(obj[0].uri, imageBlob => {
-            let formdata = new FormData();
-            formdata.append('file', imageBlob, obj[0].file + ".jpg");
-            formdata.append('token', obj[0].file);
-            formdata.append('employee_id', obj[0].employee_id);
-            controller.accuracyServer.call("saveImages", {}, {
-                type: 'POST',
-                data: formdata,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: () => cb(),
-                error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
-            });
+        let formdata = new FormData();
+        controller.accuracyServer.upload("saveImages", {
+            token: obj[0].file,
+            employee_id: obj[0].employee_id
+        }, {
+            file: obj[0].uri,
+            fileKey: "file",
+            fileName: `${obj[0].file}.jpg`,
+            mimeType : "image/jpeg",
+            success: () => cb(),
+            error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
         });
     });
 

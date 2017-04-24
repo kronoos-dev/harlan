@@ -16,6 +16,37 @@ module.exports = function (controller) {
     });
     let rcounter = 0;
     controller.accuracyServer = {
+        upload: (path, data, dict, loader = false) => {
+            let conn = typeof Connection === 'undefined' ? navigator.connection : Connection;
+            if (controller.confs.isCordova && navigator.connection && conn && navigator.connection.type === conn.NONE) {
+                if (dict.error) dict.error();
+                if (dict.complete) dict.complete();
+                return;
+            }
+
+            let dataLength = Object.keys(data).length;
+
+            let success = (...args) => {
+                if (dict.success) dict.success(...args);
+                if (dict.complete) dict.complete();
+            };
+
+            let error = (...args) => {
+                if (dict.error) dict.error(...args);
+                if (dict.complete) dict.complete();
+            }
+
+            var uploadOptions = new FileUploadOptions();
+            uploadOptions.fileKey = dict.fileKey;
+            uploadOptions.fileName = dict.fileName;
+            uploadOptions.mimeType = dict.mimeType;
+            uploadOptions.params = data;
+            uploadOptions.headers = {
+                Authorization: `Bearer ${tokenId}`
+            };
+
+            new FileTransfer().upload(dict.file, urljoin(controller.confs.accuracy.webserver, path), success, error, uploadOptions);
+        },
         call : (path, data, dict, loader = false) => {
             let conn = typeof Connection === 'undefined' ? navigator.connection : Connection;
             if (controller.confs.isCordova && navigator.connection && conn && navigator.connection.type === conn.NONE) {

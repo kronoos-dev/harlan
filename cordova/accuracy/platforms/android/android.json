@@ -51,6 +51,10 @@
                         {
                             "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"FileTransfer\"><param name=\"android-package\" value=\"org.apache.cordova.filetransfer.FileTransfer\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -76,7 +80,7 @@
                         },
                         {
                             "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
-                            "count": 2
+                            "count": 3
                         }
                     ],
                     "application": [
@@ -84,7 +88,8 @@
                             "xml": "<provider android:authorities=\"${applicationId}.provider\" android:exported=\"false\" android:grantUriPermissions=\"true\" android:name=\"android.support.v4.content.FileProvider\"><meta-data android:name=\"android.support.FILE_PROVIDER_PATHS\" android:resource=\"@xml/provider_paths\" /></provider>",
                             "count": 1
                         }
-                    ]
+                    ],
+                    "/manifest/application": []
                 }
             }
         }
@@ -121,6 +126,9 @@
             "PACKAGE_NAME": "com.bipbop.accuracy"
         },
         "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.bipbop.accuracy"
+        },
+        "cordova-plugin-file-transfer": {
             "PACKAGE_NAME": "com.bipbop.accuracy"
         }
     },
@@ -443,6 +451,22 @@
             "clobbers": [
                 "navigator.splashscreen"
             ]
+        },
+        {
+            "id": "cordova-plugin-file-transfer.FileTransferError",
+            "file": "plugins/cordova-plugin-file-transfer/www/FileTransferError.js",
+            "pluginId": "cordova-plugin-file-transfer",
+            "clobbers": [
+                "window.FileTransferError"
+            ]
+        },
+        {
+            "id": "cordova-plugin-file-transfer.FileTransfer",
+            "file": "plugins/cordova-plugin-file-transfer/www/FileTransfer.js",
+            "pluginId": "cordova-plugin-file-transfer",
+            "clobbers": [
+                "window.FileTransfer"
+            ]
         }
     ],
     "plugin_metadata": {
@@ -456,6 +480,7 @@
         "cordova-plugin-camera": "2.4.0",
         "cordova-plugin-nativestorage": "2.2.2",
         "cordova-plugin-file": "4.3.2",
-        "cordova-plugin-splashscreen": "4.0.2"
+        "cordova-plugin-splashscreen": "4.0.2",
+        "cordova-plugin-file-transfer": "1.6.2"
     }
 }

@@ -8,6 +8,7 @@
     <author email="lf.amorim@bipbop.com.br" href="http://www.bipbop.com.br">
         Lucas Fernando Amorim
     </author>
+    <preference name="KeepRunning" value="true"/>
     <preference name="webviewbounce" value="false"/>
     <preference name="UIWebViewBounce" value="false"/>
     <preference name="DisallowOverscroll" value="true"/>
@@ -28,6 +29,7 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <engine name="android" spec="~4.1.2" />
+    <plugin name="cordova-plugin-file-transfer" spec="~1.6.2" />
     <plugin name="cordova-plugin-geolocation" spec="~2.4.2" />
     <plugin name="cordova-plugin-network-information" spec="~1.3.2" />
     <plugin name="cordova-plugin-camera" spec="~2.4.0" />

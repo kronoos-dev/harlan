@@ -34,6 +34,9 @@
         <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="FileTransfer">
+        <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
+    </feature>
     <name>AccuracyAPP</name>
     <description>
         Aplicativo voltado para promotoras de Pontos de Venda (PDV) para realizar o check-in e check-out.
@@ -66,6 +69,7 @@
     <icon density="xxxhdpi" src="res/android/icon/drawable-xxxhdpi-icon.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="android-minSdkVersion" value="16" />
+    <preference name="KeepRunning" value="true" />
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
