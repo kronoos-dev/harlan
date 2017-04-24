@@ -282,7 +282,7 @@ gulp.task("service-worker", () => {
         entries: `${src}/js/service-worker.js`,
         debug: true
     })
-    .transform(babelify, {presets: ["es2015", "react"]})
+    .transform(babelify, {presets: ["es2015"]})
     .bundle()
     .pipe(source("service-worker.js"))
     .pipe(buffer())
