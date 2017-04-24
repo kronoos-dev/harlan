@@ -65,7 +65,8 @@ module.exports = function(controller) {
     controller.registerCall("inbox::open", function(message, idMessage) {
         let modal = controller.call("modal");
         modal.title($("message > subject", message).text());
-        modal.subtitle("Enviado em " + new Date(parseInt($("message > send", message).text())).toLocaleString());
+        let when = moment.unix(parseInt($("message > send", message).text()));
+        modal.subtitle(`Enviado às ${when.format("h:mm:ss a DD/MM/YYYY")}, ${when.fromNow()}.`);
         let markdownData = MarkdownIt.render($("message > text", message).text());
         modal.element().append($("<div />").html(markdownData).addClass("markdown"));
         modal.createActions().cancel(null, "Fechar");
