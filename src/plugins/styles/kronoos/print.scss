@@ -16,6 +16,10 @@ $text-color: #393939;
 }
 
 .kronoos-print {
+    .kronoos-header {
+        display: none;
+    }
+
     height: 100%;
     display: none;
 

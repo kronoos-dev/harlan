@@ -27,11 +27,15 @@ module.exports = function (controller) {
     controller.registerTrigger("authentication::authenticated", "pushNotification::authentication::authenticate", function (opts, cb) {
         cb();
 
+        if (controller.server.freeKey()) {
+            return;
+        }
+
         /* Notification Check */
         if (typeof ServiceWorkerRegistration === "undefined") {
             return;
         }
-        
+
         if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
             console.warn('Notifications aren\'t supported.');
             return;
@@ -65,8 +69,10 @@ module.exports = function (controller) {
                                         icon: "pass",
                                         title: "Notificações Ativadas",
                                         subtitle: "Agora você receberá notificações desta conta neste dispositivo.",
-                                        paragraph: "Para desativá-las basta clicar em sair."
+                                        paragraph: "Para as desativar basta executar o logout."
                                     });
+                                    if (navigator.serviceWorker && navigator.serviceWorker.controller)
+                                        navigator.serviceWorker.controller.postMessage(controller.server.apiKey());
                                     localStorage[keyPushEndpoint()] = subscription.endpoint;
                                     report.close();
                                 }

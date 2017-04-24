@@ -7,6 +7,7 @@ import ServerCommunication from './internals/library/server-communication';
 import ImportXMLDocument from './internals/library/import-xml-document';
 import Store from './internals/library/store';
 import I18n from './internals/library/i18n';
+import browserUpdate from 'browser-update';
 
 (function(d) {
     var Harlan = require("./internals/controller");
@@ -75,7 +76,6 @@ import I18n from './internals/library/i18n';
     require('./internals/modules/placas-wiki')(d.harlan);
     require('./internals/modules/credits')(d.harlan);
     require('./internals/modules/alert')(d.harlan);
-    //require('./internals/modules/push-notification')(d.harlan);
     require('./internals/modules/softphone')(d.harlan);
     require('./internals/modules/password')(d.harlan);
     require('./internals/modules/progress')(d.harlan);
@@ -100,6 +100,9 @@ import I18n from './internals/library/i18n';
     require('./internals/modules/smartsupp')(d.harlan);
     require('./internals/modules/cordova')(d.harlan);
     require('./internals/modules/blockui')(d.harlan);
+    require('./internals/modules/push-notification')(d.harlan);
+    require('./internals/modules/browser-update')(d.harlan);
+
 
     /**
      * From day to night and night to day

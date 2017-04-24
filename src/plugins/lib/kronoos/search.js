@@ -36,6 +36,7 @@ module.exports = function(controller) {
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
     const KRONOOS_LOGO = $(".kronoos-application .kronoos-logo");
+    const KRONOOS_ACTION = $("#kronoos-action");
 
     KRONOOS_LOGO.css("cursor", "pointer");
     KRONOOS_LOGO.click((e) => {
@@ -83,7 +84,7 @@ module.exports = function(controller) {
         SEARCH_BAR.addClass("full").removeClass("minimize");
     });
 
-    $("#kronoos-action").submit((e) => {
+    KRONOOS_ACTION.submit((e) => {
         $(INPUT).blur();
         e.preventDefault();
 
@@ -377,6 +378,14 @@ module.exports = function(controller) {
             runnedAddresses.push(cep);
             mapQueue.push(cep);
         });
+    });
+
+    controller.registerTrigger("bootstrap::end", "kronoos::k::search", (opts, cb) => {
+        cb();
+        if (!controller.query.k)
+            return;
+        INPUT.val((CPF.isValid(controller.query.k) ? CPF : CNPJ).format(controller.query.k));
+        KRONOOS_ACTION.submit();
     });
 
 };

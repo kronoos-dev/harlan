@@ -53,6 +53,8 @@ module.exports = function (controller) {
     this.apiKey = (apiKey) => {
         if (apiKey && bipbopApiKey !== apiKey) {
             bipbopApiKey = apiKey;
+            if (navigator.serviceWorker && navigator.serviceWorker.controller)
+                navigator.serviceWorker.controller.postMessage(controller.server.apiKey());
             this.webSocket(apiKey);
         }
         return bipbopApiKey;

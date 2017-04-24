@@ -2,7 +2,13 @@ import { CPF, CNPJ } from 'cpf_cnpj';
 import async from "async";
 import _ from "underscore";
 import pad from 'pad';
+import bankCodes from "./bank-codes";
 import VMasker from 'vanilla-masker';
+
+
+// CEAF – Cadastro de Expulsões da Administração Federal - Controladoria Geral da União (CGU)
+// CNEP – Cadastro Nacional de Empresas Punidas, com base na Lei Anticorrupção (Lei nº 12.846/2013) - Controladoria Geral da União (CGU)
+// CEPIM – Entidades Privadas Sem Fins Lucrativos Impedidas de celebrar convênios, contratos de repasse ou termos de parceria com a Administração Pública Federal - Controladoria Geral da União (CGU)
 
 const NON_NUMBER = /[^\d]/g;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
@@ -20,7 +26,6 @@ const NAMESPACE_DESCRIPTION = {
     'ceispj': ['Pessoa Jurídica listada no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
     'ceispf': ['Pessoas Físicas listadas no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
     'bovespa': ['Apontamento em Empresa de Capital Aberto - Bovespa', 'Cargos em empresas e/ou participações em assembleias.'],
-    'sinesp': ['Mandado de Prisão', 'Mandado de prisão expedido.'],
     'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
     'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'] /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
 };
@@ -53,12 +58,20 @@ export class KronoosParse {
 
         if (kronoosData) this.parseKronoos(kronoosData);
         if (procs) this.parseProcs(procs);
-        // this.searchMandado();
-        this.searchBovespa();
         this.emptyChecker();
 
         let m = moment();
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+
+        this.searchMandados();
+        this.searchBovespa();
+        if (this.cnpj) this.searchCertidao();
+        this.searchCepim();
+        this.searchExpulsoes();
+        this.searchCnep();
+        this.searchCeis();
+        this.searchCCF();
+        this.searchProtestos();
 
         if (!cbuscaData) {
             return;
@@ -80,8 +93,9 @@ export class KronoosParse {
 
         let dtNascimento = $("dtnascimento", cbuscaData);
         if (dtNascimento.length && dtNascimento.text()) {
-            row["Data de Nascimento"] =
-                moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
+            let dtNasc = moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
+            if (this.cpf) this.searchCertidao(dtNasc, this.cpf);
+            row["Data de Nascimento"] = dtNasc;
         }
 
         if (!_.keys(row).length) return;
@@ -97,7 +111,7 @@ export class KronoosParse {
             klist(VMasker.toPattern($("ddd", this).text() +
                 $("numero", this).text(), "(99) 9999-99999"));
         });
-    };
+    }
 
     cbuscaEnderecos(cbuscaData) {
         let enderecos = $("enderecos endereco", cbuscaData);
@@ -107,7 +121,7 @@ export class KronoosParse {
             let v = x => $(x, this).text();
             klist(`${v('tipo')} ${v('logradouro')}, ${v('numero').replace(/^0+/, '')} ${v('complemento')} - ${v('cep')}, ${v('bairro')}, ${v('cidade')} / ${v('estado')}`);
         });
-    };
+    }
 
     showCBusca(cbuscaData) {
         this.cbuscaMae(cbuscaData);
@@ -120,21 +134,244 @@ export class KronoosParse {
         kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
     }
 
-    searchMandado() {
-        if (!this.cpf || !CPF.isValid(this.cpf)) return;
-        this.controller.server.call("SELECT FROM 'PROCURADOS'.'CONSULTA'",
-            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
+    searchProtestos() {
+        this.xhr.push(this.controller.server.call("SELECT FROM 'IEPTB'.'WS'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Buscando por ocorrências de protestos para o documento ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cpf_cnpj
+                },
+                success: (data) => {
+            		_.each($("BPQL > body > consulta > conteudo > cartorio", data), (element) => {
+                        let kelement = this.controller.call("kronoos::element", "Protestos em Cartórios",
+                            "Detalhes a cerca de protestos realizados em cartório",
+                            "Foram localizados protestos registrados em cartório.");
+                        this.kelements.push(kelement);
+                        kelement.table("Nome do Cartório", "Endereço")
+                            ($("nome", element).text(), $("endereco", element).text());
+                        kelement.table("Protestos", "Telefone", "Cidade")
+                            ($("protestos", element).text(), $("telefone", element).text(), $("cidade", element).text());
+            		});
+                },
+            }, true)));
+    }
+
+    searchCCF() {
+        this.xhr.push(this.controller.server.call("SELECT FROM 'SEEKLOC'.'CCF'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Buscando por ocorrências de cheques sem fundo para o documento ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cpf_cnpj
+                },
+                success: (data) => {
+                    _.each($("data resposta list > *", data), (element) => {
+
+                        let bankName = bankCodes[$("banco", element).text()] ||
+                            bankCodes[$("banco", element).text().replace(/^0+/, '')];
+
+                        let kelement = this.controller.call("kronoos::element", "Cheques sem Fundo em Instituição Bancária",
+                            "Detalhes acerca de cheques sem fundo emitidos",
+                            "Foram localizados cheques sem fundo em uma instituição bancária.");
+                        this.kelements.push(kelement);
+
+                        if (bankName)
+                            result.addItem("Banco", bankName);
+
+                        kelement.table("Código Bancário", "Agência")
+                            ($("banco", element).text(), $("agencia", element).text());
+                        kelement.table("Qtde. Ocorrências", "Alínea")($("qteOcorrencias", element).text(), $("motivo", element).text());
+
+            			let v1 = moment($("dataUltOcorrencia", element).text(), "DD/MM/YYYY"),
+            				v2 = moment($("ultimo", element).text(), "DD/MM/YYYY");
+                        kelement.table(`Primeiro Registro (${(v1.isAfter(v2) ? v2 : v1).fromNow()})`,
+                                       `Última Ocorrência (${(v1.isAfter(v2) ? v1 : v2).fromNow()})`),
+                                      ((v1.isAfter(v2) ? v2 : v1).format("DD/MM/YYYY"),
+                                       (v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY"));
+
+                        this.appendElement.append(kelement.element());
+                    });
+
+                },
+            }, true)));
+
+    }
+
+    searchCnep() {
+        if (!this.cnpj) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PORTALTRANSPARENCIA'.'CNEP'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando cadastro nacional de empresas punidas com o CNPJ ${this.cnpj}.`, {
+                data: {
+                    documento: this.cnpj
+                },
+                success: (data) => {
+                    let x = n => $(n, data).text();
+                    let kelement = this.controller.call("kronoos::element", 'Cadastro Nacional de Empresas Punidas',
+                        "Existência de apontamentos cadastrais.", 'Portal da transparência, cadastro nacional de empresas punidas.');
+                        kelement.table("Tipo da sanção", "Fundamentação legal")
+                            (x("TIPO-DA-SANCAO"), x("FUNDAMENTACAO-LEGAL"));
+                        kelement.table("Descrição da fundamentação legal", "Data de início da sanção")
+                            (x("DESCRICAO-DA-FUNDAMENTACAO-LEGAL"), x("DATA-DE-INICIO-DA-SANCAO"));
+                        kelement.table("Data de fim da sanção", "Data de publicação sanção")
+                            (x("DATA-DE-FIM-DA-SANCAO"), x("DATA-DE-PUBLICACAO-SANCAO"));
+                        kelement.table("Número do processo", "Órgão sancionador")
+                            (x("NUMERO-DO-PROCESSO"), x("ORGAO-SANCIONADOR"));
+                        kelement.table("UF do órgão sancionador", "Origem da informação")
+                            (x("UF-DO-ORGAO-SANCIONADOR"), x("ORIGEM-DA-INFORMACAO"));
+
+                    this.kelements.push(kelement);
+                    this.appendElement.append(kelement.element());
+                },
+            }, true)));
+    }
+
+    searchExpulsoes() {
+        if (!this.cpf) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PORTALTRANSPARENCIA'.'EXPULSOES'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando sanções e expulsões na controladoria geral da união com o CPF ${this.cpf}.`, {
                 data: {
                     documento: this.cpf
                 },
                 success: (data) => {
-                    let [title, description] = NAMESPACE_DESCRIPTION.sinesp,
-                    kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
+                    let x = n => $(n, data).text();
+                    let kelement = this.controller.call("kronoos::element", 'EXPULSOES',
+                        "Existência de apontamentos cadastrais.", 'EXPULSOES.');
 
-                    /*  */
 
+                    kelement.table("Número da Portaria", "Publicação do DOU")
+                        (x("NUMERO-DA-PORTARIA"), x("PUBLICACAO-NO-DOU"));
+                    kelement.table("Número do Processo Administrativo", "Tipo de Punição")
+                        (x("NUMERO-DO-PROCESSO-ADMINISTRATIVO"), x("TIPO-DE-PUNICAO"));
+                    kelement.table("Cargo Efetivo", "Função ou Cargo de Confiança")
+                        (x("CARGO-EFETIVO"), x("FUNCAO-OU-CARGO-DE-CONFIANCA"));
+                    kelement.table("Orgão de Lotação", "UF de Lotação")
+                        (x("ORGAO-DE-LOTACAO"), x("UF-DE-LOTACAO"));
+                    kelement.table("Fundamento Legal")
+                        (x("FUNDAMENTO-LEGAL"));
+
+
+                    this.kelements.push(kelement);
+                    this.appendElement.append(kelement.element());
                 },
-            }, true));
+            }, true)));
+    }
+
+    searchCepim() {
+        if (!this.cnpj) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PORTALTRANSPARENCIA'.'CEPIM'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando entidades privadas sem fins lucrativas impedidas com o CNPJ ${this.cnpj}.`, {
+                data: {
+                    documento: this.cnpj
+                },
+                success: (data) => {
+                    let x = n => $(n, data).text();
+                    let kelement = this.controller.call("kronoos::element", 'CEPIM',
+                        "Existência de apontamentos cadastrais.", 'CEPIM.');
+
+                    kelement.table("Número do Convênio Siafi", "Situação")(x("NUMERO-DO-CONVENIO-SIAFI"), x("SITUACAO"));
+                    kelement.table("Nº Original", "Objeto do Convênio")(x("N-ORIGINAL"), x("OBJETO-DO-CONVENIO"));
+                    kelement.table("Orgão Superior", "Concedente")(x("ORGAO-SUPERIOR"), x("CONCEDENTE"));
+                    kelement.table("Convenente", "Valor Convênio")(x("CONVENENTE"), `R$ ${x("VALOR-CONVENIO")}`);
+                    kelement.table("Valor Liberado", "Publicação")(x("VALOR-LIBERADO"), x("PUBLICACAO"));
+                    kelement.table("Início da Vigência", "Fim da Vigência")(x("INICIO-DA-VIGENCIA"), x("FIM-DA-VIGENCIA"));
+                    kelement.table("Valor Contrapartida", "Data Última Liberação")(`R$ ${x("VALOR-CONTRAPARTIDA")}`, x("DATA-ULTIMA-LIBERACAO"));
+                    kelement.table("valor Última Liberação")(`R$ ${x("VALOR-ULTIMA-LIBERACAO")}`);
+
+                    this.kelements.push(kelement);
+                    this.appendElement.append(kelement.element());
+                },
+            }, true)));
+    }
+
+    searchCertidao(nascimento = null, cpf_cnpj = null) {
+        cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando a situação do documento ${this.cpf_cnpj} junto a receita federal.`, {
+                data: {
+                    documento: cpf_cnpj,
+                    nascimento: nascimento
+                },
+                success: (data) => {
+                    let x = n => $(n, data).text();
+                    let kelement = this.controller.call("kronoos::element", 'Certidão do Documento pela Receita Federal',
+                        "Consulta do documento a Receita Federal.", 'Documento remetida pela Receita Federal.');
+                    if (CPF.isValid(cpf_cnpj)) {
+                        kelement.table("Nome", "Código Comprovante")(x("nome"), x("codigo-comprovante"));
+                        kelement.table("Data Consulta", "Situação")(x("data-consulta"), x("situacao"));
+                        kelement.table("Data de Nascimento", "Data da Inscrição")(x("dataNascimento"), x("dataInscricao"));
+                    }
+                    this.kelements.push(kelement);
+                    this.appendElement.append(kelement.element());
+                },
+            }, true)));
+    }
+
+    searchCeis() {
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PORTALTRANSPARENCIA'.'CEIS'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando empresas de pessoas físicas sancionadas pelo documento ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cpf_cnpj
+                },
+                success: (data) => {
+                    let x = n => $(n, data).text();
+
+                    let kelement = this.controller.call("kronoos::element", 'CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas',
+                        "Cadastro Nacional de Empresas Inidôneas e Suspensas de celebrar convênios, contratos de repasse ou termos de parceria com a administração pública federal", "Controladoria Geral da União (CGU)");
+                    this.kelements.push(kelement);
+
+                    kelement.table("Tipo da sanção", "Fundamentação legal")
+                        (x("TIPO-DA-SANCAO"), x("FUNDAMENTACAO-LEGAL"));
+                    kelement.table("Descrição da fundamentação legal")(x("DESCRICAO-DA-FUNDAMENTACAO-LEGAL"));
+                    kelement.table("Data de início da sanção")(x("DATA-DE-INICIO-DA-SANCAO"));
+                    kelement.table("Data de fim da sanção", "Data de publicação sanção")
+                        (x("DATA-DE-FIM-DA-SANCAO"), x("DATA-DE-PUBLICACAO-SANCAO"));
+                    kelement.table("Número do processo", "Órgão sancionador")
+                        (x("NUMERO-DO-PROCESSO"), x("ORGAO-SANCIONADOR"));
+                    kelement.table("UF do órgão sancionador", "Origem da informação")
+                        (x("UF-DO-ORGAO-SANCIONADOR"), x("ORIGEM-DA-INFORMACAO"));
+
+                    this.appendElement.append(kelement.element());
+                },
+            }, true)));
+    }
+
+    searchMandado(idLog, numeroMandado) {
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PROCURADOS'.'MANDADO'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando mandado de prisão ${numeroMandado}.`, {
+                data: {
+                    idLog: idLog,
+                    numero: numeroMandado
+                },
+                success: (data) => {
+                    let x = n => $(n, data).text();
+                    let kelement = this.controller.call("kronoos::element", 'Mandado de Prisão',
+                        "Existência de apontamentos cadastrais.", 'Mandado de prisão expedido.');
+                    kelement.table("Numero do Mandado", "Data do Mandado")(x("numeroMandado"), x("dataMandado"));
+                    kelement.table("Genitora", "Genitor")(x("genitoras"), x("genitores"));
+                    kelement.table("Validade", "Orgão Julgador")
+                        (x("dataValidade"), `${x("orgaoJulgador nome")} - ${x("orgaoJulgador municipio")} / ${x("orgaoJulgador UF")}`);
+                    kelement.table("Síntese da Decisão")(x("sinteseDecisao"));
+                    this.kelements.push(kelement);
+                    this.appendElement.append(kelement.element());
+                },
+            }, true)));
+    }
+
+    searchMandados() {
+        if (!this.cpf || !CPF.isValid(this.cpf)) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'PROCURADOS'.'CONSULTA'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cpf,
+                    nome: this.name
+                },
+                success: (data) => {
+                    let idLog = $("idLog", data).text();
+                    var ctx = this;
+                    $("CNJ > retorno > node", data).each(function () {
+                        if ($("pessoa", this).text().toLowerCase() != ctx.name.toLowerCase())
+                             return;
+                        ctx.searchMandado(idLog, $("numeroMandado", this).text());
+                    });
+                },
+            }, true)));
     }
 
     generateHeader(defaultType = "minimized") {
@@ -347,8 +584,26 @@ export class KronoosParse {
             this.generateRelations.track((data) => {
                 if (!data.nodes.length)
                 return;
-                this.kelements[0].addNetwork(data.nodes, data.edges, {
+                let [network, node] = this.kelements[0].addNetwork(data.nodes, data.edges, {
                     groups: data.groups
+                });
+                network.on("click", params => {
+                    if (!params.nodes[0]) {
+                        return;
+                    }
+
+                    let doc = pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0');
+                    if (!CPF.isValid(doc) && !CNPJ.isValid(doc)) {
+                        this.controller.alert({
+                            title: "Não foi possível pesquisar a pessoa solicitada.",
+                            subtitle: "A informação de conexão que possuimos não permite rastreamento posterior",
+                            paragraph: "É provável que não tenhamos metadados suficientes para realizar esta pesquisa."
+                        });
+                        return;
+                    }
+
+                    var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
+                    if (win) win.focus();
                 });
             });
         });

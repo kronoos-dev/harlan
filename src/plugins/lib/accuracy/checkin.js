@@ -37,9 +37,9 @@ module.exports = function (controller) {
 
     var getBlob = (uri, cb) => {
         var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function(){
+        xhr.onreadystatechange = function (){
             if (this.readyState == 4) cb(this.response);
-        }
+        };
         xhr.open('GET', uri, true);
         xhr.responseType = 'blob';
         xhr.send();

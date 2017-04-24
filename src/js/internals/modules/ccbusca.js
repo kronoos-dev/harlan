@@ -80,9 +80,10 @@ module.exports = (controller) => {
                 appendMessage("sem cheques devolvidos");
                 return;
             }
+            let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text();
             let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
                 v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
-            appendMessage(`total de registros CCF: ${totalRegistro} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
+            appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`);
             sectionDocumentGroup[1].append(controller.call("xmlDocument", ret, "SEEKLOC", "CCF"));
         })();
 

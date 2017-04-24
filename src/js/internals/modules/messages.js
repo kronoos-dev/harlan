@@ -1,6 +1,9 @@
 /* global toastr */
 
-var markdown = require("markdown").markdown;
+var MarkdownIt = require('markdown-it')({
+    break: true,
+    xhtmlOut: true,
+});
 
 module.exports = function(controller) {
 
@@ -44,16 +47,27 @@ module.exports = function(controller) {
         });
     });
 
+    controller.registerTrigger("bootstrap::end", "message", (opts, cb) => {
+        cb();
+        if (!controller.query.message) return;
+
+        controller.serverCommunication.call("SELECT FROM 'HARLANMESSAGES'.'GET'",
+        controller.call("error::ajax", controller.call("loader::ajax", {
+            data: {
+                id: controller.query.message
+            },
+            success: function(message) {
+                controller.call("inbox::open", message, controller.query.message);
+            }
+        })));
+    });
+
     controller.registerCall("inbox::open", function(message, idMessage) {
-        var modal = controller.call("modal");
+        let modal = controller.call("modal");
         modal.title($("message > subject", message).text());
-        modal.subtitle("Enviado em " +
-            new Date(parseInt($("message > send", message).text())).toLocaleString());
-
-
-        modal.element().append($("<div />")
-            .html(markdown.toHTML($("message > text", message).text())).addClass("markdown"));
-
+        modal.subtitle("Enviado em " + new Date(parseInt($("message > send", message).text())).toLocaleString());
+        let markdownData = MarkdownIt.render($("message > text", message).text());
+        modal.element().append($("<div />").html(markdownData).addClass("markdown"));
         modal.createActions().cancel(null, "Fechar");
     });
 
@@ -77,14 +91,14 @@ module.exports = function(controller) {
             var idMessage = $("id", message).text();
 
             controller.serverCommunication.call("SELECT FROM 'HARLANMESSAGES'.'GET'",
-                controller.call("error::ajax", controller.call("loader::ajax", {
-                    data: {
-                        id: idMessage
-                    },
-                    success: function(message) {
-                        controller.call("inbox::open", message, idMessage);
-                    }
-                })));
+            controller.call("error::ajax", controller.call("loader::ajax", {
+                data: {
+                    id: idMessage
+                },
+                success: function(message) {
+                    controller.call("inbox::open", message, idMessage);
+                }
+            })));
         });
     };
 
@@ -101,38 +115,38 @@ module.exports = function(controller) {
         }
 
         controller.serverCommunication.call("SELECT FROM 'HARLANMESSAGES'.'SEARCH'",
-            controller.call("loader::ajax", {
-                data: {
-                    text: text,
-                    skip: skip,
-                    limit: limit
-                },
-                success: (data) => {
-                    var queryResults = parseInt($("BPQL > body count", data).text()),
-                        currentPage = Math.floor(skip / limit) + 1,
-                        pages = Math.ceil(queryResults / limit);
+        controller.call("loader::ajax", {
+            data: {
+                text: text,
+                skip: skip,
+                limit: limit
+            },
+            success: (data) => {
+                var queryResults = parseInt($("BPQL > body count", data).text()),
+                currentPage = Math.floor(skip / limit) + 1,
+                pages = Math.ceil(queryResults / limit);
 
-                    if (!queryResults) {
-                        controller.call("alert", {
-                            title: "Não foram encontradas mensagens.",
-                            subtitle: "Aguarde até que mensagens sejam enviadas para poder usar esta funcionalidade."
-                        });
-                        modal.close();
-                        return;
-                    }
-
-                    pageActions.next[currentPage >= pages ? "hide" : "show"]();
-                    pageActions.back[currentPage <= 1 ? "hide" : "show"]();
-
-                    results.text(`Página ${currentPage} de ${pages}`);
-                    pagination.text(`Resultados ${queryResults}`);
-
-                    parseMessages(list, $("BPQL > body > messages > node", data));
-                    if (callback) {
-                        callback();
-                    }
+                if (!queryResults) {
+                    controller.call("alert", {
+                        title: "Não foram encontradas mensagens.",
+                        subtitle: "Aguarde até que mensagens sejam enviadas para poder usar esta funcionalidade."
+                    });
+                    modal.close();
+                    return;
                 }
-            }, bipbopLoader));
+
+                pageActions.next[currentPage >= pages ? "hide" : "show"]();
+                pageActions.back[currentPage <= 1 ? "hide" : "show"]();
+
+                results.text(`Página ${currentPage} de ${pages}`);
+                pagination.text(`Resultados ${queryResults}`);
+
+                parseMessages(list, $("BPQL > body > messages > node", data));
+                if (callback) {
+                    callback();
+                }
+            }
+        }, bipbopLoader));
     };
 
     controller.registerCall("inbox", function() {
@@ -145,9 +159,9 @@ module.exports = function(controller) {
         modal.addParagraph("Aqui estão as mensagens importantes que o sistema tem para você, é importante que você leia todas. Mantendo sua caixa sempre zerada.");
 
         var form = modal.createForm(),
-            search = form.addInput("text", "text", "Mensagem que procura"),
-            list = form.createList(),
-            actions = modal.createActions();
+        search = form.addInput("text", "text", "Mensagem que procura"),
+        list = form.createList(),
+        actions = modal.createActions();
 
         actions.add("Sair").click(function(e) {
             e.preventDefault();
@@ -155,7 +169,7 @@ module.exports = function(controller) {
         });
 
         var results = actions.observation(),
-            pagination = actions.observation();
+        pagination = actions.observation();
 
         var pageActions = {
             next: actions.add("Próxima Página").click(() => {

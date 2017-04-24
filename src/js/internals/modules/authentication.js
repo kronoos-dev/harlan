@@ -98,6 +98,8 @@ module.exports = function(controller) {
                 $("#input-save-password").removeAttr("checked");
                 setSessionId(null);
                 controller.trigger("authentication::logout::end");
+                if (navigator.serviceWorker && navigator.serviceWorker.controller)
+                    navigator.serviceWorker.controller.postMessage(null);
                 location.reload(true); /* prevent information leak */
             },
             timeout = setTimeout(logout, 10000);
