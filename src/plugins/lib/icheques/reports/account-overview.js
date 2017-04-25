@@ -316,14 +316,14 @@ var AccountOverview = function(closeable) {
         }
 
         if (f.initExpiration && f.endExpiration) {
-            expression.and("EXPIRE >= ?", f.initExpiration.second(0).minute(0).hour(0).unix());
-            expression.and("EXPIRE <= ?", f.endExpiration.second(59).minute(59).hour(23).unix());
+            expression.and("EXPIRE >= ?", f.initExpiration);
+            expression.and("EXPIRE <= ?", f.endExpiration);
             //            filterLabels.push((report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         } else if (f.endExpiration) {
             expression.and("EXPIRE <= ?", f.endExpiration);
             //            filterLabels.push(report.label("Expira até " + moment(f.endExpiration, "YYYYMMDD").format("DD/MM/YYYY")));
         } else if (f.initExpiration) {
-            expression.and("EXPIRE >= ?", f.initExpiration.second(0).minute(0).hour(0).unix());
+            expression.and("EXPIRE >= ?", f.initExpiration);
             //            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         }
 
