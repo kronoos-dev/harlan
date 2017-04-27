@@ -206,7 +206,7 @@ gulp.task("build:plugins", [
         entry = "./" + entry;
         return browserify({
             entries: entry,
-            debug: true
+            debug: !PRODUCTION
         })
         .transform(babelify, {presets: ["es2015", "react"]})
         .bundle()
@@ -242,7 +242,7 @@ gulp.task("jshint", () => {
 gulp.task("build:tests", ["jshint"], () => {
     return browserify({
         entries: `${src}/js/tests/index.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015", "react"]})
     .bundle()
@@ -262,7 +262,7 @@ gulp.task("build:tests", ["jshint"], () => {
 gulp.task("inflate", () => {
     return browserify({
         entries: `${src}/js/app-inflate.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015", "react"]})
     .bundle()
@@ -280,7 +280,7 @@ gulp.task("inflate", () => {
 gulp.task("service-worker", () => {
     return browserify({
         entries: `${src}/js/service-worker.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015"]})
     .bundle()
@@ -298,7 +298,7 @@ gulp.task("service-worker", () => {
 gulp.task("build:installer", ["build:application"], () => {
     return browserify({
         entries: `${src}/js/app-installer.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015", "react"]})
     .bundle()
@@ -354,7 +354,7 @@ gulp.task("build:cordova", ["build:app:icheques", "build:app:accuracy"]);
 gulp.task("build:application:accuracy", ["jshint"], () => {
     return browserify({
         entries: `${src}/js/app-accuracy.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015"]})
     .bundle()
@@ -376,7 +376,7 @@ gulp.task("build:application:accuracy", ["jshint"], () => {
 gulp.task("build:application:main", ["jshint", "i18n"], () => {
     return browserify({
         entries: `${src}/js/app.js`,
-        debug: true
+        debug: !PRODUCTION
     })
     .transform(babelify, {presets: ["es2015", "react"]})
     .bundle()

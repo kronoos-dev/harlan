@@ -147,6 +147,25 @@ module.exports = function (controller) {
 
     };
 
+    var setSocio = (result, jdocument) => {
+        let $empresas = jdocument.find("BPQL > body socios > socio");
+
+        if ($empresas.length === 0) return;
+
+        for (let node of $empresas) {
+            let $node = $(node);
+            let nodes = {};
+            nodes[$node.attr("qualificacao")] = $node.text();
+
+            result.addSeparator("Quadro Societário", "Empresa", "Empresa a qual faz parte.");
+            for (var idx in nodes) {
+                result.addItem(idx, nodes[idx]);
+            }
+
+        }
+    };
+
+
     var setSociety = (result, jdocument) => {
         let $empresas = jdocument.find("BPQL > body parsocietaria > empresa");
 
@@ -181,6 +200,7 @@ module.exports = function (controller) {
             "Atividade Econômica" : "atividade-economica",
             "Natureza Jurídica" : "natureza-juridica",
             "Situação" : "situacao",
+            "Data de Abertura" : "data-abertura",
         };
 
         var init = "BPQL > body ";
@@ -199,6 +219,7 @@ module.exports = function (controller) {
         setAddress(result, jdocument);
         setContact(result, jdocument);
         setSociety(result, jdocument);
+        setSocio(result, jdocument);
 
         return result.element();
     };
