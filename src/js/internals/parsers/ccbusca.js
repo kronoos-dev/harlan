@@ -176,10 +176,44 @@ module.exports = function (controller) {
                 nodes = {
                     "Empresa": "nome",
                     "CNPJ": "cnpj",
-                    "Participação": "quali"
+                    // "Participação": "quali"
                 };
 
-            result.addSeparator("Quadro Societário", "Empresa", "Empresa a qual faz parte.");
+            let dict = {
+                documento: $(node).find("cnpj").text(),
+                ihash: $(node).find("cnpj").attr("ihash")
+            };
+
+            let items = {};
+            let separator = result.addSeparator("Quadro Societário", "Empresa", "", items);
+
+            controller.server.call("SELECT FROM 'SEEKLOC'.'CCF'",
+                controller.call("error::ajax", controller.call("loader::ajax", {data:dict, success: ret => {
+                    let totalRegistro =  parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
+                    let message = 'Não há cheques sem fundo.';
+                    if (totalRegistro) {
+                        let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text(),
+                            v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
+                            v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
+                        message = ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}.`;
+                    }
+                    items.resultsDisplay.text(`${items.resultsDisplay.text()} ${message}`);
+                }})));
+
+            controller.server.call("SELECT FROM 'IEPTB'.'WS'",
+                controller.call("error::ajax", controller.call("loader::ajax", {data:dict, success: ret => {
+                    if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
+                        items.resultsDisplay.text(`${items.resultsDisplay.text()} Não há protestos.`);
+                        return;
+                    }
+                    let totalProtestos = $("protestos", ret)
+                                            .get()
+                                            .map((p) => parseInt($(p).text()))
+                                            .reduce((a, b) => a + b, 0);
+                    items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${totalProtestos}.`);
+                }})));
+
+
             for (var idx in nodes) {
                 var data = $node.find(nodes[idx]).text();
                 nodes[idx] = (/^\**$/.test(data)) ? "" : data;

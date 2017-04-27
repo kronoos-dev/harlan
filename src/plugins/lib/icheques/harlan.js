@@ -540,7 +540,7 @@ module.exports = function(c) {
                                     let v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
                                     v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
 
-                                    mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}`;
+                                    mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}.`;
                                     section[0].find("h3").text(mensagem);
                                     section[0].addClass("warning");
 
@@ -578,7 +578,7 @@ module.exports = function(c) {
                                 .get()
                                 .map((p) => parseInt($(p).text()))
                                 .reduce((a, b) => a + b, 0);
-                                section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}`);
+                                section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}.`);
                                 section[0].addClass("warning");
                                 section[1].append(c.call("xmlDocument", ret));
                             }

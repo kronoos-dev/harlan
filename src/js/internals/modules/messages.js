@@ -74,7 +74,7 @@ module.exports = function(controller) {
 
     var parseMessage = (list, message) => {
         var item = list.item("fa-envelope", [
-            new Date(parseInt($("send", message).text()) * 1000).toLocaleString(),
+            moment.unix(parseInt($("send", message).text())).format("DD/MM/YYYY, HH:mm:ss"),
             $("subject", message).text()
         ]);
 
