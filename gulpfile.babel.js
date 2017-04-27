@@ -416,11 +416,11 @@ gulp.task("build:images:backgrounds", () => {
         quality: 0.8,
         format: "jpg"
     }))
-    .pipe($.if(PRODUCTION, $.imageOptimization({
-        optimizationLevel: 5,
-        progressive: true,
-        interlaced: true
-    })))
+    // .pipe($.if(PRODUCTION, $.imageOptimization({
+    //     optimizationLevel: 5,
+    //     progressive: true,
+    //     interlaced: true
+    // })))
     .pipe(gulp.dest(`${dist}/images/bg`))
     .pipe($.size({title: ">>> build:images:backgrounds"}));
 });
@@ -431,11 +431,11 @@ gulp.task("build:images:no-vector", () => {
         `!${src}/images/bg/*.{jpg, jpeg}`
     ])
     .pipe($.newer(dist))
-    .pipe($.if(PRODUCTION, $.imageOptimization({
-        optimizationLevel: 5,
-        progressive: true,
-        interlaced: true
-    })))
+    // .pipe($.if(PRODUCTION, $.imageOptimization({
+    //     optimizationLevel: 5,
+    //     progressive: true,
+    //     interlaced: true
+    // })))
     .pipe(gulp.dest(dist))
     .pipe($.size({title: ">>> build:images:no-vector"}));
 });
