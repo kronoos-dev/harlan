@@ -590,7 +590,7 @@ module.exports = function(c) {
 
                         if (CNPJ.isValid(task[0])) {
                             ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'CONSULTA'";
-                            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
+                            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
                         }
 
                         c.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {

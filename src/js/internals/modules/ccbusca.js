@@ -22,7 +22,7 @@ module.exports = (controller) => {
 
         if (CNPJ.isValid(val)) {
             ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'BILLING'";
-            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'";
+            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
         }
 
         controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'BILLING'",
