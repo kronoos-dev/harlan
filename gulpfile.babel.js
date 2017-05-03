@@ -1,5 +1,6 @@
 "use strict";
 
+import streamqueue from "streamqueue";
 import babelify from "babelify";
 import browserify from "browserify";
 import browserSync from "browser-sync";
@@ -15,12 +16,14 @@ import persistify from "persistify";
 import runSequence from "run-sequence";
 import source from "vinyl-source-stream";
 import stylish from "jshint-stylish";
+import basename from 'basename';
 
 const $ = gulpLoadPlugins(),
 reload = browserSync.reload,
 dist = "Server/web",
 src = "src",
 plugins = `${src}/plugins`,
+extensions = `./extensions`,
 vendors = "bower_components",
 PRODUCTION = typeof $.util.env.production !== "undefined" ? true : false,
 DEVEL = !PRODUCTION,
@@ -165,7 +168,7 @@ gulp.task("build:plugins:sql", () => {
     .pipe($.size({title: ">>> build:plugins:sql"}));
 });
 
-gulp.task("build:plugins:css", () => {
+gulp.task("build:plugins:css", ["styles"], () => {
     return gulp.src(`${plugins}/styles/**/*.css`)
     .pipe($.autoprefixer())
     .pipe($.importCss())
@@ -193,6 +196,23 @@ gulp.task("build:plugins:sass", () => {
 });
 
 gulp.task("build:plugins:styles", ["build:plugins:sass", "build:plugins:css"]);
+
+gulp.task("build:extensions", [
+    "build",
+], () => {
+    let files = glob.sync(`${extensions}/*.json`);
+    return merge(files.map((entry) => {
+        entry = "./" + entry;
+        let extensionName = basename(entry),
+            buildDir = `${extensions}/build/${extensionName}`;
+        return streamqueue({ objectMode: true },
+                gulp.src(["${dist}/**/*", "!manifest*.json"], {base: "${dist}"}),
+                gulp.src(entry).pipe($.concat('manifest.json')))
+            .pipe($.size({title: ">>> build:extensions"}))
+            .pipe(gulp.dest(buildDir));
+    }));
+});
+
 
 gulp.task("build:plugins", [
     "build:plugins:template",
@@ -320,20 +340,20 @@ gulp.task("build:installer", ["build:application"], () => {
 
 gulp.task("app:copy-files:accuracy", () => {
     return gulp.src([
-        "Server/web/images/accuracy/icon.png",
-        "Server/web/images/accuracy/text.png",
-        "Server/web/images/gamification.png",
-        "Server/web/accuracy-cordova.html",
-        "Server/web/js/app-accuracy.js",
-        "Server/web/js/accuracy.js",
-        "Server/web/css/app.css",
-        "Server/web/fonts/fontawesome-webfont.eot",
-        "Server/web/fonts/fontawesome-webfont.svg",
-        "Server/web/fonts/FontAwesome.otf",
-        "Server/web/fonts/fontawesome-webfont.woff",
-        "Server/web/fonts/fontawesome-webfont.woff2",
-        "Server/web/fonts/fontawesome-webfont.ttf",
-    ], {base: "Server/web"})
+        `${dist}/images/accuracy/icon.png`,
+        `${dist}/images/accuracy/text.png`,
+        `${dist}/images/gamification.png`,
+        `${dist}/accuracy-cordova.html`,
+        `${dist}/js/app-accuracy.js`,
+        `${dist}/js/accuracy.js`,
+        `${dist}/fonts/fontawesome-webfont.eot`,
+        `${dist}/css/app.css`,
+        `${dist}/fonts/fontawesome-webfont.svg`,
+        `${dist}/fonts/FontAwesome.otf`,
+        `${dist}/fonts/fontawesome-webfont.woff`,
+        `${dist}/fonts/fontawesome-webfont.woff2`,
+        `${dist}/fonts/fontawesome-webfont.ttf`,
+    ], {base: dist})
     .pipe(gulp.dest("cordova/accuracy/www"))
     .pipe($.size({title: ">>> app:copy-files"}));
 });
@@ -341,9 +361,9 @@ gulp.task("app:copy-files:accuracy", () => {
 
 gulp.task("app:copy-files", ["app:copy-files:accuracy"], () => {
     return gulp.src([
-        `Server/web/**`,
-        `!Server/web/images/bg/**/*.{jpg,jpeg}`,
-        `!Server/web/js/**/*.{gz,map}`
+        `${dist}/**`,
+        `!${dist}/images/bg/**/*.{jpg,jpeg}`,
+        `!${dist}/js/**/*.{gz,map}`
     ])
     .pipe(gulp.dest("cordova/icheques/www"))
     .pipe($.size({title: ">>> app:copy-files"}));
@@ -416,11 +436,6 @@ gulp.task("build:images:backgrounds", () => {
         quality: 0.8,
         format: "jpg"
     }))
-    // .pipe($.if(PRODUCTION, $.imageOptimization({
-    //     optimizationLevel: 5,
-    //     progressive: true,
-    //     interlaced: true
-    // })))
     .pipe(gulp.dest(`${dist}/images/bg`))
     .pipe($.size({title: ">>> build:images:backgrounds"}));
 });
@@ -431,11 +446,6 @@ gulp.task("build:images:no-vector", () => {
         `!${src}/images/bg/*.{jpg, jpeg}`
     ])
     .pipe($.newer(dist))
-    // .pipe($.if(PRODUCTION, $.imageOptimization({
-    //     optimizationLevel: 5,
-    //     progressive: true,
-    //     interlaced: true
-    // })))
     .pipe(gulp.dest(dist))
     .pipe($.size({title: ">>> build:images:no-vector"}));
 });
@@ -571,13 +581,13 @@ $.shell.task("cordova run android", {
 }));
 
 gulp.task("watch:app:accuracy", ["watch"], () => {
-    gulp.watch(["Server/web/**/*"], function (event) {
+    gulp.watch([`${dist}/**/*`], function (event) {
         return runSequence("app:copy-files", "install:app:accuracy");
     });
 });
 
 gulp.task("watch:app:icheques", ["watch"], () => {
-    gulp.watch(["Server/web/**/*"], function (event) {
+    gulp.watch([`${dist}/**/*`], function (event) {
         return runSequence("app:copy-files", "install:app:icheques");
     });
 });
