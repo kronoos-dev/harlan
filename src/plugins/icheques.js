@@ -8,7 +8,7 @@
         };
     });
 
-    $("body").addClass("icheques-extension");
+    $(controller.confs.container).addClass("icheques-extension");
 
     controller.unregisterTrigger("findDatabase::instantSearch", "socialprofile");
     controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");

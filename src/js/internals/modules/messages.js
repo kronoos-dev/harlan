@@ -68,7 +68,12 @@ module.exports = function(controller) {
         let when = moment.unix(parseInt($("message > send", message).text()));
         modal.subtitle(`Enviado às ${when.format("h:mm:ss a DD/MM/YYYY")}, ${when.fromNow()}.`);
         let markdownData = MarkdownIt.render($("message > text", message).text());
-        modal.element().append($("<div />").html(markdownData).addClass("markdown"));
+        let el = $("<div />").html(markdownData).addClass("markdown");
+        modal.element().append(el);
+        el.find("a").click(function (e) => {
+            controller.call("link", $(this).attr("href"), e);
+            modal.close();
+        });
         modal.createActions().cancel(null, "Fechar");
     });
 

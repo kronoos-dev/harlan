@@ -26,7 +26,7 @@ module.exports = (controller) =>  {
 
         $(document).one("keyup", onEsc);
 
-        $("body").append(modalContainer);
+        $(controller.confs.container).append(modalContainer);
 
         var webkitIOSandSafariHack = () =>  {
             var modalHeight = modal.outerHeight();

@@ -12,96 +12,99 @@ import browserUpdate from 'browser-update';
 (function(d) {
     var Harlan = require("./internals/controller");
 
-    d.harlan = new Harlan();
+    let harlan = new Harlan();
+    d.harlan = harlan;
 
-    d.harlan.database = new SQL.Database();
-    d.harlan.interface = new Interface(d.harlan);
-    d.harlan.i18n = new I18n(localStorage.language ||
+    harlan.database = new SQL.Database();
+    harlan.interface = new Interface(harlan);
+    harlan.i18n = new I18n(localStorage.language ||
         navigator.language ||
         navigator.userLanguage || 'pt', this);
-    d.harlan.server = d.harlan.serverCommunication = new ServerCommunication(d.harlan);
-    d.harlan.xml = d.harlan.importXMLDocument = new ImportXMLDocument(d.harlan);
+    harlan.server = harlan.serverCommunication = new ServerCommunication(harlan);
+    harlan.xml = harlan.importXMLDocument = new ImportXMLDocument(harlan);
 
     /* Service Worker */
-    require('./internals/modules/service-worker')(d.harlan);
+    require('./internals/modules/service-worker')(harlan);
 
     /* Parsers */
-    require('./internals/parsers/placas-wiki')(d.harlan);
-    require('./internals/parsers/cbusca')(d.harlan);
-    require('./internals/parsers/ccbusca')(d.harlan);
-    require('./internals/parsers/ccf')(d.harlan);
-    require('./internals/parsers/ieptb')(d.harlan);
-    require('./internals/parsers/rfbcnpj')(d.harlan);
-    require('./internals/parsers/socialprofile')(d.harlan);
+    require('./internals/parsers/placas-wiki')(harlan);
+    require('./internals/parsers/cbusca')(harlan);
+    require('./internals/parsers/ccbusca')(harlan);
+    require('./internals/parsers/ccf')(harlan);
+    require('./internals/parsers/ieptb')(harlan);
+    require('./internals/parsers/rfbcnpj')(harlan);
+    require('./internals/parsers/socialprofile')(harlan);
 
     /* Forms */
-    require('./internals/forms/receita-certidao')(d.harlan);
+    require('./internals/forms/receita-certidao')(harlan);
 
     /* Modules */
-    require('./internals/modules/logs/watch-onerror')(d.harlan);
-    require('./internals/modules/analytics/google-analytics')(d.harlan);
-    require('./internals/modules/security/antiphishing')(d.harlan);
-    require('./internals/modules/i18n')(d.harlan);
-    require('./internals/modules/bank-account')(d.harlan);
-    require('./internals/modules/autocomplete')(d.harlan);
-    require('./internals/modules/find-database')(d.harlan);
-    require('./internals/modules/loader')(d.harlan);
-    require('./internals/modules/error')(d.harlan);
-    require('./internals/modules/geolocation')(d.harlan);
-    require('./internals/modules/endpoint')(d.harlan);
-    require('./internals/modules/database-search')(d.harlan);
-    require('./internals/modules/modal')(d.harlan);
-    require('./internals/modules/welcome-screen')(d.harlan);
-    require('./internals/modules/authentication')(d.harlan);
-    require('./internals/modules/report')(d.harlan);
-    require('./internals/modules/module')(d.harlan);
-    require('./internals/modules/selected-results')(d.harlan);
-    require('./internals/modules/find-company')(d.harlan);
-    require('./internals/modules/find-document')(d.harlan);
-    require('./internals/modules/xml-document')(d.harlan);
-    require('./internals/modules/section')(d.harlan);
-    require('./internals/modules/iugu')(d.harlan);
-    require('./internals/modules/database-error')(d.harlan);
-    require('./internals/modules/messages')(d.harlan);
-    require('./internals/modules/main-search')(d.harlan);
-    require('./internals/modules/oauth-io')(d.harlan);
-    require('./internals/modules/url-parameter')(d.harlan);
-    require('./internals/modules/result')(d.harlan);
-    require('./internals/modules/demonstrate')(d.harlan);
-    require('./internals/modules/download')(d.harlan);
-    require('./internals/modules/form')(d.harlan);
-    require('./internals/modules/forgot-password')(d.harlan);
-    require('./internals/modules/iframe-embed')(d.harlan);
-    require('./internals/modules/site')(d.harlan);
-    require('./internals/modules/placas-wiki')(d.harlan);
-    require('./internals/modules/credits')(d.harlan);
-    require('./internals/modules/alert')(d.harlan);
-    require('./internals/modules/softphone')(d.harlan);
-    require('./internals/modules/password')(d.harlan);
-    require('./internals/modules/progress')(d.harlan);
-    require('./internals/modules/subaccount')(d.harlan);
-    require('./internals/modules/more-results')(d.harlan);
-    require('./internals/modules/instant-search')(d.harlan);
-    require('./internals/modules/tooltip')(d.harlan);
-    require('./internals/modules/icheques')(d.harlan);
-    require('./internals/modules/dive')(d.harlan);
-    require('./internals/modules/socialprofile')(d.harlan);
-    require('./internals/modules/kronoos')(d.harlan);
-    require('./internals/modules/billing-information')(d.harlan);
-    require('./internals/modules/bipbop')(d.harlan);
-    require('./internals/modules/admin/index')(d.harlan);
-    require('./internals/modules/account-overview')(d.harlan);
-    require('./internals/modules/email-activation')(d.harlan);
-    require('./internals/modules/timeline')(d.harlan);
-    require('./internals/modules/data-company')(d.harlan);
-    require('./internals/modules/ccbusca')(d.harlan);
-    require('./internals/modules/generate-relations')(d.harlan);
-    require('./internals/modules/admin/contact-types')(d.harlan);
-    require('./internals/modules/smartsupp')(d.harlan);
-    require('./internals/modules/cordova')(d.harlan);
-    require('./internals/modules/blockui')(d.harlan);
-    require('./internals/modules/push-notification')(d.harlan);
-    require('./internals/modules/browser-update')(d.harlan);
+    require('./internals/modules/logs/watch-onerror')(harlan);
+    require('./internals/modules/analytics/google-analytics')(harlan);
+    require('./internals/modules/security/antiphishing')(harlan);
+    require('./internals/modules/i18n')(harlan);
+    require('./internals/modules/bank-account')(harlan);
+    require('./internals/modules/autocomplete')(harlan);
+    require('./internals/modules/find-database')(harlan);
+    require('./internals/modules/loader')(harlan);
+    require('./internals/modules/error')(harlan);
+    require('./internals/modules/geolocation')(harlan);
+    require('./internals/modules/endpoint')(harlan);
+    require('./internals/modules/database-search')(harlan);
+    require('./internals/modules/modal')(harlan);
+    require('./internals/modules/welcome-screen')(harlan);
+    require('./internals/modules/authentication')(harlan);
+    require('./internals/modules/report')(harlan);
+    require('./internals/modules/module')(harlan);
+    require('./internals/modules/selected-results')(harlan);
+    require('./internals/modules/find-company')(harlan);
+    require('./internals/modules/find-document')(harlan);
+    require('./internals/modules/xml-document')(harlan);
+    require('./internals/modules/section')(harlan);
+    require('./internals/modules/iugu')(harlan);
+    require('./internals/modules/database-error')(harlan);
+    require('./internals/modules/messages')(harlan);
+    require('./internals/modules/main-search')(harlan);
+    require('./internals/modules/oauth-io')(harlan);
+    require('./internals/modules/url-parameter')(harlan);
+    require('./internals/modules/result')(harlan);
+    require('./internals/modules/demonstrate')(harlan);
+    require('./internals/modules/download')(harlan);
+    require('./internals/modules/form')(harlan);
+    require('./internals/modules/forgot-password')(harlan);
+    require('./internals/modules/iframe-embed')(harlan);
+    require('./internals/modules/site')(harlan);
+    require('./internals/modules/placas-wiki')(harlan);
+    require('./internals/modules/credits')(harlan);
+    require('./internals/modules/alert')(harlan);
+    require('./internals/modules/softphone')(harlan);
+    require('./internals/modules/password')(harlan);
+    require('./internals/modules/progress')(harlan);
+    require('./internals/modules/subaccount')(harlan);
+    require('./internals/modules/more-results')(harlan);
+    require('./internals/modules/instant-search')(harlan);
+    require('./internals/modules/tooltip')(harlan);
+    require('./internals/modules/icheques')(harlan);
+    require('./internals/modules/dive')(harlan);
+    require('./internals/modules/socialprofile')(harlan);
+    require('./internals/modules/kronoos')(harlan);
+    require('./internals/modules/billing-information')(harlan);
+    require('./internals/modules/bipbop')(harlan);
+    require('./internals/modules/admin/index')(harlan);
+    require('./internals/modules/account-overview')(harlan);
+    require('./internals/modules/email-activation')(harlan);
+    require('./internals/modules/timeline')(harlan);
+    require('./internals/modules/data-company')(harlan);
+    require('./internals/modules/ccbusca')(harlan);
+    require('./internals/modules/generate-relations')(harlan);
+    require('./internals/modules/admin/contact-types')(harlan);
+    require('./internals/modules/smartsupp')(harlan);
+    require('./internals/modules/cordova')(harlan);
+    require('./internals/modules/blockui')(harlan);
+    require('./internals/modules/push-notification')(harlan);
+    require('./internals/modules/browser-update')(harlan);
+    require('./internals/modules/post-message')(harlan);
+    require('./internals/modules/link')(harlan);
 
 
     /**
@@ -111,5 +114,5 @@ import browserUpdate from 'browser-update';
      * Just listen to your voice
      */
 
-    d.harlan.run();
+    harlan.run();
 })(window);

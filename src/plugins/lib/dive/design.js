@@ -6,7 +6,7 @@ module.exports = function (controller) {
     document.title = "Mergulhe sua cobrança em dados. | Dive";
     controller.interface.helpers.changeFavicon('//cdn-dive.harlan.com.br/favicon.png');
     require("../../styles/dive.js");
-    $("body").append(siteTemplate);
+    $(controller.confs.container).append(siteTemplate);
 
     var resize = function () {
         $("body > .dive-site .call-to-action").css({

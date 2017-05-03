@@ -42,5 +42,8 @@ module.exports = {
     gcm: {
         apiKey : "AIzaSyAwitAYDKWMC4WYfF4YW5pTVN_GS1yxa-8"
     },
-    syncInterval: 300
+    syncInterval: 300,
+    container: "body",
+    isIframe: !!window.frameElement,
+    isExtension: !!window.frameElement
 };

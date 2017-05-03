@@ -41,7 +41,7 @@ module.exports = function (controller) {
             "letter-spacing": "2.2px",
         }).text(args.message || "Aguarde enquanto capturamos sua localização.");
 
-        $("body").append(opts.mainContainer.append(opts.icon).append(opts.message));
+        $(controller.confs.container).append(opts.mainContainer.append(opts.icon).append(opts.message));
         return opts;
     });
 };

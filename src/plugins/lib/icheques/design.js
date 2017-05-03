@@ -43,7 +43,7 @@ module.exports = function(controller) {
     controller.interface.helpers.changeFavicon("/images/icheques/favicon.png");
     require("../../styles/icheques.js");
 
-    $("body").append(siteTemplate);
+    $(controller.confs.container).append(siteTemplate);
     $("#input-q").attr("placeholder",
         controller.confs.isPhone ? "Pesquise por um cheque." :
         "Pesquise por um CPF/CNPJ ou número de cheque cadastrado." );
@@ -173,7 +173,7 @@ module.exports = function(controller) {
         createjs.Ticker.addEventListener("tick", stage);
 
         $.bipbopLoader.register = () => {
-            $("body").append(container);
+            $(controller.confs.container).append(container);
             return () => {
                 container.remove();
             };

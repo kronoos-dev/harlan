@@ -14,7 +14,7 @@ module.exports = function(controller) {
     require("../../styles/kronoos/print.js");
 
     /* HTML Templates */
-    $("body")
+    $(controller.confs.container)
         .append(require('../../templates/kronoos/site.html.js'))
         .append(require('../../templates/kronoos/application.html.js'))
         .append(require('../../templates/kronoos/print.html.js'));
