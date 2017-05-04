@@ -41,10 +41,18 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.table = (...header) => {
+        return this.captionTable(null, ...header);
+    };
+
+    this.captionTable = (caption, ...header) => {
         var table = $("<table />").addClass("multi-label"),
             thead = $("<thead />"),
             headRow = $("<tr />"),
             tbody = $("<tbody />");
+
+        if (caption) {
+            table.append($("<caption />").text(caption));
+        }
 
         for (let item of header) {
             headRow.append($("<td />").append(label(item)));

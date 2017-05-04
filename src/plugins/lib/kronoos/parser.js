@@ -95,7 +95,7 @@ export class KronoosParse {
         if (dtNascimento.length && dtNascimento.text()) {
             let dtNasc = moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
             if (this.cpf) this.searchCertidao(dtNasc, this.cpf);
-            row["Data de Nascimento"] = dtNasc;
+            row[this.cpf ? "Data de Nascimento" : "Data de Abertura"] = dtNasc;
         }
 
         if (!_.keys(row).length) return;
@@ -292,11 +292,45 @@ export class KronoosParse {
                 success: (data) => {
                     let x = n => $(n, data).text();
                     let kelement = this.controller.call("kronoos::element", 'Certidão do Documento pela Receita Federal',
-                        "Consulta do documento a Receita Federal.", 'Documento remetida pela Receita Federal.');
+                        "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
                     if (CPF.isValid(cpf_cnpj)) {
                         kelement.table("Nome", "Código Comprovante")(x("nome"), x("codigo-comprovante"));
                         kelement.table("Data Consulta", "Situação")(x("data-consulta"), x("situacao"));
                         kelement.table("Data de Nascimento", "Data da Inscrição")(x("dataNascimento"), x("dataInscricao"));
+                    } else {
+                        kelement.table("Nome", "CNPJ", "Data de Abertura")
+                            (x("nome"), x("CNPJ"), x("data-abertura"));
+                        kelement.table("Data Consulta", "Situação", "Data Situação")
+                            (x("data-consulta"), x("situacao"), x("data-situacao"));
+                        kelement.table("EFR", "Situação Especial", "Data Situação Especial")
+                            (x("efr"), x("situacao-especial"), x("data-situacao-especial"));
+                            kelement.table("Natureza Jurídica", "Tipo CNPJ", "Capital Social")
+                                (`${$("natureza-juridica", data).attr("codigo")} ${x("natureza-juridica")}`, x("tipo-cnpj"), numeral(parseInt(x("capitalSocial"))).format("$0,0.00"));
+                        kelement.table("Atividade Econômica", "E-mail", "Telefone")
+                            (`${$("atividade-economica", data).attr("codigo")} ${x("atividade-economica")}`,
+                                x("email"), x("telefone"));
+
+                        let v = n => $(`endereco ${n}`, data).text();
+                        kelement.list("Endereço")
+                            (`${v('logradouro')}, ${v('numero')} ${v('complemento')} - ${v('cep')}, ${v('bairro')}, ${v('municipio')} / ${v('uf')}`);
+
+                        let atividadesSecundarias = $("atividade-secundaria", data);
+                        if (atividadesSecundarias.length) {
+                            let atividades = kelement.captionTable("Atividades Secundárias", "CNAE", "Qualificação");
+                            atividadesSecundarias.each(function () {
+                                atividades($(this).attr("codigo"), $(this).text());
+                            });
+                        }
+
+
+                        let socios = $("socio", data);
+                        if (socios.length) {
+                            let qsa = kelement.captionTable("Quadro Social", "Qualificação", "Nome do Sócio");
+                            socios.each(function () {
+                                qsa($(this).attr("qualificacao"), $(this).text());
+                            });
+                        }
+
                     }
                     this.kelements.push(kelement);
                     this.appendElement.append(kelement.element());
