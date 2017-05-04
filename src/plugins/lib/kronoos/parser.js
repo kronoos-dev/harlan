@@ -10,6 +10,8 @@ import VMasker from 'vanilla-masker';
 // CNEP – Cadastro Nacional de Empresas Punidas, com base na Lei Anticorrupção (Lei nº 12.846/2013) - Controladoria Geral da União (CGU)
 // CEPIM – Entidades Privadas Sem Fins Lucrativos Impedidas de celebrar convênios, contratos de repasse ou termos de parceria com a Administração Pública Federal - Controladoria Geral da União (CGU)
 
+const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
+const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
 const NAMESPACE_DESCRIPTION = {
@@ -30,6 +32,8 @@ const NAMESPACE_DESCRIPTION = {
     'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'] /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
 };
 
+var removeDiacritics = require('diacritics').remove;
+
 export class KronoosParse {
 
     constructor(controller, name, cpf_cnpj, kronoosData,
@@ -38,6 +42,7 @@ export class KronoosParse {
         this.name = name;
         this.controller = controller;
         this.kelements = [];
+        this.procElements = {};
         this.cpf_cnpjs = {};
         this.searchBar = $(".kronoos-application .search-bar");
         this.xhr = [];
@@ -57,12 +62,12 @@ export class KronoosParse {
         $(".kronoos-result").append(this.appendElement);
 
         if (kronoosData) this.parseKronoos(kronoosData);
-        if (procs) this.parseProcs(procs);
         this.emptyChecker();
 
         let m = moment();
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
+        this.jusSearch();
         this.searchMandados();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
@@ -549,8 +554,10 @@ export class KronoosParse {
 
     parseProcs(procs) {
         for (let proc in procs) {
-            let jelement = this.controller.call("kronoos::element", `Processo Nº ${proc}`, "Aguarde enquanto o sistema busca informações adicionais.",
-            "Foram encontradas informações, confirmação pendente.");
+            let jelement = this.controller.call("kronoos::element", `Processo Nº ${proc}`,
+                "Aguarde enquanto o sistema busca informações adicionais.",
+                "Foram encontradas informações, confirmação pendente.");
+            this.procElements[proc] = jelement;
             this.kelements.push(jelement);
             let [article, match] = procs[proc];
             jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
@@ -648,4 +655,132 @@ export class KronoosParse {
             });
         });
     }
+
+    jusSearch () {
+        this.xhr.push(this.controller.server.call("SELECT FROM 'JUSSEARCH'.'CONSULTA'", this.controller.call("error::ajax",
+            this.controller.call("kronoos::status::ajax", "fa-balance-scale", `Buscando por processos jurídicos para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    data: this.name
+                },
+                success: jusSearch => this.juristek(jusSearch)
+            }))));
+    }
+
+    juristek (jusSearch) {
+        /* All fucking data! */
+        var procs = {};
+        const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${name}`, 'gi');
+
+        $("BPQL > body article", jusSearch).each((idx, article) => {
+            let articleText = $(article).text(),
+                match = CNJ_NUMBER.exec(articleText);
+            if (!match) return;
+            procs[VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999")] = [articleText, match[0]];
+        });
+
+        this.parseProcs(procs);
+
+        for (let cnj in procs) {
+            this.xhr.push(this.controller.server.call("SELECT FROM 'JURISTEK'.'KRONOOS'",
+                this.controller.call("kronoos::status::ajax", "fa-balance-scale", `Verificando processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
+                    data: {
+                        data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
+                    },
+                    success: ret => this.juristekCNJ(ret, cnj),
+                    /* melhorar o quesito de erro! */
+                    error: () => {
+                        if (!this.procElements[cnj]) {
+                            return;
+                        }
+                        this.procElements[cnj].remove();
+                        delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
+                        delete this.procElements[cnj];
+                    }
+                })));
+
+        }
+    }
+
+    juristekCNJ (ret, cnj) {
+        let normalizeName = name => removeDiacritics(name).toUpperCase().replace(/\s+/, ' ');
+
+        let cnjInstance = this.procElements[cnj],
+            normalizedName = normalizeName(this.name),
+            procs = $("processo", ret).filter(function () {
+                return $("partes parte", this).filter(function() {
+                    let n1 = normalizeName($(this).text());
+                    let n2 = normalizedName
+                    debugger;
+                    return n1 == n2;
+                }).length > 0;
+            });
+
+        if (!procs.length) {
+            cnjInstance.element().remove();
+            delete this.procElements[cnj];
+            delete this.kelements[this.kelements.indexOf(cnjInstance)];
+            return;
+        }
+        cnjInstance.element().find("p").remove();
+
+
+
+        let proc = procs.first(),
+            urlProcesso,
+            getNode = (x) => proc.find(x).first().text(),
+            partes = proc.find("partes parte"),
+            andamentos = proc.find("andamentos andamento"),
+            pieces = _.pairs({
+                "Valor Causa": getNode("valor_causa"),
+                "Foro": getNode("foro"),
+                "Vara": getNode("vara"),
+                "Comarca": getNode("comarca"),
+                "Número Antigo": getNode("numero_antigo"),
+                "Número Processo": getNode("numero_processo"),
+                "Autuação": getNode("autuacao"),
+                "Localização": getNode("localizacao"),
+                "Ação": getNode("acao"),
+                "Área": getNode("area"),
+                "Situação": getNode("situacao"),
+                "Observação": getNode("observacao"),
+                "Classe": getNode("classe"),
+                "Distribuição": getNode("distribuicao"),
+                "Acesso": ((urlProcesso = getNode("url_processo")) ? $("<a />").attr({
+                    href : urlProcesso,
+                    target: '_blank'
+                }).text("Acessar Processo") : null)
+            });
+
+
+        cnjInstance.subtitle("Existência de apontamentos cadastrais.");
+        cnjInstance.sidenote("Participação em processo jurídico.");
+
+        let validPieces = _.filter(pieces, (t) => {
+            if (!t[1]) return false;
+            return !/^\s*$/.test(t[1]);
+        });
+
+        let [keys, values] = _.unzip(validPieces);
+
+
+        for (let i = 0; i < keys.length; i += 2) {
+            cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
+        }
+
+        if (partes.length) {
+            let kparts = cnjInstance.list("Partes");
+            partes.each((idx) => {
+                let node = partes.eq(idx);
+                kparts(`${node.attr("tipo")} - ${node.text()}`);
+            });
+        }
+
+        // if (andamentos.length) {
+        //     let kparts = cnjInstance.list("Andamentos");
+        //     andamentos.each((idx) => {
+        //         kparts(`${andamentos.eq(idx).find("data").text()} - ${andamentos.eq(idx).find("descricao").text()}`);
+        //     });
+        // }
+    }
+
 }

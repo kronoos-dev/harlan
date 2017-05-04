@@ -44,6 +44,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return this.captionTable(null, ...header);
     };
 
+    this.remove = () => container.remove();
+
     this.captionTable = (caption, ...header) => {
         var table = $("<table />").addClass("multi-label"),
             thead = $("<thead />"),
