@@ -1,12 +1,6 @@
 import { DistanceMeter } from './distance-meter';
 import Guid from 'guid';
-
-function basename(str){
-    var base = new String(str).substring(str.lastIndexOf('/') + 1);
-    if(base.lastIndexOf(".") != -1)
-    base = base.substring(0, base.lastIndexOf("."));
-    return base;
-}
+import basename from 'basename';
 
 module.exports = function (controller) {
 
@@ -36,7 +30,7 @@ module.exports = function (controller) {
 
         if (cameraResume) {
             successCallback(cameraResume);
-            cameraResume = null; 
+            cameraResume = null;
         }
 
         navigator.camera.getPicture(successCallback, cameraErrorCallback, {
@@ -70,7 +64,7 @@ module.exports = function (controller) {
             success: () => {
                 cb();
                 if (obj[0].uri) {
-                    controller.sync.job("accuracy::checkin::sendImage", obj);
+                    controller.sync.job("accuracy::checkin::sendImage", null, obj);
                 }
             },
             error: () => cb("O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte")
@@ -88,6 +82,7 @@ module.exports = function (controller) {
         }, 6000);
 
 
+        controller.call("accuracy::authentication::data", authData =>
         navigator.geolocation.getCurrentPosition((position) => {
             clearTimeout(timeout);
             blockui.mainContainer.remove();
@@ -98,7 +93,7 @@ module.exports = function (controller) {
                 created_date: moment().format("DD/MM/YYYY"),
                 store_id: store.id,
                 campaign_id: campaign.id,
-                employee_id: controller.call("accuracy::authentication::data")[0].id,
+                employee_id: authData[0].id,
                 token: Guid.raw(),
                 file: Guid.raw(),
                 questions: [],
@@ -113,7 +108,7 @@ module.exports = function (controller) {
             clearTimeout(timeout);
             blockui.mainContainer.remove();
             geolocationErrorCallback(...args);
-        });
+        }));
     });
 
 };

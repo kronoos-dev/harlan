@@ -25,7 +25,7 @@ module.exports = function (controller) {
 
     let objectConfirm = (obj, callback) => {
         controller.confirm({}, () => {
-            controller.sync.job("accuracy::checkin::send", obj);
+            controller.sync.job("accuracy::checkin::send", null, obj);
             callback();
         }, () => render());
     };
@@ -104,15 +104,16 @@ module.exports = function (controller) {
             let contentMenu = $("<ul />").addClass("actions");
             campaignContainer.append(contentMenu);
 
-            let registration = controller.call("accuracy::authentication::data")[0].registration;
-            if (registration === "Y" || registration === true) {
-                contentMenu.append($("<li />").append($("<a />").attr({
+            controller.call("accuracy::authentication::data", authData => {
+                let registration = authData[0].registration;
+                if (!(registration === "Y" || registration === true)) return;
+                contentMenu.prepend($("<li />").append($("<a />").attr({
                     href: "#"
                 }).text("Cadastrar Loja").click((e) => {
                     e.preventDefault();
                     controller.call("accuracy::createStore");
                 })));
-            }
+            });
 
             contentMenu.append($("<li />").append($("<a />").attr({
                 href: "#"
@@ -194,8 +195,8 @@ module.exports = function (controller) {
 
     controller.registerTrigger("accuracy::authenticated", "controller", (authData, cb) => {
         cb();
-        as = new ApplicationState(authData);
-        render();
+        as = new ApplicationState(authData, render);
+
     });
 
 };

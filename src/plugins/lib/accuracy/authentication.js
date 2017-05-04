@@ -1,25 +1,35 @@
+import localForage from "localforage";
+
 let _authData = null;
+
 
 module.exports = function (controller) {
 
     /* Verifica se o usuário já está autenticado */
     controller.registerCall("accuracy::authentication", (authentication, logged) => {
-        if (localStorage.accuracyAuth) {
-            let authData = JSON.parse(localStorage.accuracyAuth);
-            _authData = authData;
-            controller.call("accuracy::server::auth", authData);
-            return logged();
-        }
-        return authentication();
+        localForage.getItem('accuracyAuth', (err, value) => {
+            if (!err && value) {
+                _authData = value;
+                controller.call("accuracy::server::auth", _authData);
+                return logged();
+            }
+            return authentication();
+        });
     });
 
-    controller.registerCall("accuracy::authentication::data", () => {
-        return _authData || JSON.parse(localStorage.accuracyAuth);
+    controller.registerCall("accuracy::authentication::data", (cb) => {
+        if (_authData) cb(_authData);
+        else localForage.getItem('accuracyAuth', (err, value) => {
+            if (err) console.error(err);
+            cb(value);
+        });
     });
 
     /* Sai da conta do usuário */
     controller.registerCall("accuracy::logout", (callback) => {
-        delete localStorage.accuracyAuth;
+        localForage.removeItem('accuracyAuth', err => {
+            console.error(err);
+        });
         _authData = null;
         controller.call("accuracy::server::reset");
         if (callback) callback();
@@ -33,9 +43,11 @@ module.exports = function (controller) {
                     errorCallback(authData[0].message || "Não foi possível acessar o sistema");
                     return;
                 }
-                localStorage.accuracyAuth = JSON.stringify(authData);
-                controller.call("accuracy::server::auth", authData);
+                localForage.setItem('accuracyAuth', authData, (err) => {
+                    if (err) console.log(err);
+                });
                 _authData = authData;
+                controller.call("accuracy::server::auth", authData);
                 if (callback) callback();
             },
             error: () => {

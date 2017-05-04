@@ -34,7 +34,7 @@ module.exports = function (controller) {
             let error = (...args) => {
                 if (dict.error) dict.error(...args);
                 if (dict.complete) dict.complete();
-            }
+            };
 
             var uploadOptions = new FileUploadOptions();
             uploadOptions.fileKey = dict.fileKey;

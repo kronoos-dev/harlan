@@ -20,8 +20,9 @@ module.exports = function (controller) {
 
 
     let showCounter = () => {
-        let length = controller.sync.queueLength();
-        logoCaller.text(length ? length.toString() : "");
+        controller.sync.queueLength(length => {
+            logoCaller.text(length ? length.toString() : "");
+        });
     };
 
     showCounter();

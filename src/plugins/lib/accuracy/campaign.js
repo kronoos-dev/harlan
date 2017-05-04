@@ -13,7 +13,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("accuracy::campaigns::get", (callback, errorCallback) => {
-        let authData = controller.call("accuracy::authentication::data");
+        controller.call("accuracy::authentication::data", (authData) =>
         controller.accuracyServer.call(`getCampaignsByUser/${authData[0].id}`, {}, {
             success: (data) => {
                 localStorage.accuracyCampaign = JSON.stringify(data);
@@ -28,6 +28,6 @@ module.exports = function (controller) {
                 toastr.warning("Parece que você está off-line, pegamos as informações de campanha do cache.", "Sua conexão não está disponível para as campanhas.");
                 if (callback) callback(JSON.parse(localStorage.accuracyCampaign));
             }
-        }, true);
+        }, true));
     });
 };

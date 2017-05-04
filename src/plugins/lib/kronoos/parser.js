@@ -180,12 +180,13 @@ export class KronoosParse {
                         kelement.table("Qtde. Ocorrências", "Alínea")($("qteOcorrencias", element).text(), $("motivo", element).text());
 
             			let v1 = moment($("dataUltOcorrencia", element).text(), "DD/MM/YYYY"),
-            				v2 = moment($("ultimo", element).text(), "DD/MM/YYYY");
-                        kelement.table(`Primeiro Registro (${(v1.isAfter(v2) ? v2 : v1).fromNow()})`,
-                                       `Última Ocorrência (${(v1.isAfter(v2) ? v1 : v2).fromNow()})`),
-                                      ((v1.isAfter(v2) ? v2 : v1).format("DD/MM/YYYY"),
-                                       (v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY"));
+            				v2 = moment($("ultimo", element).text(), "DD/MM/YYYY"),
+                            e1 = v1.isAfter(v2) ? v2 : v1,
+                            e2 = v1.isAfter(v2) ? v1 : v2;
 
+                        let table = kelement.table(`Primeiro Registro (${e1.fromNow()})`,
+                                       `Última Ocorrência (${e2.fromNow()})`);
+                        table(e1.format("DD/MM/YYYY"), e2.format("DD/MM/YYYY"));
                         this.appendElement.append(kelement.element());
                     });
 

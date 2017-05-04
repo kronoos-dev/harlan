@@ -70,7 +70,7 @@ module.exports = function(controller) {
         let markdownData = MarkdownIt.render($("message > text", message).text());
         let el = $("<div />").html(markdownData).addClass("markdown");
         modal.element().append(el);
-        el.find("a").click(function (e) => {
+        el.find("a").click(function (e) {
             controller.call("link", $(this).attr("href"), e);
             modal.close();
         });

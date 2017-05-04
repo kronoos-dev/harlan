@@ -1,7 +1,7 @@
 (function(controller) {
 
     controller.confs.accuracy = {
-        webserver: "http://app.accuracyapp.com.br/api/v2/", /* local da API */
+        webserver: "http://app.accuracyapp.4vconnect.com.br/api/v2/", /* local da API */
         geofenceLimit: 150, /* metros*/
         ajaxTimeout: 25000
     };
