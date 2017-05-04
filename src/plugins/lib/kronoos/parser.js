@@ -150,6 +150,7 @@ export class KronoosParse {
                             ($("nome", element).text(), $("endereco", element).text());
                         kelement.table("Protestos", "Telefone", "Cidade")
                             ($("protestos", element).text(), $("telefone", element).text(), $("cidade", element).text());
+                        this.appendElement.append(kelement.element());
             		});
                 },
             }, true)));
@@ -172,11 +173,15 @@ export class KronoosParse {
                             "Foram localizados cheques sem fundo em uma instituição bancária.");
                         this.kelements.push(kelement);
 
-                        if (bankName)
-                            result.addItem("Banco", bankName);
+                        if (bankName) {
+                            kelement.table("Código Bancário", "Banco", "Agência")
+                                ($("banco", element).text(), bankName, $("agencia", element).text());
+                        } else {
+                            kelement.table("Código Bancário", "Agência")
+                                ($("banco", element).text(), $("agencia", element).text());
 
-                        kelement.table("Código Bancário", "Agência")
-                            ($("banco", element).text(), $("agencia", element).text());
+                        }
+
                         kelement.table("Qtde. Ocorrências", "Alínea")($("qteOcorrencias", element).text(), $("motivo", element).text());
 
             			let v1 = moment($("dataUltOcorrencia", element).text(), "DD/MM/YYYY"),
