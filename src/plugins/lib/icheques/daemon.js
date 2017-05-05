@@ -22,7 +22,7 @@ module.exports = function (controller) {
             interval = setInterval(() => {
             if (modal || isRunning) return;
             isRunning = true;
-            $.ajax("http://127.0.0.1:3001/configuration", {
+            $.ajax("https://daemon.icheques.com.br:3001/configuration", {
                 dataType: "json",
                 success: configuration => {
                     clearInterval(interval);
@@ -40,7 +40,7 @@ module.exports = function (controller) {
 
 
     controller.registerCall("icheques::wba", () => {
-        $.ajax("http://127.0.0.1:3001/configuration", {
+        $.ajax("https://daemon.icheques.com.br:3001/configuration", {
             success: configuration => controller.call("icheques::wba::configure", configuration.hash, configuration),
             error: () => controller.call("alert", {
                     title: "Você precisa instalar o Integrador iCheques",
@@ -136,7 +136,7 @@ module.exports = function (controller) {
              modal.subtitle("Verifique as mensagens que o integrador WBA tem gerado.");
              let form = modal.createForm(),
                  list = form.createList(),
-                 update = () => $.ajax("http://127.0.0.1:3001/log", {
+                 update = () => $.ajax("https://daemon.icheques.com.br:3001/log", {
                      dataType: "json",
                      success: log => {
                          list.empty();
