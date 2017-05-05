@@ -98,7 +98,7 @@
         width: 100%;
         caption {
             font-weight: bold;
-            color: #17884d;            
+            color: #17884d;
         }
         tbody {
             td {
@@ -109,5 +109,12 @@
                 border-bottom: 1px solid rgb(207, 207, 207);
             }
         }
+    }
+    .certidao {
+        background: #fff;
+        margin: auto;
+        display: block;
+        margin: 30px auto;
+        max-width: 100%;
     }
 }

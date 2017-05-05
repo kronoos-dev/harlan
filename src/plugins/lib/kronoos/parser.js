@@ -67,6 +67,7 @@ export class KronoosParse {
         let m = moment();
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
+        this.searchMTE();
         this.jusSearch();
         this.searchMandados();
         this.searchBovespa();
@@ -137,6 +138,30 @@ export class KronoosParse {
     searchBovespa() {
         let [title, description] = NAMESPACE_DESCRIPTION.bovespa,
         kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
+    }
+
+    searchMTE() {
+        if (!this.cnpj) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'MTE'.'CERTIDAO'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cnpj
+                },
+                success: (data) => {
+                    debugger;
+                    let kelement = this.controller.call("kronoos::element", "Secretaria de Inspeção do Trabalho - SIT",
+                        "Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração",
+                        "Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.");
+
+                    this.kelements.push(kelement);
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao") 
+                        .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
+                    this.appendElement.append(kelement.element());
+                }
+            }, true)));
     }
 
     searchProtestos() {
