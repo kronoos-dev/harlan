@@ -318,7 +318,7 @@ export class KronoosParse {
                                 (`${$("natureza-juridica", data).attr("codigo")} ${x("natureza-juridica")}`, x("tipo-cnpj"), numeral(parseInt(x("capitalSocial"))).format("$0,0.00"));
                         kelement.table("Atividade Econômica", "E-mail", "Telefone")
                             (`${$("atividade-economica", data).attr("codigo")} ${x("atividade-economica")}`,
-                                x("email"), x("telefone"));
+                                x("email"), x("telefones"));
 
                         let v = n => $(`endereco ${n}`, data).text();
                         kelement.list("Endereço")
