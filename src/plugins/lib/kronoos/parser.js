@@ -67,8 +67,9 @@ export class KronoosParse {
         let m = moment();
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
-        this.searchMTE();
         this.jusSearch();
+        this.searchMTE();
+        this.searchDAU();
         this.searchMandados();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
@@ -140,6 +141,29 @@ export class KronoosParse {
         kelement = this.controller.call("kronoos::element", title, "Existência de apontamentos cadastrais.", description);
     }
 
+    searchDAU() {
+        if (!this.cnpj) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'RFBDAU'.'CONSULTA'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Pesquisando Dívida Ativa da União para o CNPJ ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cnpj
+                },
+                success: (data) => {
+                    let kelement = this.controller.call("kronoos::element", "Certidão de Dívida Ativa da União",
+                        "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
+                        "Documento comprova que empresa está em condição regular em relação à Secretaria da Receita Federal e à dívida ativa da União.");
+
+                    this.kelements.push(kelement);
+                    kelement.table("Nome", "Documento")
+                        ($("nome", data).text(), $("documento", data).text());
+                    kelement.table("Validade", "Código de Controle")
+                        ($("validade", data).text(), $("codigo_de_controle", data).text());
+                    kelement.paragraph($("descricao", data).text());
+                    this.appendElement.append(kelement.element());
+                }
+            }, true)));
+    }
+
     searchMTE() {
         if (!this.cnpj) return;
         this.xhr.push(this.controller.server.call("SELECT FROM 'MTE'.'CERTIDAO'",
@@ -148,7 +172,6 @@ export class KronoosParse {
                     documento: this.cnpj
                 },
                 success: (data) => {
-                    debugger;
                     let kelement = this.controller.call("kronoos::element", "Secretaria de Inspeção do Trabalho - SIT",
                         "Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração",
                         "Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.");
@@ -157,7 +180,7 @@ export class KronoosParse {
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
-                    }).append($("<img />").addClass("certidao") 
+                    }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
                     this.appendElement.append(kelement.element());
                 }
