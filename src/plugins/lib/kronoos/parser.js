@@ -68,6 +68,7 @@ export class KronoosParse {
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
         this.jusSearch();
+        this.searchCNDT();
         this.searchMTE();
         this.searchDAU();
         this.searchMandados();
@@ -159,6 +160,29 @@ export class KronoosParse {
                     kelement.table("Validade", "Código de Controle")
                         ($("validade", data).text(), $("codigo_de_controle", data).text());
                     kelement.paragraph($("descricao", data).text());
+                    this.appendElement.append(kelement.element());
+                }
+            }, true)));
+    }
+
+    searchCNDT() {
+        if (!this.cnpj) return;
+        this.xhr.push(this.controller.server.call("SELECT FROM 'CNDT'.'CERTIDAO'",
+            this.controller.call("kronoos::status::ajax", "fa-eye", `Certidão Negativa de Débitos Trabalhistas ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cnpj
+                },
+                success: (data) => {
+                    let kelement = this.controller.call("kronoos::element", "Certidão Negativa de Débitos Trabalhistas - TST",
+                        "Geração de Certidão Negativa de Débitos Trabalhistas no Tribunal Superior do Trabalho",
+                        "Certidão Negativa de Débitos Trabalhistas - CNDT, documento indispensável à participação em licitações públicas.");
+
+                    this.kelements.push(kelement);
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao")
+                        .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
                     this.appendElement.append(kelement.element());
                 }
             }, true)));
