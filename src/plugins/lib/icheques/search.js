@@ -56,7 +56,10 @@ module.exports = function(controller) {
 
         var searchString = sprintf("%s%%", args[0]),
             query = squel.select()
-            .from("ICHEQUES_CHECKS").limit(3).where(squel.expr()
+            .from("ICHEQUES_CHECKS")
+            .order("EXPIRE", false)
+            .limit(3)
+            .where(squel.expr()
                 .or("CPF LIKE ?", searchString)
                 .or("CMC LIKE ?", sprintf("%%%s%%", searchString))
                 .or("CNPJ LIKE ?", searchString)

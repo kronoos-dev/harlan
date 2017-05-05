@@ -37,7 +37,8 @@ var removeDiacritics = require('diacritics').remove;
 export class KronoosParse {
 
     constructor(controller, name, cpf_cnpj, kronoosData,
-            cbuscaData = null, jusSearch = null, procs = [], defaultType = "maximized", parameters = {}) {
+            cbuscaData = null, defaultType = "maximized", parameters = {}) {
+
         this.parameters = parameters;
         this.name = name;
         this.controller = controller;
@@ -46,6 +47,9 @@ export class KronoosParse {
         this.cpf_cnpjs = {};
         this.searchBar = $(".kronoos-application .search-bar");
         this.xhr = [];
+        this.homonymous = null;
+        this.kronoosData = kronoosData;
+        this.cbuscaData = cbuscaData;
 
         if (CPF.isValid(cpf_cnpj)) {
             this.cpf = this.cpf_cnpj = CPF.format(cpf_cnpj);
@@ -67,11 +71,28 @@ export class KronoosParse {
         let m = moment();
         this.kelements[0].header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
 
+        if (this.cpf) {
+            this.xhr.push(this.controller.server.call("SELECT FROM 'CBUSCA'.'HOMONYMOUS'",
+                this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando a quantidade de homônimos para o ${this.name}.`, {
+                    dataType: "json",
+                    nome: this.name,
+                    success: ret => {
+                        this.homonymous = ret;
+                    },
+                    complete: () => this.searchAll()
+
+                })));
+        } else {
+            this.searchAll();
+        }
+    }
+
+    searchAll() {
         this.jusSearch();
+        this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
         this.searchDAU();
-        this.searchMandados();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
         this.searchCepim();
@@ -81,25 +102,26 @@ export class KronoosParse {
         this.searchCCF();
         this.searchProtestos();
 
-        if (!cbuscaData) {
+        if (!this.cbuscaData) {
             return;
         }
 
-        this.showCBusca(cbuscaData);
+        this.showCBusca(this.cbuscaData);
         this.generateRelations = this.controller.call("generateRelations");
-        this.generateRelations.appendDocument(cbuscaData, this.cpf_cnpj);
+        this.generateRelations.appendDocument(this.cbuscaData, this.cpf_cnpj);
         this.cpf_cnpjs[this.cpf_cnpj] = true;
         this.graphTrack();
     }
 
-    cbuscaMae(cbuscaData) {
+    cbuscaMae() {
         let row = {};
-        let maeNode = $("nomemae", cbuscaData);
+        let maeNode = $("nomemae", this.cbuscaData);
         if (maeNode.length && maeNode.text()) {
             row["Nome da Mãe"] = maeNode.text();
+            this.mae = maeNode.text();
         }
 
-        let dtNascimento = $("dtnascimento", cbuscaData);
+        let dtNascimento = $("dtnascimento", this.cbuscaData);
         if (dtNascimento.length && dtNascimento.text()) {
             let dtNasc = moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
             if (this.cpf) this.searchCertidao(dtNasc, this.cpf);
@@ -110,8 +132,8 @@ export class KronoosParse {
         this.kelements[0].table(..._.keys(row))(..._.values(row));
     }
 
-    cbuscaTelefone(cbuscaData) {
-        let telefones = $("telefones telefone", cbuscaData);
+    cbuscaTelefone() {
+        let telefones = $("telefones telefone", this.cbuscaData);
         if (!telefones.length) return;
 
         let klist = this.kelements[0].list("Telefones");
@@ -121,8 +143,8 @@ export class KronoosParse {
         });
     }
 
-    cbuscaEnderecos(cbuscaData) {
-        let enderecos = $("enderecos endereco", cbuscaData);
+    cbuscaEnderecos() {
+        let enderecos = $("enderecos endereco", this.cbuscaData);
         if (!enderecos.length) return;
         let klist = this.kelements[0].list("Endereço");
         enderecos.each(function () {
@@ -131,10 +153,10 @@ export class KronoosParse {
         });
     }
 
-    showCBusca(cbuscaData) {
-        this.cbuscaMae(cbuscaData);
-        this.cbuscaTelefone(cbuscaData);
-        this.cbuscaEnderecos(cbuscaData);
+    showCBusca() {
+        this.cbuscaMae(this.cbuscaData);
+        this.cbuscaTelefone(this.cbuscaData);
+        this.cbuscaEnderecos(this.cbuscaData);
     }
 
     searchBovespa() {
@@ -472,6 +494,7 @@ export class KronoosParse {
     }
 
     searchMandados() {
+        /* DEBUG PELO CPF 32078569852 */
         if (!this.cpf || !CPF.isValid(this.cpf)) return;
         this.xhr.push(this.controller.server.call("SELECT FROM 'PROCURADOS'.'CONSULTA'",
             this.controller.call("kronoos::status::ajax", "fa-eye", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
@@ -690,7 +713,7 @@ export class KronoosParse {
                             name: `"${node.label.replace("\n", "")}"`
                         },
                         success: (data) => {
-                            this.controller.call("kronoos::parse", node.label, formatted_document, data, null, null, [], "minimized", {
+                            this.controller.call("kronoos::parse", node.label, formatted_document, data, null, "minimized", {
                                 observation: `relacionado ao ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj} - ${this.name}.`
                             });
                         },
@@ -781,8 +804,7 @@ export class KronoosParse {
             procs = $("processo", ret).filter(function () {
                 return $("partes parte", this).filter(function() {
                     let n1 = normalizeName($(this).text());
-                    let n2 = normalizedName
-                    debugger;
+                    let n2 = normalizedName;
                     return n1 == n2;
                 }).length > 0;
             });

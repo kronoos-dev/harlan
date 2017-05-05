@@ -125,7 +125,7 @@ module.exports = (controller) =>  {
                 cancel: (onExit, text) =>  {
                     add(text || controller.i18n.system.cancel()).click((e) => {
                         e.preventDefault();
-                        this.onClose = onExit;
+                        if (onExit) onExit();
                         this.close();
                     });
                 },
