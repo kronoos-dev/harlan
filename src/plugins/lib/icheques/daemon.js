@@ -41,6 +41,7 @@ module.exports = function (controller) {
 
     controller.registerCall("icheques::wba", () => {
         $.ajax("https://daemon.icheques.com.br:3001/configuration", {
+            timeout: 3000,
             success: configuration => controller.call("icheques::wba::configure", configuration.hash, configuration),
             error: () => controller.call("alert", {
                     title: "Você precisa instalar o Integrador iCheques",
