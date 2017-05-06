@@ -138,13 +138,16 @@ module.exports = function (controller) {
                     campaignStores(campaign);
                 });
 
+                let campaignImage = $("<img />")
+                    .on('error', () => campaignImage.attr("src", "images/accuracy/offline-image.png"))
+                    .attr("src", campaign.avatar)
+                    .addClass("accuracy-campaign-image");
+
                 campaignElement
-                .append($("<img />").attr({
-                    src: campaign.avatar
-                }).addClass("accuracy-campaign-image"))
-                .append($("<span />")
-                .text(campaign.name)
-                .addClass("accuracy-campaign-title"));
+                    .append(campaignImage)
+                    .append($("<span />")
+                    .text(campaign.name)
+                    .addClass("accuracy-campaign-title"));
 
                 list.append(campaignElement);
             });
