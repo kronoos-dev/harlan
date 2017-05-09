@@ -48,7 +48,7 @@ module.exports = function(controller) {
             return false;
         }
 
-        controller.call("icheques::show", [databaseResult.values[0]], null, true);
+        controller.call("icheques::show", [databaseResult.values[0]], null, null, true);
         return true;
     });
 
