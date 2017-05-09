@@ -98,7 +98,7 @@ var readAdapters = {
                 }).toArray();
 
                 nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
-                    return relation.createNode($("cadastro cpf", document).text(), $("doc", node).text());
+                    return relation.createEdge($("cadastro cpf", document).text(), $("doc", node).text());
                 }).toArray());
 
                 return callback(null, nodes);
@@ -128,7 +128,7 @@ var GenerateRelations = function() {
     this.createNode = (id, label, group, data = {}) => {
 
         labelIdentification[label] = id;
-
+        debugger;
         return $.extend({
             id: id.replace(START_ZERO, ''),
             label: wrap(label),

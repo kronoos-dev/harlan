@@ -187,8 +187,7 @@ module.exports = function (controller) {
             let items = {};
             let separator = result.addSeparator("Quadro Societário", "Empresa", "", items);
 
-            controller.server.call("SELECT FROM 'SEEKLOC'.'CCF'",
-                controller.call("error::ajax", controller.call("loader::ajax", {data:dict, success: ret => {
+            controller.server.call("SELECT FROM 'SEEKLOC'.'CCF'", {data:dict, success: ret => {
                     let totalRegistro =  parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
                     let message = 'Não há cheques sem fundo.';
                     if (totalRegistro) {
@@ -200,8 +199,7 @@ module.exports = function (controller) {
                     items.resultsDisplay.text(`${items.resultsDisplay.text()} ${message}`);
                 }})));
 
-            controller.server.call("SELECT FROM 'IEPTB'.'WS'",
-                controller.call("error::ajax", controller.call("loader::ajax", {data:dict, success: ret => {
+            controller.server.call("SELECT FROM 'IEPTB'.'WS'", {data:dict, success: ret => {
                     if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
                         items.resultsDisplay.text(`${items.resultsDisplay.text()} Não há protestos.`);
                         return;
@@ -211,7 +209,7 @@ module.exports = function (controller) {
                                             .map((p) => parseInt($(p).text()))
                                             .reduce((a, b) => a + b, 0);
                     items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${totalProtestos}.`);
-                }})));
+                }});
 
 
             for (var idx in nodes) {
