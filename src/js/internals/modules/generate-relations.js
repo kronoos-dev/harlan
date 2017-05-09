@@ -205,7 +205,7 @@ var GenerateRelations = function() {
                 edges =  _.uniq(_.map(_.flatten(_.pluck(results, "edges")), (edge) => {
                     for (let i of ['to', 'from']) {
                         if (unlabers.indexOf(edge[i]) !== -1) {
-                            edge[i] = nodes.findWhere(nodes, {label: edge[i]}).id;
+                            edge[i] = _.findWhere(nodes, {label: edge[i]}).id;
                         }
                     }
                     return edge;
