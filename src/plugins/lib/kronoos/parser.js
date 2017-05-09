@@ -781,6 +781,7 @@ export class KronoosParse {
                     data: {
                         data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
                     },
+                    timeout: 30000, /* 30 segundos! */
                     success: ret => this.juristekCNJ(ret, cnj),
                     /* melhorar o quesito de erro! */
                     error: () => {

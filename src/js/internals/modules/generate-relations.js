@@ -53,7 +53,7 @@ var readAdapters = {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
                 return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                    return relation.createNode(relation.labelIdentification($(node).text()), $(node).text(), "user");
+                    return relation.createNode(relation.labelIdentification($("user", node).text()), $(node).text());
                 }).toArray());
             };
         },
@@ -74,21 +74,34 @@ var readAdapters = {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
                 let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                    return relation.createNode($(node).find("cnpj").text(), $(node).find("nome").text(), "company", {unlabel: true});
+                    return relation.createNode($("cnpj", node).text(), $("nome", node).text(), "company", {unlabel: true});
                 }).toArray();
 
+                nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
+                    return relation.createNode($("doc", node).text(), $("nome", node).text(), "user", {unlabel: true});
+                }).toArray());
+
+
                 nodes.push(relation.createNode(
-                    $(document).find("cadastro cpf").text(),
-                    $(document).find("cadastro nome").text(),
-                    "user"));
-                callback(null, nodes);
+                    $("cadastro cpf", document).text(),
+                    $("cadastro nome", document).text(),
+                    "user", {unlabel: true}));
+
+                return callback(null, nodes);
             };
         },
         trackEdges: (relation, legalDocument, document) => {
             return (callback) => {
-                return callback(null, $("parsocietaria empresa", document).map((idx, node) => {
-                    return relation.createEdge($(document).find("cadastro cpf").text(), $(node).find("cnpj").text());
+
+                let nodes = $("parsocietaria empresa", document).map((idx, node) => {
+                    return relation.createEdge($("cadastro cpf", document).text(), $("cnpj", node).text());
+                }).toArray();
+
+                nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
+                    return relation.createNode($("cadastro cpf", document).text(), $("doc", node).text());
                 }).toArray());
+
+                return callback(null, nodes);
             };
         },
         purchaseNewDocuments: (relation, legalDocument, document) => {
@@ -129,7 +142,7 @@ var GenerateRelations = function() {
 
     /* Append Document */
     this.appendDocument = (document, legalDocument) => {
-        var query = $(document).find("BPQL > header > query"),
+        var query = $("BPQL > header > query", document),
             key = `${query.attr('database')}.${query.attr('table')}`;
 
         if (!documents[key]) {
@@ -194,7 +207,7 @@ var GenerateRelations = function() {
                         if (unlabers.indexOf(edge[i]) !== -1) {
                             edge[i] = nodes.findWhere(nodes, {label: edge[i]}).id;
                         }
-                    } 
+                    }
                     return edge;
                 }), false, (n) => {
                     let t = n.from >= n.to,
