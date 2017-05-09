@@ -8,7 +8,10 @@ module.exports = function (controller) {
 
     controller.registerCall("link", (href, e) => {
         for (let [regex, callback] of links) {
-            if (regex.test(href)) return callback(e);
+            if (regex.test(href)) if(callback(href, e)) {
+                e.preventDefault();
+                return;
+            }
         }
     });
 };
