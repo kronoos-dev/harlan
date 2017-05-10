@@ -81,9 +81,9 @@ export class KronoosParse {
             this.serverCall("SELECT FROM 'CBUSCA'.'HOMONYMOUS'",
                 this.loader("fa-eye", `Verificando a quantidade de homônimos para o ${this.name}.`, {
                     dataType: "json",
-                    nome: this.name,
+                    data: {nome: this.name},
                     success: ret => {
-                        this.homonymous = ret;
+                        this.homonymous = ret.homonymous;
                     },
                     complete: () => this.searchAll()
 
@@ -483,8 +483,14 @@ export class KronoosParse {
             }, true));
     }
 
+    changeResult() {
+        let results = _.map(_.groupBy(_.map(this.kelements, (kelement) => kelement.notation()), (r) => r[0]), (n) => _.countBy(n, (i) => i[1]));
+        console.log(results);
+    }
+
     kronoosElement(...args) {
         let kelement = this.call("kronoos::element", ...args);
+        kelement.aggregate(() => this.changeResult);
         this.kelements.push(kelement);
         return kelement;
     }
@@ -702,6 +708,7 @@ export class KronoosParse {
             let jelement = this.kronoosElement(`Processo Nº ${proc}`,
                 "Aguarde enquanto o sistema busca informações adicionais.",
                 "Foram encontradas informações, confirmação pendente.");
+            jelement.titleAlert();
             this.procElements[proc] = jelement;
             let [article, match] = procs[proc];
             jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
@@ -737,6 +744,7 @@ export class KronoosParse {
     }
 
     kill () {
+        debugger;
         ajaxQueue.remove((task) => {
             return task.parser.uniqid == this.uniqid;
         });
@@ -945,6 +953,7 @@ export class KronoosParse {
 
         cnjInstance.subtitle("Existência de apontamentos cadastrais.");
         cnjInstance.sidenote("Participação em processo jurídico.");
+        cnjInstance.removeAlertElement();
 
         let validPieces = _.filter(pieces, (t) => {
             if (!t[1]) return false;

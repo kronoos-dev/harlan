@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700,900,600);
 @import 'reset-element';
- 
+
 @keyframes kronoosLoader {
     0%{background:#17884d}
     50%{background:#24D478}
@@ -42,6 +42,7 @@ $color-complementary: #7c66c2;
                 display: block;
             }
             i {
+                cursor: pointer;
                 margin-right: 15px;
                 vertical-align: baseline;
             }
@@ -55,6 +56,11 @@ $color-complementary: #7c66c2;
             line-height: 34px;
             padding: 10px 0;
             color: rgb(197, 197, 197);
+        }
+        &.showAll {
+            .status-message {
+                display: block;
+            }
         }
         &.minimize {
             height: auto !important;

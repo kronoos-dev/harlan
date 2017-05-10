@@ -6,7 +6,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
         sideContent = $("<div />").addClass("kronoos-side-content full"),
         titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
         subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
-        sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote");
+        sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
+        alertElement, aggregate, notation, behaviour;
 
     sideContent.append(titleElement)
         .append(subtitleElement)
@@ -17,6 +18,44 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     var label = (label) => {
         return $("<label />").text(label);
+    };
+
+    this.removeAlertElement = () => {
+        if (alertElement) alertElement.remove();
+        alertElement = null;
+        return this;
+    };
+
+    this.notation = (v = null) => {
+        if (v !== null) {
+            if (notation) container.removeClass(notation);
+            notation = v ? "hasNotation" : "hasntNotation";
+            container.addClass(notation);
+            if (aggregate) aggregate();
+        }
+        return [notation || "unknownNotation", behaviour || "unknownBehaviour"];
+    };
+
+    let dataStatus = (b, hasNotation) => {
+        if (behaviour) container.removeClass(behaviour);
+        behaviour = b;
+        container.addClass(b);
+        this.notation(hasNotation);
+        return this;
+    };
+
+    this.behaviourUnstructured = (hasNotation) => dataStatus("behaviourUnstructured", hasNotation);
+    this.behaviourHomonym = (hasNotation) => dataStatus("behaviourHomonym", hasNotation);
+    this.behaviourUnstructuredHomonym = (hasNotation) => dataStatus("behaviourUnstructuredHomonym", hasNotation);
+    this.behaviourAccurate = (hasNotation) => dataStatus("behaviourAccurate", hasNotation);
+
+    this.titleAlert = (font = 'exclamation-triangle', behaviour = "behaviourUnstructured", hasNotation = true) => {
+        this.removeAlertElement();
+        this[behaviour]();
+        this.notation(hasNotation);
+        alertElement = $("<i />").addClass(`fa fa-${font}`);
+        titleElement.prepend(alertElement);
+        return this;
     };
 
     this.title = (text) => {
@@ -135,6 +174,10 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.element = () => {
         return container;
+    };
+
+    this.aggregate = (callback) => {
+        aggregate = callback;
     };
 
     return this;

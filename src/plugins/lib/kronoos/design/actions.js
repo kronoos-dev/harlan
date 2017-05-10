@@ -23,6 +23,12 @@ module.exports = (controller) => {
         controller.call("kronoos::clearAll");
     });
 
+    $(".kronoos-action-minimize-all").click((e) => {
+        e.preventDefault();
+        $(".kronoos-application .search-bar").removeClass("showAll");
+        $("i[class='fa fa-minus-square-o']").click();
+    });
+
     action(".kronoos-action-print", "kronoos::print");
     action(".kronoos-action-change-password", "password::change");
     action(".kronoos-action-logout", "authentication::logout");
