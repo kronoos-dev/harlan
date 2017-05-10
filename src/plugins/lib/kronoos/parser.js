@@ -35,7 +35,7 @@ export class KronoosParse {
             ccbuscaData = null, defaultType = "maximized", parameters = {}) {
 
         this.parameters = parameters;
-        this.name = name;
+        this.name = name.replace(/(\r)?\n/g, " ").replace(/\s+/g, ' ');
         this.controller = controller;
         this.kelements = [];
         this.procElements = {};
@@ -88,12 +88,12 @@ export class KronoosParse {
 
     serverCall(query, conf, ...args) {
 
-        if (!this.runningXhr++)
+        if (!(this.runningXhr++))
             this.header.element.addClass("loading");
 
         let complete = conf.complete;
         conf.complete = (...args) => {
-            if (!--this.runningXhr)
+            if (!(--this.runningXhr))
                 this.header.element.removeClass("loading");
             if (complete) complete(...args);
         };
@@ -108,6 +108,7 @@ export class KronoosParse {
 
     searchAll() {
         this.jusSearch();
+        this.searchTjsp();
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
@@ -122,7 +123,7 @@ export class KronoosParse {
         this.searchProtestos();
 
         if (!this.ccbuscaData) {
-            this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'", this.call("error::ajax",
+            this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'", this.errorAjax(
                 this.loader("fa-bank", `Acessando bureau de crédito para ${this.name || ""} ${this.cpf_cnpj}.`, {
                     data: {
                         documento: this.cpf_cnpj,
@@ -213,7 +214,7 @@ export class KronoosParse {
                     kelement.table("Validade", "Código de Controle")
                         ($("validade", data).text(), $("codigo_de_controle", data).text());
                     kelement.paragraph($("descricao", data).text());
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 }
             }, true));
     }
@@ -235,7 +236,7 @@ export class KronoosParse {
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 }
             }, true));
     }
@@ -257,7 +258,7 @@ export class KronoosParse {
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 }
             }, true));
     }
@@ -278,7 +279,7 @@ export class KronoosParse {
                             ($("nome", element).text(), $("endereco", element).text());
                         kelement.table("Protestos", "Telefone", "Cidade")
                             ($("protestos", element).text(), $("telefone", element).text(), $("cidade", element).text());
-                        this.appendElement.append(kelement.element());
+                        this.append(kelement.element());
             		});
                 },
             }, true));
@@ -319,7 +320,7 @@ export class KronoosParse {
                         let table = kelement.table(`Primeiro Registro (${e1.fromNow()})`,
                                        `Última Ocorrência (${e2.fromNow()})`);
                         table(e1.format("DD/MM/YYYY"), e2.format("DD/MM/YYYY"));
-                        this.appendElement.append(kelement.element());
+                        this.append(kelement.element());
                     });
 
                 },
@@ -349,7 +350,7 @@ export class KronoosParse {
                         kelement.table("UF do órgão sancionador", "Origem da informação")
                             (x("UF-DO-ORGAO-SANCIONADOR"), x("ORIGEM-DA-INFORMACAO"));
 
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -378,7 +379,7 @@ export class KronoosParse {
                     kelement.table("Fundamento Legal")
                         (x("FUNDAMENTO-LEGAL"));
 
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -404,7 +405,7 @@ export class KronoosParse {
                     kelement.table("Valor Contrapartida", "Data Última Liberação")(`R$ ${x("VALOR-CONTRAPARTIDA")}`, x("DATA-ULTIMA-LIBERACAO"));
                     kelement.table("valor Última Liberação")(`R$ ${x("VALOR-ULTIMA-LIBERACAO")}`);
 
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -460,7 +461,7 @@ export class KronoosParse {
                         }
 
                     }
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -494,7 +495,7 @@ export class KronoosParse {
                     kelement.table("UF do órgão sancionador", "Origem da informação")
                         (x("UF-DO-ORGAO-SANCIONADOR"), x("ORIGEM-DA-INFORMACAO"));
 
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -515,7 +516,7 @@ export class KronoosParse {
                     kelement.table("Validade", "Orgão Julgador")
                         (x("dataValidade"), `${x("orgaoJulgador nome")} - ${x("orgaoJulgador municipio")} / ${x("orgaoJulgador UF")}`);
                     kelement.table("Síntese da Decisão")(x("sinteseDecisao"));
-                    this.appendElement.append(kelement.element());
+                    this.append(kelement.element());
                 },
             }, true));
     }
@@ -680,13 +681,14 @@ export class KronoosParse {
 
     parseProcs(procs) {
         for (let proc in procs) {
+            if (this.procElements[proc]) continue;
             let jelement = this.kronoosElement(`Processo Nº ${proc}`,
                 "Aguarde enquanto o sistema busca informações adicionais.",
                 "Foram encontradas informações, confirmação pendente.");
             this.procElements[proc] = jelement;
             let [article, match] = procs[proc];
             jelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
-            this.appendElement.append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+            this.append(jelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
         }
     }
 
@@ -711,8 +713,8 @@ export class KronoosParse {
         if (!this.kelements.length) {
             let [title, description] = NAMESPACE_DESCRIPTION.clear,
                 nelement = this.kronoosElement(title, "Não consta nenhum apontamento cadastral.", description);
-                
-            this.appendElement.append(nelement.element());
+
+            this.append(nelement.element());
             this.searchBar.addClass("minimize").removeClass("full");
         }
     }
@@ -738,7 +740,7 @@ export class KronoosParse {
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
-                    elements.push((cb) => this.serverCall("SELECT FROM 'KRONOOSUSER'.'API'", this.call("error::ajax",
+                    elements.push((cb) => this.serverCall("SELECT FROM 'KRONOOSUSER'.'API'", this.errorAjax(
                     this.loader("fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${this.cpf_cnpj}.`, {
                         data: {
                             documento: this.cpf_cnpj,
@@ -783,8 +785,22 @@ export class KronoosParse {
         });
     }
 
+    errorAjax(...args) {
+        return this.call("error::ajax", ...args);
+    }
+
+    searchTjsp () {
+        this.serverCall("SELECT FROM 'JURISTEK'.'KRONOOS'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
+                },
+                success: jusSearch => this.juristekCNJ(jusSearch)
+            }));
+    }
+
     jusSearch () {
-        this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'", this.call("error::ajax",
+        this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'", this.errorAjax(
             this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
                     data: this.name
@@ -813,7 +829,6 @@ export class KronoosParse {
                     data: {
                         data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
                     },
-                    timeout: 30000, /* 30 segundos! */
                     success: ret => this.juristekCNJ(ret, cnj),
                     /* melhorar o quesito de erro! */
                     error: () => {
@@ -829,34 +844,63 @@ export class KronoosParse {
         }
     }
 
-    juristekCNJ (ret, cnj) {
-        let normalizeName = name => removeDiacritics(name).toUpperCase().replace(/\s+/, ' ');
+    juristekCNJ (ret, cnj = null, findProc = true) {
+        let normalizeName = name => removeDiacritics(name).toUpperCase().replace(/\s+/, ' '),
+            normalizedName = normalizeName(this.name);
 
-        let cnjInstance = this.procElements[cnj],
-            normalizedName = normalizeName(this.name),
-            procs = $("processo", ret).filter(function () {
-                return $("partes parte", this).filter(function() {
-                    let n1 = normalizeName($(this).text());
-                    let n2 = normalizedName;
-                    return n1 == n2;
-                }).length > 0;
-            });
 
-        if (!procs.length) {
-            cnjInstance.element().remove();
-            delete this.procElements[cnj];
-            delete this.kelements[this.kelements.indexOf(cnjInstance)];
-            return;
+        let cnjInstance = null;
+        let proc = null;
+        if (cnj) {
+            cnjInstance = this.procElements[cnj];
+            let procs = $("processo", ret).filter(function () {
+                    return $("partes parte", this).filter(function() {
+                        let n1 = normalizeName($(this).text());
+                        return n1 == normalizedName;
+                    }).length > 0;
+                });
+
+            if (!procs.length) {
+                cnjInstance.element().remove();
+                delete this.procElements[cnj];
+                delete this.kelements[this.kelements.indexOf(cnjInstance)];
+                return;
+            }
+
+            proc = procs.first();
+        } else {
+            if (findProc) {
+                let procs = $("processo", ret).filter(function () {
+                    return $("partes parte", this).filter(function() {
+                        let n1 = normalizeName($(this).text());
+                        return n1 == normalizedName;
+                    }).length > 0;
+                }).map((index, element) => this.juristekCNJ(element, null, false));
+                return;
+            }
+            proc = ret;
+            let numproc = VMasker.toPattern($("numero_processo", proc).first().text().replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
+            if (!numproc) numproc = "";
+            if (numproc && this.procElements[numproc]) {
+                cnjInstance = this.procElements[numproc];
+            } else {
+                cnjInstance = this.kronoosElement(numproc ? `Processo Nº ${numproc}` : "Processo Jurídico",
+                    "Aguarde enquanto o sistema busca informações adicionais.",
+                    "Foram encontradas informações, confirmação pendente.");
+                this.procElements[numproc] = cnjInstance;
+                this.append(cnjInstance.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+            }
         }
-        cnjInstance.element().find("p").remove();
 
+        if (!cnjInstance) return;
+        if (!proc) return;
 
+        cnjInstance.clear();
 
-        let proc = procs.first(),
-            urlProcesso,
-            getNode = (x) => proc.find(x).first().text(),
-            partes = proc.find("partes parte"),
-            andamentos = proc.find("andamentos andamento"),
+        let urlProcesso,
+            getNode = (x) => $(x, proc).first().text(),
+            partes = $("partes parte", proc),
+            andamentos = $("andamentos andamento", proc),
             pieces = _.pairs({
                 "Valor Causa": getNode("valor_causa"),
                 "Foro": getNode("foro"),
@@ -901,6 +945,10 @@ export class KronoosParse {
                 kparts(`${node.attr("tipo")} - ${node.text()}`);
             });
         }
+    }
+
+    append(...args) {
+        return this.appendElement.append(...args);
     }
 
 }

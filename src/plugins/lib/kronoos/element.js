@@ -125,6 +125,14 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return this;
     };
 
+    this.clear = () => {
+        sideContent.empty();
+        sideContent.append(titleElement)
+            .append(subtitleElement)
+            .append(sidenoteElement);
+        return this;
+    };
+
     this.element = () => {
         return container;
     };
