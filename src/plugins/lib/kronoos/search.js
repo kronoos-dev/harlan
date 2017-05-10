@@ -31,7 +31,19 @@ module.exports = function(controller) {
         registered,
         backgroundTimeout,
         mapQueue,
-        photosQueue;
+        photosQueue,
+        searchTimeout;
+
+    let isRunning = () => {
+        for (let parser of parsers) {
+            if (!parser.isRunning()) continue;
+            return controller.alert({
+                title: "Consulta de Alta Complexidade",
+                subtitle: "Relacão societária é complexa.",
+                paragraph: "Verificamos que a consulta de compliance poderá demorar alguns minutos devido a complexidade da relação societária."
+            });
+        }
+    };
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
@@ -54,6 +66,8 @@ module.exports = function(controller) {
         for (let parser of parsers) {
             parser.kill();
         }
+
+        parsers = [];
 
         if (mapQueue) {
             mapQueue.kill();
@@ -120,6 +134,9 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, style = "maximized", parameters = {}) => {
+        if (!searchTimeout) {
+            searchTimeout = setTimeout(() => isRunning(), 30000); /* 30 segundos */
+        }
         let kronoosParse = new KronoosParse(controller, name, document, kronoosData, cbuscaData, style, parameters);
         parsers.push(kronoosParse);
         return kronoosParse;

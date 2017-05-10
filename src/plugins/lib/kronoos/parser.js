@@ -4,6 +4,7 @@ import _ from "underscore";
 import pad from 'pad';
 import bankCodes from "./bank-codes";
 import VMasker from 'vanilla-masker';
+import uniqid from 'uniqid';
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -29,11 +30,21 @@ const NAMESPACE_DESCRIPTION = {
 
 var removeDiacritics = require('diacritics').remove;
 
+let ajaxQueue = async.priorityQueue((task, callback) => {
+    let jqXHR = task.parser.controller.server.call(...task.call).always(() => callback());
+    task.parser.xhr.push(jqXHR);
+}, 3);
+
+const highPriority = 0;
+const normalPriority = 100;
+const lowPriority = 200;
+
 export class KronoosParse {
 
     constructor(controller, name, cpf_cnpj, kronoosData,
             ccbuscaData = null, defaultType = "maximized", parameters = {}) {
 
+        this.uniqid = uniqid();
         this.parameters = parameters;
         this.name = name.replace(/(\r)?\n/g, " ").replace(/\s+/g, ' ');
         this.controller = controller;
@@ -86,20 +97,26 @@ export class KronoosParse {
         return this.controller.call(...args);
     }
 
-    serverCall(query, conf, ...args) {
+    isRunning() {
+        return this.runningXhr > 0;
+    }
 
+    serverCall(query, conf, priority = null) {
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
 
         let complete = conf.complete;
+        conf.timeout = conf.timeout || 30000;
         conf.complete = (...args) => {
             if (!(--this.runningXhr))
                 this.header.element.removeClass("loading");
             if (complete) complete(...args);
         };
-        let xhr = this.controller.server.call(query, conf, ...args);
-        this.xhr.push(xhr);
-        return xhr;
+
+        ajaxQueue.push({
+            parser: this,
+            call: [query, conf]
+        }, priority || normalPriority);
     }
 
     loader(...args) {
@@ -518,7 +535,7 @@ export class KronoosParse {
                     kelement.table("Síntese da Decisão")(x("sinteseDecisao"));
                     this.append(kelement.element());
                 },
-            }, true));
+            }, true), highPriority);
     }
 
     searchMandados() {
@@ -539,7 +556,7 @@ export class KronoosParse {
                         ctx.searchMandado(idLog, $("numeroMandado", this).text());
                     });
                 },
-            }, true));
+            }, true), lowPriority);
     }
 
     generateHeader(defaultType = "minimized") {
@@ -720,6 +737,9 @@ export class KronoosParse {
     }
 
     kill () {
+        ajaxQueue.remove((task) => {
+            return task.parser.uniqid == this.uniqid;
+        });
         for (let xhr of this.xhr)
             xhr.abort();
         if (this.taskGraphTrack) this.taskGraphTrack.kill();
@@ -796,17 +816,17 @@ export class KronoosParse {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
                 },
                 success: jusSearch => this.juristekCNJ(jusSearch)
-            }));
+            }), lowPriority);
     }
 
     jusSearch () {
-        this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'", this.errorAjax(
+        this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
                     data: this.name
                 },
                 success: jusSearch => this.juristek(jusSearch)
-            })));
+            }), lowPriority);
     }
 
     juristek (jusSearch) {
@@ -839,7 +859,7 @@ export class KronoosParse {
                         delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
                         delete this.procElements[cnj];
                     }
-                }));
+                }), lowPriority);
 
         }
     }
