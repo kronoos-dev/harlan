@@ -197,7 +197,7 @@ module.exports = function (controller) {
                         message = ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}.`;
                     }
                     items.resultsDisplay.text(`${items.resultsDisplay.text()} ${message}`);
-                }})));
+                }});
 
             controller.server.call("SELECT FROM 'IEPTB'.'WS'", {data:dict, success: ret => {
                     if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {

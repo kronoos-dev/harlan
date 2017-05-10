@@ -1,4 +1,4 @@
-import times from 'async/times';
+import timesSeries from 'async/times';
 import parallel from 'async/parallel';
 import _ from 'underscore';
 
@@ -52,9 +52,11 @@ var readAdapters = {
     "RFB.CERTIDAO": {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
-                return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                    return relation.createNode(relation.labelIdentification($("user", node).text()), $(node).text());
+                var response = callback(null, $("RFB > socios > socio", document).map((idx, node) => {
+                    let label = $(node).text();
+                    return relation.createNode(relation.labelIdentification(label), label, "user", {unlabel: true});
                 }).toArray());
+                return response;
             };
         },
         trackEdges: (relation, legalDocument, document) => {
@@ -126,9 +128,7 @@ var GenerateRelations = function() {
     };
 
     this.createNode = (id, label, group, data = {}) => {
-
         labelIdentification[label] = id;
-        debugger;
         return $.extend({
             id: id.replace(START_ZERO, ''),
             label: wrap(label),
@@ -158,9 +158,9 @@ var GenerateRelations = function() {
 
     var executeAdapter = (method, callback) => {
         let jobs = [];
+        console.debug(documents);
         for (let documentType in documents) {
             if (!readAdapters[documentType][method]) {
-
                 continue;
             }
 
@@ -186,7 +186,7 @@ var GenerateRelations = function() {
     };
 
     this.track = (callback, depth = 3) => {
-        return times(depth, (i, callback) => {
+        return timesSeries(depth, (i, callback) => {
             this.trackNodes((err, nodes) => {
                 this.trackEdges((err, edges) => {
                     this.purchaseNewDocuments((err, documents) => {
@@ -205,7 +205,8 @@ var GenerateRelations = function() {
                 edges =  _.uniq(_.map(_.flatten(_.pluck(results, "edges")), (edge) => {
                     for (let i of ['to', 'from']) {
                         if (unlabers.indexOf(edge[i]) !== -1) {
-                            edge[i] = _.findWhere(nodes, {label: edge[i]}).id;
+                            let result = _.findWhere(nodes, {label: edge[i]});
+                            if (result) edge[i] = result.id;
                         }
                     }
                     return edge;

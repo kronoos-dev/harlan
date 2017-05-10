@@ -8,10 +8,14 @@
             padding: 17px;
             color: #fff;
             box-shadow: 0 3px 3px 3px #cecece;
+            &.loading {
+                animation: kronoosLoader 2300ms infinite;
+            }
             .kronoos-actions {
                 float: right;
                 display: inline-block;
                 li {
+                    cursor: pointer;
                     vertical-align: bottom;
                     display: inline-block;
                     padding: 0 10px;

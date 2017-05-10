@@ -1,9 +1,17 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700,900,600);
 @import 'reset-element';
+ 
+@keyframes kronoosLoader {
+    0%{background:#17884d}
+    50%{background:#24D478}
+    100%{background:#17884d}
+}
+
 $color-header-1: #eaecee;
 $color-header-2: #f9f9fa;
 $color-green: #66c27c;
 $color-complementary: #7c66c2;
+
 .kronoos-application {
     &.hide {
         display: none;
@@ -219,5 +227,8 @@ $color-complementary: #7c66c2;
         padding: 10px 0;
         color: rgb(197, 197, 197);
     }
+
+
+    @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700,900,600)
 
 }
