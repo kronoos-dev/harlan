@@ -54,7 +54,7 @@ export class KronoosParse {
         this.cpf_cnpjs = {};
         this.searchBar = $(".kronoos-application .search-bar");
         this.xhr = [];
-        this.homonymous = null;
+        this.homonymous = 100;
         this.kronoosData = kronoosData;
         this.ccbuscaData = ccbuscaData;
         this.runningXhr = 0;
@@ -74,11 +74,13 @@ export class KronoosParse {
 
         $(".kronoos-result").append(this.appendElement);
 
-        if (kronoosData) this.parseKronoos(kronoosData);
-        this.emptyChecker();
-
-        let m = moment();
-        this.firstElement().header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+        let execute = () => {
+            if (kronoosData) this.parseKronoos(kronoosData);
+            this.emptyChecker();
+            let m = moment();
+            this.firstElement().header(this.cpf_cnpj, name, m.format("DD/MM/YYYY"), m.format("H:mm:ss"));
+            this.searchAll();
+        };
 
         if (this.cpf) {
             this.serverCall("SELECT FROM 'CBUSCA'.'HOMONYMOUS'",
@@ -88,12 +90,9 @@ export class KronoosParse {
                     success: ret => {
                         this.homonymous = ret.homonymous;
                     },
-                    complete: () => this.searchAll()
-
+                    complete: () => execute()
                 }));
-        } else {
-            this.searchAll();
-        }
+        } else execute();
     }
 
     call(...args) {
@@ -739,8 +738,29 @@ export class KronoosParse {
 
         $("BPQL body item", kronoosData).each((idx, element) => {
             let cpfFilter = $("CPF", element).text().replace(NON_NUMBER, '');
-            if (this.cpf && cpfFilter == this.cpf.replace(NON_NUMBER, ''))
+            if (this.cpf && cpfFilter && cpfFilter != this.cpf.replace(NON_NUMBER, '')) {
                 return;
+            }
+
+            if (cpfFilter && this.cnpj) {
+                return;
+            }
+
+            let cnpjFilter = $("CNPJ", element).text().replace(NON_NUMBER, '');
+            if (this.cnpj && cnpjFilter && cnpjFilter != this.cnpj.replace(NON_NUMBER, '')) {
+                return;
+            }
+
+            if (cnpjFilter && this.cpf) {
+                return;
+            }
+
+            if (cnpjFilter || cpfFilter || this.homonymous <= 1) {
+                this.behaviourAccurate(true);
+            } else {
+                this.behaviourHomonym(true);
+            }
+
 
             let namespace = $("namespace", element).text(),
                 [title, description] = NAMESPACE_DESCRIPTION[namespace],
@@ -750,7 +770,7 @@ export class KronoosParse {
                 position = $("position", element),
                 insertMethod = "append",
                 insertElement = this.appendElement;
-
+            kelement.notation(true);
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
                 // insertMethod = "prepend";
