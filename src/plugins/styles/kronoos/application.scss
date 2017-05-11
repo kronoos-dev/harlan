@@ -13,6 +13,28 @@ $color-green: #66c27c;
 $color-complementary: #7c66c2;
 
 .kronoos-application {
+
+    .kronoos-stage {
+        i {
+            display: inline-block;
+            height: 16px;
+            width: 21px;
+            background-color: orange;
+            padding: 6px 4px;
+            text-align: center;
+            border-radius: 5px;
+            vertical-align: middle;
+            margin-right: 10px;
+            color: #fff;
+        }
+        .type-hasntNotation-behaviourAccurate i {
+            background-color: green;
+        }
+        .type-hasNotation-behaviourAccurate i {
+            background-color: red;
+        }
+    }
+
     &.hide {
         display: none;
     }

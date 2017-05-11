@@ -5,6 +5,19 @@
         }
         & > .kronoos-header {
             background-color: #17884d;
+
+            &.kronoos-hasConfirmedNotation {
+                background-color: #ff0000;
+            }
+
+            &.kronoos-hasNotation {
+                background-color: #ffa500;
+            }
+
+            &.kronoos-hasntNotation {
+                background-color: #17884d;
+            }
+
             padding: 17px;
             color: #fff;
             box-shadow: 0 3px 3px 3px #cecece;

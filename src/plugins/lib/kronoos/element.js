@@ -7,7 +7,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
         subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
         sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
-        alertElement, aggregate, notation, behaviour;
+        informationQA, alertElement, aggregate, notation, behaviour;
 
     sideContent.append(titleElement)
         .append(subtitleElement)
@@ -20,9 +20,29 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return $("<label />").text(label);
     };
 
-    this.removeAlertElement = () => {
+    this.stage = (message) => {
+        if (!informationQA) {
+            informationQA = {};
+            this.list("Qualidade dos Dados", informationQA);
+            informationQA.container.addClass("kronoos-stage");
+            informationQA.container.insertAfter(sidenoteElement);
+        }
+        let item = {};
+        informationQA.addItem(message, item);
+        return item.element;
+    };
+
+    this.stageClear = () => {
+        if (!informationQA) return;
+        informationQA.container.remove();
+        informationQA = null;
+    };
+
+    this.removeAlertElement = (hasNotation = true) => {
         if (alertElement) alertElement.remove();
         alertElement = null;
+        this.behaviourAccurate();
+        this.notation(hasNotation);
         return this;
     };
 
@@ -41,6 +61,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         behaviour = b;
         container.addClass(b);
         this.notation(hasNotation);
+        if (aggregate) aggregate();
         return this;
     };
 
@@ -141,20 +162,24 @@ var KronoosElement = function(title, subtitle, sidenote) {
         image.src = url;
     };
 
-    this.list = (name) => {
+    this.list = (name, obj = {}) => {
         let container = $("<div />").addClass("kronoos-list"),
             title = label(name),
             list = $("<ul />");
 
+        obj.container = container;
+        obj.title = title;
+        obj.list = list;
+
         sideContent.append(container.append(title).append(list));
 
-        let addItem = (content) => {
-            if (typeof content === "undefined") {
-                return [title, list];
-            }
-            list.append($("<li />").html(content));
+        let addItem = (content, item = {}) => {
+            item.element = $("<li />").html(content);
+            list.append(item.element);
             return addItem;
         };
+
+        obj.addItem = addItem;
 
         return addItem;
     };

@@ -10,7 +10,7 @@ import VMasker from 'vanilla-masker';
 import pad from 'pad';
 import {KronoosParse} from './parser';
 
-var removeDiacritics = require('diacritics').remove;
+const removeDiacritics = require('diacritics').remove;
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -135,7 +135,7 @@ module.exports = function(controller) {
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, style = "maximized", parameters = {}) => {
         if (!searchTimeout) {
-            searchTimeout = setTimeout(() => isRunning(), 30000); /* 30 segundos */
+            searchTimeout = setTimeout(() => isRunning(), 120000); /* 30 segundos */
         }
         let kronoosParse = new KronoosParse(controller, name, document, kronoosData, cbuscaData, style, parameters);
         parsers.push(kronoosParse);
