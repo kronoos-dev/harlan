@@ -569,7 +569,7 @@ export class KronoosParse {
                 } else {
                     searchMessage = `<i class="fa ${icon}"></i> 1 resultado ${notationMessage[0]} ${behaviourMessage[0]}.`;
                 }
-                this.firstElement().stage(searchMessage.replace(/\s+,/, '')).addClass(`type-${notationType}-${behaviourType}`);
+                this.firstElement().stage(searchMessage.replace(/\s+,/, ',')).addClass(`type-${notationType}-${behaviourType}`);
             }
         }
     }
