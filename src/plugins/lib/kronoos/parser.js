@@ -92,7 +92,10 @@ export class KronoosParse {
                     },
                     complete: () => execute()
                 }));
-        } else execute();
+        } else {
+            this.homonymous = 1;
+            execute();
+        }
     }
 
     call(...args) {
@@ -104,6 +107,7 @@ export class KronoosParse {
     }
 
     serverCall(query, conf, priority = null) {
+        conf.cache = true;
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
 
@@ -942,7 +946,7 @@ export class KronoosParse {
     }
 
     searchTjsp () {
-        this.serverCall("SELECT FROM 'JURISTEK'.'KRONOOS'",
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
@@ -976,7 +980,7 @@ export class KronoosParse {
         this.parseProcs(procs);
 
         for (let cnj in procs) {
-            this.serverCall("SELECT FROM 'JURISTEK'.'KRONOOS'",
+            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
                 this.loader("fa-balance-scale", `Verificando processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     data: {
                         data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
