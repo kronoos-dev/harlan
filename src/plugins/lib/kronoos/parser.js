@@ -970,6 +970,7 @@ export class KronoosParse {
                         this.procElements[cnj].remove();
                         delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
                         delete this.procElements[cnj];
+                        this.changeResult();
                     }
                 }), lowPriority);
 
