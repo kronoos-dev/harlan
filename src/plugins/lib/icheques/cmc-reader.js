@@ -1,37 +1,31 @@
+import { CMC7Validator } from './cmc7-validator';
+
 module.exports = function (controller) {
 
-    var group = 0;
-    var cmcNumber = "";
-    var onTerminator = false;
-    
-    window.onkeyup = function (e) {
+    let group = 0;
+    let cmcNumber = "";
+    let onTerminator = false;
+    let timeout;
+
+    $(window).keypress((e) => {
         if (document.activeElement && document.activeElement.tagName.toLowerCase() !== "body") {
             return;
         }
 
-
-        if (e.keyCode === 16) {
-            onTerminator = true;
+        let char = String.fromCharCode(e.keyCode);
+        if (!/^[0-9]+$/.test(char)) {
             return;
         }
 
-        if (onTerminator) {
-            onTerminator = false;
-            if ((group === 0 && e.keyCode === 188 && cmcNumber.length === 0) ||
-                    (group === 1 && e.keyCode === 188 && cmcNumber.length === 8) ||
-                    (group === 2 && e.keyCode === 190 && cmcNumber.length === 18)) {
-                group++;
-                return;
-            } else if (group === 3 && e.keyCode === 191 && cmcNumber.length === 30) {
-                controller.trigger("icheques::newcheck", cmcNumber);
-            }
-
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
             cmcNumber = "";
-            group = 0;
-            return;
-        }
+        }, 3000);
 
-        cmcNumber += String.fromCharCode(e.keyCode);
-    };
-    
+        cmcNumber += char;
+        if (new CMC7Validator(cmcNumber).isValid()) {
+            controller.trigger("icheques::newcheck", cmcNumber);
+        }
+    });
+
 };
