@@ -1,8 +1,13 @@
 import async from "async";
 
+const notificationInterval = 1500;
 const searchBarContainer = $(".kronoos-application .search-bar .kronoos-floating");
 
+if (Notification) Notification.requestPermission();
+
 module.exports = function (controller) {
+
+    let notificationTimeout;
 
     let ajaxQueue = async.priorityQueue((task, callback) => {
         let [target, conf, ...args] = task.call;
@@ -11,7 +16,7 @@ module.exports = function (controller) {
         if (conf.statusElement)
             searchBarContainer.append(conf.statusElement.addClass("processing"));
 
-        task.parser.controller.server.call(target, conf, ...args).always(() => {
+        jqXHR = task.parser.controller.server.call(target, conf, ...args).always(() => {
             let idx = task.parser.xhr.indexOf(jqXHR);
             if (idx !== -1)
                 delete task.parser.xhr[idx];
@@ -28,20 +33,34 @@ module.exports = function (controller) {
     });
 
     controller.registerCall("kronoos::ajax::queue", (task, priority) => {
+        clearTimeout(notificationTimeout);
         ajaxQueue.push(task);
         controller.trigger("kronoos::ajax::queue::change");
     });
 
     /* Progress Monitor */
 
-    let radialProject, maxQueue = 0;
+    let radialProject;
+    let maxQueue = 0;
 
     /* onEnd */
     ajaxQueue.drain = () => {
-        maxQueue = 0;
-        if (radialProject)
-            radialProject.element.remove();
-        radialProject = null;
+        notificationTimeout = setTimeout(() => {
+            maxQueue = 0;
+            if (radialProject) radialProject.element.remove();
+            radialProject = null;
+            if (Notification && Notification.permission == 'granted') {
+                let notification = new Notification(`Processamento concluído do Kronoos concluído!`, {
+                    icon: 'images/kronoos/notification.png',
+                    body: `Boas novas! Terminamos de processar o documento informado.`,
+                });
+                notification.onclick = () => {
+                    parent.focus();
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }, notificationInterval);
     };
 
     let registerRadial = () => {
@@ -77,7 +96,6 @@ module.exports = function (controller) {
     controller.registerTrigger("kronoos::ajax::queue::change", "radialProject", (obj, cb) => {
         cb();
         let queue = ajaxQueue.length() + ajaxQueue.running();
-        debugger;
         if (!radialProject && !queue) return;
         if (!radialProject) radialProject = registerRadial();
 

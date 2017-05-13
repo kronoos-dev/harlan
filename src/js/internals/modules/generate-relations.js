@@ -158,7 +158,6 @@ var GenerateRelations = function() {
 
     var executeAdapter = (method, callback) => {
         let jobs = [];
-        console.debug(documents);
         for (let documentType in documents) {
             if (!readAdapters[documentType][method]) {
                 continue;

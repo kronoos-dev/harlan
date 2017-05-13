@@ -106,7 +106,7 @@ import browserUpdate from 'browser-update';
     require('./internals/modules/browser-update')(harlan);
     require('./internals/modules/post-message')(harlan);
     require('./internals/modules/link')(harlan);
-
+    require('./internals/modules/remote-debug')(harlan);
 
     /**
      * From day to night and night to day
