@@ -7,8 +7,8 @@ module.exports = (controller) => {
 
     var iterations = 0;
 
-    controller.registerCall("kronoos::status::ajax", function (icon, status, dict) {
-        var kronoosStatus = controller.call("kronoos::status", icon, status),
+    controller.registerCall("kronoos::status::ajax", function (icon, status, dict = {}) {
+        let kronoosStatus = controller.call("kronoos::status", icon, status, dict),
             complete = dict.complete;
 
         dict.complete = function () {
@@ -19,7 +19,7 @@ module.exports = (controller) => {
         return dict;
     });
 
-    controller.registerCall("kronoos::status", function (icon, status) {
+    controller.registerCall("kronoos::status", function (icon, status, obj = {}) {
         var it = iterations++;
         if (!it) {
             loader.show();
@@ -42,6 +42,8 @@ module.exports = (controller) => {
 
         statusMessage.append(container.append(content.text(status).prepend(iconElement)))
             .insertAfter(searchBarContainer);
+
+        obj.statusElement = statusMessage;
 
         return function () {
             statusMessage.remove();

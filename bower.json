@@ -50,7 +50,9 @@
     "enjoyhint": "https://github.com/bipbop/enjoyhint.git#master",
     "jquery.scrollTo": "~1.4.14",
     "konva": "kinetic#^1.5.0",
-    "csshake": "^1.5.1"
+    "csshake": "^1.5.1",
+    "jquery-ajax-cache": "^2.0.1",
+    "jquery-ui": "jquery.ui#^1.12.1"
   },
   "resolutions": {
     "jquery": "~3.2.0",

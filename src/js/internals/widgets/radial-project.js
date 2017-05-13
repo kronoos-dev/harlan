@@ -27,7 +27,7 @@ module.exports = function (parent, percent) {
     percentText.text(percent.toString() + ' %');
 
     parent.append(radialProject);
-    return {
+    let ret = {
         element: radialProject,
         change: function (percent) {
             percent = radialCeil(percent);
@@ -35,6 +35,9 @@ module.exports = function (parent, percent) {
             radialProject[percent > 50 ? "addClass" : "removeClass"]('gtHalf');
             progressFill.css('transform', 'rotate(' + deg + 'deg)');
             percentText.text(Math.floor(percent).toString() + ' %');
-        }
+            if (ret.onChange) ret.onChange(percent);
+        },
+        onChange: null
     };
+    return ret;
 };

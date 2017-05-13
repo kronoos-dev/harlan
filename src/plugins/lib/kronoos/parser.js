@@ -29,22 +29,19 @@ const NAMESPACE_DESCRIPTION = {
     'hsbc' : ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'] /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
 };
 
-var removeDiacritics = require('diacritics').remove;
-
-let ajaxQueue = async.priorityQueue((task, callback) => {
-    let jqXHR = task.parser.controller.server.call(...task.call).always(() => callback());
-    task.parser.xhr.push(jqXHR);
-}, 3);
-console.debug(ajaxQueue);
+const removeDiacritics = require('diacritics').remove;
 
 const highPriority = 0;
 const normalPriority = 100;
 const lowPriority = 200;
+const searchBar = $(".kronoos-application .search-bar");
 
 export class KronoosParse {
 
     constructor(controller, name, cpf_cnpj, kronoosData,
             ccbuscaData = null, defaultType = "maximized", parameters = {}) {
+
+        this.networkData = null;
         this.uniqid = uniqid();
         this.parameters = parameters;
         this.name = name.replace(/(\r)?\n/g, " ").replace(/\s+/g, ' ');
@@ -52,7 +49,6 @@ export class KronoosParse {
         this.kelements = [];
         this.procElements = {};
         this.cpf_cnpjs = {};
-        this.searchBar = $(".kronoos-application .search-bar");
         this.xhr = [];
         this.homonymous = 100;
         this.kronoosData = kronoosData;
@@ -68,7 +64,6 @@ export class KronoosParse {
             throw "Verifique se no sistema é possível chegar um CPF / CNPJ inválido";
         }
 
-        console.debug(this);
         this.appendElement = $("<div />").addClass("record");
         this.generateHeader(defaultType);
 
@@ -107,7 +102,6 @@ export class KronoosParse {
     }
 
     serverCall(query, conf, priority = null) {
-        conf.cache = true;
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
 
@@ -119,7 +113,7 @@ export class KronoosParse {
             if (complete) complete(...args);
         };
 
-        ajaxQueue.push({
+        this.controller.call("kronoos::ajax::queue", {
             parser: this,
             call: [query, conf]
         }, priority || normalPriority);
@@ -146,13 +140,13 @@ export class KronoosParse {
         this.searchProtestos();
 
         if (!this.ccbuscaData) {
-            this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'", this.errorAjax(
+            this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'",
                 this.loader("fa-bank", `Acessando bureau de crédito para ${this.name || ""} ${this.cpf_cnpj}.`, {
                     data: {
                         documento: this.cpf_cnpj,
                     },
                     success: (ret) => this.showCBusca(ret)
-                })));
+                }));
             return;
         }
 
@@ -233,7 +227,9 @@ export class KronoosParse {
                         ($("nome", data).text(), $("documento", data).text());
                     kelement.table("Validade", "Código de Controle")
                         ($("validade", data).text(), $("codigo_de_controle", data).text());
-                    kelement.paragraph($("descricao", data).text());
+                    let text = $("descricao", data).text();
+                    kelement.paragraph(text);
+                    kelement.notation(!!/\:\s*constam/i.test(text));
                     this.append(kelement.element());
                 }
             }, true));
@@ -250,12 +246,12 @@ export class KronoosParse {
                     let kelement = this.kronoosElement("Certidão Negativa de Débitos Trabalhistas - TST",
                         "Geração de Certidão Negativa de Débitos Trabalhistas no Tribunal Superior do Trabalho",
                         "Certidão Negativa de Débitos Trabalhistas - CNDT, documento indispensável à participação em licitações públicas.");
-
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
+                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     this.append(kelement.element());
                 }
             }, true));
@@ -273,11 +269,13 @@ export class KronoosParse {
                         "Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração",
                         "Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.");
 
+                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
+                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     this.append(kelement.element());
                 }
             }, true));
@@ -448,7 +446,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement('Certidão do Documento pela Receita Federal',
                         "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
 
-                    kelement.notation(["REGULAR", "ATIVA"].indexOf(x("situacao")) === -1);
+                    kelement.notation(["REGULAR", "ATIVA"].indexOf(x("situacao").split(" ")[0]) === -1);
 
                     if (CPF.isValid(cpf_cnpj)) {
                         kelement.table("Nome", "Código Comprovante")(x("nome"), x("codigo-comprovante"));
@@ -495,7 +493,9 @@ export class KronoosParse {
     }
 
     informationQA() {
-        let groupContent = _.groupBy(_.map(_.filter(this.kelements), (kelement) => kelement.notation()), (r) => r[0]);
+        let groupContent = _.groupBy(_.map(_.filter(this.kelements, (x) => {
+            return x && x.element().is(":visible");
+        }), (kelement) => kelement.notation()), (r) => r[0]);
         return _.object(_.keys(groupContent), _.map(groupContent, (n) => _.countBy(n, (i) => i[1])));
     }
 
@@ -534,7 +534,7 @@ export class KronoosParse {
         for (let notationType in informationQA) {
             let pieces = [];
             let notationMessage;
-            let icon = "fa-exclamation";
+            let icon = "exclamation";
             switch (notationType) {
                 case "hasNotation":
                     notationMessage = ["possui apontamento", "possuem apontamentos"];
@@ -549,8 +549,8 @@ export class KronoosParse {
                 let behaviourMessage;
                 switch (behaviourType) {
                     case "behaviourAccurate":
-                        if (notationType === "hasntNotation") icon = "fa-check";
-                        else icon = "fa-times";
+                        if (notationType === "hasntNotation") icon = "check";
+                        else icon = "times";
                         behaviourMessage = [", sem possibilidade da presença de falsos positivos", ", sem possibilidade da presença de falsos positivos"];
                         break;
                     case "behaviourUnstructured":
@@ -568,11 +568,11 @@ export class KronoosParse {
 
                 let searchMessage;
                 if (informationQA[notationType][behaviourType] > 1) {
-                    searchMessage = `<i class="fa ${icon}"></i> ${informationQA[notationType][behaviourType]} resultados ${notationMessage[1]} ${behaviourMessage[1]}.`;
+                    searchMessage = `${informationQA[notationType][behaviourType]} resultados ${notationMessage[1]} ${behaviourMessage[1]}.`;
                 } else {
-                    searchMessage = `<i class="fa ${icon}"></i> 1 resultado ${notationMessage[0]} ${behaviourMessage[0]}.`;
+                    searchMessage = `1 resultado ${notationMessage[0]} ${behaviourMessage[0]}.`;
                 }
-                this.firstElement().stage(searchMessage.replace(/\s+,/, ',')).addClass(`type-${notationType}-${behaviourType}`);
+                this.firstElement().stage(icon, searchMessage.replace(/\s+,/, ',')).addClass(`type-${notationType}-${behaviourType}`);
             }
         }
     }
@@ -824,7 +824,7 @@ export class KronoosParse {
             }
 
             insertElement[insertMethod](kelement.element());
-            this.searchBar.addClass("minimize").removeClass("full");
+            searchBar.addClass("minimize").removeClass("full");
         });
     }
 
@@ -865,19 +865,19 @@ export class KronoosParse {
                 nelement = this.kronoosElement(title, "Não consta nenhum apontamento cadastral.", description);
             this.titleCanChange = true;
             this.append(nelement.element());
-            this.searchBar.addClass("minimize").removeClass("full");
+            searchBar.addClass("minimize").removeClass("full");
         }
     }
 
     kill () {
-        ajaxQueue.remove(task => {
+        this.controller.call("kronoos::ajax::queue::remove", task => {
             if (task.data.parser.uniqid == this.uniqid) {
                 if (task.data.call[1].complete) task.data.call[1].complete();
                 return true;
             }
             return false;
         });
-        for (let xhr of this.xhr) xhr.abort();
+        for (let xhr of this.xhr) if (xhr) xhr.abort();
         if (this.taskGraphTrack) this.taskGraphTrack.kill();
         if (this.taskGraphParallel) this.taskGraphParallel.kill();
     }
@@ -916,6 +916,7 @@ export class KronoosParse {
             this.generateRelations.track((data) => {
                 if (!data.nodes.length)
                 return;
+                this.networkData = data;
                 let [network, node] = this.firstElement().addNetwork(data.nodes, data.edges, {
                     groups: data.groups
                 });
@@ -987,14 +988,38 @@ export class KronoosParse {
                     },
                     success: ret => this.juristekCNJ(ret, cnj),
                     /* melhorar o quesito de erro! */
-                    error: () => {
-                        if (!this.procElements[cnj]) {
+                    error: (jqXHR, ...args) => {
+                        let hasNetworkIssue = () => {
+                            if (!this.procElements[cnj]) {
+                                return;
+                            }
+                            this.procElements[cnj].subtitle("Informação não estruturada pendente de confirmação humana.");
+                            this.procElements[cnj].canDelete();
+                        };
+
+                        if (!jqXHR.responseText) {
+                            hasNetworkIssue();
                             return;
                         }
-                        this.procElements[cnj].remove();
-                        delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
-                        delete this.procElements[cnj];
-                        this.changeResult();
+
+                        try {
+                            var xml = $.parseXML(jqXHR.responseText);
+                            $.bipbopAssert(xml, (type, message, code, push) => {
+                                if (!push) {
+                                    hasNetworkIssue();
+                                    return;
+                                }
+                                if (!this.procElements[cnj]) {
+                                    return;
+                                }
+                                this.procElements[cnj].remove();
+                                delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
+                                delete this.procElements[cnj];
+                                this.changeResult();
+                            });
+                        } catch (err) {
+                            hasNetworkIssue();
+                        }
                     }
                 }), lowPriority);
 

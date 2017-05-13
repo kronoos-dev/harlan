@@ -7,6 +7,12 @@
     100%{background:#17884d}
 }
 
+@keyframes status-message-background {
+    0%{ background: rgba(0, 0, 0, 0.9); }
+    50%{ background: rgba(0, 0, 0, 0.7); }
+    100%{background: rgba(0, 0, 0, 0.9); }
+}
+
 $color-header-1: #eaecee;
 $color-header-2: #f9f9fa;
 $color-green: #66c27c;
@@ -84,6 +90,11 @@ $color-complementary: #7c66c2;
                 display: block;
             }
         }
+
+        .kronoos-floating .status-message.processing {
+            animation: status-message-background 1s infinite ease;
+        }
+
         &.minimize {
             height: auto !important;
         }

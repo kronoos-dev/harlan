@@ -7,7 +7,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
         subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
         sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
-        informationQA, alertElement, aggregate, notation, behaviour;
+        informationQA, informations, alertElement, aggregate, notation, behaviour;
 
     sideContent.append(titleElement)
         .append(subtitleElement)
@@ -20,7 +20,37 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return $("<label />").text(label);
     };
 
-    this.stage = (message) => {
+    this.informationStatus = (icon, message) => {
+        if (!informations) {
+            informations = {};
+            this.list("Resumo do Relatório", informations);
+            informations.container.addClass("kronoos-stage");
+            informations.container.insertAfter(sidenoteElement);
+        }
+        let item = {};
+        informations.addItem(`<i class="fa fa-${icon}"></i> ${message}`, item);
+        return item.element;
+    };
+
+    this.informationStatusClear = () => {
+        if (!informations) return;
+        informations.container.remove();
+        informations = null;
+    };
+
+    this.canDelete = () => {
+        /* future implementation */
+        element.addClass("kronoos-can-delete");
+        // element.append($("<a />").attr({href: "#"})
+        //     .append($("<i />").addClass("fa fa-times"))
+        //     .addClass("kronoos-delete-element")
+        //     .click((e) => {
+        //         e.preventDefault();
+        //         this.remove();
+        //     }));
+    };
+
+    this.stage = (icon, message) => {
         if (!informationQA) {
             informationQA = {};
             this.list("Qualidade dos Dados", informationQA);
@@ -28,7 +58,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
             informationQA.container.insertAfter(sidenoteElement);
         }
         let item = {};
-        informationQA.addItem(message, item);
+        informationQA.addItem(`<i class="fa fa-${icon}"></i> ${message}`, item);
         return item.element;
     };
 
@@ -104,7 +134,10 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return this.captionTable(null, ...header);
     };
 
-    this.remove = () => container.remove();
+    this.remove = () => {
+        container.remove();
+        if (aggregate) aggregate();
+    };
 
     this.captionTable = (caption, ...header) => {
         var table = $("<table />").addClass("multi-label"),

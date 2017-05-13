@@ -23,6 +23,8 @@ const BACKGROUND_IMAGES = {
     officeStore: "/images/bg/kronoos/photodune-4129670-library-dossier-office-store-interior-full-of-indexcases-indexbox-files-l.jpg"
 };
 
+if (Notification) Notification.requestPermission();
+
 module.exports = function(controller) {
 
     var xhr = [],
@@ -138,6 +140,17 @@ module.exports = function(controller) {
             searchTimeout = setTimeout(() => isRunning(), 120000); /* 30 segundos */
         }
         let kronoosParse = new KronoosParse(controller, name, document, kronoosData, cbuscaData, style, parameters);
+        if (Notification) {
+            let finished = setTimeout(() => {
+                for (let parser of parsers) if (parser.isRunning()) return;
+                clearTimeout(finished);
+                new Notification(`Processamento concluído para ${name}!`, {
+                    icon: 'images/kronoos/notification.png',
+                    body: `Boas novas! Terminamos de processar o documento ${document}`,
+                });
+            }, 1000);
+        }
+
         parsers.push(kronoosParse);
         return kronoosParse;
     });
