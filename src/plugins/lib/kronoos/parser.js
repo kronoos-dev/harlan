@@ -129,6 +129,7 @@ export class KronoosParse {
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
+        this.searchIbama();
         this.searchDAU();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
@@ -229,7 +230,7 @@ export class KronoosParse {
                         ($("validade", data).text(), $("codigo_de_controle", data).text());
                     let text = $("descricao", data).text();
                     kelement.paragraph(text);
-                    kelement.notation(!!/\:\s*constam/i.test(text));
+                    kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
                     this.append(kelement.element());
                 }
             }, true));
@@ -248,14 +249,39 @@ export class KronoosParse {
                         "Certidão Negativa de Débitos Trabalhistas - CNDT, documento indispensável à participação em licitações públicas.");
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
-                        download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
+                        download: `certidao-cndt-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
-                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
+                    kelement.behaviourAccurate(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     this.append(kelement.element());
                 }
             }, true));
     }
+
+    searchIbama() {
+        if (!this.cnpj) return;
+        this.serverCall("SELECT FROM 'Ibama'.'CERTIDAO'",
+            this.loader("fa-eye", `Geração de Certidão Negativa de Débito do Ibama para o documento ${this.cpf_cnpj}.`, {
+                data: {
+                    documento: this.cnpj,
+                    nome: this.name
+                },
+                success: (data) => {
+                    let kelement = this.kronoosElement("Certidão de Débito do Ibama",
+                        "Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.",
+                        "Emissão de Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.");
+
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        download: `certidao-ibama-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao")
+                        .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
+                    kelement.behaviourAccurate(!/\NADA CONSTA/i.test($("body > text", data).text()));
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
 
     searchMTE() {
         if (!this.cnpj) return;
@@ -269,13 +295,12 @@ export class KronoosParse {
                         "Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração",
                         "Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.");
 
-                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
-                    kelement.notation(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
+                    kelement.behaviourAccurate(!/\N[Ãã]O CONSTA/i.test($("body > text", data).text()));
                     this.append(kelement.element());
                 }
             }, true));
@@ -292,7 +317,7 @@ export class KronoosParse {
                         let kelement = this.kronoosElement("Protestos em Cartórios",
                             "Detalhes a cerca de protestos realizados em cartório",
                             "Foram localizados protestos registrados em cartório.");
-                        kelement.notation(true);
+                        kelement.behaviourAccurate(true);
 
                         kelement.table("Nome do Cartório", "Endereço")
                             ($("nome", element).text(), $("endereco", element).text());
@@ -319,7 +344,7 @@ export class KronoosParse {
                         let kelement = this.kronoosElement("Cheques sem Fundo em Instituição Bancária",
                             "Detalhes acerca de cheques sem fundo emitidos",
                             "Foram localizados cheques sem fundo em uma instituição bancária.");
-                        kelement.notation(true);
+                        kelement.behaviourAccurate(true);
 
                         if (bankName) {
                             kelement.table("Código Bancário", "Banco", "Agência")
@@ -359,7 +384,7 @@ export class KronoosParse {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Cadastro Nacional de Empresas Punidas',
                         "Existência de apontamentos cadastrais.", 'Portal da transparência, cadastro nacional de empresas punidas.');
-                    kelement.notation(true);
+                    kelement.behaviourAccurate(true);
                     kelement.table("Tipo da sanção", "Fundamentação legal")
                         (x("TIPO-DA-SANCAO"), x("FUNDAMENTACAO-LEGAL"));
                     kelement.table("Descrição da fundamentação legal", "Data de início da sanção")
@@ -388,7 +413,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement('EXPULSOES',
                         "Existência de apontamentos cadastrais.", 'EXPULSOES.');
 
-                    kelement.notation(true);
+                    kelement.behaviourAccurate(true);
 
                     kelement.table("Número da Portaria", "Publicação do DOU")
                         (x("NUMERO-DA-PORTARIA"), x("PUBLICACAO-NO-DOU"));
@@ -418,7 +443,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement('CEPIM',
                         "Existência de apontamentos cadastrais.", 'CEPIM.');
 
-                    kelement.notation(true);
+                    kelement.behaviourAccurate(true);
                     kelement.table("Número do Convênio Siafi", "Situação")(x("NUMERO-DO-CONVENIO-SIAFI"), x("SITUACAO"));
                     kelement.table("Nº Original", "Objeto do Convênio")(x("N-ORIGINAL"), x("OBJETO-DO-CONVENIO"));
                     kelement.table("Orgão Superior", "Concedente")(x("ORGAO-SUPERIOR"), x("CONCEDENTE"));
@@ -445,8 +470,6 @@ export class KronoosParse {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Certidão do Documento pela Receita Federal',
                         "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
-
-                    kelement.notation(["REGULAR", "ATIVA"].indexOf(x("situacao").split(" ")[0]) === -1);
 
                     if (CPF.isValid(cpf_cnpj)) {
                         kelement.table("Nome", "Código Comprovante")(x("nome"), x("codigo-comprovante"));
@@ -487,15 +510,15 @@ export class KronoosParse {
                         }
 
                     }
+
+                    kelement.behaviourAccurate(["REGULAR", "ATIVA"].indexOf(x("situacao").split(" ")[0]) === -1);
                     this.append(kelement.element());
                 },
             }, true));
     }
 
     informationQA() {
-        let groupContent = _.groupBy(_.map(_.filter(this.kelements, (x) => {
-            return x && x.element().is(":visible");
-        }), (kelement) => kelement.notation()), (r) => r[0]);
+        let groupContent = _.groupBy(_.map(_.filter(this.kelements), (kelement) => kelement.notation()), (r) => r[0]);
         return _.object(_.keys(groupContent), _.map(groupContent, (n) => _.countBy(n, (i) => i[1])));
     }
 
@@ -583,8 +606,8 @@ export class KronoosParse {
 
     kronoosElement(...args) {
         let kelement = this.call("kronoos::element", ...args);
-        kelement.aggregate(() => this.changeResult());
         this.kelements.push(kelement);
+        kelement.aggregate(() => this.changeResult());
         kelement.behaviourAccurate(false);
         return kelement;
     }
@@ -600,7 +623,7 @@ export class KronoosParse {
 
                     let kelement = this.kronoosElement('CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas',
                         "Cadastro Nacional de Empresas Inidôneas e Suspensas de celebrar convênios, contratos de repasse ou termos de parceria com a administração pública federal", "Controladoria Geral da União (CGU)");
-                    kelement.notation(true);
+                    kelement.behaviourAccurate(true);
 
                     kelement.table("Tipo da sanção", "Fundamentação legal")
                         (x("TIPO-DA-SANCAO"), x("FUNDAMENTACAO-LEGAL"));
@@ -629,8 +652,10 @@ export class KronoosParse {
                     let x = n => $(n, data).first().text();
                     let mae = x("genitoras");
                     if (this.mae && mae && this.normalizeName(this.mae) != this.normalizeName(mae)) return;
-                    if ((!this.mae || !mae) && this.homonymous > 1) kelement.titleAlert('exclamation-triangle', "behaviourHomonym");
-                    kelement.notation(true);
+
+                    if ((!this.mae || !mae) && this.homonymous > 1) kelement.behaviourHomonym(true);
+                    else kelement.behaviourAccurate(true);
+
                     let kelement = this.kronoosElement('Mandado de Prisão',
                         "Existência de apontamentos cadastrais.", 'Mandado de prisão expedido.');
                     kelement.table("Numero do Mandado", "Data do Mandado")(x("numeroMandado"), x("dataMandado"));
@@ -677,6 +702,7 @@ export class KronoosParse {
             title: $("<div />").addClass("kronoos-title").text(`Informações - ${this.name}`),
             subtitle: $("<div />").addClass("kronoos-subtitle").text(`${this.cpf ? "CPF" : "CNPJ"}: ${this.cpf_cnpj}${observation}`)
         };
+        this.header.container.data("instance", this);
         this.appendElement.prepend(this.header.element).addClass(defaultType);
         this.header.element.append(this.header.container);
         this.header.container.append(this.header.content);
@@ -774,7 +800,7 @@ export class KronoosParse {
                 position = $("position", element),
                 insertMethod = "append",
                 insertElement = this.appendElement;
-            kelement.notation(true);
+            kelement.behaviourAccurate(true);
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
                 // insertMethod = "prepend";
@@ -834,7 +860,10 @@ export class KronoosParse {
             let kelement = this.kronoosElement(`Processo Nº ${proc}`,
                 "Aguarde enquanto o sistema busca informações adicionais.",
                 "Foram encontradas informações, confirmação pendente.");
-            kelement.titleAlert('exclamation-triangle', this.homonymous > 1 ? "behaviourUnstructuredHomonym" : "behaviourUnstructured");
+
+            if (this.homonymous > 1) kelement.behaviourUnstructuredHomonym(true);
+            else kelement.behaviourUnstructured(true);
+
             this.procElements[proc] = kelement;
             let [article, match] = procs[proc];
             kelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
@@ -1109,11 +1138,10 @@ export class KronoosParse {
         cnjInstance.subtitle("Existência de apontamentos cadastrais.");
         cnjInstance.sidenote("Participação em processo jurídico.");
 
-        cnjInstance.notation(true);
         if (this.homonymous <= 1) {
-            cnjInstance.removeAlertElement();
+            cnjInstance.behaviourAccurate(true);
         } else {
-            cnjInstance.titleAlert('exclamation-triangle', "behaviourHomonym");
+            cnjInstance.behaviourHomonym(true);
         }
 
 

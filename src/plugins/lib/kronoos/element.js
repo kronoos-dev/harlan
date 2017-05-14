@@ -68,44 +68,53 @@ var KronoosElement = function(title, subtitle, sidenote) {
         informationQA = null;
     };
 
-    this.removeAlertElement = (hasNotation = true) => {
-        if (alertElement) alertElement.remove();
-        alertElement = null;
-        this.behaviourAccurate();
-        this.notation(hasNotation);
-        return this;
-    };
-
-    this.notation = (v = null) => {
+    this.notation = (v = null, change = false) => {
         if (v !== null) {
-            if (notation) container.removeClass(notation);
-            notation = v ? "hasNotation" : "hasntNotation";
-            container.addClass(notation);
-            if (aggregate) aggregate();
+            v = v ? "hasNotation" : "hasntNotation";
+            if (v !== notation) {
+                if (notation) container.removeClass(notation);
+                notation = v;
+                container.addClass(notation);
+                change = true;
+            }
         }
-        return [notation || "unknownNotation", behaviour || "unknownBehaviour"];
+        if (aggregate && change) aggregate();
+        return [notation || "unknownNotation", behaviour || "unknownBehaviour", change];
     };
 
-    let dataStatus = (b, hasNotation) => {
-        if (behaviour) container.removeClass(behaviour);
-        behaviour = b;
-        container.addClass(b);
-        this.notation(hasNotation);
-        if (aggregate) aggregate();
-        return this;
+    this.dataStatus = (b, hasNotation) => {
+        if (b !== behaviour) {
+            if (behaviour) container.removeClass(behaviour);
+            behaviour = b;
+            container.addClass(b);
+            return this.notation(hasNotation, true);
+        }
+        return this.notation(hasNotation, false);
     };
 
-    this.behaviourUnstructured = (hasNotation) => dataStatus("behaviourUnstructured", hasNotation);
-    this.behaviourHomonym = (hasNotation) => dataStatus("behaviourHomonym", hasNotation);
-    this.behaviourUnstructuredHomonym = (hasNotation) => dataStatus("behaviourUnstructuredHomonym", hasNotation);
-    this.behaviourAccurate = (hasNotation) => dataStatus("behaviourAccurate", hasNotation);
+    this.behaviourUnstructured = (hasNotation) => this.titleAlert('question-circle', "behaviourUnstructured", hasNotation);
+    this.behaviourHomonym = (hasNotation) => this.titleAlert('question-circle', "behaviourHomonym", hasNotation);
+    this.behaviourUnstructuredHomonym = (hasNotation) => this.titleAlert('question-circle', "behaviourUnstructuredHomonym", hasNotation);
+    this.behaviourAccurate = (hasNotation) => this.titleAlert(null, "behaviourAccurate", hasNotation);
 
     this.titleAlert = (font = 'exclamation-triangle', behaviour = "behaviourUnstructured", hasNotation = true) => {
-        this.removeAlertElement();
-        this[behaviour]();
-        this.notation(hasNotation);
-        alertElement = $("<i />").addClass(`fa fa-${font}`);
-        titleElement.prepend(alertElement);
+        let [,, change] = this.dataStatus(behaviour, hasNotation);
+        if (!change) return this;
+
+        if (alertElement) {
+            alertElement.remove();
+            alertElement = null;
+        }
+
+        if (!font && hasNotation) {
+            font = 'exclamation-triangle';
+        }
+
+        if (font) {
+            alertElement = $("<i />").addClass(`fa fa-${font}`);
+            titleElement.prepend(alertElement);
+        }
+
         return this;
     };
 
