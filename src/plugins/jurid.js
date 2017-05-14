@@ -1,5 +1,5 @@
 /* global controller, numeral, Infinity, NaN, moment */
-(function(controller) {
+harlan.addPlugin((controller) => {
 
     const MAX_RESULTS = 10;
     const REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
@@ -115,4 +115,4 @@
         return resultNode.element().addClass("table");
     });
 
-})(harlan);
+});

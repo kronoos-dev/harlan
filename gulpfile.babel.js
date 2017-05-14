@@ -443,10 +443,9 @@ gulp.task("build:images:backgrounds", () => {
 
 gulp.task("build:images:no-vector", () => {
     return gulp.src([
-        `${src}/**/*.{png, jpg, gif, jpeg}`,
-        `!${src}/images/bg/*.{jpg, jpeg}`
+        `${src}/**/*.{png,jpg,gif,jpeg}`,
+        `!${src}/images/bg/*.{jpg,jpeg}`
     ])
-    .pipe($.newer(dist))
     .pipe(gulp.dest(dist))
     .pipe($.size({title: ">>> build:images:no-vector"}));
 });

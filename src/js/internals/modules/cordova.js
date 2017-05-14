@@ -1,7 +1,7 @@
 module.exports = function (controller) {
 
     controller.registerBootstrap("cordova", function (callback) {
-        if (!controller.confs.isCordova && !window.cordova) {
+        if (!controller.confs.isCordova) {
              callback();
         } else {
             document.addEventListener("deviceready", () => {

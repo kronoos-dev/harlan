@@ -263,4 +263,10 @@ module.exports = function(controller) {
         KRONOOS_ACTION.submit();
     });
 
+    controller.registerTrigger("serverCommunication::websocket::email", (opts, cb) => {
+        cb();
+        /* aqui vamos receber os PDF's do TJSP */
+
+    });
+
 };

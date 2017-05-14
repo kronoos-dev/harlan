@@ -12,7 +12,7 @@ var reduce = function (array) {
     return i;
 };
 
-(function (controller) {
+harlan.addPlugin((controller) => {
 
     controller.registerCall("spcnet::proshield::generate", function (state, scpcNode) {
         var value = state.result.addSeparator("Consulta de Protestos",
@@ -37,7 +37,7 @@ var reduce = function (array) {
 
         value.removeClass("waiting");
         var resultsDisplay = value.find(".results-display");
-        
+
         if (score > 0.8) {
             resultsDisplay.text("Sem pendências significativas.");
             value.addClass("success");
@@ -87,6 +87,4 @@ var reduce = function (array) {
         });
     });
 
-
-
-})(window.harlan);
+});

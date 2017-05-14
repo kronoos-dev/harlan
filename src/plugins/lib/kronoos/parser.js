@@ -106,7 +106,7 @@ export class KronoosParse {
             this.header.element.addClass("loading");
 
         let complete = conf.complete;
-        conf.timeout = conf.timeout || 30000;
+        conf.timeout = conf.timeout || 1200000;
         conf.complete = (...args) => {
             if (!(--this.runningXhr))
                 this.header.element.removeClass("loading");
@@ -123,6 +123,31 @@ export class KronoosParse {
         return this.call("kronoos::status::ajax", ...args);
     }
 
+    searchTJSPCertidao() {
+        if (!this.cnpj) return;
+        this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
+            this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cnpj}.`, {
+                timeout: 240000,
+                data: {
+                    'nuCnpjFormatado': this.cnpj,
+                    'nmPesquisa': this.name,
+                    'tpPessoa' : 'J'
+                },
+                success: (data) => {
+                    let kelement = this.kronoosElement("Certidão do TJSP",
+                        "Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo",
+                        "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
+                    let captionTableElement = kelement.captionTable("Lista de Certidões", "Tipo", "Pedido", "Data");
+                    $("body > pedido", data).each((i, item) => {
+                        captionTableElement($(item).attr("type"),
+                                            $("pedido", item).text(),
+                                            $("data", item).text());
+                    });
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
     searchAll() {
         this.jusSearch();
         this.searchTjsp();
@@ -133,6 +158,7 @@ export class KronoosParse {
         this.searchDAU();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
+        if (this.cnpj) this.searchTJSPCertidao();
         this.searchCepim();
         this.searchExpulsoes();
         this.searchCnep();

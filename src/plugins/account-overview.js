@@ -4,7 +4,7 @@ var _ = require("underscore"),
     ChartJS = require("chart.js"),
     buildURL = require("build-url");
 
-(function(controller) {
+harlan.addPlugin((controller) => {
 
     controller.endpoint.myAccountOverview = "SELECT FROM 'BIPBOPCOMPANYSREPORT'.'REPORT'";
 
@@ -165,4 +165,4 @@ var _ = require("underscore"),
         graph.gamification("levelUp");
     });
 
-})(harlan);
+});

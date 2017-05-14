@@ -1,7 +1,7 @@
 /* global controller. numeral */
 import _ from 'underscore';
 
-(function(controller) {
+harlan.addPlugin((controller) => {
 
     var moreInformation = function(node, result) {
         return function(e) {
@@ -73,4 +73,4 @@ import _ from 'underscore';
 
     applicationStatistics();
 
-})(harlan);
+});

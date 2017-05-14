@@ -12,6 +12,7 @@ var Controller = function() {
     var bootstrapCalls = {};
     var calls = {};
     var events = {};
+    var plugins = [];
 
     this.endpoint = {};
     this.sync = new Sync(this);
@@ -150,8 +151,24 @@ var Controller = function() {
 
         async.auto(calls, (err, results) => {
             console.log(':: bootstrap ::', err, results);
+            this.addPlugin = (callback) => {
+                callback(this);
+                return this;
+            };
+
+            for (let plugin of plugins) plugin(this);
+            plugins = [];
+            this.run = () => {
+                throw "already running";
+            };
             this.trigger('bootstrap::end');
         });
+    };
+
+    this.addPlugin = (callback) => {
+        console.debug(callback);
+        plugins.push(callback);
+        return this;
     };
 
     this.registerBootstrap("bootstrap::end", (cb) => {

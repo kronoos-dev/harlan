@@ -1,7 +1,4 @@
-/* global harlan */
-
-var uniqid = require("uniqid");
-(function(controller) {
+harlan.addPlugin((controller) => {
     require("./lib/dive/loader")(controller);
     require("./lib/dive/design")(controller);
     require("./lib/dive/smart-report")(controller);
@@ -10,4 +7,4 @@ var uniqid = require("uniqid");
     require("./lib/dive/delete")(controller);
     require("./lib/dive/plugin/init")(controller);
     require("./lib/dive/plugin/icheques")(controller);
-})(harlan);
+});

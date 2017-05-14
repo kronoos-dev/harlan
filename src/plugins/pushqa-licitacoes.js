@@ -7,7 +7,7 @@ import qs from 'qs';
 
 const MAX_RESULTS = 5;
 
-(function(controller) {
+harlan.addPlugin((controller) => {
     let harmonizer = new harmony.Harmonizer(),
         colorMix = "neutral",
         colors = {
@@ -235,4 +235,4 @@ const MAX_RESULTS = 5;
         }
     };
 
-})(harlan);
+});

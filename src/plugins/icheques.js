@@ -1,5 +1,5 @@
 /* global toastr */
-(function (controller) {
+harlan.addPlugin((controller) => {
 
     controller.registerCall("admin::roleTypes", function() {
         return {
@@ -82,4 +82,4 @@
      *  Link: http://www.vagalume.com.br/gabriel-pensador/tempestade.html#ixzz3stkENplW
      */
 
-})(harlan);
+});

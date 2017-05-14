@@ -10,9 +10,6 @@
         <link href="//fonts.googleapis.com/css?family=Poiret+One|Open+Sans:400italic,400,300,600,700,800|Open+Sans+Condensed:300,700" rel="stylesheet" type="text/css" />
         <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="css/app.css" rel="stylesheet" type="text/css" />
-        <!-- Debugger
-        <script src="http://192.168.0.106:8080/target/target-script-min.js#anonymous"></script>
-        -->
     </head>
     <body>
         <div class="login hide">
@@ -31,9 +28,8 @@
             <iframe></iframe>
         </div>
         <script src="cordova.js"></script>
+        <script>window.isCordova = true;</script>
         <script src="js/app.js"></script>
-        <!-- force cordova mode -->
-        <script>harlan.confs.isPhone = harlan.confs.isCordova = true;</script>
         <script src="js/icheques.js"></script>
     </body>
 </html>
