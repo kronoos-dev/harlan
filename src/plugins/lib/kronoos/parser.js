@@ -106,7 +106,7 @@ export class KronoosParse {
             this.header.element.addClass("loading");
 
         let complete = conf.complete;
-        conf.timeout = conf.timeout || 1200000;
+        conf.timeout = conf.timeout || 30000;
         conf.complete = (...args) => {
             if (!(--this.runningXhr))
                 this.header.element.removeClass("loading");
@@ -127,7 +127,6 @@ export class KronoosParse {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
             this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cnpj}.`, {
-                timeout: 240000,
                 data: {
                     'nuCnpjFormatado': this.cnpj,
                     'nmPesquisa': this.name,
