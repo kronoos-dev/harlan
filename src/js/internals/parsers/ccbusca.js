@@ -1,4 +1,6 @@
-var _ = require("underscore");
+import _ from "underscore";
+import {CPF, CNPJ} from 'cpf_cnpj';
+import pad from 'pad';
 
 module.exports = function (controller) {
 
@@ -147,6 +149,8 @@ module.exports = function (controller) {
 
     };
 
+    let companys = [];
+
     var setSocio = (result, jdocument) => {
         let $empresas = jdocument.find("BPQL > body socios > socio");
 
@@ -155,10 +159,67 @@ module.exports = function (controller) {
         for (let node of $empresas) {
             let $node = $(node);
             let nodes = {};
+            if (companys.indexOf($node.text()) !== -1) continue;
             nodes[$node.attr("qualificacao")] = $node.text();
-
             result.addSeparator("Quadro Societário", "Empresa", "Empresa a qual faz parte.");
             for (var idx in nodes) {
+                result.addItem(idx, nodes[idx]);
+            }
+
+        }
+    };
+
+    var setQSA = (result, jdocument) => {
+        let $empresas = jdocument.find("BPQL > body qsa > socio");
+
+        if ($empresas.length === 0) return;
+
+        for (let node of $empresas) {
+            let $node = $(node),
+                nodes = {
+                    "Sócio": "nome",
+                    "CPF": "doc",
+                    // "Participação": "quali"
+                };
+
+            let dict = {
+                documento: pad(11, $(node).find("doc").text().replace(/^0+/g, ''), '0'),
+                ihash: $(node).find("doc").attr("ihash")
+            };
+
+            let items = {};
+            let separator = result.addSeparator("Quadro Societário", `Empresa ${CNPJ.format(jdocument.find("cadastro > cpf"))}`, "", items);
+
+            controller.server.call("SELECT FROM 'SEEKLOC'.'CCF'", {data:dict, success: ret => {
+                    let totalRegistro =  parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
+                    let message = 'Não há cheques sem fundo.';
+                    if (totalRegistro) {
+                        let qteOcorrencias = $(ret).find("BPQL > body > data > sumQteOcorrencias").text(),
+                            v1 = moment($("dataUltOcorrencia", ret).text(), "DD/MM/YYYY"),
+                            v2 = moment($("ultimo", ret).text(), "DD/MM/YYYY");
+                        message = ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format("DD/MM/YYYY")}.`;
+                    }
+                    items.resultsDisplay.text(`${items.resultsDisplay.text()} ${message}`);
+                }});
+
+            controller.server.call("SELECT FROM 'IEPTB'.'WS'", {data:dict, success: ret => {
+                    if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
+                        items.resultsDisplay.text(`${items.resultsDisplay.text()} Não há protestos.`);
+                        return;
+                    }
+                    let totalProtestos = $("protestos", ret)
+                                            .get()
+                                            .map((p) => parseInt($(p).text()))
+                                            .reduce((a, b) => a + b, 0);
+                    items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${totalProtestos}.`);
+                }});
+
+
+            for (var idx in nodes) {
+                var data = $node.find(nodes[idx]).text();
+                nodes[idx] = (/^\**$/.test(data)) ? "" : data;
+                if (idx === 'CPF') nodes[idx] = CPF.format(pad(11, nodes[idx].replace(/^0+/g, ''), '0'));
+                if (idx === 'Sócio') companys.push(nodes[idx]);
                 result.addItem(idx, nodes[idx]);
             }
 
@@ -215,6 +276,7 @@ module.exports = function (controller) {
             for (var idx in nodes) {
                 var data = $node.find(nodes[idx]).text();
                 nodes[idx] = (/^\**$/.test(data)) ? "" : data;
+                if (idx === 'CNPJ') nodes[idx] = CNPJ.format(nodes[idx]);
                 result.addItem(idx, nodes[idx]);
             }
 
@@ -251,6 +313,7 @@ module.exports = function (controller) {
         setAddress(result, jdocument);
         setContact(result, jdocument);
         setSociety(result, jdocument);
+        setQSA(result, jdocument);
         setSocio(result, jdocument);
 
         return result.element();
