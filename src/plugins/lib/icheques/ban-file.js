@@ -84,6 +84,16 @@ module.exports = function (controller) {
         controller.call("icheques::checkout", storage);
     };
 
+    var alertRem = function (lines, fileName) {
+            controller.confirm({
+                title: "A extensão é TXT mas será tratada como REM.",
+                subtitle: "Se o arquivo não for REM esta ação pode ocasionar problemas na inserção.",
+                paragraph: "Se não tiver certeza do que está fazendo verifique o arquivo e tente novamente mais tarde."
+            }, () => {
+                readRem(lines, fileName);
+            });
+    };
+
     var readRem = function (lines, fileName) {
         var storage = [];
         for (var key = 1; key < lines.length - 2; key++) {
@@ -112,7 +122,8 @@ module.exports = function (controller) {
 
     var readExtension = {
         ban: readBan,
-        rem: readRem
+        rem: readRem,
+        txt: alertRem
     };
 
 };
