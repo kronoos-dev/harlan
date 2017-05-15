@@ -150,26 +150,27 @@ var Controller = function() {
         bootstrapCalls = {};
 
         async.auto(calls, (err, results) => {
+            debugger;
             console.log(':: bootstrap ::', err, results);
-            this.addPlugin = (callback) => {
-                callback(this);
-                return this;
-            };
-
-            for (let plugin of plugins) plugin(this);
-            plugins = [];
-            this.run = () => {
-                throw "already running";
-            };
             this.trigger('bootstrap::end');
         });
     };
 
     this.addPlugin = (callback) => {
-        console.debug(callback);
         plugins.push(callback);
         return this;
     };
+
+    this.registerTrigger("bootstrap::end", "plugins", (opts, cb) => {
+        this.addPlugin = (callback) => {
+            callback(this);
+            return this;
+        };
+
+        for (let plugin of plugins) plugin(this);
+        plugins = [];
+        cb();
+    });
 
     this.registerBootstrap("bootstrap::end", (cb) => {
         cb();
