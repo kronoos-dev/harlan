@@ -174,7 +174,6 @@ module.exports = function(controller) {
                 return;
             }
 
-
             let img = new Image();
             img.onload = function() {
                 callback();
@@ -255,18 +254,14 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerTrigger("bootstrap::end", "kronoos::k::search", (opts, cb) => {
-        cb();
-        if (!controller.query.k)
-            return;
+    if (controller.query.k) {
         INPUT.val((CPF.isValid(controller.query.k) ? CPF : CNPJ).format(controller.query.k));
         KRONOOS_ACTION.submit();
-    });
+    }
 
     controller.registerTrigger("serverCommunication::websocket::email", (opts, cb) => {
         cb();
         /* aqui vamos receber os PDF's do TJSP */
-
     });
 
 };

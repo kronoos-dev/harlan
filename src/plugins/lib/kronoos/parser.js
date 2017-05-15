@@ -123,6 +123,59 @@ export class KronoosParse {
         return this.call("kronoos::status::ajax", ...args);
     }
 
+    searchTJSPCertidaoPDF(tipo, pedido, data) {
+        this.serverCall("SELECT FROM 'TJSP'.'DOWNLOAD'",
+            this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${tipo} ${this.cpf_cnpj}.`, {
+                data: {
+                    'nuPedido': pedido,
+                    'dtPedido': data,
+                },
+                success: (data) => {
+                    let kelement = this.kronoosElement("Certidão do TJSP",
+                        tipo,
+                        "Visualização da Certidão no Tribunal de Justiça de São Paulo");
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao")
+                        .attr({src: `data:image/png;base64,${$("body > png", data).text()}`})));
+                    kelement.behaviourAccurate(!/\NADA\s*CONSTA/i.test($("body > text", data).text()));
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
+    searchTJSPCertidaoFisica() {
+        if (!this.cpf || !this.name || !this.mae || !this.nascimento) return;
+        for (let flGenero of ['M'])
+        this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
+            this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cpf}.`, {
+                data: {
+                    'nuCpfFormatado': this.cpf,
+                    'nmPesquisa': this.name,
+                    'nmMae' : this.mae,
+                    'dtNascimento' : this.nascimento,
+                    'tpPessoa' : 'F',
+                    'flGenero' : flGenero
+                },
+                success: (data) => {
+                    let kelement = this.kronoosElement("Certidão do TJSP",
+                        "Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo",
+                        "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
+                    let captionTableElement = kelement.captionTable("Lista de Certidões", "Tipo", "Pedido", "Data");
+                    $("body > pedido", data).each((i, item) => {
+                        let pedido = $("pedido", item).text();
+                        let data = $("data", item).text();
+                        let tipo = $(item).attr("type");
+                        captionTableElement(tipo, pedido, data);
+                        this.searchTJSPCertidaoPDF(tipo, pedido, data);
+                    });
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
+
     searchTJSPCertidao() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
@@ -138,9 +191,11 @@ export class KronoosParse {
                         "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
                     let captionTableElement = kelement.captionTable("Lista de Certidões", "Tipo", "Pedido", "Data");
                     $("body > pedido", data).each((i, item) => {
-                        captionTableElement($(item).attr("type"),
-                                            $("pedido", item).text(),
-                                            $("data", item).text());
+                        let pedido = $("pedido", item).text();
+                        let data = $("data", item).text();
+                        let tipo = $(item).attr("type");
+                        captionTableElement(tipo, pedido, data);
+                        this.searchTJSPCertidaoPDF(tipo, pedido, data);
                     });
                     this.append(kelement.element());
                 }
@@ -194,9 +249,12 @@ export class KronoosParse {
         let dtNascimento = $("dtnascimento", this.ccbuscaData);
         if (dtNascimento.length && dtNascimento.text()) {
             let dtNasc = moment(dtNascimento.text(), "YYYYMMDD").format("DD/MM/YYYY");
+            this.nascimento = dtNasc;
             if (this.cpf) this.searchCertidao(dtNasc, this.cpf);
             row[this.cpf ? "Data de Nascimento" : "Data de Abertura"] = dtNasc;
         }
+
+        if (this.cpf) this.searchTJSPCertidaoFisica();
 
         if (!_.keys(row).length) return;
         this.firstElement().table(..._.keys(row))(..._.values(row));
@@ -937,7 +995,7 @@ export class KronoosParse {
     }
 
     graphTrack () {
-        this.taskGraphTrack = async.timesSeries(3, (i, callback) => this.generateRelations.track((data) => {
+        this.taskGraphTrack = async.timesSeries(2, (i, callback) => this.generateRelations.track((data) => {
             let elements = [];
             for (let node of data.nodes) {
                 let formatted_document = pad(node.id.length > 11 ? 14 : 11, node.id, '0');

@@ -13,8 +13,8 @@ harlan.addPlugin((controller) => {
     require("./lib/kronoos/terms")(controller);
     require("./lib/kronoos/contract-accept")(controller);
     require("./lib/kronoos/queue")(controller);
-    require("./lib/kronoos/search")(controller);
     require("./lib/kronoos/status")(controller);
     require("./lib/kronoos/element")(controller);
     require("./lib/kronoos/print")(controller);
+    require("./lib/kronoos/search")(controller);
 });
