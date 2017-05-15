@@ -150,7 +150,6 @@ var Controller = function() {
         bootstrapCalls = {};
 
         async.auto(calls, (err, results) => {
-            debugger;
             console.log(':: bootstrap ::', err, results);
             this.trigger('bootstrap::end');
         });
