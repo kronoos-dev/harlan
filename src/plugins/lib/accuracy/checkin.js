@@ -1,6 +1,7 @@
 import { DistanceMeter } from './distance-meter';
 import Guid from 'guid';
 import basename from 'basename';
+import uniqid from 'uniqid';
 
 module.exports = function (controller) {
 
@@ -23,11 +24,11 @@ module.exports = function (controller) {
         }
 
         let successCallback = imageURI => {
+            obj[0].file = basename(imageURI);
             window.resolveLocalFileSystemURL(cordova.file.dataDirectory, (dirEntry) => {
                 window.resolveLocalFileSystemURL(imageURI, (fileEntry) => {
-                    fileEntry.copyTo(dirEntry, fileEntry.name, (photoEntry) => {
-                        obj[0].file = photoEntry.name;
-                        obj[0].uri = photoEntry.fullPath;
+                    fileEntry.copyTo(dirEntry, uniqid(), (photoEntry) => {
+                        obj[0].uri = photoEntry.toURL();
                         callback(obj);
                     }, () => cameraErrorCallback("Não foi possível persistir a imagem"));
                 }, () => cameraErrorCallback("Não foi possível abrir a imagem"));
