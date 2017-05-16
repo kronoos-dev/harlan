@@ -560,11 +560,11 @@ export class KronoosParse {
                         kelement.table("Data de Nascimento", "Data da Inscrição")(x("dataNascimento"), x("dataInscricao"));
                     } else {
                         kelement.table("Nome", "CNPJ", "Data de Abertura")
-                            (x("nome"), x("CNPJ"), x("data-abertura"));
+                            (x("nome"), this.cnpj, x("data-abertura"));
                         kelement.table("Data Consulta", "Situação", "Data Situação")
                             (x("data-consulta"), x("situacao"), x("data-situacao"));
                         kelement.table("EFR", "Situação Especial", "Data Situação Especial")
-                            (x("efr"), x("situacao-especial"), x("data-situacao-especial"));
+                            (x("efr")|| "*******", x("situacao-especial")|| "*******", x("data-situacao-especial")|| "*******");
                             kelement.table("Natureza Jurídica", "Tipo CNPJ", "Capital Social")
                                 (`${$("natureza-juridica", data).attr("codigo")} ${x("natureza-juridica")}`, x("tipo-cnpj"), numeral(parseInt(x("capitalSocial"))).format("$0,0.00"));
                         kelement.table("Atividade Econômica", "E-mail", "Telefone")

@@ -13,11 +13,30 @@ $text-color: #393939;
             display: none !important;
         }
     }
+
+    a[href]:after {
+      content: none !important;
+    }
+
+
 }
 
 .kronoos-print {
-    .kronoos-header {
-        display: none;
+
+    .kronoos-element-container {
+        page-break-after: always;
+    }
+
+    .kronoos-actions {
+        display: none !important;
+    }
+
+    .kronoos-title {
+        text-shadow: none !important;;
+    }
+
+    .result-network {
+        height: auto;
     }
 
     height: 100%;
@@ -194,7 +213,7 @@ $text-color: #393939;
         display: block;
         width: 800px;
         margin: auto;
-        padding: 20px;
+        padding: 0;
         header {
             margin: 45px 0;
         }

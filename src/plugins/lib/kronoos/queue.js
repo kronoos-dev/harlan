@@ -27,6 +27,10 @@ module.exports = function (controller) {
         task.parser.xhr.push(jqXHR);
     }, 3);
 
+    controller.registerCall("kronoos::queue", () => {
+        return ajaxQueue.length() + ajaxQueue.running();
+    });
+
     controller.registerCall("kronoos::ajax::queue::remove", (filter) => {
         ajaxQueue.remove(filter);
         controller.trigger("kronoos::ajax::queue::change");
