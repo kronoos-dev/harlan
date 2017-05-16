@@ -23,9 +23,15 @@ module.exports = function (controller) {
         }
 
         let successCallback = imageURI => {
-            obj[0].file = basename(imageURI);
-            obj[0].uri = imageURI;
-            callback(obj);
+            window.resolveLocalFileSystemURL(cordova.file.dataDirectory, (dirEntry) => {
+                window.resolveLocalFileSystemURL(imageURI, (fileEntry) => {
+                    fileEntry.copyTo(dirEntry, fileEntry.name, (photoEntry) => {
+                        obj[0].file = photoEntry.name;
+                        obj[0].uri = photoEntry.fullPath;
+                        callback(obj);
+                    }, () => cameraErrorCallback("Não foi possível persistir a imagem"));
+                }, () => cameraErrorCallback("Não foi possível abrir a imagem"));
+            }, () => cameraErrorCallback("Não foi possível capturar o diretório de dados"));
         };
 
         if (cameraResume) {
