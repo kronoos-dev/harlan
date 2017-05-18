@@ -24,10 +24,9 @@ module.exports = function (controller) {
         }
 
         let successCallback = imageURI => {
-            obj[0].file = basename(imageURI);
             window.resolveLocalFileSystemURL(cordova.file.dataDirectory, (dirEntry) => {
                 window.resolveLocalFileSystemURL(imageURI, (fileEntry) => {
-                    fileEntry.copyTo(dirEntry, uniqid(), (photoEntry) => {
+                    fileEntry.copyTo(dirEntry, obj[0].file, (photoEntry) => {
                         obj[0].uri = photoEntry.toURL();
                         callback(obj);
                     }, () => cameraErrorCallback("Não foi possível persistir a imagem"));
