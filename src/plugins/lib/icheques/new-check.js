@@ -4,6 +4,8 @@ import squel from "squel";
 import _ from "underscore";
 import StringMask from 'string-mask';
 import validCheck from "./data/valid-check";
+import KeyCode from 'key-code';
+
 
 const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
 MATCH_NON_DIGITS = /[^\d]/g,
@@ -173,6 +175,16 @@ module.exports = function (controller) {
             cpfValue = cpfValue || (cmcValue ? getCMC7Storage(cmcValue) : null);
 
             var modal = controller.call("modal");
+            $(document).bind("keypress.newCheck", e => {
+                if (e.keyCode != KeyCode.ENTER) {
+                    $("input:text").filter((i, e) => e.value).first().focus();
+                    return false;
+                }
+                return true;
+            });
+
+            modal.onClose = () => $(document).unbind("keypress.newCheck");
+
             modal.title("Adicionar Cheque");
             modal.subtitle("Preencha as informações abaixo do cheque.");
             modal.addParagraph("Preencha e confirme as informações, você será notificado no e-mail assim que validarmos o cheque. Se tiver um scanner de cheques você pode usá-lo agora.");
@@ -181,7 +193,7 @@ module.exports = function (controller) {
             var dataCMC7 = {};
             var dataCPF = {};
             var inputCMC7 = form.addInput("CMC7", "text", controller.confs.isPhone ? "Impresso na parte inferior."
-            : "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 <a href=\"#\">(Ajuda)</a>").val(cmcValue).mask("00000000 0000000000 000000000000");
+                : "A seqüência impressa na parte inferior do cheque em código de barra.", dataCMC7, "CMC7 <a href=\"#\">(Ajuda)</a>").val(cmcValue).mask("00000000 0000000000 000000000000");
             var options = {
                 onKeyPress: function (input, e, field, options) {
                     var masks = ['000.000.000-009', '00.000.000/0000-00'],

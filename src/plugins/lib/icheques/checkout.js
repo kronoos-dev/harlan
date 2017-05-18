@@ -84,7 +84,11 @@ module.exports = function(controller) {
             return 0;
         }
 
-        var months = moment(check.expire, "YYYYMMDD").diff(moment(), "month") - controller.confs.icheques.monthsIncluded;
+        let checkMoment = checkMoment.diff(moment(), "month");
+        if (checkMoment <= 0) {
+            return controller.confs.icheques.price;
+        }
+        var months = checkMoment  - controller.confs.icheques.monthsIncluded;
         if (months <= controller.confs.icheques.monthsIncluded) {
             return controller.confs.icheques.price;
         }

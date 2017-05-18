@@ -99,6 +99,7 @@
     "jsdom": "^10.1.0",
     "jshint-stylish": "~2.2.1",
     "jssip": "^3.0.4",
+    "key-code": "0.0.1",
     "lapack": "^0.1.0",
     "localforage": "^1.5.0",
     "lockable-storage": "^1.1.0",

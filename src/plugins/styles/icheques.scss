@@ -300,15 +300,28 @@ $color: #feefc4;
     }
 }
 
+
 @keyframes ichequeLegalLoading {
-    0 {
+    0% {
         opacity: 1;
     }
-    50%  {
+    50% {
         opacity: 0.7;
     }
     100% {
         opacity: 1;
+    }
+}
+
+@keyframes ichequeLegalLoadingCheck {
+    0 {
+        background-position-y: 0%;
+    }
+    50%  {
+        background-position-y: 250%;
+    }
+    100% {
+        background-position-y: 0%;
     }
 }
 
@@ -344,6 +357,8 @@ $color: #feefc4;
     &.loadingCheck {
         & > header {
             background: url(images/textures/brilliant.png),linear-gradient(180deg,#EFFF00,#fff 160%);
+            animation: ichequeLegalLoading infinite 1250ms linear;
+            background-size: 100% 250;
         }
     }
 
