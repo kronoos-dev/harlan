@@ -176,7 +176,7 @@ module.exports = function (controller) {
 
             var modal = controller.call("modal");
             $(document).bind("keypress.newCheck", e => {
-                if (e.keyCode != KeyCode.ENTER) {
+                if (e.keyCode == KeyCode.ENTER) {
                     $("input:text").filter((i, e) => e.value).first().focus();
                     return false;
                 }
