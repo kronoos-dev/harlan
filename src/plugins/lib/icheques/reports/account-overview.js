@@ -293,7 +293,7 @@ var AccountOverview = function(closeable) {
         }
 
         if (f.observation && !/^\s*$/.test(f.observation)) {
-            expression.and("UPPER(OBSERVATION) LIKE ?", `%${f.observation.trim().toUpperCase()}%`);
+            expression.and("OBSERVATION LIKE ?", `%${f.observation.trim()}%`);
         }
 
         if (f.ccfOnly) {
