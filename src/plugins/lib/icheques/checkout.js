@@ -93,7 +93,7 @@ module.exports = function(controller) {
             return controller.confs.icheques.price;
         }
 
-        return controller.confs.icheques.price + ((months - 5) * controller.confs.icheques.moreMonths);
+        return controller.confs.icheques.price + (months * controller.confs.icheques.moreMonths);
     };
 
     var newCheck = function(check, callback) {
