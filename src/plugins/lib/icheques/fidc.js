@@ -132,9 +132,7 @@ module.exports = (controller) => {
                 var emails = _.filter(value.company.email, (element) => {
                     return element[1] == "financeiro";
                 });
-
                 let companyElement = $.extend({
-                    name: value.company.nome || value.company.responsavel || value.company.username,
                     document: value.company.cnpj || value.company.cpf,
                     endereco: value.company.endereco[0],
                     zipcode: value.company.endereco[5],
@@ -143,7 +141,7 @@ module.exports = (controller) => {
                     estado: value.company.endereco[6],
                     cidade: value.company.endereco[4],
                     email: emails.length ? emails[0][0] : 0,
-                }, value.profile);
+                }, value.profile, {companyName: value.company.nome || value.company.responsavel || value.company.username});
                 var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? " para aprovação." : ""}`, !value.approved ? "O cadastro em 7 dias será automáticamente rejeitado." : "O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.", [
                     ["fa-user", "Informações", () => {
                         controller.call("icheques::fidc::company::view", companyElement);

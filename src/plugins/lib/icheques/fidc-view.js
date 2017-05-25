@@ -16,7 +16,7 @@ module.exports = function(controller) {
             "screens": [{
                 "fields": [
                     [{
-                        "name": "name",
+                        "name": "company-name",
                         "optional": false,
                         "type": "text",
                         "placeholder": "Nome da Empresa ou Próprio",
