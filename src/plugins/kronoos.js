@@ -6,7 +6,8 @@ harlan.addPlugin((controller) => {
         };
     });
 
-    controller.confs.smartsupp = "";
+    controller.confs.smartsupp = "b93ee5f4a3a18f17b7189239ed61a235cff9aa7b";
+    
     require("./lib/kronoos/design")(controller);
     require("./lib/kronoos/authentication")(controller);
     require("./lib/kronoos/contact-us")(controller);
