@@ -208,6 +208,7 @@ module.exports = function(controller) {
                         }]
                     }]
                 });
+                let data = Object.assign({}, lastData);
                 for (let idx in lastData) {
                     switch (idx) {
                         case 'preBilling':
@@ -216,10 +217,10 @@ module.exports = function(controller) {
                         case 'monthCheckAmmount':
                         case 'avgCheckAmmount':
                         case 'revenue':
-                        lastData[idx] *= 100;
+                        data[idx] *= 100;
                         break;
                     }
-                    form.setValue(paramCase(idx), lastData[idx]);
+                    form.setValue(paramCase(idx), data[idx]);
                 }
             }
         });

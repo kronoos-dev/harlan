@@ -264,7 +264,8 @@ module.exports = function(controller) {
             }]
         });
 
-        for (let idx in lastData) {
+        let data = Object.assign({}, lastData);
+        for (let idx in data) {
             switch (idx) {
                 case 'preBilling':
                 case 'totalPayroll':
@@ -272,13 +273,13 @@ module.exports = function(controller) {
                 case 'monthCheckAmmount':
                 case 'avgCheckAmmount':
                 case 'revenue':
-                    lastData[idx] *= 100;
+                    data[idx] *= 100;
                     break;
                 case 'document':
-                    lastData[idx] = CNPJ.isValid(lastData[idx]) ? CNPJ.format(lastData[idx]) : CPF.format(lastData[idx]);
+                    data[idx] = CNPJ.isValid(data[idx]) ? CNPJ.format(data[idx]) : CPF.format(data[idx]);
                     break;
             }
-            form.setValue(paramCase(idx), lastData[idx]);
+            form.setValue(paramCase(idx), data[idx]);
         }
     });
 };
