@@ -2,8 +2,8 @@ const LENGTH_REGEX = /%+/g;
 const JOB_REGEX = /%([^%]+)/g;
 
 import queue from 'async/queue';
-import Guid from 'guid';
 import localForage from "localforage";
+import uuid from 'uuid';
 
 export default class Sync {
 
@@ -135,7 +135,7 @@ export default class Sync {
     }
 
     job(call, cb, ...parameters) {
-        let key = `sync-task-${Guid.raw()}`;
+        let key = `sync-task-${uuid.v4()}`;
         localForage.setItem(key, [call, parameters], err => {
             if (err) {
                 if (cb) cb(err);

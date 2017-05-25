@@ -1,7 +1,6 @@
 import { DistanceMeter } from './distance-meter';
-import Guid from 'guid';
+import uuid from 'uuid';
 import basename from 'basename';
-import uniqid from 'uniqid';
 
 module.exports = function (controller) {
 
@@ -100,8 +99,8 @@ module.exports = function (controller) {
                 store_id: store.id,
                 campaign_id: campaign.id,
                 employee_id: authData[0].id,
-                token: Guid.raw(),
-                file: Guid.raw(),
+                token: uuid.v4(),
+                file: uuid.v4(),
                 questions: [],
                 verifyCoordinates: {
                     local: `${position.coords.latitude},${position.coords.longitude}`,
