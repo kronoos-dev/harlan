@@ -378,34 +378,33 @@ module.exports = function(controller) {
                     }
                 })));
             });
-            controller.call("tooltip", separatorData.menu, "Cobrar Cheque")
-                .append($("<i />").addClass("fa fa-life-buoy")).click((e) => {
-                    e.preventDefault();
-                    if (!check.debtCollector) {
-                        controller.call("icheques::debtCollector", check);
-                    } else {
-                        controller.confirm({
-                            title: "Você deseja REMOVER o cheque da cobrança?",
-                            subtitle: "Não há custo para cancelar ou enviar para cobrança.",
-                            paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
-                        }, () => {
-                            controller.server.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
-                                data: check,
-                                success: () => {
-                                    delete check.debtCollector;
-                                    controller.alert({
-                                        icon: "pass",
-                                        title: "Uoh! Cheque recuperado da cobrança!",
-                                        subtitle: "Seu cheque foi recuperado da cobrança.",
-                                        paragraph: "A cobrança não mais tentará recuperar os valores. Entramos em contato para informá-los.",
-                                        confirmText: "Compreendi"
-                                    });
-                                }
-                            });
-                        });
-                    }
-                });
         }
+        controller.call("tooltip", separatorData.menu, "Cobrar Cheque").append(
+            $("<i />").addClass("fa fa-life-buoy")).click((e) => {
+                e.preventDefault();
+                if (!check.debtCollector) {
+                    controller.call("icheques::debtCollector", check);
+                } else {
+                    controller.confirm({
+                        title: "Você deseja REMOVER o cheque da cobrança?",
+                        subtitle: "Não há custo para cancelar ou enviar para cobrança.",
+                        paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
+                    }, () => {
+                        controller.server.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
+                            data: check,
+                            success: () => {
+                                delete check.debtCollector;
+                                controller.alert({
+                                    icon: "pass",
+                                    title: "Uoh! Cheque recuperado da cobrança!",
+                                    subtitle: "Seu cheque foi recuperado da cobrança.",
+                                    paragraph: "A cobrança não mais tentará recuperar os valores. Entramos em contato para informá-los.",
+                                    confirmText: "Compreendi"
+                                });
+                            }
+                        });
+                    });
+            }});
 
         controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
             e.preventDefault();
