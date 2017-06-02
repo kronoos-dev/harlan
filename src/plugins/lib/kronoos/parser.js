@@ -106,7 +106,7 @@ export class KronoosParse {
             this.header.element.addClass("loading");
 
         let complete = conf.complete;
-        conf.timeout = conf.timeout || 30000;
+        conf.timeout = conf.timeout || 120000; /* 2 minutes */
         conf.complete = (...args) => {
             if (!(--this.runningXhr))
                 this.header.element.removeClass("loading");

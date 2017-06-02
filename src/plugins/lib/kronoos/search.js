@@ -38,6 +38,9 @@ module.exports = function(controller) {
     const SEARCH_BAR = $(".kronoos-application .search-bar");
     const KRONOOS_LOGO = $(".kronoos-application .kronoos-logo");
     const KRONOOS_ACTION = $("#kronoos-action");
+    const KRONOOS_SEARCH_BY_NAME = $(".kronoos-application .icon");
+
+    KRONOOS_SEARCH_BY_NAME.click(controller.click("kronoos::searchByName"));
 
     KRONOOS_LOGO.css("cursor", "pointer");
     KRONOOS_LOGO.click((e) => {

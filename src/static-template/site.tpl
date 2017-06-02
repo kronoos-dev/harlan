@@ -99,7 +99,7 @@
             </div>
             <footer>
                 <hr />
-                &copy; 2015 BIPBOP
+                &copy; 2015-17 BIPBOP
                 <div class="findus">
                     <a href="https://angel.co/bipbop" target="_blank"><i class="fa fa-angellist"></i></a>
                     <a href="https://github.com/bipbop/harlan" target="_blank"><i class="fa fa-github"></i></a>

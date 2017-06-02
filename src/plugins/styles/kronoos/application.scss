@@ -162,6 +162,12 @@ $color-complementary: #7c66c2;
                 right: 18px;
                 top: 50%;
                 margin-top: -8px;
+                cursor: pointer;
+                &:hover {
+                    &:before {
+                        content: "\f2bd";
+                    }
+                }
             }
             .kronoos-q {
                 margin: none;

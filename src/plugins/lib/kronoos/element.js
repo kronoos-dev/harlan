@@ -7,7 +7,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
         titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
         subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
         sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
-        informationQA, informations, alertElement, aggregate, notation, behaviour;
+        informationQA, informations, alertElement, aggregate, notation, behaviour,
+        negativeCertificates;
 
     sideContent.append(titleElement)
         .append(subtitleElement)
@@ -18,6 +19,24 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     var label = (label) => {
         return $("<label />").text(label);
+    };
+
+    this.negativeCertificateStatus = (icon, message) => {
+        if (!negativeCertificates) {
+            negativeCertificates = {};
+            this.list("Resultados Negativos", negativeCertificates);
+            negativeCertificates.container.addClass("kronoos-stage");
+            negativeCertificates.container.insertAfter(sidenoteElement);
+        }
+        let item = {};
+        negativeCertificates.addItem(`<i class="fa fa-${icon}"></i> ${message}`, item);
+        return item.element;
+    };
+
+    this.negativeCertificateStatusClear = () => {
+        if (!negativeCertificates) return;
+        negativeCertificates.container.remove();
+        negativeCertificates = null;
     };
 
     this.informationStatus = (icon, message) => {
@@ -182,7 +201,14 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return addItem;
     };
 
-    this.addNetwork = (nodesArray, edgesArray, options = {}) => {
+    this.networkOptions = {
+        physics: {
+            enabled: false
+        }
+    };
+
+    this.addNetwork = (nodesArray, edgesArray, options = null) => {
+        options = options || this.networkOptions;
         let elem = $("<div />").addClass("result-network"),
             network = new vis.Network(elem.get(0), {
                 nodes: nodesArray,

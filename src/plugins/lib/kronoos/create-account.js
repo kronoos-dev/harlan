@@ -10,32 +10,10 @@ var SAFE_PASSWORD = /^.{6,}$/,
 
 module.exports = function(controller) {
 
-    var referenceAutocomplete = function(input) {
-        controller.call("instantSearch", input, function(value, autocomplete, callback) {
-            controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'REFERENCEAUTOCOMPLETE'", {
-                data: {
-                    input: value
-                },
-                success: function(document) {
-                    $("BPQL > body > references", document).each(function(idx, value) {
-                        autocomplete.item(
-                            $("nome", value).text(),
-                            $("username", value).text(),
-                            "Referência Comercial").click(function() {
-                            input.val($("username", value).text());
-                        });
-                    });
-                },
-                completed: function() {
-                    callback();
-                }
-            });
-        });
-    };
 
-    controller.registerCall("icheques::createAccount::1", function(data, callback) {
+    controller.registerCall("kronoos::createAccount::1", function(data, callback) {
         var modal = controller.call("modal");
-        modal.title("Crie sua conta iCheques");
+        modal.title("Crie sua conta Kronoos");
         modal.subtitle("Informe os dados abaixo para que possamos continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
@@ -59,8 +37,6 @@ module.exports = function(controller) {
             inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00").magicLabel(),
             inputZipcode = form.addInput("cep", "text", "CEP", objLocation).mask("00000-000").magicLabel(),
             inputPhone = form.addInput("phone", "text", "Telefone", objLocation).mask("(00) 0000-00009").magicLabel();
-
-        referenceAutocomplete(inputCommercialReference);
 
         form.addSubmit("login", "Criar Conta");
 
@@ -131,7 +107,7 @@ module.exports = function(controller) {
                 ddd = phoneMatch[1],
                 phone = phoneMatch[2] + '-' + phoneMatch[3];
 
-            controller.serverCommunication.call("INSERT INTO 'IChequesAuthentication'.'ACCOUNT'",
+            controller.serverCommunication.call("INSERT INTO 'kronoosAuthentication'.'ACCOUNT'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: $.extend({
                         name: name,
@@ -155,7 +131,7 @@ module.exports = function(controller) {
         actions.add("Voltar").click(function(e) {
             e.preventDefault();
             modal.close();
-            controller.call("icheques::createAccount", callback);
+            controller.call("kronoos::createAccount", callback);
         });
 
         actions.add("Cancelar").click(function(e) {
@@ -164,10 +140,10 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::createAccount", function(callback, contract, parameters = {}) {
+    controller.registerCall("kronoos::createAccount", function(callback, contract, parameters = {}) {
         var modal = controller.call("modal");
 
-        modal.title("Crie sua conta iCheques");
+        modal.title("Crie sua conta Kronoos");
         modal.subtitle("Informe seu usuário e senha desejados para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
@@ -176,7 +152,7 @@ module.exports = function(controller) {
             inputPassword = form.addInput("password", "password", "Senha").magicLabel(),
             inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha").magicLabel(),
             inputAgree = form.addCheckbox("agree", sprintf("Eu li e aceito o <a href=\"%s\" target=\"_blank\">contrato de usuário</a>.",
-                contract || "legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
+                contract || "legal/kronoos/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
 
         form.addSubmit("login", "Próximo Passo");
 
@@ -224,9 +200,9 @@ module.exports = function(controller) {
                     data: {
                         username: email
                     },
-                    success: () => {
+                    success: function() {
                         modal.close();
-                        controller.call("icheques::createAccount::1", $.extend(parameters, {
+                        controller.call("kronoos::createAccount::1", $.extend(parameters, {
                             username: email,
                             email: email,
                             password: password
@@ -237,7 +213,7 @@ module.exports = function(controller) {
 
         var actions = modal.createActions();
 
-        actions.add("Cancelar").click((e) => {
+        actions.add("Cancelar").click(function(e) {
             e.preventDefault();
             modal.close();
         });
@@ -245,19 +221,19 @@ module.exports = function(controller) {
         actions.add("Login").click(function(e) {
             e.preventDefault();
             modal.close();
-            controller.call("icheques::login", callback);
+            controller.call("kronoos::login", callback);
         });
     });
 
-    controller.registerCall("icheques::login", function(callback) {
+    controller.registerCall("kronoos::login", function(callback) {
         var modal = controller.call("modal");
         modal.title("Autentique-se");
         modal.subtitle("Informe seu usuário e senha para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
 
         var form = modal.createForm(),
-            inputUsername = form.addInput("user", "text", "Usuário"),
-            inputPassword = form.addInput("password", "password", "Senha");
+            inputUsername = form.addInput("user", "text", "Usuário").magicLabel(),
+            inputPassword = form.addInput("password", "password", "Senha").magicLabel();
 
         form.addSubmit("login", "Autenticar");
 
@@ -273,8 +249,8 @@ module.exports = function(controller) {
 
         actions.add("Criar Conta").click(function(e) {
             e.preventDefault();
-            controller.call("icheques::createAccount", function() {
-                controller.call("icheques::login", callback);
+            controller.call("kronoos::createAccount", function() {
+                controller.call("kronoos::login", callback);
             });
             modal.close();
         });
@@ -282,7 +258,7 @@ module.exports = function(controller) {
         actions.add("Esqueci minha Senha").click(function(e) {
             e.preventDefault();
             controller.call("forgotPassword", function() {
-                controller.call("icheques::login", callback);
+                controller.call("kronoos::login", callback);
             });
             modal.close();
         });
@@ -295,7 +271,7 @@ module.exports = function(controller) {
 
     controller.registerCall("authentication::need", function(callback) {
         if (controller.serverCommunication.freeKey()) {
-            controller.call("icheques::login", callback);
+            controller.call("kronoos::login", callback);
             return true;
         }
 
