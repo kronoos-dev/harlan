@@ -32,15 +32,24 @@ module.exports = function(controller) {
         backgroundTimeout,
         mapQueue,
         photosQueue,
-        searchTimeout;
+        searchTimeout,
+        depth = 2;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
     const KRONOOS_LOGO = $(".kronoos-application .kronoos-logo");
     const KRONOOS_ACTION = $("#kronoos-action");
     const KRONOOS_SEARCH_BY_NAME = $(".kronoos-application .icon");
+    const KRONOOS_DEPTH = $(".kronoos-application .depth");
 
     KRONOOS_SEARCH_BY_NAME.click(controller.click("kronoos::searchByName"));
+
+    KRONOOS_DEPTH.click((e) => {
+        e.preventDefault();
+        KRONOOS_DEPTH.removeClass(`fa-thermometer-${depth}`);
+        if (++depth > 4) depth = 0;
+        KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
+    });
 
     KRONOOS_LOGO.css("cursor", "pointer");
     KRONOOS_LOGO.click((e) => {
@@ -126,7 +135,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, style = "maximized", parameters = {}) => {
-        let kronoosParse = new KronoosParse(controller, name, document, kronoosData, cbuscaData, style, parameters);
+        let kronoosParse = new KronoosParse(controller, depth, name, document, kronoosData, cbuscaData, style, parameters);
         parsers.push(kronoosParse);
         return kronoosParse;
     });

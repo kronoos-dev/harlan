@@ -38,9 +38,10 @@ const searchBar = $(".kronoos-application .search-bar");
 
 export class KronoosParse {
 
-    constructor(controller, name, cpf_cnpj, kronoosData,
+    constructor(controller, depth, name, cpf_cnpj, kronoosData,
             ccbuscaData = null, defaultType = "maximized", parameters = {}) {
 
+        this.depth = depth;
         this.networkData = null;
         this.uniqid = uniqid();
         this.parameters = parameters;
@@ -995,7 +996,7 @@ export class KronoosParse {
     }
 
     graphTrack () {
-        this.taskGraphTrack = async.timesSeries(2, (i, callback) => this.generateRelations.track((data) => {
+        this.taskGraphTrack = async.timesSeries(this.depth, (i, callback) => this.generateRelations.track((data) => {
             let elements = [];
             for (let node of data.nodes) {
                 let formatted_document = pad(node.id.length > 11 ? 14 : 11, node.id, '0');

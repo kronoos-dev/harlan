@@ -156,6 +156,17 @@ $color-complementary: #7c66c2;
                 height: 45px;
                 left: 9px;
             }
+            i.depth {
+                z-index: 1;
+                position: absolute;
+                right: 42px;
+                top: 51%;
+                margin-top: -8px;
+                cursor: pointer;
+                &.fa-thermometer-3, &.fa-thermometer-4 {
+                    color: red;
+                }
+            }
             i.icon {
                 z-index: 1;
                 position: absolute;
