@@ -126,7 +126,8 @@ module.exports = (controller) => {
                         "optional": false,
                         "labelText": "CEP",
                         "value": endereco.find("endereco:eq(5)").text(),
-                        "mask": "00000-000"
+                        "mask": "00000-000",
+                        "validate": item => /^\d{5}(-)?\d{3}$/.test(item.element.val())
                     }],
                     [{
                         "name": "numero",
