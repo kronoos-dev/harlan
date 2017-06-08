@@ -93,6 +93,10 @@ module.exports = (controller) =>  {
             return new Form(this, controller);
         };
 
+        this.fullscreen = () => {
+            modalContainer.addClass("fullscreen");
+        };
+
         this.element = () =>  {
             return modal;
         };

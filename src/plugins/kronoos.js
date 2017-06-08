@@ -19,6 +19,5 @@ harlan.addPlugin((controller) => {
     require("./lib/kronoos/element")(controller);
     require("./lib/kronoos/print")(controller);
     require("./lib/kronoos/search")(controller);
-    require("./lib/kronoos/stats")(controller);
     require("./lib/kronoos/search-by-name")(controller);
 });

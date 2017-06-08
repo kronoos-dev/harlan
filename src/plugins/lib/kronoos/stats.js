@@ -1,35 +1,46 @@
-class KronoosStats {
+import {CPF, CNPJ} from 'cpf_cnpj';
+
+export class KronoosStats {
 
     constructor() {
         this.elements = {};
-        this.global = $("<div />").addClass("kronoos-stats");
+        this.global = $("<div />").addClass("kronoos-resume");
         this.container = $("<div />").addClass("container");
         this.content = $("<div />").addClass("content");
-        this.global.append(this.container.append(this.content));
+        this.list = $("<ul />");
+        this.global.append(this.container.append(this.content.append(this.list)));
     }
 
-    register(e) {
-        let element = {
-            data: e,
-            elements: []
-        };
+    create(name, document) {
+        let container = $("<li />");
+        let formattedDocument, documentType;
 
-        this.elements[e.cpf_cnpj] = element;
+        if (CPF.isValid(document)) {
+            formattedDocument = CPF.format(document);
+            documentType = 'CPF';
+        } else {
+            formattedDocument = CNPJ.format(document);
+            documentType = 'CNPJ';
+        }
 
-        return (kelement) => {
-            element.elements.push(kelement);
+        container.append($("<h4 />").text(name)); // name - title
+        container.append($("<h5 />").text(`${document_type} ${formattedDocument}`)
+            .prepend($('<i />').addClas('fa fa-id-card'))); // subtitle
+
+        this.list.append(container);
+        let resultContainer = $("<ol />");
+        resultContainer.append(container);
+
+        return (description, action) => {
+            resultContainer.append($('<li />').text(description).click(e => {
+                e.preventDefault();
+                if (action) action();
+            }));
         };
     }
 
     get element() {
         return this.global;
     }
+
 }
-
-module.exports = function (controller) {
-
-    controller.registerCall("kronoos::stats", () => {
-        return new KronoosStats();
-    });
-
-};

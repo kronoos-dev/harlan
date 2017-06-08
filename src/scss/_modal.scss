@@ -8,7 +8,6 @@
     background-color: darken(rgba(255,255,255,0.8), 10%);
     box-sizing: border-box;
     display: table;
-
     .map {
         display: block;
         height: 200px;
@@ -56,6 +55,13 @@
             }
         }
     }
+    // &.fullscreen {
+    //     background-color: #fff;
+    //     box-shadow: 10px 10px 10px 0 rgba(0, 0, 0, 0.03);
+    //     & > div > div > div {
+    //         box-shadow: none;
+    //     }
+    // }
     .actions {
         text-align: center;
         margin-top: 10px;

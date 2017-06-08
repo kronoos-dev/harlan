@@ -20,6 +20,45 @@ $color-complementary: #7c66c2;
 
 .kronoos-application {
 
+    .kronoos-resume {
+        background-color: #17884d;
+        color: #fff;
+        box-shadow: 0px 0px 45px 0px #086738 inset;
+        text-shadow: 1px 1px black;
+
+        .content {
+            padding: 30px 0;
+        }
+        h4 {
+            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 110%;
+            cursor: pointer;
+        }
+        h5 {
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 400;
+            i {
+                margin-right: 3px;
+            }
+        }
+
+        ol {
+            padding: 14px;
+            li {
+                &:before {
+                    content: '\f101';
+                    font-family: FontAwesome;
+                    margin-right: 8px;
+                }
+                cursor: pointer;
+                line-height: 130%;
+            }
+        }
+    }
+
     .kronoos-stage {
         i {
             display: inline-block;

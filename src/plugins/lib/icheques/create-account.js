@@ -103,7 +103,7 @@ module.exports = function(controller) {
             }
 
             if (zipcode) {
-                if (!/\d{5}-\d{3}/.test(zipcode)) {
+                if (!/^\d{5}-\d{3}$/.test(zipcode)) {
                     inputZipcode.addClass("error");
                     errors.push("O CEP informado não é válido.");
                 } else {

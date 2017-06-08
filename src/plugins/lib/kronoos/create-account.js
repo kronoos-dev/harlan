@@ -10,9 +10,9 @@ var SAFE_PASSWORD = /^.{6,}$/,
 
 module.exports = function(controller) {
 
-
-    controller.registerCall("kronoos::createAccount::1", function(data, callback) {
+    controller.registerCall("kronoos::createAccount::1", function(data, callback, type = 'Account') {
         var modal = controller.call("modal");
+        modal.fullscreen();
         modal.title("Crie sua conta Kronoos");
         modal.subtitle("Informe os dados abaixo para que possamos continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
@@ -79,7 +79,7 @@ module.exports = function(controller) {
             }
 
             if (zipcode) {
-                if (!/\d{5}-\d{3}/.test(zipcode)) {
+                if (!/^\d{5}-\d{3}$/.test(zipcode)) {
                     inputZipcode.addClass("error");
                     errors.push("O CEP informado não é válido.");
                 } else {
@@ -107,7 +107,7 @@ module.exports = function(controller) {
                 ddd = phoneMatch[1],
                 phone = phoneMatch[2] + '-' + phoneMatch[3];
 
-            controller.serverCommunication.call("INSERT INTO 'kronoosAuthentication'.'ACCOUNT'",
+            controller.serverCommunication.call(`INSERT INTO 'kronoosAuthentication'.'${type}'`,
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: $.extend({
                         name: name,
@@ -140,9 +140,9 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("kronoos::createAccount", function(callback, contract, parameters = {}) {
+    controller.registerCall("kronoos::createAccount", function(callback, contract, parameters = {}, type = 'Account') {
         var modal = controller.call("modal");
-
+        modal.fullscreen();
         modal.title("Crie sua conta Kronoos");
         modal.subtitle("Informe seu usuário e senha desejados para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
@@ -152,7 +152,7 @@ module.exports = function(controller) {
             inputPassword = form.addInput("password", "password", "Senha").magicLabel(),
             inputConfirmPassword = form.addInput("password-confirm", "password", "Confirmar Senha").magicLabel(),
             inputAgree = form.addCheckbox("agree", sprintf("Eu li e aceito o <a href=\"%s\" target=\"_blank\">contrato de usuário</a>.",
-                contract || "legal/kronoos/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf"), false);
+                contract || "legal/kronoos/MINUTA___CONTRATO___CONTA.pdf"), false);
 
         form.addSubmit("login", "Próximo Passo");
 
@@ -206,7 +206,7 @@ module.exports = function(controller) {
                             username: email,
                             email: email,
                             password: password
-                        }), callback);
+                        }), callback, type);
                     }
                 })));
         });
@@ -227,6 +227,7 @@ module.exports = function(controller) {
 
     controller.registerCall("kronoos::login", function(callback) {
         var modal = controller.call("modal");
+        modal.fullscreen();
         modal.title("Autentique-se");
         modal.subtitle("Informe seu usuário e senha para continuar");
         modal.addParagraph("Sua senha é secreta e recomendamos que não a revele a ninguém.");
@@ -281,5 +282,10 @@ module.exports = function(controller) {
 
         return false;
     });
+
+    if (controller.query.createAccount) {
+        controller.call("kronoos::createAccount", null, controller.query.contractLocation || null,
+            {}, controller.query.createAccount || 'Account');
+    }
 
 };
