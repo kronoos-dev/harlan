@@ -2,7 +2,7 @@
 
 var SAFE_PASSWORD = /^.{6,}$/,
     PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i,
-    VALIDATE_NAME = /^[a-zA-Z\s]+$/,
+    VALIDATE_NAME = /^[a-z]{2,}\s+[a-z]{2,}/i,
     CPF = require("cpf_cnpj").CPF,
     CNPJ = require("cpf_cnpj").CNPJ,
     emailRegex = require("email-regex"),
@@ -51,7 +51,7 @@ module.exports = function(controller) {
                 commercialReference = inputCommercialReference.val();
 
             if (!VALIDATE_NAME.test(name)) {
-                errors.push("O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.");
+                errors.push("Favor preencher o nome completo adequadamente.");
                 inputName.addClass("error");
             } else {
                 inputName.removeClass("error");
