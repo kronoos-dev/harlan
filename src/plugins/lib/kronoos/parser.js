@@ -39,8 +39,9 @@ const searchBar = $(".kronoos-application .search-bar");
 export class KronoosParse {
 
     constructor(controller, depth, name, cpf_cnpj, kronoosData,
-            ccbuscaData = null, defaultType = "maximized", parameters = {}) {
+            ccbuscaData = null, defaultType = "maximized", parameters = {}, brief = null) {
 
+        this.stats = brief;
         this.depth = depth;
         this.networkData = null;
         this.uniqid = uniqid();
@@ -92,6 +93,12 @@ export class KronoosParse {
             this.homonymous = 1;
             execute();
         }
+    }
+
+    get brief() {
+        if (!this._brief) this._brief = this.stats().create(this.name, this.cpf_cnpj,
+            () => $('html, body').scrollTop(this.appendElement.offset().top));
+        return this._brief;
     }
 
     call(...args) {
@@ -690,6 +697,7 @@ export class KronoosParse {
 
     kronoosElement(...args) {
         let kelement = this.call("kronoos::element", ...args);
+        kelement.brief = (...args) => this.brief(...args);
         this.kelements.push(kelement);
         kelement.aggregate(() => this.changeResult());
         kelement.behaviourAccurate(false);
@@ -737,11 +745,12 @@ export class KronoosParse {
                     let mae = x("genitoras");
                     if (this.mae && mae && this.normalizeName(this.mae) != this.normalizeName(mae)) return;
 
+                    let kelement = this.kronoosElement('Mandado de Prisão',
+                        "Existência de apontamentos cadastrais.", 'Mandado de prisão expedido.');
+
                     if ((!this.mae || !mae) && this.homonymous > 1) kelement.behaviourHomonym(true);
                     else kelement.behaviourAccurate(true);
 
-                    let kelement = this.kronoosElement('Mandado de Prisão',
-                        "Existência de apontamentos cadastrais.", 'Mandado de prisão expedido.');
                     kelement.table("Numero do Mandado", "Data do Mandado")(x("numeroMandado"), x("dataMandado"));
                     kelement.table("Genitora", "Genitor")(x("genitoras"), x("genitores"));
                     kelement.table("Validade", "Orgão Julgador")

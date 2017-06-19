@@ -9,6 +9,7 @@ import _ from "underscore";
 import VMasker from 'vanilla-masker';
 import pad from 'pad';
 import {KronoosParse} from './parser';
+import {KronoosStats} from './stats';
 
 const removeDiacritics = require('diacritics').remove;
 
@@ -32,8 +33,9 @@ module.exports = function(controller) {
         backgroundTimeout,
         mapQueue,
         photosQueue,
+        brief,
         searchTimeout,
-        depth = 2;
+        depth = controller.query.d ? parseInt(controller.query.d) : 2;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
@@ -44,6 +46,7 @@ module.exports = function(controller) {
 
     KRONOOS_SEARCH_BY_NAME.click(controller.click("kronoos::searchByName"));
 
+    KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
     KRONOOS_DEPTH.click((e) => {
         e.preventDefault();
         KRONOOS_DEPTH.removeClass(`fa-thermometer-${depth}`);
@@ -69,6 +72,11 @@ module.exports = function(controller) {
         }
 
         parsers = [];
+
+        if (brief) {
+            brief.element.remove();
+            brief = null;
+        }
 
         if (mapQueue) {
             mapQueue.kill();
@@ -98,6 +106,14 @@ module.exports = function(controller) {
         $(".kronoos-result").empty();
         SEARCH_BAR.addClass("full").removeClass("minimize");
     });
+
+    let getBrief = () => {
+        if (!brief) {
+            brief = new KronoosStats();
+            $(".kronoos-result").prepend(brief.element);
+        }
+        return brief;
+    };
 
     KRONOOS_ACTION.submit((e) => {
         $(INPUT).blur();
@@ -135,7 +151,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, style = "maximized", parameters = {}) => {
-        let kronoosParse = new KronoosParse(controller, depth, name, document, kronoosData, cbuscaData, style, parameters);
+        let kronoosParse = new KronoosParse(controller, depth, name, document, kronoosData, cbuscaData, style, parameters, getBrief);
         parsers.push(kronoosParse);
         return kronoosParse;
     });

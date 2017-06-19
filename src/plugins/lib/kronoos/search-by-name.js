@@ -94,7 +94,7 @@ module.exports = function(controller) {
                 method: 'POST',
                 dataType: 'json',
                 contentType:"application/json",
-                data: JSON.stringify(_.pick(inputQuery, x => !!x)),
+                data: JSON.stringify(_.mapObject(_.pick(inputQuery, x => !!x), y => y.toUpperCase())),
                 success: (data) => controller.call("kronoos::searchByName::response", data)
             })));
 

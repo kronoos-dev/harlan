@@ -11,7 +11,7 @@ export class KronoosStats {
         this.global.append(this.container.append(this.content.append(this.list)));
     }
 
-    create(name, document) {
+    create(name, document, click) {
         let container = $("<li />");
         let formattedDocument, documentType;
 
@@ -22,20 +22,26 @@ export class KronoosStats {
             formattedDocument = CNPJ.format(document);
             documentType = 'CNPJ';
         }
-
-        container.append($("<h4 />").text(name)); // name - title
-        container.append($("<h5 />").text(`${document_type} ${formattedDocument}`)
-            .prepend($('<i />').addClas('fa fa-id-card'))); // subtitle
+        let nameElement = $("<h4 />").text(name);
+        container.append(nameElement); // name - title
+        nameElement.click((e) => {
+            e.preventDefault();
+            if (click) click();
+        });
+        container.append($("<h5 />").text(`${documentType} ${formattedDocument}`)
+            .prepend($('<i />').addClass('fa fa-id-card'))); // subtitle
 
         this.list.append(container);
         let resultContainer = $("<ol />");
-        resultContainer.append(container);
+        container.append(resultContainer);
 
         return (description, action) => {
-            resultContainer.append($('<li />').text(description).click(e => {
+            let e = $('<li />').html(description).click(e => {
                 e.preventDefault();
                 if (action) action();
-            }));
+            });
+            resultContainer.append(e);
+            return e;
         };
     }
 

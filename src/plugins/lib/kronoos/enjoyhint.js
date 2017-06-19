@@ -48,7 +48,7 @@ module.exports = (controller) => {
         skipButton: {text: "Sair"},
         showNext: true,
         showSkip: false,
-    }, [
+    }, {
         'event': "next",
         selector: "#kronoos-q-container > img",
         description: "Quer limpar a tela de resultados?<br/>Clique na logomarca.",
@@ -56,11 +56,10 @@ module.exports = (controller) => {
         skipButton: {text: "Sair"},
         showNext: true,
         showSkip: false,
-    ]];
+    }];
 
     controller.registerTrigger("authentication::authenticated::end", "enjoyhint", (data, cb) => {
         cb();
-        debugger;
         if (!EnjoyHint || localStorage.seeEnjoyhint) return;
         let clockElements;
         clockElements = setInterval(() => {
