@@ -7,6 +7,7 @@ export class KronoosStats {
         this.global = $("<div />").addClass("kronoos-resume");
         this.container = $("<div />").addClass("container");
         this.content = $("<div />").addClass("content");
+        this.content.append($("<h3 />").text("Sumário de Apontamentos"));
         this.list = $("<ul />");
         this.global.append(this.container.append(this.content.append(this.list)));
     }
