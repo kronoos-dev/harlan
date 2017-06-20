@@ -878,13 +878,6 @@ export class KronoosParse {
                 return;
             }
 
-            if (cnpjFilter || cpfFilter || this.homonymous <= 1) {
-                this.behaviourAccurate(true);
-            } else {
-                this.behaviourHomonym(true);
-            }
-
-
             let namespace = $("namespace", element).text(),
                 [title, description] = NAMESPACE_DESCRIPTION[namespace],
                 kelement = this.kronoosElement(title, "Existência de apontamentos cadastrais.", description),
@@ -893,13 +886,18 @@ export class KronoosParse {
                 position = $("position", element),
                 insertMethod = "append",
                 insertElement = this.appendElement;
-            kelement.behaviourAccurate(true);
+
+            if (cnpjFilter || cpfFilter || this.homonymous <= 1) {
+                kelement.behaviourAccurate(true);
+            } else {
+                kelement.behaviourHomonym(true);
+            }
 
             if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
                 // insertMethod = "prepend";
                 // if (this.header) {
                 //     insertMethod = "insertAfter";
-                //     insertElement = this.h   eader.element;
+                //     insertElement = this.header.element;
                 //
                 // }
                 this.serverCall("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
