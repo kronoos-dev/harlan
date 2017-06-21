@@ -183,6 +183,29 @@ export class KronoosParse {
             }, true));
     }
 
+    searchPep() {
+        if (!this.cpf) return;
+        this.serverCall("SELECT FROM 'KRONOOSUSER'.'ELEICOES'",
+            this.loader("fa-eye", `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
+                dataType: 'json',
+                data: {
+                    'documento': this.cpf
+                },
+                success: (data) => {
+                    data = _.values(data);
+                    if (!data.length) return;
+                    let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
+                        "A pessoa física se candidatou a cargo político e consta na base de dados do TSE.",
+                        "Visualização das candidaturas da pessoa física na base de dados do Tribunal Superior Eleitoral.");
+                    kelement.behaviourAccurate(true);
+                    let captionTableElement = kelement.captionTable("Registros no Tribunal Superior Eleitoral", "Partido", "Descrição do Cargo", "Situação", "Candidatura", "Ano da Eleição");
+                    for (let row of data) {
+                        captionTableElement(row.nomePartido, row.descricaoCargo, row.descSitTotTurno || "Não há", row.desSituacaoCandidatura, row.anoEleicao);
+                    }
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
 
     searchTJSPCertidao() {
         if (!this.cnpj) return;
@@ -221,6 +244,7 @@ export class KronoosParse {
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
         if (this.cnpj) this.searchTJSPCertidao();
+        this.searchPep();
         this.searchCepim();
         this.searchExpulsoes();
         this.searchCnep();
