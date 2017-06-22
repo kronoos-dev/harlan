@@ -1,29 +1,22 @@
 /* global toastr, BIPBOP_FREE, module */
+import localForage from "localforage";
 
 module.exports = function(controller) {
 
     /**
      * Captura o Session ID
-     * @param {string} key
-     * @returns {Storage|window.localStorage}
      */
-    var getSessionId = function() {
-        var apiKey = controller.query.apiKey;
-        return apiKey ? apiKey.replace(/[^a-z0-9]/ig, "") : localStorage.sessionId;
+    var getSessionId = function(callback) {
+        if (controller.query.apiKey) callback(controller.query.apiKey);
+        else localForage.getItem('sessionId', (err, value) => callback(err ? null : value));
     };
 
     /**
      * Define um Session ID
-     * @param {string} key
-     * @param {mixed} value
-     * @returns {undefined}
      */
-    var setSessionId = function(value) {
-        if (!value) {
-            delete localStorage.sessionId;
-            return;
-        }
-        localStorage.sessionId = value;
+    var setSessionId = function(value, cb) {
+        if (!value) localForage.removeItem('sessionId', cb);
+        else localForage.setItem('sessionId', value, cb);
     };
 
     /**
@@ -96,11 +89,12 @@ module.exports = function(controller) {
                 $("#input-username").val("");
                 $("#input-password").val("");
                 $("#input-save-password").removeAttr("checked");
-                setSessionId(null);
-                controller.trigger("authentication::logout::end");
-                if (navigator.serviceWorker && navigator.serviceWorker.controller)
-                    navigator.serviceWorker.controller.postMessage(null);
-                location.reload(true); /* prevent information leak */
+                setSessionId(null, () => {
+                    controller.trigger("authentication::logout::end");
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller)
+                        navigator.serviceWorker.controller.postMessage(null);
+                    location.reload(true); /* prevent information leak */
+                });
             },
             timeout = setTimeout(logout, 10000);
 
@@ -117,10 +111,12 @@ module.exports = function(controller) {
         controller.interface.helpers.activeWindow(".app");
     });
 
-    var authenticate = function(apiKey, ret) {
-        var key = apiKey || getSessionId();
+    var authenticate = (key, ret, cb) => getSessionId(storedKey => {
+        cb = cb || ((s) => console.debug(`authentication ${s ? "success" : "failed"}`));
+        key = key || storedKey;
         if (!key) {
-            return false;
+            cb(false);
+            return;
         }
         controller.serverCommunication.apiKey(key);
 
@@ -133,14 +129,14 @@ module.exports = function(controller) {
             controller.trigger("authentication::authenticated::end");
         });
 
-        return true;
-    };
+        cb(true);
+    });
 
     /**
      * Força uma autenticação
      */
-    controller.registerCall("authentication::force", function(apiKey, ret) {
-        authenticate(apiKey, ret);
+    controller.registerCall("authentication::force", function(apiKey, ret, cb) {
+        authenticate(apiKey, ret, cb);
     });
 
     controller.registerTrigger("serverCommunication::websocket::authentication", "username", (data, callback) =>  {
@@ -181,10 +177,10 @@ module.exports = function(controller) {
                     authenticate(apiKey, domDocument);
 
                     if (savePassword) {
-                        setSessionId(apiKey);
-                    }
-                    if (callback) {
-                        callback();
+                        setSessionId(apiKey, () => {
+                            if (callback)
+                                callback();
+                        });
                     }
                 },
                 method: 'POST',

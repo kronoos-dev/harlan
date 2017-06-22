@@ -189,18 +189,36 @@ export class KronoosParse {
             this.loader("fa-eye", `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
                 dataType: 'json',
                 data: {
-                    'documento': this.cpf
+                    'nome': `"${this.name}"`
                 },
                 success: (data) => {
+                    let behaviour = 'behaviourAccurate';
                     data = _.values(data);
+                    data = _.filter(data, politic => {
+                        if (!politic.CPF_CANDIDATO) {
+                            if (politic.DATA_NASCIMENTO && this.nascimento) {
+                                let d1 = moment(politic.DATA_NASCIMENTO, "DD/MM/YY");
+                                let d2 = moment(this.nascimento, "DD/MM/YYYY");
+                                if (d1.isValid() && d2.isValid()) {
+                                    return d1.isSame(d2, 'day');
+                                }
+                            }
+                            if (this.homonymous > 10) {
+                                return false;
+                            }
+                            behaviour = 'behaviourHomonym';
+                            return true;
+                        }
+                        let cpfValue = this.cpf.replace(/[^\d]/g, '');
+                        return politic.CPF_CANDIDATO == cpfValue;
+                    });
                     if (!data.length) return;
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
                         "A pessoa física se candidatou a cargo político e consta na base de dados do TSE.",
                         "Visualização das candidaturas da pessoa física na base de dados do Tribunal Superior Eleitoral.");
-                    kelement.behaviourAccurate(true);
                     let captionTableElement = kelement.captionTable("Registros no Tribunal Superior Eleitoral", "Partido", "Descrição do Cargo", "Situação", "Candidatura", "Ano da Eleição");
                     for (let row of data) {
-                        captionTableElement(row.nomePartido, row.descricaoCargo, row.descSitTotTurno || "Não há", row.desSituacaoCandidatura, row.anoEleicao);
+                        captionTableElement(row.NOME_PARTIDO, row.DESCRICAO_CARGO, row.DESC_SIT_TOT_TURNO || "Não há", row.DES_SITUACAO_CANDIDATURA, row.ANO_ELEICAO);
                     }
                     this.append(kelement.element());
                 }
@@ -244,7 +262,6 @@ export class KronoosParse {
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
         if (this.cnpj) this.searchTJSPCertidao();
-        this.searchPep();
         this.searchCepim();
         this.searchExpulsoes();
         this.searchCnep();
@@ -323,6 +340,7 @@ export class KronoosParse {
         this.cbuscaMae();
         this.cbuscaTelefone();
         this.cbuscaEnderecos();
+        this.searchPep();
     }
 
     searchBovespa() {}
@@ -917,26 +935,26 @@ export class KronoosParse {
                 kelement.behaviourHomonym(true);
             }
 
-            if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
-                // insertMethod = "prepend";
-                // if (this.header) {
-                //     insertMethod = "insertAfter";
-                //     insertElement = this.header.element;
-                //
-                // }
-                this.serverCall("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
-                    data: {
-                        name: name
-                    },
-                    dataType: "json",
-                    success: (ret) => {
-                        for (let picture of ret) {
-                            kelement.picture(picture);
-                            return;
-                        }
-                    }
-                });
-            }
+            // if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
+            //     // insertMethod = "prepend";
+            //     // if (this.header) {
+            //     //     insertMethod = "insertAfter";
+            //     //     insertElement = this.header.element;
+            //     //
+            //     // }
+            //     this.serverCall("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
+            //         data: {
+            //             name: name
+            //         },
+            //         dataType: "json",
+            //         success: (ret) => {
+            //             for (let picture of ret) {
+            //                 kelement.picture(picture);
+            //                 return;
+            //             }
+            //         }
+            //     });
+            // }
 
             if (notes.length) {
                 let knotes = kelement.list("Notas");
