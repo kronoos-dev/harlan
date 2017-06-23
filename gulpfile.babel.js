@@ -75,6 +75,8 @@ function i18n(locale) {
     .pipe($.size({title: `>>> i18n-${locale}`}));
 }
 
+require('gulp-task-list')(gulp);
+
 gulp.task("assets", () => {
     return gulp.src([
         "src/assets/**/*"
@@ -248,6 +250,7 @@ gulp.task("deploy", () => {
     .pipe($.size({title: "deploy"}));
 });
 
+// Mostra HINTS de programação JavaScript
 gulp.task("jshint", () => {
     return gulp.src([
         `${src}/js/**/*.js`,
@@ -260,6 +263,7 @@ gulp.task("jshint", () => {
     .pipe($.size({title: ">>> jshint"}));
 });
 
+// Compila os testes da aplicação
 gulp.task("build:tests", ["jshint"], () => {
     return browserify({
         entries: `${src}/js/tests/index.js`,
@@ -276,10 +280,10 @@ gulp.task("build:tests", ["jshint"], () => {
     .pipe($.sourcemaps.init({loadMaps: true}))
     .pipe($.concat("index.js"))
     .pipe($.sourcemaps.write("."))
-    .pipe(gulp.dest("test/spec"))
-
+    .pipe(gulp.dest("test/spec"));
 });
 
+// Monta o desempacotador da aplicação
 gulp.task("inflate", () => {
     return browserify({
         entries: `${src}/js/app-inflate.js`,
@@ -298,6 +302,7 @@ gulp.task("inflate", () => {
     .pipe($.size({title: ">>> inflate"}));
 });
 
+// Monta o Worker-Service do Chrome
 gulp.task("service-worker", () => {
     return browserify({
         entries: `${src}/js/service-worker.js`,
@@ -316,6 +321,7 @@ gulp.task("service-worker", () => {
     .pipe($.size({title: ">>> service-worker"}));
 });
 
+// Cria o loader da aplicação Harlan
 gulp.task("build:installer", ["build:application"], () => {
     return browserify({
         entries: `${src}/js/app-installer.js`,
@@ -339,6 +345,7 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
+// Copia os arquivos mobile para o Accuracy
 gulp.task("app:copy-files:accuracy", () => {
     return gulp.src([
         `${dist}/images/accuracy/icon.png`,
@@ -359,7 +366,7 @@ gulp.task("app:copy-files:accuracy", () => {
     .pipe($.size({title: ">>> app:copy-files"}));
 });
 
-
+// Copia os arquivos mobile para a iCheques
 gulp.task("app:copy-files", ["app:copy-files:accuracy"], () => {
     return gulp.src([
         `${dist}/**`,
@@ -370,8 +377,10 @@ gulp.task("app:copy-files", ["app:copy-files:accuracy"], () => {
     .pipe($.size({title: ">>> app:copy-files"}));
 });
 
+// Compila as aplicações mobile
 gulp.task("build:cordova", ["build:app:icheques", "build:app:accuracy"]);
 
+// Compila a aplicação accuracy
 gulp.task("build:application:accuracy", ["jshint"], () => {
     return browserify({
         entries: `${src}/js/app-accuracy.js`,
@@ -394,6 +403,7 @@ gulp.task("build:application:accuracy", ["jshint"], () => {
     .pipe($.size({title: ">>> build:application"}));
 });
 
+// Compila a aplicação Harlan
 gulp.task("build:application:main", ["jshint", "i18n"], () => {
     return browserify({
         entries: `${src}/js/app.js`,
@@ -416,8 +426,10 @@ gulp.task("build:application:main", ["jshint", "i18n"], () => {
     .pipe($.size({title: ">>> build:application"}));
 });
 
+// Compila as aplicações JavaScript
 gulp.task("build:application", ["build:application:accuracy", "build:application:main"]);
 
+// Compila as imagens do tipo vetor
 gulp.task("build:images:vector", () => {
     return gulp.src([
         `${src}/**/*.svg`
@@ -427,6 +439,7 @@ gulp.task("build:images:vector", () => {
     .pipe($.size({title: ">>> build:images:vector"}));
 });
 
+// Compila as imagens de fundo JPEG
 gulp.task("build:images:backgrounds", () => {
     return gulp.src([
         `${src}/images/bg/**/*.{jpg,jpeg}`
@@ -441,6 +454,7 @@ gulp.task("build:images:backgrounds", () => {
     .pipe($.size({title: ">>> build:images:backgrounds"}));
 });
 
+// Compila as imagens PNG, JPG, GIF e JPEG
 gulp.task("build:images:no-vector", () => {
     return gulp.src([
         `${src}/**/*.{png,jpg,gif,jpeg}`,
@@ -490,7 +504,7 @@ gulp.task("default", cb => {
 gulp.task("clean", () => {
     return gulp.src(["cordova/*/www"])
         .pipe($.clean({force:true}));
-})
+});
 
 gulp.task("build", cb => {
     const leaves = [
