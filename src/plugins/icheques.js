@@ -66,6 +66,7 @@ harlan.addPlugin((controller) => {
     require("./lib/icheques/commercial-reference")(controller);
     require("./lib/icheques/enjoyhint")(controller);
     require("./lib/icheques/daemon")(controller);
+    require("./lib/icheques/progress")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
