@@ -4,8 +4,9 @@
 [![N|Solid](https://www.harlan.com.br/images/android/drawable-ldpi/ic_launcher.png)](https://www.harlan.com.br/images/android/drawable-ldpi/ic_launcher.png)
 
 :tada::+1: Em primeiro lugar, obrigado por considerar contribuir com o Harlan. São pessoas
-Como você que faz do Harlan uma ótima ferramenta. :tada::+1:
- Estas são principalmente diretrizes, e não regras. Use seu melhor julgamento e sinta-se à vontade para propor mudanças neste documento em um pedido de pull request.
+Como você que fazem do Harlan uma ótima ferramenta. :tada::+1:
+
+Estas são principalmente diretrizes, e não regras. Use seu melhor julgamento e sinta-se à vontade para propor mudanças neste documento em um pedido de pull request.
 
 ### 1. Por onde começar?
 
@@ -51,7 +52,7 @@ Tool                  | Description
 ----------
 ### 3. Instalação
 
-Agora, instale as dependências de desenvolvimento:
+:computer: Agora, instale as dependências de desenvolvimento:
 
 Para realizar o deploy do Harlan será necessário que você tenha instalado um ambiente que conte com NodeJS, Compass e Bower.
 
@@ -73,11 +74,11 @@ A execução deste comando tem como objetivo complilar todos módulos e subir um
 
 Se ocorrer falha ao subir o servidor verifique o log de exeução da ferramenta Gulp para verificar possível falha em carregar uma dependência.
 
-### 4. Veja suas alterações de forma automatica
+### 4. Veja suas alterações de forma automatica 
 
 Através da tarefa do Gulp [watch] é possível desenvolver de forma prática e rapida sem a necessidade de atualizações manuais, pois o Harlan utiliza a tecnologia "browser-sync" para buscar um melhor desempenho de desenvolvimento. 
 
-#### 5. Você encontrou um bug?
+#### 5. Você encontrou um bug?  :mag_right:
 
 * ** Verifique se o bug já não foi relatado ** pesquisando no GitHub sob [Issues](https://github.com/bipbop/harlan/issues).
 
