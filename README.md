@@ -20,6 +20,8 @@ Cada consulta salva é permanentemente atualizada, isto é, sempre que você con
 
 O Harlan é uma plataforma open-source distribuída sobre a licença MIT, o código fonte e maiores informações podem ser encontradas no nosso repositório de código [Bitbucket](https://bitbucket.org/bipbop/harlan). Ser uma plataforma livre significa que se você é desenvolvedor pode criar módulos e APIs para o sistema para atender demandas específicas, ganhando dinheiro com isso.
 
+O [Guia contribuição](https://github.com/bipbop/harlan/blob/master/CONTRIBUTING.md)
+É um bom lugar para começar. Se você tiver dúvidas, não hesite em perguntar.
 ----------
 
 ### Suporte
@@ -30,13 +32,3 @@ Encontrou algum problema no Harlan, alguma dúvida? Pergunte no [Stack Overflow]
 
 Dúvidas sobre implementação? A BIPBOP responderá suas questões em até duas horas de maneira efetiva e garantida. Assine em [checkout](https://irql.bipbop.com.br/api/checkout.html).
 
-----------
-
-### Instalação
-
-Para realizar o deploy do Harlan será necessário que você tenha instalado um ambiente que conte com [NodeJS](https://github.com/joyent/node),  [Compass](https://github.com/Compass/compass) e [Bower](http://bower.io).
-
-    # apt-get install nodejs bundler
-    $ npm install
-    $ npm build
-    $ npm serve
