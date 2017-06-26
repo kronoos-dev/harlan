@@ -67,41 +67,11 @@ module.exports = function (controller) {
         }, notificationInterval);
     };
 
-    let registerRadial = () => {
-        let radialProject = controller.interface.widgets.radialProject($(".kronoos-application"), 0);
-        let position = [40, 40];
-        radialProject.element.css({
-            'position': "fixed",
-            'right': 40,
-            'bottom': 40,
-            'cursor': "move",
-            'user-select': "none",
-            'clip': 'auto',
-            'opacity': 0.9
-        }).mousedown(function() {
-            let lastPosition = null;
-            let body = $("body");
-            body.bind("mousemove.radialProject", (e) => {
-                if (lastPosition) {
-                    position[0] += lastPosition.pageX - e.pageX;
-                    position[1] += lastPosition.pageY - e.pageY;
-                    radialProject.element.css({
-                        'right': position[0],
-                        'bottom': position[1],
-                    });
-                }
-                lastPosition = e;
-            });
-            body.one("mouseup", () => body.unbind("mousemove.radialProject"));
-        });
-        return radialProject;
-    };
-
     controller.registerTrigger("kronoos::ajax::queue::change", "radialProject", (obj, cb) => {
         cb();
         let queue = ajaxQueue.length() + ajaxQueue.running();
         if (!radialProject && !queue) return;
-        if (!radialProject) radialProject = registerRadial();
+        if (!radialProject) radialProject = controller.call("progress::ui::noblock");
 
         if (queue > maxQueue) maxQueue = queue;
 
