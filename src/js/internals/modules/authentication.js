@@ -185,7 +185,7 @@ module.exports = function(controller) {
                 },
                 method: 'POST',
                 data: {
-                    username: inputUsername.val(),
+                    username: inputUsername.val().trim(),
                     password: inputPassword.val()
                 }
             })));

@@ -115,26 +115,27 @@ module.exports = function (controller) {
 
         controller.registerCall("icheques::chequePicture::confirm", (imageData, callback) => {
             controller.confirm({
-                title: "Essa foto do seu cheque ficou legal?",
-                subtitle: "Deseja realmente prosseguir com essa imagem?",
+                title: "Essa foto do seu cheque ficou realmente legal?",
+                subtitle: "Deseja prosseguir com essa imagem?",
                 paragraph: "Fotos de cheques de baixa qualidade, rasurados ou muito amassados serão descartadas."
             },
             () => callback(imageData),
-            () => controller.call("icheques::chequePicture", callback), (modal, formdata) => {
-                form.element().insertAfter($('<img />', {
-                    src: `data:image/jpeg;base64,${imageData}`
-                }));
+            () => controller.call("icheques::chequePicture", callback), (modal, form) => {
+                $('<img />', {
+                    src: `data:image/jpeg;base64,${imageData}`,
+                    style: "max-width: 100%; display: block; margin: 14px auto;"
+                }).insertBefore(form.element());
             });
         });
 
-        controller.registerCall("icheques::imagetocmc", (imageData, cmcValue, callback) => {
+        controller.registerCall("icheques::imagetocmc", (imageData, cmcValue, cpfValue, callback) => {
             /* alreadyExists */
             if (cmcValue) callback(cmcValue);
             else if (!imageData) callback();
             else controller.server.call("SELECT FROM 'ICHEQUES'.'IMAGECMC'", {
-                data: imageData,
+                data: {image: imageData},
                 dataType: "json",
-                success: (cmcValue) => callback(cmcValue),
+                success: (data) => callback(...data),
                 error: () => callback()
             });
         });
@@ -143,8 +144,8 @@ module.exports = function (controller) {
             if (navigator.camera) {
                 controller.confirm({
                     title: "Vamos tirar uma foto do seu cheque?",
-                    subtitle: "Com a foto do cheque podemos preencher alguns dados automágicamente.",
-                    paragraph: "Tire uma foto da face do cheque onde o mesmo não esteja amassado ou dobrado, cheques rasurados podem não serem reconhecidos automáticamente."
+                    subtitle: "Com a foto do cheque podemos preencher alguns dados automaticamente.",
+                    paragraph: "Tire uma foto da frente do cheque onde o mesmo não esteja amassado e/ou dobrado, cheques rasurados podem não ser reconhecidos."
                 }, () => navigator.camera.getPicture(
                         (imageData) => controller.call("icheques::chequePicture::confirm", imageData, callback),
                         () => controller.alert({
@@ -155,13 +156,14 @@ module.exports = function (controller) {
                         quality: 90,
                         destinationType: Camera.DestinationType.DATA_URL,
                     }), () => callback(null));
+            } else {
+                callback(null);
             }
-            callback(null);
         });
 
         controller.registerCall("icheques::newcheck", function (callback, cmcValue, cpfValue) {
             controller.call("icheques::chequePicture", (image) =>
-                controller.call("icheques::imagetocmc", image, cmcValue, (cmcValue) =>
+                controller.call("icheques::imagetocmc", image, cmcValue, cpfValue, (cmcValue, cpfValue) =>
                     controller.call("icheques::newcheck::form", callback, cmcValue, cpfValue, image)));
         });
 

@@ -43,6 +43,8 @@ module.exports = function(controller) {
     controller.interface.helpers.changeFavicon("/images/icheques/favicon.png");
     require("../../styles/icheques.js");
 
+    $("#login-about").text("Para acessar sua conta faça o login com usuário ou email e senha cadastrados.");
+
     $(controller.confs.container).append(siteTemplate);
     $("#input-q").attr("placeholder",
         controller.confs.isPhone ? "Pesquise por um cheque." :
@@ -132,8 +134,7 @@ module.exports = function(controller) {
         }
     });
 
-    $.getScript("//code.createjs.com/createjs-2015.11.26.min.js", function() {
-
+    $.getScript("https://code.createjs.com/createjs-2015.11.26.min.js", function() {
         var lib = {};
         require("./animation.js")(lib, null, createjs, null);
 
