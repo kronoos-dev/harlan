@@ -9,6 +9,74 @@ import Color from "color";
 module.exports = (controller) => {
 
     let harmonizer = new Harmonizer();
+
+    controller.registerCall("admin::tagsViewer", (data = {}) => {
+        controller.server.call("SELECT FROM 'BIPBOPCOMPANYSREPORT'.'TAGS'", {
+            dataType: 'json',
+            data: data,
+            success: (dataset) => {
+                var report = controller.call("report",
+                        "Cadastro de Tags em Usuários",
+                        "Lista das tags cadastradas nos usuários.", null, true),
+                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map((i) => i * 10)),
+                    colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map((i) => i * 10));
+
+                controller.trigger("admin::tagsViewer", report);
+                report.paragraph("Através do gráfico ao lado pode se ver as tags comerciais mais utilizadas em sua aplicação. O usuário ou o administador podem editar as tags através dos dados cadastrais.");
+                $(".app-content").append(report.element());
+
+                report.newContent();
+
+                var groupData = _.values(_.groupBy(dataset, function(obj) {
+                    return obj._id || null;
+                }));
+
+                var reduceData = _.sortBy(_.map(groupData, (group) => {
+                    return _.reduce(group, (a, b) => {
+                        return {
+                            _id: a._id,
+                            total: a.total + b.total,
+                        };
+                    });
+                }), 'total');
+
+                var charData = _.map(reduceData, (opt, i) => {
+                    return {
+                        tag: opt._id,
+                        label: opt._id || "Não preenchido",
+                        value: opt.total,
+                        color: colors[i],
+                        highlight: colorsHightlight[i]
+                    };
+                });
+                var reducedDataset = reduceDataset(charData),
+                    canvas = report.canvas(250, 250),
+                    interval = setInterval(() => {
+                        if (document.contains(canvas) && $(canvas).is(":visible")) {
+                            clearInterval(interval);
+                            new ChartJS(canvas.getContext("2d")).Doughnut(reducedDataset);
+                        }
+                    }, 1000);
+                charData.forEach((opt, i) => {
+                    if (!opt.tag) {
+                        return;
+                    }
+                    report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
+                        "background-color": colors[i],
+                        "color": new Color(colors[i]).light() ? "#000" : "#fff",
+                        'cursor': 'pointer'
+                    }).click((e) => {
+                        e.preventDefault();
+                        controller.call("admin::openCompanys", report, {
+                            tag: opt.tag
+                        });
+                    });
+                });
+            }
+        });
+    });
+
+
     controller.registerCall("admin::commercialReference", (data = {}) => {
         controller.server.call(controller.endpoint.commercialReferenceOverview, {
             dataType: 'json',

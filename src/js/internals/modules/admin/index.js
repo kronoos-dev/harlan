@@ -61,6 +61,7 @@ module.exports = function(controller) {
 
         controller.call("admin::index");
         controller.call("admin::commercialReference");
+        controller.call("admin::tagsViewer");
         controller.trigger("admin");
     });
 };

@@ -888,7 +888,7 @@ export class KronoosParse {
                 subtitle: `Acompanhamento para o ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj}.`,
                 paragraph: "O sistema irá te informar a respeito de quaisquer novas alterações das informações deste relatório / target.",
             }, () => {
-                this.controller.server.call("INSERT INTO 'KRONOOSUSER'.'PUSH'", this.controller.call("error::ajax", {
+                this.controller.server.call("INSERT INTO 'KRONOOS'.'PUSH'", this.controller.call("error::ajax", {
                     data : {document: this.cpf_cnpj},
                     success: () => {
                         controller.alert({
