@@ -78,8 +78,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("default::page", function() {
-        controller.interface.helpers.activeWindow(controller.confs.isCordova ?
-            ".login" : ".icheques-site");
+        controller.interface.helpers.activeWindow(".login");
     });
 
     var emailInput = $("body > .icheques-site .email");
