@@ -311,7 +311,7 @@ module.exports = function(controller) {
                         map: map,
                         title: `${parser.name} / ${parser.cpf_cnpj}`
                     });
-                    marker.addListener('click', () => $('html, body').scrollTop(parser.appendElement.element().offset().top));
+                    marker.addListener('click', () => $('html, body').scrollTop(parser.appendElement.offset().top));
                 }
             }
         });
