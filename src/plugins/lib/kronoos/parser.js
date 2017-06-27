@@ -158,15 +158,15 @@ export class KronoosParse {
     }
 
     searchTJSPCertidaoFisica() {
-        if (!this.cpf || !this.name || !this.mae || !this.nascimento) return;
+        if (!this.cpf || !this.name) return;
         for (let flGenero of ['M'])
         this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
             this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cpf}.`, {
                 data: {
                     'nuCpfFormatado': this.cpf,
                     'nmPesquisa': this.name,
-                    'nmMae' : this.mae,
-                    'dtNascimento' : this.nascimento,
+                    'nmMae' : this.mae || "",
+                    'dtNascimento' : this.nascimento || "",
                     'tpPessoa' : 'F',
                     'flGenero' : flGenero
                 },
@@ -1027,8 +1027,8 @@ export class KronoosParse {
         for (let proc in procs) {
             if (this.procElements[proc]) continue;
             let kelement = this.kronoosElement(`Processo Nº ${proc}`,
-                "Aguarde enquanto o sistema busca informações adicionais.",
-                "Foram encontradas informações, confirmação pendente.");
+                "Obtido em recorte de diário oficial.",
+                "Foram encontradas informações, confirmação pendente pelo sistema Kronoos.");
 
             if (this.homonymous > 1) kelement.behaviourUnstructuredHomonym(true);
             else kelement.behaviourUnstructured(true);
@@ -1175,7 +1175,7 @@ export class KronoosParse {
             if (!match) return;
             procs[VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999")] = [articleText, match[0]];
         });
-        debugger;
+
         this.parseProcs(procs);
 
         for (let cnj in procs) {
@@ -1266,7 +1266,7 @@ export class KronoosParse {
                 cnjInstance = this.procElements[numproc];
             } else {
                 cnjInstance = this.kronoosElement(numproc ? `Processo Nº ${numproc}` : "Processo Jurídico",
-                    "Aguarde enquanto o sistema busca informações adicionais.",
+                    "Obtido em recorte de diário oficial.",
                     "Foram encontradas informações, confirmação pendente.");
                 this.procElements[numproc] = cnjInstance;
                 this.append(cnjInstance.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
