@@ -64,6 +64,7 @@ module.exports = function (controller) {
                     notification.close();
                 };
             }
+            controller.trigger("kronoos::end");
         }, notificationInterval);
     };
 

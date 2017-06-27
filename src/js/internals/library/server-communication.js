@@ -15,6 +15,13 @@ module.exports = function (controller) {
     if (controller.confs.webserviceAddress)
         bipbop.webserviceAddress = controller.confs.webserviceAddress;
 
+    if (controller.query.webserviceAddress)
+        bipbop.webserviceAddress = controller.query.webserviceAddress;
+
+    if (controller.query.websocketAddress)
+        bipbop.websocketAddress = controller.query.websocketAddress;
+
+
     /**
      * Api Key
      * @type string

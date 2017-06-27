@@ -20,7 +20,7 @@ module.exports = function (controller) {
             paragraph: `O contrato de serviço está disponível <a target='_blank' href='legal/kronoos/MINUTA___CONTRATO___CONTA.pdf' title='contrato de serviço'>neste link</a>, após a leitura clique em confirmar para acessar sua conta. O aceite é fundamental para que possamos disponibilizar todos os nossos serviços e você assim desfrutar do Kronoos.`,
             confirmText: "Aceitar"
         }, function () {
-            controller.serverCommunication.call("SELECT FROM 'KRONOOSUSER'.'CONTRACTACCEPTED'");
+            controller.serverCommunication.call("SELECT FROM 'KRONOOS'.'CONTRACTACCEPTED'");
             controller.call("alert", {icon: "pass", title: "O contrato foi aceito com sucesso", subtitle: "Agora você já pode usufruir de todas as funcionalidades do Kronoos.", paragraph: "Agora você já pode começar a utilizar o sistema e todas suas funcionalidades contradas, comece agora buscando na barra superior por um CPF ou CNPJ."});
         }, function () {
             controller.call("authentication::logout");

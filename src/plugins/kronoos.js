@@ -21,5 +21,5 @@ harlan.addPlugin((controller) => {
     require("./lib/kronoos/search")(controller);
     require("./lib/kronoos/search-by-name")(controller);
     require("./lib/kronoos/enjoyhint")(controller);
-    
+
 });

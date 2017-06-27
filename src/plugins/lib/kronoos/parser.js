@@ -5,6 +5,7 @@ import pad from 'pad';
 import bankCodes from "./bank-codes";
 import VMasker from 'vanilla-masker';
 import uniqid from 'uniqid';
+import GoogleMapsLoader from 'google-maps';
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -57,6 +58,7 @@ export class KronoosParse {
         this.ccbuscaData = ccbuscaData;
         this.runningXhr = 0;
         this.titleCanChange = false;
+        this.geocodes = [];
 
         if (CPF.isValid(cpf_cnpj)) {
             this.cpf = this.cpf_cnpj = CPF.format(cpf_cnpj);
@@ -116,8 +118,10 @@ export class KronoosParse {
         let complete = conf.complete;
         conf.timeout = conf.timeout || 120000; /* 2 minutes */
         conf.complete = (...args) => {
-            if (!(--this.runningXhr))
+            if (!(--this.runningXhr)) {
                 this.header.element.removeClass("loading");
+                this.end();
+            }
             if (complete) complete(...args);
         };
 
@@ -185,7 +189,7 @@ export class KronoosParse {
 
     searchPep() {
         if (!this.cpf) return;
-        this.serverCall("SELECT FROM 'KRONOOSUSER'.'ELEICOES'",
+        this.serverCall("SELECT FROM 'KRONOOS'.'ELEICOES'",
             this.loader("fa-eye", `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
                 dataType: 'json',
                 data: {
@@ -321,18 +325,37 @@ export class KronoosParse {
         });
     }
 
+    end() {
+
+    }
+
     cbuscaEnderecos() {
         let enderecos = $("enderecos endereco", this.ccbuscaData);
         if (!enderecos.length) return;
         let klist = this.firstElement().list("Endereço");
         let keys = {};
-        enderecos.each(function () {
-            let v = x => $(x, this).text();
+        enderecos.each((idx, value) => {
+            let v = x => $(x, value).text();
+            if (!v('cep')) return;
+
             let number = v('numero').replace(/^0+/, '');
             let key = v('cep') + number;
             if (keys[key]) return;
             keys[key] = true;
-            klist(`${v('tipo')} ${v('logradouro')}, ${number} ${v('complemento')} - ${v('cep')}, ${v('bairro')}, ${v('cidade')} / ${v('estado')}`);
+            let addr = `${v('tipo')} ${v('logradouro')}, ${number} ${v('complemento')} - ${v('cep')} - ${v('cidade')} / ${v('estado')}`;
+            this.serverCall("SELECT FROM 'KRONOOS'.'GEOCODE'",
+                this.loader("fa-eye", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
+                    dataType: 'json',
+                    data: {address : addr},
+                    success: geo => {
+                        this.geocodes.push(geo);
+                        if (geo.results.length) {
+                            klist(geo.results[0].formatted_address);
+                        } else {
+                            klist(addr);
+                        }
+                    }
+            }));
         });
     }
 
@@ -864,7 +887,17 @@ export class KronoosParse {
                 subtitle: `Acompanhamento para o ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj}.`,
                 paragraph: "O sistema irá te informar a respeito de quaisquer novas alterações das informações deste relatório / target.",
             }, () => {
-                this.alert({});
+                this.controller.server.call("INSERT INTO 'KRONOOSUSER'.'PUSH'", this.controller.call("error::ajax", {
+                    data : {document: this.cpf_cnpj},
+                    success: () => {
+                        controller.alert({
+                            title: `Parabéns! O documento ${this.cpf || this.cnpj} está sendo acompanhando.`,
+                            subtitle: `Você receberá um e-mail caso ocorra alguma atualização no cadastro de ${this.name}`,
+                            paragraph: `Verificaremos diariamente o documento informado ${this.cpf || this.cnpj} em busca de alterações,
+                            caso ocorra alguma nós encaminharemos um e-mail para o endereço cadastrado.`
+                        });
+                    }
+                }));
             });
         });
 
@@ -943,7 +976,7 @@ export class KronoosParse {
             //     //     insertElement = this.header.element;
             //     //
             //     // }
-            //     this.serverCall("SELECT FROM 'KRONOOSUSER'.'PHOTOS'", {
+            //     this.serverCall("SELECT FROM 'KRONOOS'.'PHOTOS'", {
             //         data: {
             //             name: name
             //         },
@@ -1059,7 +1092,7 @@ export class KronoosParse {
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
-                    elements.push((cb) => this.serverCall("SELECT FROM 'KRONOOSUSER'.'API'", this.errorAjax(
+                    elements.push((cb) => this.serverCall("SELECT FROM 'KRONOOS'.'API'", this.errorAjax(
                     this.loader("fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${this.cpf_cnpj}.`, {
                         data: {
                             documento: this.cpf_cnpj,

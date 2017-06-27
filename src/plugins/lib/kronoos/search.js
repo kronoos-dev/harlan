@@ -10,6 +10,7 @@ import VMasker from 'vanilla-masker';
 import pad from 'pad';
 import {KronoosParse} from './parser';
 import {KronoosStats} from './stats';
+import {KronoosMap} from './map';
 
 const removeDiacritics = require('diacritics').remove;
 
@@ -174,7 +175,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("kronoos::search", (document, name, cbuscaData) => {
-        xhr.push(controller.server.call("SELECT FROM 'KRONOOSUSER'.'API'", controller.call("error::ajax",
+        xhr.push(controller.server.call("SELECT FROM 'KRONOOS'.'API'", controller.call("error::ajax",
             controller.call("kronoos::status::ajax", "fa-user", `Pesquisando correlações através do nome ${name}, documento ${document}.`, {
                 data: {
                     documento: document,
@@ -286,6 +287,35 @@ module.exports = function(controller) {
         INPUT.val((CPF.isValid(controller.query.k) ? CPF : CNPJ).format(controller.query.k));
         KRONOOS_ACTION.submit();
     }
+
+    controller.registerTrigger("kronoos::end", "showmap", (data, callback) => {
+        callback();
+        let positions = _.map(_.filter(_.flatten(_.map(parsers, x => x.geocodes)), x => x.results && x.results.length), x => x.results[0].geometry.location);
+        if (!positions.length) return;
+
+        let kronoosMap = new KronoosMap();
+        let mapElement = $("<div />").addClass("map").css({
+            height: '400px',
+            width: '100%'
+        });
+
+        if (brief && brief.element) mapElement.insertAfter(brief.element);
+        else mapElement.prependTo($(".kronoos-result"));
+
+        kronoosMap.generateMap(mapElement, positions, (google, map) => {
+            for (let parser of parsers) {
+                for (let geolocation of parser.geocodes) {
+                    if (!geolocation.results || !geolocation.results.length) continue;
+                    let marker = new google.maps.Marker({
+                        position: geolocation.results[0].geometry.location,
+                        map: map,
+                        title: `${parser.name} / ${parser.cpf_cnpj}`
+                    });
+                    marker.addListener('click', () => $('html, body').scrollTop(parser.appendElement.element().offset().top));
+                }
+            }
+        });
+    });
 
     controller.registerTrigger("serverCommunication::websocket::email", (opts, cb) => {
         cb();
