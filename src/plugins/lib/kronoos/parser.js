@@ -83,7 +83,7 @@ export class KronoosParse {
 
         if (this.cpf) {
             this.serverCall("SELECT FROM 'CBUSCA'.'HOMONYMOUS'",
-                this.loader("fa-eye", `Verificando a quantidade de homônimos para o ${this.name}.`, {
+                this.loader("fa-eye", `Verificando a quantidade de homônimos para o nome ${this.name}.`, {
                     dataType: "json",
                     data: {nome: this.name},
                     success: ret => {
@@ -342,19 +342,12 @@ export class KronoosParse {
             let key = v('cep') + number;
             if (keys[key]) return;
             keys[key] = true;
-            let addr = `${v('tipo')} ${v('logradouro')}, ${number} ${v('complemento')} - ${v('cep')} - ${v('cidade')} / ${v('estado')}`;
+            klist(`${v('tipo')} ${v('logradouro')}, ${number} - ${v('complemento')} - ${v('cidade')} - ${v('estado')}, ${v('cep')}`);
             this.serverCall("SELECT FROM 'KRONOOS'.'GEOCODE'",
                 this.loader("fa-eye", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
                     dataType: 'json',
-                    data: {address : addr},
-                    success: geo => {
-                        this.geocodes.push(geo);
-                        if (geo.results.length) {
-                            klist(geo.results[0].formatted_address);
-                        } else {
-                            klist(addr);
-                        }
-                    }
+                    data: {address : `${v('tipo')} ${v('logradouro')}, ${number} - ${v('cidade')} - ${v('estado')}, ${v('cep')}`},
+                    success: geo => this.geocodes.push(geo)
             }));
         });
     }
@@ -649,6 +642,14 @@ export class KronoosParse {
                         kelement.list("Endereço")
                             (`${v('logradouro')}, ${v('numero')} ${v('complemento')} - ${v('cep')}, ${v('bairro')}, ${v('municipio')} / ${v('uf')}`);
 
+                        let geocode = `${v('logradouro')}, ${v('numero')} - ${v('bairro')} - ${v('municipio')}, ${v('uf')} - ${v('cep')}`;
+                        this.serverCall("SELECT FROM 'KRONOOS'.'GEOCODE'",
+                            this.loader("fa-eye", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
+                                dataType: 'json',
+                                data: {address : geocode},
+                                success: geo => this.geocodes.push(geo)
+                        }));
+
                         let atividadesSecundarias = $("atividade-secundaria", data);
                         if (atividadesSecundarias.length) {
                             let atividades = kelement.captionTable("Atividades Secundárias", "CNAE", "Qualificação");
@@ -891,6 +892,7 @@ export class KronoosParse {
                     data : {document: this.cpf_cnpj},
                     success: () => {
                         controller.alert({
+                            icon: 'pass',
                             title: `Parabéns! O documento ${this.cpf || this.cnpj} está sendo acompanhando.`,
                             subtitle: `Você receberá um e-mail caso ocorra alguma atualização no cadastro de ${this.name}`,
                             paragraph: `Verificaremos diariamente o documento informado ${this.cpf || this.cnpj} em busca de alterações,
@@ -1167,13 +1169,13 @@ export class KronoosParse {
         var procs = {};
         const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`, 'gi');
 
-        $("BPQL > body article", jusSearch).each((idx, article) => {
+        $("BPQL > body snippet", jusSearch).each((idx, article) => {
             let articleText = $(article).text(),
                 match = CNJ_NUMBER.exec(articleText);
             if (!match) return;
             procs[VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999")] = [articleText, match[0]];
         });
-
+        debugger;
         this.parseProcs(procs);
 
         for (let cnj in procs) {
