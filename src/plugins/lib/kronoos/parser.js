@@ -171,6 +171,7 @@ export class KronoosParse {
                     'flGenero' : flGenero
                 },
                 success: (data) => {
+                    if (!$("body > pedido", data).length) return;
                     let kelement = this.kronoosElement("Certidão do TJSP",
                         "Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo",
                         "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
@@ -1023,21 +1024,19 @@ export class KronoosParse {
         });
     }
 
-    parseProcs(procs) {
-        for (let proc in procs) {
-            if (this.procElements[proc]) continue;
-            let kelement = this.kronoosElement(`Processo Nº ${proc}`,
-                "Obtido em recorte de diário oficial.",
-                "Foram encontradas informações, confirmação pendente pelo sistema Kronoos.");
+    parseProc(proc, article, match) {
+        if (this.procElements[proc]) return false;
+        let kelement = this.kronoosElement(`Processo Nº ${proc}`,
+            "Obtido em recorte de diário oficial.",
+            "Foram encontradas informações, confirmação pendente pelo sistema Kronoos.");
 
-            if (this.homonymous > 1) kelement.behaviourUnstructuredHomonym(true);
-            else kelement.behaviourUnstructured(true);
+        if (this.homonymous > 1) kelement.behaviourUnstructuredHomonym(true);
+        else kelement.behaviourUnstructured(true);
 
-            this.procElements[proc] = kelement;
-            let [article, match] = procs[proc];
-            kelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
-            this.append(kelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
-        }
+        this.procElements[proc] = kelement;
+        kelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
+        this.append(kelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+        return true;
     }
 
     query(query, cpf_cnpj, elements) {
@@ -1166,62 +1165,89 @@ export class KronoosParse {
 
     juristek (jusSearch) {
         /* All fucking data! */
-        var procs = {};
         const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`, 'gi');
 
+        let cnjs = {};
         $("BPQL > body snippet", jusSearch).each((idx, article) => {
+
             let articleText = $(article).text(),
                 match = CNJ_NUMBER.exec(articleText);
+
             if (!match) return;
-            procs[VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999")] = [articleText, match[0]];
+
+            let cnj = VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
+            if (cnjs[cnj]) return;
+            cnjs[cnj] = true;
+            if (this.procElements[cnj]) return;
+
+            let articleData = articleText.substr(articleText.indexOf(match[0]) + 1)
+            let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
+            let articleShow = articleData.substr(0, match[0].length + end);
+
+            this.serverCall("SELECT FROM 'NATURAL'.'ENTITY_EXTRACTION'",
+            this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
+                dataType: 'json',
+                method: 'POST',
+                data: {text: articleShow.replace("/", "-")},
+                success: data => {
+                    let c1 = data['1-Entity-Tagged-Text'];
+                    if (!c1) return;
+                    c1 = $.parseHTML(c1);
+                    let n1  = this.normalizeName(this.name);
+                    debugger;
+                    if (!$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) return;
+                    debugger;
+                    if (!this.parseProc(cnj, articleText, match[0])) return;
+                    this.normalizeJuristek(cnj);
+                }
+            }));
         });
 
-        this.parseProcs(procs);
+    }
 
-        for (let cnj in procs) {
-            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
-                this.loader("fa-balance-scale", `Verificando processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
-                    data: {
-                        data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
-                    },
-                    success: ret => this.juristekCNJ(ret, cnj),
-                    /* melhorar o quesito de erro! */
-                    error: (jqXHR, ...args) => {
-                        let hasNetworkIssue = () => {
+    normalizeJuristek(cnj) {
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Verificando processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
+                data: {
+                    data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${cnj}'`
+                },
+                success: ret => this.juristekCNJ(ret, cnj),
+                /* melhorar o quesito de erro! */
+                error: (jqXHR, ...args) => {
+                    let hasNetworkIssue = () => {
+                        if (!this.procElements[cnj]) {
+                            return;
+                        }
+                        this.procElements[cnj].subtitle("Informação não estruturada pendente de confirmação humana.");
+                        this.procElements[cnj].canDelete();
+                    };
+
+                    if (!jqXHR.responseText) {
+                        hasNetworkIssue();
+                        return;
+                    }
+
+                    try {
+                        var xml = $.parseXML(jqXHR.responseText);
+                        $.bipbopAssert(xml, (type, message, code, push) => {
+                            if (!push) {
+                                hasNetworkIssue();
+                                return;
+                            }
                             if (!this.procElements[cnj]) {
                                 return;
                             }
-                            this.procElements[cnj].subtitle("Informação não estruturada pendente de confirmação humana.");
-                            this.procElements[cnj].canDelete();
-                        };
-
-                        if (!jqXHR.responseText) {
-                            hasNetworkIssue();
-                            return;
-                        }
-
-                        try {
-                            var xml = $.parseXML(jqXHR.responseText);
-                            $.bipbopAssert(xml, (type, message, code, push) => {
-                                if (!push) {
-                                    hasNetworkIssue();
-                                    return;
-                                }
-                                if (!this.procElements[cnj]) {
-                                    return;
-                                }
-                                this.procElements[cnj].remove();
-                                delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
-                                delete this.procElements[cnj];
-                                this.changeResult();
-                            });
-                        } catch (err) {
-                            hasNetworkIssue();
-                        }
+                            this.procElements[cnj].remove();
+                            delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
+                            delete this.procElements[cnj];
+                            this.changeResult();
+                        });
+                    } catch (err) {
+                        hasNetworkIssue();
                     }
-                }), lowPriority);
+                }
+            }), lowPriority);
 
-        }
     }
 
     normalizeName(name) {
