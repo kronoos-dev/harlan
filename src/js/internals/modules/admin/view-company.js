@@ -130,9 +130,9 @@ module.exports = (controller) => {
         postPaid = company.children("postPaid").text() == "true";
 
         var [section, results, actions] = controller.call("section",
-        `Administração ${name || username}`,
-        `Conta registrada para documento ${(cnpj ? CNPJ.format(cnpj) : null) || (cpf ? CPF.format(cpf) : null) || username}`,
-        `Visualizar, editar e controlar`, false, minimized);
+            `Administração ${name || username}`,
+            `Conta registrada para documento ${(cnpj ? CNPJ.format(cnpj) : null) || (cpf ? CPF.format(cpf) : null) || username}`,
+            `Visualizar, editar e controlar`, false, minimized);
 
         section.addClass("admin-company");
 
