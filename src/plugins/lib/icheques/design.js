@@ -54,7 +54,7 @@ module.exports = function(controller) {
         "height": window.innerHeight
     });
 
-    $("#action-show-modules").parent().parent().hide();
+    $("#action-show-modules").parent().hide();
 
     $(".logo").click(() => {
         $("section.group-type,footer.load-more").remove();
