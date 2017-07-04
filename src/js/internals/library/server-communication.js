@@ -69,8 +69,9 @@ module.exports = function (controller) {
 
     /* Retorna o XHR da requisição AJAX */
     this.call = (query, configuration) => {
-        controller.trigger("serverCommunication::call", [query, configuration]);
-        return $.bipbop(query, bipbopApiKey, configuration);
+        let conf = Object.assign({method: 'POST'}, configuration);
+        controller.trigger("serverCommunication::call", [query, conf]);
+        return $.bipbop(query, bipbopApiKey, conf);
     };
 
     /* ALIAS */
