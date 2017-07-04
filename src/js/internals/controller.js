@@ -131,6 +131,7 @@ var Controller = function() {
     };
 
     this.event = this.click;
+    this.preventDefault = this.click;
 
     this.call = (name, ...parameters) => {
         console.log(':: call ::', name, parameters);
