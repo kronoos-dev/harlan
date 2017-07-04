@@ -210,23 +210,27 @@ module.exports = (controller) => {
         };
 
         this.readValues = (callback) => {
-            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), (input) => {
+            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => {
                 return [
                     camelCase(input.name),
                     getValue(input, configuration)
                 ];
             }));
 
-            async.each(results, (v, cb) => {
-                if (typeof v ===  'function') {
-                    v(values => {
-                        Object.assign(results, values);
-                        cb();
-                    });
-                    return;
-                }
-                cb();
-            }, () => callback(_.pick(results, x => typeof x !== 'function')));
+            if (callback) {
+                async.each(results, (v, cb) => {
+                    if (typeof v ===  'function') {
+                        v(values => {
+                            Object.assign(results, values);
+                            cb();
+                        });
+                        return;
+                    }
+                    cb();
+                }, () => callback(_.pick(results, x => typeof x !== 'function')));
+            }
+
+            return results;
         };
 
         this.getField = (name) => {
