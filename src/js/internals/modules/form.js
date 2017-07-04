@@ -4,25 +4,27 @@ const EMPTY_REGEX = /^\s*$/;
 
 import assert from "assert";
 import _ from "underscore";
-import { camelCase } from 'change-case';
+import {
+    camelCase
+} from 'change-case';
 import async from "async";
 
 module.exports = (controller) => {
 
-    var GenerateForm = function(callback, onCancel) {
+    let GenerateForm = function(callback, onCancel) {
 
-        var currentScreen = 0;
-        var configuration = null;
-        var modal = null;
+        let currentScreen = 0;
+        let configuration = null;
+        let modal = null;
 
-        var next = () => {
+        let next = () => {
             assert(configuration !== null, "configuration required");
             ++currentScreen;
             this.display();
             return this;
         };
 
-        var back = () => {
+        let back = () => {
             assert(configuration !== null, "configuration required");
             assert(currentScreen > 0, "no turning back tarãrãrã");
             --currentScreen;
@@ -40,6 +42,11 @@ module.exports = (controller) => {
             return this;
         };
 
+        this.setValues = (x) => {
+            for (let k in x) this.setValue(k, x[k]);
+            return this;
+        };
+
         this.setValue = (name, value) => {
             if (!value || EMPTY_REGEX.test(value)) {
                 return;
@@ -53,6 +60,10 @@ module.exports = (controller) => {
             _.each(configuration.screens, (v) => {
                 _.each(_.flatten(v.fields), (field) => {
                     if (camelCase(field.name) === name) {
+                        if (field.type == "file") {
+                            /* can't set */
+                            return;
+                        }
                         if (field.type == "checkbox") {
                             field.checked = value;
                             if (field.element) {
@@ -70,12 +81,12 @@ module.exports = (controller) => {
                     }
                 });
             });
-
+            return this;
         };
 
-        var createField = (item, form, screen) => {
+        let createField = (item, form, screen) => {
             if (item.type === "checkbox") {
-                var checkbox = form.addCheckbox(item.name, item.labelText, item.checked, item.value, item);
+                let checkbox = form.addCheckbox(item.name, item.labelText, item.checked, item.value, item);
                 item.element = checkbox[1];
                 item.container = checkbox[0];
                 item.elementLabel = checkbox[2].addClass("checkbox");
@@ -136,7 +147,7 @@ module.exports = (controller) => {
             return this;
         };
 
-        var getValue = (input, c) => {
+        let getValue = (input, c) => {
 
             if (!input.element) {
                 return null; /* not defined */
@@ -144,6 +155,38 @@ module.exports = (controller) => {
 
             if (input.getValue) {
                 return input.getValue(input, c);
+            }
+
+            if (input.element.attr("type") === "file") {
+                if (!input.element.get(0).files[0]) {
+                    return null;
+                }
+
+                let file = input.element.get(0).files[0];
+                let result;
+
+                let cb = (r) => {
+                    result = r;
+                };
+
+                let reader = new FileReader();
+
+                reader.onload = (e) => {
+                    let r = {};
+                    r[input.name] = file.name;
+                    r[input.contentKey || `${input.name}@content`] = e.target.result;
+                    cb(r);
+                };
+
+                reader.readAsText(file);
+
+                return (callback) => {
+                    if (result) {
+                        callback(result);
+                        return;
+                    }
+                    cb = callback;
+                };
             }
 
             if (input.element.attr("type") === "checkbox") {
@@ -155,7 +198,7 @@ module.exports = (controller) => {
                     return numeral(input.element.val()).value();
                 }
                 if (input.pikaday) {
-                    var m = moment(input.element.val(), controller.i18n.pikaday.format);
+                    let m = moment(input.element.val(), controller.i18n.pikaday.format);
                     if (!m.isValid) {
                         return null;
                     }
@@ -166,18 +209,29 @@ module.exports = (controller) => {
             return input.element.val();
         };
 
-        this.readValues = () => {
-            return _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), (input) => {
+        this.readValues = (callback) => {
+            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), (input) => {
                 return [
                     camelCase(input.name),
                     getValue(input, configuration)
                 ];
             }));
+
+            async.each(results, (v, cb) => {
+                if (typeof v ===  'function') {
+                    v(values => {
+                        Object.assign(results, values);
+                        cb();
+                    });
+                    return;
+                }
+                cb();
+            }, () => callback(_.pick(results, x => typeof x !== 'function')));
         };
 
         this.getField = (name) => {
-            var items = _.flatten(_.pluck(configuration.screens, 'fields'));
-            for (var i in items) {
+            let items = _.flatten(_.pluck(configuration.screens, 'fields'));
+            for (let i in items) {
                 if (items[i].name == name) {
                     return items[i];
                 }
@@ -196,9 +250,9 @@ module.exports = (controller) => {
             }
 
             modal = controller.call("modal");
-            var screen = configuration.screens[currentScreen];
+            let screen = configuration.screens[currentScreen];
 
-            var gamification = screen.gamification || configuration.gamification;
+            let gamification = screen.gamification || configuration.gamification;
             if (gamification) {
                 modal.gamification(gamification);
             }
@@ -206,12 +260,12 @@ module.exports = (controller) => {
             modal.title(screen.title || configuration.title);
             modal.subtitle(screen.subtitle || configuration.subtitle);
 
-            var paragraph = screen.paragraph || configuration.paragraph;
+            let paragraph = screen.paragraph || configuration.paragraph;
             if (paragraph) {
                 modal.addParagraph(paragraph);
             }
 
-            var form = modal.createForm();
+            let form = modal.createForm();
 
             form.element().submit((e) => {
                 e.preventDefault();
@@ -224,7 +278,7 @@ module.exports = (controller) => {
                     if (currentScreen + 1 < configuration.screens.length) {
                         next();
                     } else {
-                        callback(this.readValues());
+                        this.readValues(callback);
                         if (modal) {
                             modal.close();
                         }
@@ -233,34 +287,42 @@ module.exports = (controller) => {
 
             });
 
-            for (var i in screen.fields) {
-                var field = screen.fields[i];
+            for (let i in screen.fields) {
+                let field = screen.fields[i];
                 if (Array.isArray(field)) {
-                    var multifield = form.multiField();
-                    for (var n in field) {
+                    let multifield = form.multiField();
+                    for (let n in field) {
                         field[n].append = multifield;
                         field[n].labelPosition = "before";
                         createField(field[n], form, screen);
                     }
-                } else {
-                    createField(field, form, screen);
-                }
+                } else createField(field, form, screen);
             }
 
             form.addSubmit("next", screen.nextButton || (currentScreen + 1 < configuration.screens.length ?
                 controller.i18n.system.next() : controller.i18n.system.finish()));
 
-            var actions = modal.createActions();
+            let actions = modal.createActions();
+
+            if (screen.actions) {
+                _.each(screen.actions, i => {
+                    let [name, action] = i;
+                    actions.add(name).click(e => {
+                        e.preventDefault();
+                        action(modal);
+                    });
+                });
+            }
 
             if (currentScreen - 1 >= 0) {
-                actions.add(controller.i18n.system.back()).click((e) => {
+                actions.add(controller.i18n.system.back()).click(e => {
                     e.preventDefault();
                     back();
                 });
             }
 
             /* Cancelar */
-            actions.add(controller.i18n.system.cancel()).click((e) => {
+            actions.add(controller.i18n.system.cancel()).click(e => {
                 e.preventDefault();
                 this.close();
             });
@@ -279,11 +341,11 @@ module.exports = (controller) => {
         };
 
         this.defaultScreenValidation = (callback, configuration, screen) => {
-            var ret = true;
+            let ret = true;
             async.each(_.flatten(screen.fields), (item, callback) => {
 
                 if (item.validateAsync) {
-                    var callbackEnveloped = callback;
+                    let callbackEnveloped = callback;
                     callback = () => {
                         item.validateAsync((valid) => {
                             if (!valid) ret = false;
@@ -316,9 +378,7 @@ module.exports = (controller) => {
                 }
 
                 callback();
-            }, () => {
-                callback(ret);
-            });
+            }, () => callback(ret));
         };
 
         return this;
