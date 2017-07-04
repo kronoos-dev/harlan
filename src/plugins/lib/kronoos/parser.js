@@ -1180,7 +1180,7 @@ export class KronoosParse {
             cnjs[cnj] = true;
             if (this.procElements[cnj]) return;
 
-            let articleData = articleText.substr(articleText.indexOf(match[0]) + 1)
+            let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
 
@@ -1194,9 +1194,7 @@ export class KronoosParse {
                     if (!c1) return;
                     c1 = $.parseHTML(c1);
                     let n1  = this.normalizeName(this.name);
-                    debugger;
                     if (!$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) return;
-                    debugger;
                     if (!this.parseProc(cnj, articleText, match[0])) return;
                     this.normalizeJuristek(cnj);
                 }
