@@ -36,14 +36,14 @@ export class KronoosStats {
         let resultContainer = $("<ol />");
         container.append(resultContainer);
 
-        return (description, action) => {
+        return [(description, action) => {
             let e = $('<li />').html(description).click(e => {
                 e.preventDefault();
                 if (action) action();
             });
             resultContainer.append(e);
             return e;
-        };
+        }, container];
     }
 
     get element() {

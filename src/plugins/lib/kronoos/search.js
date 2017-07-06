@@ -108,6 +108,15 @@ module.exports = function(controller) {
         SEARCH_BAR.addClass("full").removeClass("minimize");
     });
 
+    controller.registerTrigger("kronoos::changeResult", (data, callback) => {
+        callback();
+        if (!brief) return;
+        if (!brief.list.is(":empty")) return;
+
+        brief.element.remove();
+        brief = null;
+    });
+
     let getBrief = () => {
         if (!brief) {
             brief = new KronoosStats();

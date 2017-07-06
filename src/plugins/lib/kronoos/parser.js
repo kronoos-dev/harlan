@@ -98,7 +98,7 @@ export class KronoosParse {
     }
 
     get brief() {
-        if (!this._brief) this._brief = this.stats().create(this.name, this.cpf_cnpj,
+        if (!this._brief) [this._brief, this._briefElement] = this.stats().create(this.name, this.cpf_cnpj,
             () => $('html, body').scrollTop(this.appendElement.offset().top));
         return this._brief;
     }
@@ -133,6 +133,14 @@ export class KronoosParse {
 
     loader(...args) {
         return this.call("kronoos::status::ajax", ...args);
+    }
+
+    notFound(...args) {
+        if (!this._notFoundList) {
+            this._notFoundObject = {};
+            this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject);
+        }
+        return this._notFoundList(...args);
     }
 
     searchTJSPCertidaoPDF(tipo, pedido, data) {
@@ -217,7 +225,10 @@ export class KronoosParse {
                         let cpfValue = this.cpf.replace(/[^\d]/g, '');
                         return politic.CPF_CANDIDATO == cpfValue;
                     });
-                    if (!data.length) return;
+                    if (!data.length) {
+                        this.notFound("Pessoa Políticamente Exposta <small>Não consta na base de dados do TSE.</small>");
+                        return;
+                    }
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
                         "A pessoa física se candidatou a cargo político e consta na base de dados do TSE.",
                         "Visualização das candidaturas da pessoa física na base de dados do Tribunal Superior Eleitoral.");
@@ -464,7 +475,14 @@ export class KronoosParse {
                     documento: this.cpf_cnpj
                 },
                 success: (data) => {
-            		_.each($("BPQL > body > consulta > conteudo > cartorio", data), (element) => {
+                    let iterateOver = $("BPQL > body > consulta > conteudo > cartorio", data);
+
+                    if (!iterateOver.length) {
+                        this.notFound("Protestos em Cartórios <small>Não foram localizados protestos registrados em cartório</small>");
+                        return;
+                    }
+
+            		_.each(iterateOver, (element) => {
                         let kelement = this.kronoosElement("Protestos em Cartórios",
                             "Detalhes a cerca de protestos realizados em cartório",
                             "Foram localizados protestos registrados em cartório.");
@@ -487,7 +505,12 @@ export class KronoosParse {
                     documento: this.cpf_cnpj
                 },
                 success: (data) => {
-                    _.each($("data resposta list > *", data), (element) => {
+                    let iterateOver = $("data resposta list > *", data);
+                    if (!iterateOver.length) {
+                        this.notFound("Cheques sem Fundo em Instituição Bancária <small>Não foram localizados cheques sem fundo em uma instituição bancária.</small>");
+                        return;
+                    }
+                    _.each(iterateOver, (element) => {
 
                         let bankName = bankCodes[$("banco", element).text()] ||
                             bankCodes[$("banco", element).text().replace(/^0+/, '')];
@@ -682,6 +705,18 @@ export class KronoosParse {
     }
 
     changeResult() {
+        if (this._notFoundObject && this._notFoundObject.list.is(':empty')) {
+            this._notFoundObject.container.remove();
+            this._notFoundObject = null;
+            this._notFoundList = null;
+        }
+
+        if (this._briefElement && this._briefElement.find("ul").is(':empty')) {
+            this._brief = null;
+            this._briefElement.remove();
+            this._briefElement = null;
+        }
+
         this.firstElement().stageClear();
         let informationQA = this.informationQA();
         if (informationQA.hasNotation && informationQA.hasNotation.behaviourAccurate) {
@@ -757,6 +792,8 @@ export class KronoosParse {
                 this.firstElement().stage(icon, searchMessage.replace(/\s+,/, ',')).addClass(`type-${notationType}-${behaviourType}`);
             }
         }
+
+        this.controller.trigger("kronoos::changeResult");
     }
 
     firstElement() {
@@ -765,6 +802,7 @@ export class KronoosParse {
 
     kronoosElement(...args) {
         let kelement = this.call("kronoos::element", ...args);
+        if (this.kelements.length) kelement.notFound = (...x) => this.notFound(...x);
         kelement.brief = (...args) => this.brief(...args);
         this.kelements.push(kelement);
         kelement.aggregate(() => this.changeResult());

@@ -1,9 +1,12 @@
 import changeCase from 'change-case';
-import {CPF, CNPJ} from 'cpf_cnpj';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 
 module.exports = (controller) => {
 
-    controller.registerCall("admin::remove::phone", (element, section, username, ddd, phone, pabx) => {
+    controller.registerCall("admin::remove::phone", (element, section, username, ddd, phone, pabx) =>
         element.addClass("can-remove").click((e) => {
             e.preventDefault();
             controller.call("confirm", {
@@ -21,10 +24,9 @@ module.exports = (controller) => {
                     }
                 });
             });
-        });
-    });
+        }));
 
-    controller.registerCall("admin::remove::email", (element, section, username, email) => {
+    controller.registerCall("admin::remove::email", (element, section, username, email) =>
         element.addClass("can-remove").click((e) => {
             e.preventDefault();
             controller.call("confirm", {
@@ -40,8 +42,7 @@ module.exports = (controller) => {
                     }
                 });
             });
-        });
-    });
+        }));
 
     controller.registerCall("admin::tags::view", (data, username) => {
         if (!data || !data.length) {
@@ -66,10 +67,13 @@ module.exports = (controller) => {
                     paragraph: "Se certique de que deseja realmente remover a tag."
                 }, () => {
                     controller.server.call("DELETE FROM 'BIPBOPCOMPANYS'.'TAG'",
-                    controller.call("loader::ajax", controller.call("error::ajax", {
-                        data: {tag: nodeValue, username: username},
-                        success: () => item.remove()
-                    })));
+                        controller.call("loader::ajax", controller.call("error::ajax", {
+                            data: {
+                                tag: nodeValue,
+                                username: username
+                            },
+                            success: () => item.remove()
+                        })));
                 });
             });
         }
@@ -85,14 +89,16 @@ module.exports = (controller) => {
 
     controller.registerCall("admin::tags", (username) => {
         controller.server.call("SELECT FROM 'BIPBOPCOMPANYS'.'TAGS'",
-        controller.call("error::ajax", controller.call("loader::ajax", {
-            data: {username: username},
-            dataType: "json",
-            success: (data) => controller.call("admin::tags::view", data, username)
-        })));
+            controller.call("error::ajax", controller.call("loader::ajax", {
+                data: {
+                    username: username
+                },
+                dataType: "json",
+                success: (data) => controller.call("admin::tags::view", data, username)
+            })));
     });
 
-    controller.registerCall("admin::tag::create", function (username) {
+    controller.registerCall("admin::tag::create", function(username) {
         let modal = controller.call("modal");
         modal.title("Adicionar uma Tag");
         modal.subtitle(`Tags alteram o comportamento do sistema do usuário ${username}.`);
@@ -105,13 +111,17 @@ module.exports = (controller) => {
         form.element().submit((e) => {
             e.preventDefault();
             controller.server.call("INSERT INTO 'BIPBOPCOMPANYS'.'TAG'",
-            controller.call("loader::ajax", controller.call("error::ajax", {
-                data : {tag: tag.val(), username: username},
-                success: (data) => {
-                    toastr.success(`A tag ${tag.val()} foi adicionada com sucesso.`,
-                        'O comportamento do cliente foi alterado.');
-                    modal.close();
-                }}))
+                controller.call("loader::ajax", controller.call("error::ajax", {
+                    data: {
+                        tag: tag.val(),
+                        username: username
+                    },
+                    success: (data) => {
+                        toastr.success(`A tag ${tag.val()} foi adicionada com sucesso.`,
+                            'O comportamento do cliente foi alterado.');
+                        modal.close();
+                    }
+                }))
             );
         });
     });
@@ -121,13 +131,13 @@ module.exports = (controller) => {
         var company = $(companyNode);
 
         var name = company.children("nome").text(),
-        username = company.children("username").text(),
-        cnpj = company.children("cnpj").text(),
-        cpf = company.children("cpf").text(),
-        responsible = company.children("responsavel").text(),
-        commercialReference = company.children("commercialReference").text(),
-        credits = parseInt(company.children("credits").text()),
-        postPaid = company.children("postPaid").text() == "true";
+            username = company.children("username").text(),
+            cnpj = company.children("cnpj").text(),
+            cpf = company.children("cpf").text(),
+            responsible = company.children("responsavel").text(),
+            commercialReference = company.children("commercialReference").text(),
+            credits = parseInt(company.children("credits").text()),
+            postPaid = company.children("postPaid").text() == "true";
 
         var [section, results, actions] = controller.call("section",
             `Administração ${name || username}`,
@@ -154,7 +164,7 @@ module.exports = (controller) => {
         var acceptedContract = result.addItem("Contrato Aceito", company.children("contractAccepted").text() == "true" ? "Aceito" : "Não Aceito");
 
         var isActive = company.children("status").text() === "1",
-        activeLabel = result.addItem("Situação", isActive ? "Ativo" : "Bloqueado");
+            activeLabel = result.addItem("Situação", isActive ? "Ativo" : "Bloqueado");
 
         if (!isActive) {
             section.addClass("inactive");
@@ -163,8 +173,8 @@ module.exports = (controller) => {
         var phones = company.children("telefone").children("telefone");
         if (phones.length) {
             result.addSeparator("Telefones",
-            "Lista de Telefones para Contato",
-            "O telefone deve ser usado apenas para emergências e tratativas comerciais.");
+                "Lista de Telefones para Contato",
+                "O telefone deve ser usado apenas para emergências e tratativas comerciais.");
 
             phones.each((idx, phoneNode) => {
                 var $phoneNode = $(phoneNode);
@@ -176,7 +186,7 @@ module.exports = (controller) => {
                     $phoneNode.children("telefone:eq(4)").text()
                 ];
                 controller.call("admin::remove::phone", result.addItem(`${contactName} - ${kind}`, `(${ddd}) ${phone} ${pabx}`),
-                section, username, ddd, phone, pabx);
+                    section, username, ddd, phone, pabx);
             });
         }
 
@@ -200,8 +210,8 @@ module.exports = (controller) => {
         if (endereco.length) {
             var appendAddressItem = generateSeparator(() => {
                 result.addSeparator("Endereço",
-                "Endereço registrado para emissão de faturas",
-                "As notas fiscais e faturas são enviadas para este endereço cadastrado, se certifique que esteja atualizado.");
+                    "Endereço registrado para emissão de faturas",
+                    "As notas fiscais e faturas são enviadas para este endereço cadastrado, se certifique que esteja atualizado.");
             });
 
             appendAddressItem("Endereço", endereco.find("endereco:eq(0)").text());
@@ -215,8 +225,8 @@ module.exports = (controller) => {
         }
         var appendContractItem = generateSeparator(() => {
             result.addSeparator("Contrato",
-            "Informações do Serviço Contratado",
-            "Informações referentes ao contrato comercial estabelecido entre as partes.");
+                "Informações do Serviço Contratado",
+                "Informações referentes ao contrato comercial estabelecido entre as partes.");
         });
 
         var contrato = company.children("contrato");
@@ -232,13 +242,13 @@ module.exports = (controller) => {
         var emails = company.children("email").children("email");
         if (emails.length) {
             result.addSeparator("Endereços de Email",
-            "Endereços de e-mail registrados",
-            "As notificações geradas pelo sistema são enviadas para estes e-mails.");
+                "Endereços de e-mail registrados",
+                "As notificações geradas pelo sistema são enviadas para estes e-mails.");
 
             emails.each(function(idx, value) {
                 var email = $("email:eq(0)", value).text();
                 controller.call("admin::remove::email", result.addItem($("email:eq(1)", value).text(), email),
-                section, username, email);
+                    section, username, email);
             });
         }
 
@@ -252,29 +262,29 @@ module.exports = (controller) => {
 
 
         var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-unlock-alt" : "fa-lock"),
-        lockProcess = false,
-        doLocking = (e) => {
-            e.preventDefault();
-            if (lockProcess) {
-                return;
-            }
-            controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'STATUS'",
-            controller.call("error::ajax", controller.call("loader::ajax", {
-                data: {
-                    account: username,
-                    set: !isActive ? 1 : 0,
-                },
-                success: function() {
-                    isActive = !isActive;
-                    activeLabel.find(".value").text(isActive ? "Ativo" : "Bloqueado");
-                    section[isActive ? "removeClass" : "addClass"]("inactive");
-                    lockSymbol
-                    .removeClass("fa-unlock-alt")
-                    .removeClass("fa-lock")
-                    .addClass(isActive ? "fa-unlock-alt" : "fa-lock");
+            lockProcess = false,
+            doLocking = (e) => {
+                e.preventDefault();
+                if (lockProcess) {
+                    return;
                 }
-            })));
-        };
+                controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'STATUS'",
+                    controller.call("error::ajax", controller.call("loader::ajax", {
+                        data: {
+                            account: username,
+                            set: !isActive ? 1 : 0,
+                        },
+                        success: function() {
+                            isActive = !isActive;
+                            activeLabel.find(".value").text(isActive ? "Ativo" : "Bloqueado");
+                            section[isActive ? "removeClass" : "addClass"]("inactive");
+                            lockSymbol
+                                .removeClass("fa-unlock-alt")
+                                .removeClass("fa-lock")
+                                .addClass(isActive ? "fa-unlock-alt" : "fa-lock");
+                        }
+                    })));
+            };
 
         var showInterval = setInterval(() => {
             if (!document.contains(actions.get(0)) || !$(actions).is(':visible')) {
@@ -291,13 +301,13 @@ module.exports = (controller) => {
             });
 
             controller.call("tooltip", actions, "Editar").append($("<i />").addClass("fa fa-edit"))
-            .click(controller.click("admin::changeCompany", companyNode, username, section));
+                .click(controller.click("admin::changeCompany", companyNode, username, section));
 
             controller.call("tooltip", actions, "Editar Contrato").append($("<i />").addClass("fa fa-briefcase"))
-            .click(controller.click("admin::changeContract", companyNode, username, section));
+                .click(controller.click("admin::changeContract", companyNode, username, section));
 
             controller.call("tooltip", actions, "Tags").append($("<i />").addClass("fa fa-tags"))
-            .click(controller.click("admin::tags", username));
+                .click(controller.click("admin::tags", username));
 
             controller.call("tooltip", actions, "Abrir Conta").append($("<i />").addClass("fa fa-folder-open")).click((e) => {
                 e.preventDefault();
@@ -305,12 +315,14 @@ module.exports = (controller) => {
             });
 
             controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map"))
-            .click(controller.click("admin::changeAddress", companyNode, username, section));
+                .click(controller.click("admin::changeAddress", companyNode, username, section));
 
             controller.call("tooltip", actions, "Dados Bancários").append($("<i />").addClass("fa fa-bank")).click((e) => {
                 controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'bankAccount'", {
                     dataType: "json",
-                    data: {username: username},
+                    data: {
+                        username: username
+                    },
                     success: (data) => {
                         controller.call("bankAccount::update", null, !data ? {} : data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
                             username: username
@@ -329,44 +341,44 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Revogar Contrato").append($("<i />").addClass("fa fa-hand-paper-o")).click((e) => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'contractAccepted'",
-                    controller.call("error::ajax", controller.call("loader::ajax", {
-                        data: {
-                            username: username
-                        },
-                        success: function() {
-                            acceptedContract.remove();
-                        }
-                    })));
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username
+                            },
+                            success: function() {
+                                acceptedContract.remove();
+                            }
+                        })));
                 });
             });
 
             controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-credit-card")).click((e) => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'POSTPAID'",
-                    controller.call("error::ajax", controller.call("loader::ajax", {
-                        data: {
-                            username: username,
-                            postPaid: postPaid ? "false" : "true"
-                        },
-                        success: function() {
-                            postPaid = !postPaid;
-                            postPaidInput.find(".value").text(postPaid ? "Sim" : "Não");
-                        }
-                    })));
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username,
+                                postPaid: postPaid ? "false" : "true"
+                            },
+                            success: function() {
+                                postPaid = !postPaid;
+                                postPaidInput.find(".value").text(postPaid ? "Sim" : "Não");
+                            }
+                        })));
                 });
             });
 
             controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'APIKEY'",
-                    controller.call("error::ajax", controller.call("loader::ajax", {
-                        data: {
-                            username: username
-                        },
-                        success: function(ret) {
-                            inputApiKey.find(".value").text($("BPQL > body > apiKey", ret).text());
-                        }
-                    })));
+                        controller.call("error::ajax", controller.call("loader::ajax", {
+                            data: {
+                                username: username
+                            },
+                            success: function(ret) {
+                                inputApiKey.find(".value").text($("BPQL > body > apiKey", ret).text());
+                            }
+                        })));
                 });
             });
 
@@ -378,7 +390,7 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Bloquear/Desbloquear").append(lockSymbol).click(doLocking);
 
             controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at"))
-            .click(controller.click("admin::email", username, section));
+                .click(controller.click("admin::email", username, section));
 
             controller.call("tooltip", actions, "Alterar Créditos").append($("<i />").addClass("fa fa-money")).click((e) => {
                 e.preventDefault();
@@ -390,9 +402,9 @@ module.exports = (controller) => {
 
                 let form = modal.createForm();
                 var input = form.addInput("Créditos", "text", "Créditos (R$)")
-                .mask('#.##0,00', {
-                    reverse: true
-                });
+                    .mask('#.##0,00', {
+                        reverse: true
+                    });
 
                 if (credits) {
                     input.val(numeral(Math.abs(credits) / 100.0).format('0,0.00'));
@@ -405,26 +417,26 @@ module.exports = (controller) => {
                     e.preventDefault();
                     var ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(":checked") ? -1 : 1);
                     controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
-                    controller.call("loader::ajax", controller.call("error::ajax", {
-                        data: {
-                            ammount: ammount,
-                            username: username
-                        },
-                        success: () => {
-                            if (creditsInput) {
-                                creditsInput.find(".value").text(numeral(ammount / 100.0).format('$0,0.00'));
-                            } else {
-                                creditsInput = result.addItem("Créditos Sistema", numeral(ammount / 100.0).format('$0,0.00')).insertAfter(inputApiKey);
+                        controller.call("loader::ajax", controller.call("error::ajax", {
+                            data: {
+                                ammount: ammount,
+                                username: username
+                            },
+                            success: () => {
+                                if (creditsInput) {
+                                    creditsInput.find(".value").text(numeral(ammount / 100.0).format('$0,0.00'));
+                                } else {
+                                    creditsInput = result.addItem("Créditos Sistema", numeral(ammount / 100.0).format('$0,0.00')).insertAfter(inputApiKey);
+                                }
+                                modal.close();
                             }
-                            modal.close();
-                        }
-                    })), true);
+                        })), true);
                 });
                 modal.createActions().cancel();
             });
 
             controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone"))
-            .click(controller.click("admin::phone", username, section));
+                .click(controller.click("admin::phone", username, section));
 
             controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click((e) => {
                 e.preventDefault();
