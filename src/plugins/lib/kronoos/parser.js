@@ -178,13 +178,14 @@ export class KronoosParse {
                     'tpPessoa' : 'F',
                     'flGenero' : flGenero
                 },
-                success: (data) => {
-                    if (!$("body > pedido", data).length) return;
+                success: data => {
+                    let element = $("body > pedido", data);
+                    if (!element.length) return;
                     let kelement = this.kronoosElement("Certidão do TJSP",
                         "Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo",
                         "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
                     let captionTableElement = kelement.captionTable("Lista de Certidões", "Tipo", "Pedido", "Data");
-                    $("body > pedido", data).each((i, item) => {
+                    element.each((i, item) => {
                         let pedido = $("pedido", item).text();
                         let data = $("data", item).text();
                         let tipo = $(item).attr("type");
@@ -252,11 +253,13 @@ export class KronoosParse {
                     'tpPessoa' : 'J'
                 },
                 success: (data) => {
+                    let element = $("body > pedido", data);
+                    if (!element.length) return;
                     let kelement = this.kronoosElement("Certidão do TJSP",
                         "Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo",
                         "Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo");
                     let captionTableElement = kelement.captionTable("Lista de Certidões", "Tipo", "Pedido", "Data");
-                    $("body > pedido", data).each((i, item) => {
+                    element.each((i, item) => {
                         let pedido = $("pedido", item).text();
                         let data = $("data", item).text();
                         let tipo = $(item).attr("type");
