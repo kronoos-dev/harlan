@@ -87,19 +87,32 @@ var KronoosElement = function(title, subtitle, sidenote) {
         informationQA = null;
     };
 
+    this.remove = (updateUX = false) => {
+        if (this._notFoundElement) {
+            this._notFoundElement.element.remove();
+            this._notFoundElement = null;
+        }
+        if (this._briefElement) {
+            this._briefElement.remove();
+            this._briefElement = null;
+        }
+        container.remove();
+        if (updateUX && aggregate) aggregate();
+    };
+
     this.notation = (v = null, change = false) => {
         if (v !== null) {
             let notationClass = v ? "hasNotation" : "hasntNotation";
             if (notationClass !== notation) {
                 if (this.brief) {
                     if (notationClass === "hasNotation") {
-                        this.briefElement = this.brief(`${titleElement.text()} <small>${subtitleElement.text()}</small>`, () => {
+                        this._briefElement = this.brief(`${titleElement.text()} <small>${subtitleElement.text()}</small>`, () => {
                             titleElement.closest(".record").find(".kronoos-header .fa-plus-square-o").click();
                             $('html, body').scrollTop(titleElement.offset().top);
                         });
-                    } else if (this.briefElement) {
-                        this.briefElement.remove();
-                        this.briefElement = null;
+                    } else if (this._briefElement) {
+                        this._briefElement.remove();
+                        this._briefElement = null;
                     }
                 }
 
@@ -139,7 +152,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.behaviourUnstructuredHomonym = (hasNotation) => this.titleAlert('question-circle', "behaviourUnstructuredHomonym", hasNotation);
     this.behaviourAccurate = (hasNotation) => this.titleAlert(null, "behaviourAccurate", hasNotation);
 
-    this.briefElement = null;
+    this._briefElement = null;
     this.titleAlert = (font = 'exclamation-triangle', behaviour = "behaviourUnstructured", hasNotation = true) => {
         let [, , change] = this.dataStatus(behaviour, hasNotation);
         if (!change) return this;
@@ -184,11 +197,6 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.table = (...header) => {
         return this.captionTable(null, ...header);
-    };
-
-    this.remove = () => {
-        container.remove();
-        if (aggregate) aggregate();
     };
 
     this.captionTable = (caption, ...header) => {

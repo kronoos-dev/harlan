@@ -1,6 +1,7 @@
 import timesSeries from 'async/times';
 import parallel from 'async/parallel';
 import _ from 'underscore';
+import {CPF, CNPJ} from 'cpf_cnpj';
 
 const START_ZERO = /^0+/;
 var wrap = require('wordwrap')(20);
@@ -43,11 +44,29 @@ var readAdapters = {
                 }).toArray());
             };
         },
-        purchaseNewDocuments: (relation, legalDocument, document) => {
+        purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
+    },
+    "FINDER.RELATIONS" : {
+        trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
-                callback();
+                var response = callback(null, $("localizePessoasRelacionadas > localizePessoasRelacionadas", document).map((idx, node) => {
+                    if (/^6/.test($("grupo", node).text())) return;
+                    let document = $("documento", node).text();
+                    return relation.createNode(document, $("nome", node).text(), CPF.isValid(document) ? "user" :  "company", {unlabel: true});
+                }).toArray());
+                return response;
             };
-        }
+        },
+        trackEdges: (relation, legalDocument, document) => {
+            return (callback) => {
+                var response = callback(null, $("localizePessoasRelacionadas > localizePessoasRelacionadas", document).map((idx, node) => {
+                    if (/^6/.test($("grupo", node).text())) return;
+                    return relation.createEdge(legalDocument, $("documento", node).text());
+                }).toArray());
+                return response;
+            };
+        },
+        purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
     },
     "RFB.CERTIDAO": {
         trackNodes: (relation, legalDocument, document) => {
@@ -66,11 +85,7 @@ var readAdapters = {
                 }).toArray());
             };
         },
-        purchaseNewDocuments: (relation, legalDocument, document) => {
-            return (callback) => {
-                callback();
-            };
-        }
+        purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
     },
     "CCBUSCA.CONSULTA": {
         trackNodes: (relation, legalDocument, document) => {
@@ -106,11 +121,7 @@ var readAdapters = {
                 return callback(null, nodes);
             };
         },
-        purchaseNewDocuments: (relation, legalDocument, document) => {
-            return (callback) => {
-                callback();
-            };
-        }
+        purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
     }
 };
 

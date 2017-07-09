@@ -557,6 +557,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cnpj
                 },
+                error: () => this.notFound("Cadastro Nacional de Empresas Punidas <small>Não existem de apontamentos cadastrais</small>"),
                 success: (data) => {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Cadastro Nacional de Empresas Punidas',
@@ -585,10 +586,11 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf
                 },
+                error: () => this.notFound("Sanções e expulsões na controladoria geral da união <small>Não existem de apontamentos cadastrais.</small>"),
                 success: (data) => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('EXPULSOES',
-                        "Existência de apontamentos cadastrais.", 'EXPULSOES.');
+                    let kelement = this.kronoosElement('Sanções e Expulsões na Controladoria Geral da União',
+                        "Existência de apontamentos cadastrais.", 'Sanções e expulsões na controladoria geral da união.');
 
                     kelement.behaviourAccurate(true);
 
@@ -612,13 +614,14 @@ export class KronoosParse {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'CEPIM'",
             this.loader("fa-eye", `Verificando entidades privadas sem fins lucrativas impedidas com o CNPJ ${this.cnpj}.`, {
+                error: () => this.notFound("Entidades privadas sem fins lucrativas impedidas na controladoria geral da união <small>Não existem de apontamentos cadastrais.</small>"),
                 data: {
                     documento: this.cnpj
                 },
                 success: (data) => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('CEPIM',
-                        "Existência de apontamentos cadastrais.", 'CEPIM.');
+                    let kelement = this.kronoosElement('ONGs impedidas na CGU',
+                        "Existência de apontamentos cadastrais.", 'Entidades privadas sem fins lucrativas impedidas na controladoria geral da união.');
 
                     kelement.behaviourAccurate(true);
                     kelement.table("Número do Convênio Siafi", "Situação")(x("NUMERO-DO-CONVENIO-SIAFI"), x("SITUACAO"));
@@ -714,7 +717,7 @@ export class KronoosParse {
             this._notFoundList = null;
         }
 
-        if (this._briefElement && this._briefElement.find("ul").is(':empty')) {
+        if (this._briefElement && this._briefElement.find("ol").is(':empty')) {
             this._brief = null;
             this._briefElement.remove();
             this._briefElement = null;
@@ -819,6 +822,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf_cnpj
                 },
+                error: () => this.notFound("CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas <small>Não existem apontamentos cadastrais.</small>"),
                 success: (data) => {
                     let x = n => $(n, data).text();
 
@@ -1090,7 +1094,9 @@ export class KronoosParse {
         elements.push((callback) => this.serverCall(query,
             this.loader("fa-eye", `Capturando dados de conexão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
                 data: {
-                    documento: cpf_cnpj
+                    documento: cpf_cnpj,
+                    cpf: cpf_cnpj,
+                    cnpj: cpf_cnpj
                 },
                 success: (data) => this.generateRelations.appendDocument(data, cpf_cnpj),
                 complete: () => callback()
@@ -1131,6 +1137,9 @@ export class KronoosParse {
                 this.query("SELECT FROM 'RFB'.'CERTIDAO'", formatted_document, elements);
                 this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
                 this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
+                if (CPF.isValid(formatted_document)) {
+                    this.query("SELECT FROM 'FINDER'.'RELATIONS'", formatted_document, elements);
+                }
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
@@ -1307,9 +1316,10 @@ export class KronoosParse {
                 });
 
             if (!procs.length) {
-                cnjInstance.element().remove();
+                cnjInstance.remove();
                 delete this.procElements[cnj];
                 delete this.kelements[this.kelements.indexOf(cnjInstance)];
+                this.changeResult();
                 return;
             }
 
@@ -1342,6 +1352,7 @@ export class KronoosParse {
         if (!proc) return;
 
         cnjInstance.clear();
+        cnjInstance.element().data("parsedProc", proc);
 
         let urlProcesso,
             getNode = (x) => $(x, proc).first().text(),
