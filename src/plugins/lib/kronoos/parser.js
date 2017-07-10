@@ -1,3 +1,4 @@
+import iconv from 'iconv-lite';
 import { CPF, CNPJ } from 'cpf_cnpj';
 import async from "async";
 import _ from "underscore";
@@ -918,12 +919,12 @@ export class KronoosParse {
             csvString += CSV.stringify([
                 $("partes parte", processoElement).map((i, e) => `${$(e).attr("tipo")}: ${$(e).text()}`).toArray().join(", "),
                 [$("acao", processoElement).first().text(), $("area", processoElement).first().text()].join(", "),
-                $("numero_processo", processoElement).first().text(), 
+                $("numero_processo", processoElement).first().text(),
                 [$("foro", processoElement).first().text(), $("vara", processoElement).first().text()].join(", "),
                 $("valor_causa", processoElement).first().text()
             ], ";");
         }
-        saveAs(new Blob([csvString]), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.csv`);
+        saveAs(new Blob([iconv.encode(csvString, "ISO-8859-1")]), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.csv`);
     }
 
     downloadDOCX() {
@@ -933,7 +934,7 @@ export class KronoosParse {
             .map((i, e) => $(e).html()).toArray().join();
 
         saveAs(htmlDocx
-            .asBlob(`<!DOCTYPE html><html><body>${htmlContent}</body></html>`, {orientation: 'portrait'}),
+            .asBlob(iconv.encode(`<!DOCTYPE html><html><body>${htmlContent}</body></html>`, "ISO-8859-1").toString(), {orientation: 'portrait'}),
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.docx`);
     }
 
