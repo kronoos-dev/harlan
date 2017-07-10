@@ -6,6 +6,11 @@ import bankCodes from "./bank-codes";
 import VMasker from 'vanilla-masker';
 import uniqid from 'uniqid';
 import GoogleMapsLoader from 'google-maps';
+import htmlDocx from 'html-docx-js';
+import saveAs from 'save-as';
+import toMarkdown from 'to-markdown';
+import html2canvas from 'html2canvas';
+import CSV from 'csv-string';
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -341,7 +346,6 @@ export class KronoosParse {
     }
 
     end() {
-
     }
 
     cbuscaEnderecos() {
@@ -895,6 +899,56 @@ export class KronoosParse {
             }, true), lowPriority);
     }
 
+    downloadMarkdown() {
+        let htmlContent = this.appendElement
+            .children()
+            .filter((i, e) => !$(e).hasClass('kronoos-header'))
+            .map((i, e) => $(e).html()).toArray().join();
+
+        saveAs(new Blob([toMarkdown(htmlContent)]),
+            `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.txt`);
+    }
+
+    downloadCSV() {
+        let csvString = CSV.stringify(['Partes Contrária', 'Descrição do Tipo de Ação',
+            'Número do Processo', 'Fórum / Vara', 'Valor da Causa'], ";");
+        let procs = _.map(_.filter(this.kelements, x => !!x.element().data("parsedProc")),
+            x => x.element().data("parsedProc"));
+        for (let processoElement of procs) {
+            csvString += CSV.stringify([
+                $("partes parte", processoElement).map((i, e) => `${$(e).attr("tipo")}: ${$(e).text()}`).toArray().join(", "),
+                [$("acao", processoElement).first().text(), $("area", processoElement).first().text()].join(", "),
+                $("numero_processo", processoElement).first().text(), 
+                [$("foro", processoElement).first().text(), $("vara", processoElement).first().text()].join(", "),
+                $("valor_causa", processoElement).first().text()
+            ], ";");
+        }
+        saveAs(new Blob([csvString]), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.csv`);
+    }
+
+    downloadDOCX() {
+        let htmlContent = this.appendElement
+            .children()
+            .filter((i, e) => !$(e).hasClass('kronoos-header'))
+            .map((i, e) => $(e).html()).toArray().join();
+
+        saveAs(htmlDocx
+            .asBlob(`<!DOCTYPE html><html><body>${htmlContent}</body></html>`, {orientation: 'portrait'}),
+            `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.docx`);
+    }
+
+    downloadImage() {
+        html2canvas(this.appendElement, {
+            background: '#FFFFFF',
+            onrendered(canvas) {
+                canvas.toBlob(blob =>
+                    saveAs(blob, `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.png`),
+                    "image/png",
+                    0.95);
+            }
+        });
+    }
+
     generateHeader(defaultType = "minimized") {
         let observation = ''; /* empty */
         if (this.parameters.observation)
@@ -924,8 +978,37 @@ export class KronoosParse {
         this.header.actionElements = {
             push: $("<i />").addClass(`fa fa-eye`),
             windowResize: $("<i />").addClass(`fa ${icon}`),
-            trash: $("<i />").addClass("fa fa-trash")
+            trash: $("<i />").addClass("fa fa-trash"),
+            download: $("<i />").addClass("fa fa-cloud-download"),
         };
+
+        this.header.actionElements.download.click((e) => {
+            e.preventDefault();
+            let modal = this.call("modal");
+            modal.gamification("accuracy");
+            modal.title("Exportação de Dossiê");
+            modal.subtitle("Escolha o formato de exportação do dossiê.");
+            modal.paragraph("O dossiê exportado pode perder características de estilo ou não funcionar em todos os programas.");
+            let form = modal.createForm();
+            let list = form.createList();
+            list.add("fa-file-word-o", "DOCX - Microsoft Word 2007 (Windows)").click(e => {
+                e.preventDefault();
+                this.downloadDOCX();
+            });
+            // list.add("fa-file-text-o", "Formato de Texto Markdown").click(e => {
+            //     e.preventDefault();
+            //     this.downloadMarkdown();
+            // });
+            // list.add("fa-file-image-o", "Arquivo de Imagem Kronoos").click(e => {
+            //     e.preventDefault();
+            //     this.downloadImage();
+            // });
+            list.add("fa-file-excel-o", "CSV - Comma-separated values (Excel)").click(e => {
+                e.preventDefault();
+                this.downloadCSV();
+            });
+            modal.createActions().cancel();
+        });
 
         this.header.actionElements.push.click((e) => {
             e.preventDefault();
@@ -968,8 +1051,10 @@ export class KronoosParse {
             .append(this.header.actionElements.trash);
         this.call("tooltip", this.header.actions, "Expandir / Minimizar")
             .append(this.header.actionElements.windowResize);
+        this.call("tooltip", this.header.actions, "Download")
+            .append(this.header.actionElements.download);
         this.call("tooltip", this.header.actions, "Acompanhar")
-                .append(this.header.actionElements.push);
+            .append(this.header.actionElements.push);
     }
 
     confirm (...args) {
@@ -1244,7 +1329,7 @@ export class KronoosParse {
                     if (!c1) return;
                     c1 = $.parseHTML(c1);
                     let n1  = this.normalizeName(this.name);
-                    if (!$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) return;
+                    if (this.cpf && !$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) return;
                     if (!this.parseProc(cnj, articleText, match[0])) return;
                     this.normalizeJuristek(cnj);
                 }
