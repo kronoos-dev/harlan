@@ -171,9 +171,12 @@ module.exports = function(controller) {
             controller.call("kronoos::search", document, name, ret);
         }
 
-        xhr.push(controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", controller.call("error::ajax",
+        xhr.push(controller.server.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", controller.call("error::ajax",
             controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name || ""} ${document}.`, {
+                method: 'GET',
                 data: {
+                    'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
+                    'q[1]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
                     documento: document,
                 },
                 success: (ret) => {

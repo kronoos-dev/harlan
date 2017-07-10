@@ -18,6 +18,7 @@ module.exports = function(controller) {
         let path = CONTRATO_VAREJISTA;
 
         controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'STATUS'", {
+            method: 'GET',
             data: {
                 'q[0]': "SELECT FROM 'ICHEQUESAUTHENTICATION'.'ANNOTATIONS'",
                 'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'STATUS'"

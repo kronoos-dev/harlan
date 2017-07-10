@@ -270,6 +270,7 @@ module.exports = function(controller) {
 
         async.doUntil((cb) => {
             controller.server.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
+                method: 'GET',
                 data: {
                     'q[0]': "SELECT FROM 'ICHEQUES'.'CHECKS'",
                     'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'OPERATION'",

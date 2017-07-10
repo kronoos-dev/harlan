@@ -170,7 +170,7 @@ var GenerateRelations = function() {
     var executeAdapter = (method, callback) => {
         let jobs = [];
         for (let documentType in documents) {
-            if (!readAdapters[documentType][method]) {
+            if (!readAdapters[documentType] || !readAdapters[documentType][method]) {
                 continue;
             }
 

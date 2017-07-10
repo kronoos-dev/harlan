@@ -19,6 +19,7 @@ module.exports = function(controller) {
 
     controller.registerCall("kronoos::searchByName::capture", (formatDocument, name, modal) => {
         controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", controller.call("error::ajax", controller.call("loader::ajax", {
+            method: 'GET',
             data: {
                 documento: formatDocument,
                 'q[0]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
