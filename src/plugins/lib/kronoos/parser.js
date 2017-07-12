@@ -408,7 +408,7 @@ export class KronoosParse {
                     documento: this.cpf_cnpj
                 },
                 success: (data) => {
-                    let kelement = this.kronoosElement("Certidão de Dívida Ativa da União",
+                    let kelement = this.kronoosElement("CND Federal",
                         "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
                         "Documento comprova que empresa está em condição regular em relação à Secretaria da Receita Federal e à dívida ativa da União.");
 
@@ -419,6 +419,13 @@ export class KronoosParse {
                     let text = $("descricao", data).text();
                     kelement.paragraph(text);
                     kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
+                    this.append(kelement.element());
+                },
+                error: () => {
+                    let kelement = this.kronoosElement("CND Federal",
+                        "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
+                        "Existem pendências e/ou incosistência de informações no sistema da Receita Federal para o documento informado.");
+                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
             }, true));
