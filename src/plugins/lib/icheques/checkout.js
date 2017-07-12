@@ -97,7 +97,8 @@ module.exports = function(controller) {
     };
 
     var newCheck = function(check, callback) {
-        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'", {
+        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'",
+            controller.call("error::ajax", {
             data: check,
             success: function(ret) {
                 if (!$("new", ret).length) {
@@ -109,7 +110,7 @@ module.exports = function(controller) {
             complete: function() {
                 callback();
             }
-        });
+        }));
         return true;
     };
 
