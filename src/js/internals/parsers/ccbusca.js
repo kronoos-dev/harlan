@@ -115,6 +115,16 @@ module.exports = function (controller) {
         });
     };
 
+    var setEmpregador = function (result, jdocument) {
+        jdocument.find("rendaEmpregador rendaEmpregador").each((i, x) => {
+            let v = (k) => $(k, x).first().text();
+            result.addSeparator(`Empregador ${v('empregador')}`, `${v('setorEmpregador')} - Documento ${CNPJ.format(v('documentoEmpregador'))}`, "Empregador registrado");
+            result.addItem("Descrição", v('cboDescricao'));
+            result.addItem("Faixa Salarial", v('faixaRenda'));
+            result.addItem("Data", `${moment(v('rendaDataRef'), "YYYY-MM-DD").format("DD/MM/YYYY")}, ${moment(v('rendaDataRef'), "YYYY-MM-DD").fromNow()}`);
+        });
+    };
+
     var setContact = function (result, jdocument) {
         var phones = [];
         var emails = [];
@@ -315,6 +325,7 @@ module.exports = function (controller) {
         setSociety(result, jdocument);
         setQSA(result, jdocument);
         setSocio(result, jdocument);
+        setEmpregador(result, jdocument);
 
         return result.element();
     };
