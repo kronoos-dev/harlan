@@ -147,7 +147,7 @@ export class BANFactory {
                     complete: () => callback()
                 });
             }, (callback) => {
-                this.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
+                this.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
                     success : (ret) => {
                         // telefone. de 128 até 139. 12.

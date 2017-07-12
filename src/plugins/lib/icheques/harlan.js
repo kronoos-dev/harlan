@@ -637,11 +637,11 @@ module.exports = function(controller) {
         };
 
         if (CNPJ.isValid(task[0])) {
-            ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'CONSULTA'";
+            ccbuscaQuery['q[0]'] = "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'";
             ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
         }
 
-        controller.server.call("SELECT FROM 'CCBUSCA'.'CONSULTA'", {
+        controller.server.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
             cache: true,
             data: ccbuscaQuery,
             success: function(ret) {
