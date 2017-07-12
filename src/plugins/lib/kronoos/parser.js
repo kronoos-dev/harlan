@@ -402,11 +402,10 @@ export class KronoosParse {
     searchBovespa() {}
 
     searchDAU() {
-        if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'RFBDAU'.'CONSULTA'",
             this.loader("fa-eye", `Pesquisando Dívida Ativa da União para o CNPJ ${this.cpf_cnpj}.`, {
                 data: {
-                    documento: this.cnpj
+                    documento: this.cpf_cnpj
                 },
                 success: (data) => {
                     let kelement = this.kronoosElement("Certidão de Dívida Ativa da União",
@@ -678,7 +677,7 @@ export class KronoosParse {
                 },
                 success: (data) => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('Certidão do Documento pela Receita Federal',
+                    let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? "CPF" : "CNPJ"} pela Receita Federal`,
                         "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
 
                     if (CPF.isValid(cpf_cnpj)) {
