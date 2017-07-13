@@ -1,0 +1,3 @@
+# Plugin License
+
+Each extension can have its own license, consult the developer.
