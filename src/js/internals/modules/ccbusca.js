@@ -25,7 +25,7 @@ module.exports = (controller) => {
             ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
         }
 
-        controller.serverCommunication.call("SELECT FROM 'CCBUSCA'.'BILLING'",
+        controller.serverCommunication.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'BILLING'",
         controller.call("error::ajax", controller.call("loader::ajax", {
             data: ccbuscaQuery,
             success: function(ret) {
