@@ -4,7 +4,7 @@ import sprintf from 'sprintf';
 
 module.exports = (controller) => {
 
-    controller.registerTrigger("findDatabase::instantSearch", "icheques::search::document", function(args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "dive::search::document", function(args, callback) {
         controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
             dataType: "json",
             data: {text: args[0], limit: 3},
