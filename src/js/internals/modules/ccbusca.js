@@ -21,7 +21,7 @@ module.exports = (controller) => {
         };
 
         if (CNPJ.isValid(val)) {
-            ccbuscaQuery['q[0]'] = "SELECT FROM 'CCBUSCA'.'BILLING'";
+            ccbuscaQuery['q[0]'] = "USING 'CCBUSCA' SELECT FROM 'FINDER'.'BILLING'";
             ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
         }
 
