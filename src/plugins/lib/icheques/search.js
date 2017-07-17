@@ -48,7 +48,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::resultClick", (result) => {
         return (e) => {
             e.preventDefault();
-            controller.call("icheques::show", [result], null, true);
+            controller.call("icheques::show", [result], null, null, true);
         };
     });
 
