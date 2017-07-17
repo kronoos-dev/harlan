@@ -382,30 +382,31 @@ module.exports = function(controller) {
         }
         controller.call("tooltip", separatorData.menu, "Cobrar Cheque").append(
             $("<i />").addClass("fa fa-life-buoy")).click((e) => {
-                e.preventDefault();
-                if (!check.debtCollector) {
-                    controller.call("icheques::debtCollector", check);
-                } else {
-                    controller.confirm({
-                        title: "Você deseja REMOVER o cheque da cobrança?",
-                        subtitle: "Não há custo para cancelar ou enviar para cobrança.",
-                        paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
-                    }, () => {
-                        controller.server.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
-                            data: check,
-                            success: () => {
-                                delete check.debtCollector;
-                                controller.alert({
-                                    icon: "pass",
-                                    title: "Uoh! Cheque recuperado da cobrança!",
-                                    subtitle: "Seu cheque foi recuperado da cobrança.",
-                                    paragraph: "A cobrança não mais tentará recuperar os valores. Entramos em contato para informá-los.",
-                                    confirmText: "Compreendi"
-                                });
-                            }
-                        });
+            e.preventDefault();
+            if (!check.debtCollector) {
+                controller.call("icheques::debtCollector", check);
+            } else {
+                controller.confirm({
+                    title: "Você deseja REMOVER o cheque da cobrança?",
+                    subtitle: "Não há custo para cancelar ou enviar para cobrança.",
+                    paragraph: "Todas e quaisquer cobranças ao sacado serão interrompidas se clicar em CONFIRMAR."
+                }, () => {
+                    controller.server.call("DELETE FROM 'ICHEQUES'.'DebtCollector'", {
+                        data: check,
+                        success: () => {
+                            delete check.debtCollector;
+                            controller.alert({
+                                icon: "pass",
+                                title: "Uoh! Cheque recuperado da cobrança!",
+                                subtitle: "Seu cheque foi recuperado da cobrança.",
+                                paragraph: "A cobrança não mais tentará recuperar os valores. Entramos em contato para informá-los.",
+                                confirmText: "Compreendi"
+                            });
+                        }
                     });
-            }});
+                });
+            }
+        });
 
         controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
             e.preventDefault();
@@ -721,14 +722,41 @@ module.exports = function(controller) {
         }));
 
         var moreResults = controller.call("moreResults", 5);
+
+        let scrollElement = null;
+        let scrollInterval = null;
+        let scrolled = false;
+
         moreResults.callback((cb) => {
-            cb(_.map(documents.splice(0, documents.length > 5 ? 5 : documents.length), showDocument));
+            let docs = _.map(documents.splice(0, documents.length > 5 ? 5 : documents.length), showDocument);
+            if (docs.length && !scrollElement) scrollElement = docs[0];
+
+            cb(docs);
+
+            if (scrolled || scrollInterval || !scrollTo || !scrollElement)
+                return;
+
+            scrollInterval = setInterval(() => {
+                if (!scrollElement.is(":visible"))
+                    return;
+                scrolled = true;
+                $('html, body').animate({
+                    scrollTop: scrollElement.offset().top
+                }, 2000);
+                clearTimeout(scrollInterval);
+                scrollInterval = null;
+            }, 100);
         });
 
         $(element || ".app-content").append(moreResults.element());
-        if (scrollTo) $('html, body').animate({scrollTop: moreResults.element().offset().top}, 2000);
-
         moreResults.show();
+
+        if (scrollTo && !scrolled && moreResults.element().is(":visible")) {
+            $('html, body').animate({
+                scrollTop: moreResults.element().offset().top
+            }, 2000);
+            scrolled = true;
+        }
 
         if (callback) {
             callback();

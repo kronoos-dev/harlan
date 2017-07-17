@@ -39,7 +39,7 @@ module.exports = function(controller) {
             .addClass("icheque")
             .click(function(e) {
                 e.preventDefault();
-                controller.call("icheques::show", databaseResult.values);
+                controller.call("icheques::show", databaseResult.values, null, null, true);
             });
 
         callback();
