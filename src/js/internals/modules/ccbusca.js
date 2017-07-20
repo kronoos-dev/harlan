@@ -17,7 +17,8 @@ module.exports = (controller) => {
 
     controller.registerCall("ccbusca", function(val, callback) {
         let ccbuscaQuery = {
-            documento: val
+            documento: val,
+            cache: 'DISABLED'
         };
 
         if (CNPJ.isValid(val)) {
