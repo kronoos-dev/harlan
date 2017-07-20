@@ -150,6 +150,8 @@ module.exports = function (controller) {
 
         result.addSeparator("Contato", "Meios de contato", "Telefone, e-mail e outros");
         for (var idxPhones in phones) {
+            let phone = phones[idxPhones];
+            if (!/[0-9]/.test(phone)) return;
             result.addItem("Telefone", phones[idxPhones]);
         }
 
