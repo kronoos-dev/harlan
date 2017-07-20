@@ -302,6 +302,7 @@ module.exports = function (controller) {
 
         var nodes = {
             "Nome": "nome",
+            "CPF/CNPJ": "cpf",
             "Nome da Mãe" : "nomemae",
             "Atividade Econômica" : "atividade-economica",
             "Natureza Jurídica" : "natureza-juridica",
@@ -314,6 +315,11 @@ module.exports = function (controller) {
             var data = jdocument.find(init + nodes[idx]).first().text();
             if (/^\**$/.test(data))
                 continue;
+            if (idx === "CPF/CNPJ") {
+                if (CPF.isValid(nodes[idx])) result.addItem("CPF", CPF.format(data), nodes[idx]);
+                else result.addItem("CNPJ", CNPJ.format(data), nodes[idx]);
+                continue;
+            }
             result.addItem(idx, data, nodes[idx]);
         }
 
