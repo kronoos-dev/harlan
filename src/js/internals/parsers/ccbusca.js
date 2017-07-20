@@ -316,7 +316,7 @@ module.exports = function (controller) {
             if (/^\**$/.test(data))
                 continue;
             if (idx === "CPF/CNPJ") {
-                if (CPF.isValid(nodes[idx])) result.addItem("CPF", CPF.format(data), nodes[idx]);
+                if (CPF.isValid(data)) result.addItem("CPF", CPF.format(data), nodes[idx]);
                 else result.addItem("CNPJ", CNPJ.format(data), nodes[idx]);
                 continue;
             }
