@@ -54,8 +54,10 @@ module.exports = (controller) => {
         controller.server.call("SELECT FROM 'ICHEQUES'.'MyFatherFIDC'", {
             dataType: "json",
             success: (ret) => {
-                if (ret)
-                    controller.confs.ccf = true;
+                controller.confs.ccf = !!ret;
+            },
+            error: () => {
+                controller.confs.ccf = false;
             }
         });
     });

@@ -82,7 +82,10 @@ module.exports = function (controller) {
 
         jdocument.find("BPQL > body > phones > phone:lt(3)").each(function (idx, node) {
             var jnode = $(node);
-            phones.push("(" + jnode.find("area-code").text() + ") " + jnode.find("number").text());
+            let ddd = jnode.find("area-code").text().trim();
+            let phone = jnode.find("number").text().trim();
+            if (!ddd || !phone) return;
+            phones.push("(" + ddd + ") " + phone);
         });
 
         jdocument.find("BPQL > body email:lt(3), BPQL > body > RFB > email").each(function (idx, node) {
@@ -98,7 +101,9 @@ module.exports = function (controller) {
 
         result.addSeparator("Contato", "Meios de contato", "Telefone, e-mail e outros");
         for (var idxPhones in phones) {
-            result.addItem("Telefone", phones[idxPhones]);
+            let phone = phones[idxPhones];
+            if (!/[0-9]/.test(phone)) return;
+            result.addItem("Telefone", phone);
         }
 
         for (var idxEmails in emails) {
