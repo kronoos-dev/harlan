@@ -44,7 +44,7 @@ module.exports = (controller) => {
             "screens": [{
                 "nextButton": "Enviar",
                 "observations": [
-                    `${apiKeys.length} usuários`
+                    apiKeys.length == 1 ? '1 usuário' : `${apiKeys.length} usuários`
                 ],
                 "fields": [{
                     "name": 'trigger',
