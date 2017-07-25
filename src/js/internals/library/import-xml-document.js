@@ -5,7 +5,7 @@ module.exports = function (controller) {
     var registered = {};
 
     var generateKey = function (database, table) {
-        return (database || "").toUpperCase()  + "::" + (database || "").toUpperCase();        
+        return (database || "").toUpperCase()  + "::" + (database || "").toUpperCase();
     };
 
     this.register = function (database, table, callback) {
@@ -80,7 +80,7 @@ module.exports = function (controller) {
     this.import = function (document, database, table) {
         var jdocument = $(document);
 
-        var query = jdocument.find("BPQL > header > query:first");
+        var query = jdocument.find("BPQL > header > query:last");
         database = database || query.attr("database");
         table = table || query.attr("table");
         var ret = parse(jdocument, document, database, table);

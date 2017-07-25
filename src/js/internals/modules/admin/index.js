@@ -37,6 +37,7 @@ module.exports = function(controller) {
         require("./change-company")(controller);
         require("./email")(controller);
         require("./phone")(controller);
+        require("./send-message")(controller);
         require("./report")(controller);
 
         controller.registerCall("admin::index", () => {

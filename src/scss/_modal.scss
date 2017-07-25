@@ -8,6 +8,29 @@
     background-color: darken(rgba(255,255,255,0.8), 10%);
     box-sizing: border-box;
     display: table;
+    .modal-actions {
+        display: inline-block;
+        float: right;
+        font-size: 21px;
+        li {
+            color: #93a7d8;
+            transition: color .2s ease-in;
+            display: inline-block;
+            padding: 0 10px;
+            height: 25px;
+            width: 25px;
+            line-height: 100% !important;
+            margin: auto !important;
+            cursor: pointer;
+            &:before {
+                content: "" !important;
+            }
+            &:hover {
+                color: #3e5fad;
+            }
+        }
+    }
+
     .map {
         display: block;
         height: 200px;

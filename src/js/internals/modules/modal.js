@@ -18,6 +18,9 @@ module.exports = (controller) =>  {
         var modalContainer = $("<div />").addClass("modal")
                 .append($("<div />").append($("<div />").append(modal)));
 
+        var actions = $("<ul />").addClass("modal-actions");
+        modal.append(actions);
+
         var onEsc = (e) => {
             if (e.keyCode == 27) {
                 this.close();
@@ -40,6 +43,13 @@ module.exports = (controller) =>  {
         modal.on("remove", () =>  {
             clearInterval(interval);
         });
+
+        this.action = (icon, action) => $("<li />")
+            .append($("<i />").addClass(`fa fa-${icon}`))
+            .click(e => {
+                e.preventDefault();
+                action();
+            }).appendTo(actions);
 
         this.gamification = (type) =>  {
             var image = $("<div />")
