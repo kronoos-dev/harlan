@@ -308,6 +308,10 @@ module.exports = (controller) => {
 
             let actions = modal.createActions();
 
+            if (screen.observations) {
+                _.each(_.filter(screen.observations), i => actions.observation(i));
+            }
+
             if (screen.actions) {
                 _.each(screen.actions, i => {
                     let [name, action] = i;

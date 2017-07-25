@@ -1,3 +1,5 @@
+import doUntil from 'async/doUntil';
+
 var loaded = false;
 var _ = require("underscore");
 
@@ -44,6 +46,45 @@ module.exports = function(controller) {
             var report = controller.call("report", "Administrador da Conta", "Administre os usuários cadastrados no sistema.",
                 "Altere dados cadastrais como CPF, CNPJ, telefones, emails e endereço, bloqueie, desbloqueie, crie " +
                 " novos usuários, verifique o consumo de seus clientes e quantos créditos eles possuem em suas contas.");
+
+            report.button("Disparar E-mail", () => controller.call("form", filter => {
+                let apiKeys = [],
+                    total = 0;
+                doUntil((callback) => controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'", {
+                    data: Object.assign({
+                        skip: apiKeys.length
+                    }, filter),
+                    success: data => {
+                        apiKeys = apiKeys.concat($("apiKey", data).map((i, v) => {
+                            return $(v).text();
+                        }).toArray());
+                        total = parseInt($("body count", data).text());
+                    },
+                    complete: () => callback()
+                }), () => total === apiKeys.length, () => controller.call("admin::message", apiKeys));
+            }).configure({
+                "title": "Filtrar E-mail de Clientes",
+                "subtitle": "Preencha os campos abaixo para filtrar os destinatários do e-mail.",
+                "paragraph": "Você enviará um e-mail para toda sua base de clientes que satisfazerem a condição abaixo, deixe em branco para enviar a todos.",
+                "gamification": "checkPoint",
+                "magicLabel": true,
+                "screens": [{
+                    "nextButton": "Filtrar",
+                    "fields": [{
+                        "name": 'commercialReference',
+                        "optional": true,
+                        "type": "text",
+                        "placeholder": "Referência Comercial"
+                    }, {
+                        "name": 'tag',
+                        "optional": true,
+                        "type": "text",
+                        "placeholder": "Marcador (tag)"
+                    }]
+                }]
+            })).css({
+                "background-color": "#bbb"
+            });
 
             report.button("Criar Conta", () => {
                 controller.call("admin::createCompany");

@@ -78,7 +78,7 @@ module.exports = (controller) =>  {
 
         this.addParagraph = this.paragraph;
 
-        this.addProgress = (initProgress) =>  {
+        this.addProgress = (initProgress = 0) =>  {
             var progress = controller.call("progress::init", initProgress);
             modal.append(progress.element);
             return (perc) =>  {

@@ -390,7 +390,7 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Bloquear/Desbloquear").append(lockSymbol).click(doLocking);
 
             controller.call("tooltip", actions, "Enviar E-mail").append($("<i />").addClass("fa fa-envelope"))
-                .click(controller.click("admin::message", [apiKey], section));
+                .click(controller.click("admin::message", [apiKey]));
 
             controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at"))
                 .click(controller.click("admin::email", username, section));
