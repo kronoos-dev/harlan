@@ -15,6 +15,7 @@ module.exports = (controller) => {
             dataType: 'json',
             data: data,
             success: (dataset) => {
+                if (!dataset.length) return;
                 var report = controller.call("report",
                         "Cadastro de Tags em Usuários",
                         "Lista das tags cadastradas nos usuários.", null, true),
