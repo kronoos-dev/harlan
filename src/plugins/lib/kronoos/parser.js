@@ -256,6 +256,29 @@ export class KronoosParse {
             }, true));
     }
 
+    searchReporterBrasil() {
+        if (!this.cnpj) return;
+        this.serverCall("SELECT FROM 'KRONOOSMODA'.'LISTA'",
+            this.loader("fa-eye", `Verificando CNPJ na lista do aplicativo Moda Livre - ${this.cnpj}.`, {
+                dataType: "json",
+                success: (data) => {
+                    let results = _.filter(data, (reg) => reg.status_cor != 'verde' && new RegExp(`( |^)${reg.nome_marca}( |$)`, 'i').test(this.name));
+                    if (!results.length) this.notFound("Não há registro de trabalho escravo na base Moda Livre (aplicativo) <small>Empresas que usam trabalho análogo ao da escravidão.</small>");
+                    let result = results[0];
+
+                    let kelement = this.kronoosElement("Uso de Trabalho Análogo ao da Escravidão",
+                        "Lista da Moda Livre sobre trabalho análogo ao da escravidão.",
+                        "Conta apontamento na lista do aplicativo Moda Livre de empresa que usa trabalho análogo ao da escravidão.");
+                    kelement.table("Descrição")(result.descricao);
+                    kelement.table("Monitoramento")(result.monitoramento);
+                    kelement.table("Transparência")(result.transparencia);
+                    kelement.behaviourHomonym(true);
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
+
     searchTJSPCertidao() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
@@ -295,6 +318,7 @@ export class KronoosParse {
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
         if (this.cnpj) this.searchTJSPCertidao();
+        this.searchReporterBrasil();
         this.searchCepim();
         this.searchExpulsoes();
         this.searchCnep();
