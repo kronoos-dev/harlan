@@ -114,7 +114,7 @@ module.exports = function(controller) {
                                     method: 'POST',
                                     success: () => toastr.success("Foto alterada com sucesso", "O registro foi alterado no banco de dados")
                                 }));
-                        });
+                        }, true);
                     }]
                 ],
                 fields: [
