@@ -263,7 +263,10 @@ export class KronoosParse {
                 dataType: "json",
                 success: (data) => {
                     let results = _.filter(data, (reg) => reg.status_cor != 'verde' && new RegExp(`( |^)${reg.nome_marca}( |$)`, 'i').test(this.name));
-                    if (!results.length) this.notFound("Não há registro de trabalho escravo na base Moda Livre (aplicativo) <small>Empresas que usam trabalho análogo ao da escravidão.</small>");
+                    if (!results.length) {
+                        this.notFound("Não há registro de trabalho escravo na base Moda Livre (aplicativo) <small>Empresas que usam trabalho análogo ao da escravidão.</small>");
+                        return;
+                    }
                     let result = results[0];
 
                     let kelement = this.kronoosElement("Uso de Trabalho Análogo ao da Escravidão",
@@ -707,7 +710,7 @@ export class KronoosParse {
                     nascimento: nascimento
                 },
                 success: (data) => {
-                    let x = n => $(n, data).text();
+                    let x = n => $(n, data).first().text();
                     let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? "CPF" : "CNPJ"} pela Receita Federal`,
                         "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
 
