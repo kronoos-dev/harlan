@@ -1,6 +1,5 @@
 Bem Vindo ao Harlan
 ======
-[![Build Status](https://travis-ci.org/bipbop/harlan.svg?branch=master)](https://travis-ci.org/bipbop/harlan)
 
 **Conheça o modo mais conveniente de capturar dados e gerar relatórios para sua empresa, transforme o Harlan na plataforma nº 1 para ficar sabendo do que importa.**
 
