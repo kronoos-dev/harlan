@@ -1,0 +1,315 @@
+$color: #2A332E;
+
+@mixin placeholder {
+    ::-webkit-input-placeholder {@content}
+    :-moz-placeholder           {@content}
+    ::-moz-placeholder          {@content}
+    :-ms-input-placeholder      {@content}
+}
+
+
+.autocomplete {
+
+    li.jane {
+        background: url(../images/textures/brilliant.png),linear-gradient(164deg,#ff7f00 -55%,#ffffff 100%);
+        border-bottom: 1px solid #ffefc0;
+
+        &:after {
+            font-family: "FontAwesome";
+            content: '\f132';
+            font-size: 12px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        &:hover, &.selected  {
+            background: url(../images/textures/brilliant.png),linear-gradient(164deg,#ff7f00 0%,#ffffff 100%);
+            border-bottom: 1px solid #ffefc0;
+        }
+
+        .item-title {
+            text-transform: inherit;
+        }
+
+        .item-subtitle {
+            text-transform: inherit;
+        }
+    }
+}
+
+
+.jane-site {
+
+    .logo {
+        &:before {
+            background: url('//cdn-jane.harlan.com.br/logo.svg');
+            width: 120px;
+            height: 120px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: 0;
+            display: inline-block;
+            content: "";
+            vertical-align: middle;
+            margin-right: 16px;
+            ;       position: relative;
+            top: -4px;
+            @media (max-width: 600px) {
+                width: 67px;
+                height: 67px;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            font-size: 42px;
+        }
+
+        font-size: 68px;
+        font-weight: bold;
+        font-family: sans-serif;
+        text-shadow: 2px 3px 0px #000;
+        margin: 72px auto;
+    }
+
+
+    .call-to-action {
+        padding: 30px;
+        position: relative;
+        box-sizing: border-box;
+        user-select: none;
+        display: table;
+        min-height: 580px;
+        width: 100%;
+        background-image: url(/images/bg/75c3f66f44c27d51ff12716868b5bc61.jpg);
+        background-size: 1020.25px 680px;
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        & > * {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .container {
+            background: url(images/foguete.svg);
+            background-repeat: no-repeat;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+            color: #fff;
+        }
+
+        strong {
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 32px;
+            line-height: 42px;
+            @media (min-width: 700px) {
+                font-size: 52px;
+                line-height: 62px;
+            }
+            color: rgb(19, 44, 57);
+            text-shadow: 2px 2px rgba(63, 81, 181, 0.14);
+        }
+
+        h3 {
+            margin: 30px 0;
+            line-height: 32px;
+            font-size: 18px;
+            color: #313D43;
+        }
+
+        .companyName {
+            color: #000;
+            @include placeholder {
+                color: #242424;
+            }
+
+            margin-top: 42px;
+            position: relative;
+            .submit {
+                background-color: #00B7FF;
+                color: #fff;
+                &:hover {
+                    background-color: lighten(#00B7FF, 4%);
+                }
+            }
+
+            @media (min-width : 700px) {
+                .submit {
+                    margin: 0;
+                    position: absolute;
+                    width:  120px;
+                    right: 0;
+                    top: 0;
+                }
+            }
+        }
+
+        .company {
+            border: 1px solid rgba(0,183,255,0.66)
+        }
+
+        .site {
+
+            background: none;
+
+            .nav {
+
+                right: 0;
+                top: 0;
+                position: absolute;
+
+                li {
+                    color: #053D54;
+                    @media (max-width: 600px) {
+                        color: #fff;
+                    }
+                    border: 1px solid transparent;
+                    border-radius: 3px;
+
+                    &.special {
+                        border: 1px solid #053D54;
+                    }
+
+                    &:hover {
+                        color: #fff;
+                        border-color: transparent;
+                        background-color: #053D54;
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    .site {
+
+        .photo {
+            background-image: url('http://www.gravatar.com/avatar/4d683929fea862873120cfd04f7bfb0c?s=200');
+            height: 200px;
+            width: 200px;
+            border-radius: 100px;
+            margin: 30px auto;
+        }
+
+        @media (max-width: 600px) {
+            .nav li {
+                color: #fff;
+                background-color: #413939;
+                &:hover {
+                    background-color: lighten(#413939, 5%);
+                }
+            }
+        }
+    }
+
+    h4 {
+        line-height: 150%;
+        font-size: 18px;
+        margin: 14px 0;
+        text-transform: none;
+    }
+
+    &.hide {
+        display: none !important;
+    }
+
+    .price {
+
+        .price-table {
+
+            thead td {
+                font-weight: bold;
+            }
+
+            margin: 23px auto;
+
+
+            width: 100%;
+            max-width: 320px;
+
+            td {
+                border-bottom: 1px solid #eee;
+
+                &:nth-child(1) {
+                    border-right: 1px solid #eee;
+                }
+
+                &:nth-child(2) {
+                    text-align: center;
+                }
+
+                span {
+                    float: right;
+                    margin-right: 40px;
+                    &.fa {
+                        margin-right: 59px;
+                    }
+                }
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            thead tr:last-child td {
+                border-bottom: 1px solid #eee;
+            }
+
+            tbody tr:nth-child(even) td {
+                background: lighten($color, 70%);
+            }
+
+            td {
+                padding: 12px;
+            }
+
+        }
+    }
+
+}
+
+.group-type.jane {
+
+    header {
+        background-image: url(/images/bg/75c3f66f44c27d51ff12716868b5bc61.jpg);
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    .content {
+        padding-left: 60px;
+        &:before {
+            display: block;
+            height: 50px;
+            width: 50px;
+            background-color: black;
+            content: "";
+            z-index: 10;
+            position: absolute;
+            vertical-align: middle;
+            background: url('https://cdn-jane.harlan.com.br/logo.svg');
+            background-size: contain;
+            background-origin: border-box;
+            position: absolute;
+            left: 0px;
+        }
+    }
+
+}
+
+.gamification.jane {
+    background: url(https://cdn-jane.harlan.com.br/logo.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+}

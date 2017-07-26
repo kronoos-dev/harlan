@@ -17,6 +17,12 @@ module.exports = {
             "painel.kronoos.com"
         ]
     },
+    jane: {
+        hosts: [
+            "jane",
+            "jane.bipbop.com.br"
+        ]
+    },
     dive: {
         hosts: [
             "dive",
