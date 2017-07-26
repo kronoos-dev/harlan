@@ -152,7 +152,7 @@ module.exports = function(controller) {
                     documento: document
                 },
                 success: (ret) => {
-                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).text(), document);
+                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document);
                 },
                 error: () => {
                     controller.call("kronoos::ccbusca", null, document);
@@ -180,7 +180,7 @@ module.exports = function(controller) {
                     documento: document,
                 },
                 success: (ret) => {
-                    name = name || $("BPQL > body cadastro > nome", ret).text();
+                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
                     controller.call("kronoos::search", document, name, ret);
                 }
             }))));
