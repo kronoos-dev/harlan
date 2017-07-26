@@ -1,26 +1,36 @@
 import _ from 'underscore';
-import { CMC7Parser } from './cmc7-parser';
-import { queue } from 'async';
-import { titleCase } from 'change-case';
-import { CPF } from 'cpf_cnpj';
-import { CNPJ } from 'cpf_cnpj';
+import {
+    CMC7Parser
+} from './cmc7-parser';
+import {
+    queue
+} from 'async';
+import {
+    titleCase
+} from 'change-case';
+import {
+    CPF
+} from 'cpf_cnpj';
+import {
+    CNPJ
+} from 'cpf_cnpj';
 
 const PAGINATE_FILTER = 5;
 
 const parseLocation = (element, elementPath) => parseFloat($(element).find(elementPath).text()),
-      R = 6378137,
-      PI_360 = Math.PI / 360;
+    R = 6378137,
+    PI_360 = Math.PI / 360;
 
 function calculateDistance(a, b) {
 
-  const cLat = Math.cos((a.lat + b.lat) * PI_360);
-  const dLat = (b.lat - a.lat) * PI_360;
-  const dLon = (b.lon - a.lon) * PI_360;
+    const cLat = Math.cos((a.lat + b.lat) * PI_360);
+    const dLat = (b.lat - a.lat) * PI_360;
+    const dLon = (b.lon - a.lon) * PI_360;
 
-  const f = dLat * dLat + cLat * cLat * dLon * dLon;
-  const c = 2 * Math.atan2(Math.sqrt(f), Math.sqrt(1 - f));
+    const f = dLat * dLat + cLat * cLat * dLon * dLon;
+    const c = 2 * Math.atan2(Math.sqrt(f), Math.sqrt(1 - f));
 
-  return R * c;
+    return R * c;
 }
 
 /* global module, numeral */
@@ -273,7 +283,7 @@ module.exports = function(controller) {
 
         otherOccurrences = _.filter(checks, (check) => {
             return check.situation === "Cheque com outras ocorrências" ||
-                   check.situation === "Instituição bancária não monitorada";
+                check.situation === "Instituição bancária não monitorada";
         });
 
         blockedBead = _.filter(checks, (check) => {
@@ -432,30 +442,36 @@ module.exports = function(controller) {
                 return;
             }
 
-            if (geoposition) {
-                banks = _.sortBy(_.filter(banks.toArray(), (element) => calculateDistance({
-                    lat: geoposition.coords.latitude,
-                    lon: geoposition.coords.longitude
-                }, {
-                    lat: parseLocation(element, "geocode > geometry > location > lat"),
-                    lon: parseLocation(element, "geocode > geometry > location > lng")
-                }) <= 200000), (element) => calculateDistance({
-                    lat: geoposition.coords.latitude,
-                    lon: geoposition.coords.longitude
-                }, {
-                    lat: parseLocation(element, "geocode > geometry > location > lat"),
-                    lon: parseLocation(element, "geocode > geometry > location > lng")
-                }));
+            if (!geoposition) {
+                controller.call("alert", {
+                    title: "Não foi possível capturar sua solicitação!",
+                    subtitle: "Para antecipar você precisa habilitar a geolocalização no seu navegador. Entre em contato com o suporte: (11) 3661-4657."
+                });
+                return;
+            }
 
+            banks = _.sortBy(_.filter(banks.toArray(), (element) => calculateDistance({
+                lat: geoposition.coords.latitude,
+                lon: geoposition.coords.longitude
+            }, {
+                lat: parseLocation(element, "geocode > geometry > location > lat"),
+                lon: parseLocation(element, "geocode > geometry > location > lng")
+            }) <= 200000), (element) => calculateDistance({
+                lat: geoposition.coords.latitude,
+                lon: geoposition.coords.longitude
+            }, {
+                lat: parseLocation(element, "geocode > geometry > location > lat"),
+                lon: parseLocation(element, "geocode > geometry > location > lng")
+            }));
+
+            if (!banks.length) {
                 if (!banks.length) {
-                    if (!banks.length) {
-                        controller.call("alert", {
-                            title: "Não foi possível encontrar um parceiro antecipador!",
-                            subtitle: "Sinto muito mas não há parceiros iCheques na sua região.",
-                            paragraph: "Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657."
-                        });
-                        return;
-                    }
+                    controller.call("alert", {
+                        title: "Não foi possível encontrar um parceiro antecipador!",
+                        subtitle: "Sinto muito mas não há parceiros iCheques na sua região.",
+                        paragraph: "Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657."
+                    });
+                    return;
                 }
             }
 
