@@ -310,6 +310,9 @@ module.exports = function(controller) {
                 separatorData);
 
         controller.call("tooltip", separatorData.menu, "Editar Cheque").append($("<i />").addClass("fa fa-edit")).click(controller.click("icheques::item::edit", check));
+        if (check.image) {
+            controller.call("tooltip", separatorData.menu, "Registro Fotográfico do Cheque").append($("<i />").addClass("fa fa-photo")).click(controller.click("icheques::item::photo", check));
+        }
         controller.call("tooltip", separatorData.menu, "Histórico do Cheque").append($("<i />").addClass("fa fa-history")).click(controller.click("icheques::history", check));
 
         if (controller.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {

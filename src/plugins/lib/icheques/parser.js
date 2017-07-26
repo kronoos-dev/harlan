@@ -34,7 +34,8 @@ module.exports = function (controller) {
             debtCollector: getElement("debtCollector"),
             alinea: getElement("alinea"),
             lastDebtCollectorMessage: getElement("lastDebtCollectorMessage"),
-            lastUpdate: databaseInteger(getElement("lastUpdate"))
+            lastUpdate: databaseInteger(getElement("lastUpdate")),
+            image: getElement("image") === '1' ? 1 : 0
         };
         return ret;
     });

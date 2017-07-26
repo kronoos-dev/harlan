@@ -19,6 +19,8 @@ module.exports = function(controller) {
         else localForage.setItem('sessionId', value, cb);
     };
 
+    controller.registerCall("authentication::unsetSessionId", (cb) => setSessionId(null, cb));
+
     /**
      * Set the default page! \m/
      */

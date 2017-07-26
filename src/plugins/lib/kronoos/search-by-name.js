@@ -1,6 +1,9 @@
 import _ from 'underscore';
 import pad from 'pad';
-import {CPF, CNPJ} from 'cpf_cnpj';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 
 module.exports = function(controller) {
 
@@ -79,7 +82,8 @@ module.exports = function(controller) {
             let formatDocument = pad(document.length > 11 ? 14 : 11, document, '0');
             formatDocument = (CPF.isValid(formatDocument) ? CPF : CNPJ).format(formatDocument);
             let element = list.item("fa-vcard-o", [formatDocument,
-                peoples[document].nome, `${peoples[document].cidade || "Indefinido"} / ${peoples[document].estado || "Indefinido"}`])
+                    peoples[document].nome, `${peoples[document].cidade || "Indefinido"} / ${peoples[document].estado || "Indefinido"}`
+                ])
                 .click(controller.click("kronoos::searchByName::capture", formatDocument, peoples[document].nome, modal));
             let ediv = element.find("div");
             ediv.eq(0).css("width", "150px");
@@ -92,12 +96,12 @@ module.exports = function(controller) {
         var form = controller.call("form", (inputQuery) => {
             controller.server.call("SELECT FROM 'CBUSCA'.'FILTRO'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
-                method: 'POST',
-                dataType: 'json',
-                contentType:"application/json",
-                data: JSON.stringify(_.mapObject(_.pick(inputQuery, x => !!x), y => y.toUpperCase())),
-                success: (data) => controller.call("kronoos::searchByName::response", data)
-            })));
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: "application/json",
+                    data: JSON.stringify(_.mapObject(_.pick(inputQuery, x => !!x), y => y.toUpperCase())),
+                    success: (data) => controller.call("kronoos::searchByName::response", data)
+                })));
 
         });
         form.configure({
@@ -111,64 +115,61 @@ module.exports = function(controller) {
                         optional: true,
                         name: "equal-nome",
                         type: "text",
-                        placeholder: "Nome Completo (Opcional)",
+                        placeholder: "Nome Completo",
                         labelText: "Nome Completo"
                     },
                     [{
                         optional: true,
                         name: "equal-primeiro-nome",
                         type: "text",
-                        placeholder: "Primeiro Nome (Opcional)",
+                        placeholder: "Primeiro Nome",
                         labelText: "Primeiro Nome"
                     }, {
                         optional: true,
                         name: "equal-sobrenome2",
                         type: "text",
-                        placeholder: "Nome do Meio (Opcional)",
+                        placeholder: "Nome do Meio",
                         labelText: "Nome do Meio"
                     }, {
                         name: "equal-sobrenome",
                         type: "text",
                         optional: true,
-                        placeholder: "Sobrenome (Opcional)",
+                        placeholder: "Sobrenome",
                         labelText: "Sobrenome"
                     }],
-                ]
-            }, {
-                fields: [
                     [{
                         name: "equal-endereco",
                         optional: true,
                         type: "text",
-                        placeholder: "Endereço  (Opcional)",
+                        placeholder: "Endereço ",
                         labelText: "Endereço"
                     }, {
                         name: "equal-cep",
                         type: "text",
-                        placeholder: "CEP (Opcional)",
+                        placeholder: "CEP",
                         optional: true,
                         labelText: "CEP",
                         mask: "00000-000"
-                    }],
-                    [{
+                    },
+                    {
                         name: "equal-numero",
                         optional: true,
                         type: "text",
                         numeral: true,
-                        placeholder: "Número (Opcional)",
+                        placeholder: "Número",
                         labelText: "Número"
-                    }, {
+                    }], [{
                         name: "equal-complemento",
                         type: "text",
                         optional: true,
-                        placeholder: "Complemento (Opcional)",
+                        placeholder: "Complemento",
                         labelText: "Complemento"
-                    }],
-                    [{
+                    },
+                    {
                         name: "equal-cidade",
                         optional: true,
                         type: "text",
-                        placeholder: "Cidade (Opcional)",
+                        placeholder: "Cidade",
                         labelText: "Cidade"
                     }, {
                         name: "equal-estado",
@@ -210,13 +211,13 @@ module.exports = function(controller) {
                         name: "equal-email",
                         optional: true,
                         type: "text",
-                        placeholder: "E-mail do Responsável (Opcional)",
+                        placeholder: "E-mail do Responsável",
                         labelText: "E-mail do Responsável"
                     }, {
                         name: "equal-fone1",
                         optional: true,
                         type: "text",
-                        placeholder: "Telefone do Responsável (Opcional)",
+                        placeholder: "Telefone do Responsável",
                         labelText: "Telefone do Responsável",
                         mask: "(00) 0000-00009"
                     }]

@@ -60,15 +60,6 @@ module.exports = function(controller) {
         $("section.group-type,footer.load-more").remove();
     }).css("cursor", "pointer");
 
-    /* única forma segura de sair do sistema e voltar a home */
-    controller.registerTrigger("authentication::authenticated", "icheques::design::authentication::authenticated", function(args, cb) {
-        cb();
-        $("#action-logout").off().click(function(e) {
-            e.preventDefault();
-            window.location = "https://www.icheques.com.br/";
-        });
-    });
-
     $("body > .icheques-site .action-login").click(function() {
         controller.interface.helpers.activeWindow(".login");
     });

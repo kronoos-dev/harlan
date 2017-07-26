@@ -24,6 +24,41 @@ module.exports = function(controller) {
         });
     });
 
+    controller.registerCall("icheques::item::photo", (check) => {
+        controller.server.call("SELECT FROM 'ICHEQUES'.'PHOTO'", {
+            dataType: 'json',
+            data: {
+                cmc: check.cmc
+            },
+            error: () => controller.alert({
+                title: 'Impossível localizar foto do cheque.',
+                subtitle: 'Não há o registro fotográfico deste documento.',
+                paragraph: 'Não consta no banco de dados registro fotográfico para este cheque.'
+            }),
+            success: image => {
+                controller.confirm({
+                        title: "Essa foto do seu cheque ficou realmente legal?",
+                        subtitle: "Deseja manter essa imagem do cheque?",
+                        paragraph: "Fotos de cheques de baixa qualidade, rasurados ou muito amassados serão descartadas."
+                    },
+                    () => {},
+                    () => controller.server.call("DELETE FROM 'ICHEQUES'.'PHOTO'",
+                        controller.call("error::ajax", {
+                            dataType: 'json',
+                            data: {
+                                cmc: check.cmc
+                            },
+                            success: () => toastr.success("Registro fotográfico removido com sucesso.", "Não há mais registro fotográfico do cheque no banco de dados.")
+                        })), (modal, form) => {
+                        $('<img />', {
+                            src: `data:image/jpeg;base64,${image}`,
+                            style: "max-width: 100%; display: block; margin: 14px auto;"
+                        }).insertBefore(form.element());
+                    });
+            }
+        });
+    });
+
     controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true, edit = null, confirm = true) {
 
         var xhr, cmc7Data = new CMC7Parser(check.cmc),
@@ -64,6 +99,24 @@ module.exports = function(controller) {
             screens: [{
                 nextButton: "Alterar Dados",
                 magicLabel: true,
+                actions: [
+                    ["Fotografar", (modal) => {
+                        modal.close();
+                        controller.call("icheques::chequePicture", image => {
+                            if (!image) return;
+                            controller.serverCommunication.call("UPDATE 'ICHEQUES'.'PHOTO'",
+                                controller.call("error::ajax", {
+                                    dataType: 'json',
+                                    data: {
+                                        image: image,
+                                        cmc: check.cmc
+                                    },
+                                    method: 'POST',
+                                    success: () => toastr.success("Foto alterada com sucesso", "O registro foi alterado no banco de dados")
+                                }));
+                        });
+                    }]
+                ],
                 fields: [
                     [{
                         name: "document",

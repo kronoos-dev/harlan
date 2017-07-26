@@ -107,7 +107,7 @@ module.exports = (controller) => {
                     }]
                 ],
                 "observations": [
-                    `${apiKeys.length} destinarários`
+                    apiKeys.length == 1 ? '1 destinatário' : `${apiKeys.length} destinatários`
                 ],
                 "fields": [{
                     "name": 'subject',
