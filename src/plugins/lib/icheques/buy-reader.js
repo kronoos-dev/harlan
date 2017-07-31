@@ -106,6 +106,7 @@ module.exports = function (controller) {
         });
     });
 
+    if (!controller.confs.isCordova)
     controller.registerTrigger("call::authentication::loggedin", "icheques::buy-reader", function (args, callback) {
         callback();
 

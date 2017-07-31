@@ -1,0 +1,35 @@
+{
+    "name": "com.bipbop.icheques",
+    "version": "1.0.0",
+    "displayName": "ICheques",
+    "cordova": {
+        "platforms": [
+            "android"
+        ],
+        "plugins": {
+            "cordova-plugin-camera": {},
+            "cordova-plugin-device": {},
+            "cordova-plugin-dialogs": {},
+            "cordova-plugin-geolocation": {},
+            "cordova-plugin-nativestorage": {},
+            "cordova-plugin-network-information": {},
+            "cordova-plugin-statusbar": {},
+            "cordova-plugin-whitelist": {},
+            "phonegap-plugin-push": {
+                "SENDER_ID": "85075801930"
+            }
+        }
+    },
+    "dependencies": {
+        "cordova-android": "~6.1.2",
+        "cordova-plugin-camera": "~2.4.0",
+        "cordova-plugin-device": "~1.1.5",
+        "cordova-plugin-dialogs": "~1.3.2",
+        "cordova-plugin-geolocation": "~2.4.2",
+        "cordova-plugin-nativestorage": "~2.2.1",
+        "cordova-plugin-network-information": "~1.3.2",
+        "cordova-plugin-statusbar": "~2.2.2",
+        "cordova-plugin-whitelist": "1",
+        "phonegap-plugin-push": "~1.10.0"
+    }
+}

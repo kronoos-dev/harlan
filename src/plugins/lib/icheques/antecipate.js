@@ -144,7 +144,7 @@ module.exports = function(controller) {
         }
 
         if (!checks.length) {
-            toastr.error("Não há cheques bons para antecipação, verifique e tente novamente.", "Não há cheques em seja possível a antecipação.");
+            toastr.error("Não há cheques bons para antecipação, verifique e tente novamente.", "Não há cheques em que seja possível a antecipação.");
             return;
         }
 

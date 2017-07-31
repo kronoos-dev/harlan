@@ -84,5 +84,6 @@ harlan.addPlugin((controller) => {
 
      *  Link: http://www.vagalume.com.br/gabriel-pensador/tempestade.html#ixzz3stkENplW
      */
+     controller.confs.smartsupp = "";
 
 });

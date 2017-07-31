@@ -85,7 +85,6 @@ import browserUpdate from 'browser-update';
     require('./internals/modules/instant-search')(harlan);
     require('./internals/modules/tooltip')(harlan);
     require('./internals/modules/icheques')(harlan);
-    require('./internals/modules/jane')(harlan);
     require('./internals/modules/dive')(harlan);
     require('./internals/modules/socialprofile')(harlan);
     require('./internals/modules/kronoos')(harlan);
