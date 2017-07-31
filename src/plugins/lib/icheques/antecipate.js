@@ -303,6 +303,7 @@ module.exports = function(controller) {
             fieldBlockedBead = form.addCheckbox("blocked-bead", "Exibir cheques com talão bloqueado"),
             fieldProcessingOnes = form.addCheckbox("processing-ones", "Exibir cheques em processamento");
 
+        fieldOtherOccurrences[1].hide();
         fieldOtherOccurrences[1].change(() => {
             // TODO Pegar os cheques com outras ocorrências e atualizar a lista
             if (fieldOtherOccurrences[1].is(":checked")) {
