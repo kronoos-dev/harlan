@@ -312,7 +312,7 @@ export class KronoosParse {
 
     searchAll() {
         this.jusSearch();
-        this.searchTjsp();
+        this.searchTjspDocument();
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
@@ -1343,6 +1343,19 @@ export class KronoosParse {
         return this.call("error::ajax", ...args);
     }
 
+    searchTjspDocument() {
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                },
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch, null, true, false);
+                    this.searchTjsp();
+                }
+            }), lowPriority);
+    }
+
     searchTjsp() {
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
@@ -1454,18 +1467,22 @@ export class KronoosParse {
         return removeDiacritics(name).toUpperCase().replace(/\s+/, ' ');
     }
 
-    juristekCNJ(ret, cnj = null, findProc = true) {
+    juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
         let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
         if (cnj) {
             cnjInstance = this.procElements[cnj];
-            let procs = $("processo", ret).filter((i, e) => {
-                return $("partes parte", e).filter((x, a) => {
-                    let n1 = this.normalizeName($(a).text());
-                    return n1 == normalizedName;
-                }).length > 0;
-            });
+            let procs = $("processo", ret);
+
+            if (nameSearch) {
+                procs = procs.filter((i, e) => {
+                    return $("partes parte", e).filter((x, a) => {
+                        let n1 = this.normalizeName($(a).text());
+                        return n1 == normalizedName;
+                    }).length > 0;
+                });
+            }
 
             if (!procs.length) {
                 cnjInstance.remove();
@@ -1478,12 +1495,16 @@ export class KronoosParse {
             proc = procs.first();
         } else {
             if (findProc) {
-                let procs = $("processo", ret).filter((i, e) => {
-                    return $("partes parte", e).filter((x, a) => {
-                        let n1 = this.normalizeName($(a).text());
-                        return n1 == normalizedName;
-                    }).length > 0;
-                }).map((index, element) => this.juristekCNJ(element, null, false));
+                let procs = $("processo", ret);
+                if (nameSearch) {
+                    procs.filter((i, e) => {
+                        return $("partes parte", e).filter((x, a) => {
+                            let n1 = this.normalizeName($(a).text());
+                            return n1 == normalizedName;
+                        }).length > 0;
+                    });
+                }
+                procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch));
                 return;
             }
             proc = ret;
@@ -1491,6 +1512,7 @@ export class KronoosParse {
             if (!numproc) numproc = "";
             if (numproc && this.procElements[numproc]) {
                 cnjInstance = this.procElements[numproc];
+                if (!cnjInstance.element().data("nameSearch")) return;
             } else {
                 cnjInstance = this.kronoosElement(numproc ? `Processo Nº ${numproc}` : "Processo Jurídico",
                     "Obtido em recorte de diário oficial.",
@@ -1505,6 +1527,7 @@ export class KronoosParse {
 
         cnjInstance.clear();
         cnjInstance.element().data("parsedProc", proc);
+        cnjInstance.element().data("nameSearch", nameSearch);
 
         let urlProcesso,
             getNode = (x) => $(x, proc).first().text(),
@@ -1535,7 +1558,7 @@ export class KronoosParse {
         cnjInstance.subtitle("Existência de apontamentos cadastrais.");
         cnjInstance.sidenote("Participação em processo jurídico.");
 
-        if (this.homonymous <= 1) {
+        if (!nameSearch || this.homonymous <= 1) {
             cnjInstance.behaviourAccurate(true);
         } else {
             cnjInstance.behaviourHomonym(true);
