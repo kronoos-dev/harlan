@@ -36,7 +36,8 @@ const NAMESPACE_DESCRIPTION = {
     'bovespa': ['Apontamento em Empresa de Capital Aberto - Bovespa', 'Cargos em empresas e/ou participações em assembleias.'],
     'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
     'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'],
-    'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'] /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
+    'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'], /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
+    'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
 
 const removeDiacritics = require('diacritics').remove;
@@ -152,6 +153,42 @@ export class KronoosParse {
             this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject);
         }
         return this._notFoundList(...args);
+    }
+
+    searchCertidaoTRFPDF() {
+        _.each([
+            ["SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região'],
+            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul'],
+            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo '],
+        ], data => {
+            let [query, name, database] = data;
+            this.serverCall(query, this.loader("fa-eye", `Capturando certidões no ${database} - ${this.cpf_cnpj}.`, {
+                data: {
+                    documento : this.cpf_cnpj,
+                    nome: this.name
+                },
+                success: data => {
+                    if (!/,\s*CONSTA,/i.test($("body > text", data).text())) {
+                        this.notFound(`Não conta apontamento na certidão do ${database}`);
+                        return;
+                    }
+
+                    let kelement = this.kronoosElement(`Certidão do ${database}`,
+                        `Certidão do ${database}`,
+                        `Visualização da Certidão no ${database}`);
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao")
+                        .attr({
+                            src: `data:image/png;base64,${$("body > png", data).text()}`
+                        })));
+                    kelement.behaviourAccurate(true);
+                    this.append(kelement.element());
+                }
+            }));
+
+        });
     }
 
     searchTJSPCertidaoPDF(tipo, pedido, data) {
@@ -313,6 +350,7 @@ export class KronoosParse {
     searchAll() {
         this.jusSearch();
         this.searchTjspDocument();
+        this.searchCertidaoTRFPDF();
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
