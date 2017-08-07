@@ -233,7 +233,13 @@ export class KronoosParse {
                     let table = kelement.table("Processo", "Data", "Situação");
                     for (let row of data.aaData) {
                         let [investigado, proc, date, status] = row;
-                        table(JSON.parse(proc).proNumero, date, status);
+                        let procData = JSON.parse(proc);
+
+                        table($("<a/>").attr({
+                            "href" : `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
+                            "target" : "_blank",
+                            "title" : `Processo ${procData.proNumero}`
+                        }).text(procData.proNumero), date, status);
                     }
 
                     kelement[this.homonymous > 1 ? 'behaviourHomonym' :
