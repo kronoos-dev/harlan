@@ -3,7 +3,7 @@
         <div class="content user">
             <span id="logged-user">bipbop</span>
         </div>
-        <div class="content credits" class="action-credits">
+        <div class="content credits action-credits">
             <i class="fa fa-dollar"></i> <span>0,00</span>
         </div>
         <div class="content" id="harlan-menu">
