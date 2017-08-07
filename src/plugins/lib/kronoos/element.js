@@ -11,8 +11,10 @@ var KronoosElement = function(title, subtitle, sidenote) {
         negativeCertificates;
 
     sideContent.append(titleElement)
-        .append(subtitleElement)
-        .append(sidenoteElement);
+        .append(subtitleElement);
+        
+    if (sidenote)
+        sideContent.append(sidenoteElement);
 
     container.append(content.append(element.append(sideContent)));
     container.data("instance", this);

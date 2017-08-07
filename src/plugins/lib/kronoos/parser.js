@@ -16,6 +16,33 @@ import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
 import CSV from 'csv-string';
 
+
+const MPT_STATES = {
+    14 : 'Acre e Rondônia',
+    19 : 'Alagoas',
+    8 : 'Amapá e Pará',
+    11 : 'Amazonas e Roraima',
+    5 : 'Bahia',
+    7 : 'Ceará',
+    10 : 'Distrito Federal e Tocantins',
+    17 : 'Espírito Santo',
+    18 : 'Goiás',
+    16 : 'Maranhão',
+    23 : 'Mato Grosso',
+    24 : 'Mato Grosso do Sul',
+    3 : 'Minas Gerais',
+    13 : 'Paraíba',
+    9 : 'Paraná',
+    6 : 'Pernambuco',
+    22 : 'Piauí',
+    1 : 'Rio de Janeiro',
+    21 : 'Rio Grande do Norte (RN)',
+    4 : 'Rio Grande do Sul (RS)',
+    12 : 'Santa Catarina (SC)',
+    2 : 'São Paulo',
+    20 : 'Sergipe (SE)'
+};
+
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
@@ -191,6 +218,36 @@ export class KronoosParse {
         });
     }
 
+    searchMPT() {
+        let found = false;
+        async.each(_.range(1, 24), (n, callback) => {
+            this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-eye', `Capturando dados do ministério público do trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
+                dataType: 'json',
+                data : {data: this.name, n: n},
+                success: data => {
+                    if (!data.aaData.length) return;
+                    found = true;
+                    let kelement = this.kronoosElement(`Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
+                        `Investigado pelo Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`, null);
+
+                    let table = kelement.table("Processo", "Data", "Situação");
+                    for (let row of data.aaData) {
+                        let [investigado, proc, date, status] = row;
+                        table(JSON.parse(proc).proNumero, date, status);
+                    }
+
+                    kelement[this.homonymous > 1 ? 'behaviourHomonym' :
+                        'behaviourAccurate'](true);
+                    this.append(kelement.element());
+                },
+                complete: () => callback()
+            }), err => {
+                if (!found)
+                    this.notFound("Não constam registros do nome no Ministério Público do Trabalho.");
+            });
+        });
+    }
+
     searchTJSPCertidaoPDF(tipo, pedido, data) {
         this.serverCall("SELECT FROM 'TJSP'.'DOWNLOAD'",
             this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${tipo} ${this.cpf_cnpj}.`, {
@@ -351,6 +408,7 @@ export class KronoosParse {
         this.jusSearch();
         this.searchTjspDocument();
         this.searchCertidaoTRFPDF();
+        this.searchMPT();
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
