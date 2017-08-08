@@ -413,6 +413,7 @@ export class KronoosParse {
     searchAll() {
         this.jusSearch();
         this.searchTjspDocument();
+        this.searchCARFDocumento();
         this.searchCertidaoTRFPDF();
         this.searchMPT();
         this.searchMandados();
@@ -1444,6 +1445,20 @@ export class KronoosParse {
     errorAjax(...args) {
         return this.call("error::ajax", ...args);
     }
+
+    searchCARFDocumento() {
+        debugger;
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no CARF para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    'data': `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                },
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch, null, true, false);
+                }
+            }), lowPriority);
+    }
+
 
     searchTjspDocument() {
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
