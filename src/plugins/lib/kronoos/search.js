@@ -36,7 +36,7 @@ module.exports = function(controller) {
         photosQueue,
         brief,
         searchTimeout,
-        depth = controller.query.d ? parseInt(controller.query.d) : 2;
+        depth = controller.query.d ? parseInt(controller.query.d) : 0;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");

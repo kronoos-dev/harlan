@@ -1447,18 +1447,30 @@ export class KronoosParse {
     }
 
     searchCARFDocumento() {
-        debugger;
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no CARF para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
                     'data': `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 success: jusSearch => {
+                    if (!$("processo", jusSearch).length) this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
                     this.juristekCNJ(jusSearch, null, true, false);
                 }
             }), lowPriority);
     }
 
+    searchTjspDocument() {
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                },
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch, null, true, false);
+                    this.searchTjsp();
+                }
+            }), lowPriority);
+    }
 
     searchTjspDocument() {
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
