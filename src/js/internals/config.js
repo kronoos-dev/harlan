@@ -2,6 +2,7 @@ import MobileDetect from "mobile-detect";
 const md = new MobileDetect(window.navigator.userAgent);
 
 module.exports = {
+    facebookCode: '124712768157561',
     isCordova: !!window.isCordova,
     isPhone: md.phone(),
     smartsupp: 'ec822e14065c4cd2e91e7b4b63632849edd76247',
