@@ -53,6 +53,13 @@ module.exports = function(controller) {
         KRONOOS_DEPTH.removeClass(`fa-thermometer-${depth}`);
         if (++depth > 4) depth = 0;
         KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
+        if (depth > 1) {
+            toastr.success(`Profundidade automática de consulta ajustada para ${depth} nós.`);
+        } else if (depth) {
+            toastr.success(`Profundidade automática de consulta ajustada para um nó.`);
+        } else {
+            toastr.success(`Profundidade automática desabilidade.`);
+        }
     });
 
     KRONOOS_LOGO.css("cursor", "pointer");

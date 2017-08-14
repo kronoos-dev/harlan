@@ -266,6 +266,34 @@ export class KronoosParse {
         });
     }
 
+    searchTribunais() {
+        async.each([
+            [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`],
+            [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`],
+        ], (n, callback) => {
+            let [query, uniq, description, notFound] = n;
+            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-eye', description, {
+                data: {data: query},
+                complete: () => callback(),
+                success: data => {
+                    let procs = $("processo", data);
+                    if (!procs.length) {
+                        this.notFound(notFound);
+                        return;
+                    }
+
+                    procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-eye', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
+                        data: {
+                            data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
+                                    .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
+                        },
+                        success: (data) => this.juristekCNJ(data, null, false, !uniq)
+                    })));
+                }
+            }));
+        }, err => {});
+    }
+
     searchComprot() {
         this.serverCall("SELECT FROM 'COMPROT'.'CONSULTA'", this.loader("fa-eye", `Pesquisando processos administrativos perante o Ministério da Fazenda - ${this.cpf_cnpj}.`, {
             dataType: 'json',
@@ -290,7 +318,7 @@ export class KronoosParse {
 
 
                 for (let processo of data.processos) {
-                    table(moment(pad(6, processo.dataProtocolo.toString(), '0'), "DDMMYYYY")
+                    table(moment(pad(8, processo.dataProtocolo.toString(), '0'), "DDMMYYYY")
                         .format("DD/MM/YYYY"), processo.numeroProcessoEditado);
                 }
                 if (data.processos.length < data.totalDeProcessosEncontrados) {
@@ -466,6 +494,7 @@ export class KronoosParse {
         this.searchCARFDocumento();
         this.searchCertidaoTRFPDF();
         this.searchMPT();
+        this.searchTribunais();
         this.searchMandados();
         this.searchCNDT();
         this.searchMTE();
@@ -1509,8 +1538,11 @@ export class KronoosParse {
                     'data': `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 success: jusSearch => {
-                    if (!$("processo", jusSearch).length) this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
-                    this.juristekCNJ(jusSearch, null, true, false);
+                    if (!$("processo", jusSearch).length) {
+                        this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
+                    } else {
+                        this.juristekCNJ(jusSearch, null, true, false);
+                    }
                 }
             }), lowPriority);
     }
@@ -1640,6 +1672,7 @@ export class KronoosParse {
     }
 
     juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
+        debugger;
         let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
@@ -1690,7 +1723,7 @@ export class KronoosParse {
                     "Obtido em recorte de diário oficial.",
                     "Foram encontradas informações, confirmação pendente.");
                 this.procElements[numproc] = cnjInstance;
-                this.append(cnjInstance.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+                this.append(cnjInstance.element().attr("id", `cnj-${numproc.replace(NON_NUMBER, '')}`));
             }
         }
 

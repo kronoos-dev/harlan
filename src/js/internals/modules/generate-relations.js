@@ -91,11 +91,11 @@ var readAdapters = {
         trackNodes: (relation, legalDocument, document) => {
             return (callback) => {
                 let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                    return relation.createNode($("cnpj", node).text(), $("nome", node).text(), "company", {unlabel: true});
+                    return relation.createNode($("cnpj", node).text(), $("nome", node).first().text(), "company", {unlabel: true});
                 }).toArray();
 
                 nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
-                    return relation.createNode($("doc", node).text(), $("nome", node).text(), "user", {unlabel: true});
+                    return relation.createNode($("doc", node).text(), $("nome", node).first().text(), "user", {unlabel: true});
                 }).toArray());
 
 
