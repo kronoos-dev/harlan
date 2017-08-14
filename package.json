@@ -133,6 +133,7 @@
     "recordrtc": "^5.4.1",
     "run-sequence": "^1.2.2",
     "save-as": "^0.1.8",
+    "sigma": "^1.2.0",
     "slug": "^0.9.1",
     "sprintf": "^0.1.5",
     "squel": "^5.8.0",

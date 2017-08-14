@@ -18,29 +18,30 @@ import CSV from 'csv-string';
 
 
 const MPT_STATES = {
-    14 : 'Acre e Rondônia',
-    19 : 'Alagoas',
-    8 : 'Amapá e Pará',
-    11 : 'Amazonas e Roraima',
-    5 : 'Bahia',
-    7 : 'Ceará',
-    10 : 'Distrito Federal e Tocantins',
-    17 : 'Espírito Santo',
-    18 : 'Goiás',
-    16 : 'Maranhão',
-    23 : 'Mato Grosso',
-    24 : 'Mato Grosso do Sul',
-    3 : 'Minas Gerais',
-    13 : 'Paraíba',
-    9 : 'Paraná',
-    6 : 'Pernambuco',
-    22 : 'Piauí',
-    1 : 'Rio de Janeiro',
-    21 : 'Rio Grande do Norte (RN)',
-    4 : 'Rio Grande do Sul (RS)',
-    12 : 'Santa Catarina (SC)',
-    2 : 'São Paulo',
-    20 : 'Sergipe (SE)'
+    1: 'Rio de Janeiro',
+    2: 'São Paulo',
+    3: 'Minas Gerais',
+    4: 'Rio Grande do Sul (RS)',
+    5: 'Bahia',
+    6: 'Pernambuco',
+    7: 'Ceará',
+    8: 'Amapá e Pará',
+    9: 'Paraná',
+    10: 'Distrito Federal e Tocantins',
+    11: 'Amazonas e Roraima',
+    12: 'Santa Catarina (SC)',
+    13: 'Paraíba',
+    14: 'Acre e Rondônia',
+    15: 'Campinas',
+    16: 'Maranhão',
+    17: 'Espírito Santo',
+    18: 'Goiás',
+    19: 'Alagoas',
+    20: 'Sergipe (SE)',
+    21: 'Rio Grande do Norte (RN)',
+    22: 'Piauí',
+    23: 'Mato Grosso',
+    24: 'Mato Grosso do Sul',
 };
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
@@ -63,7 +64,8 @@ const NAMESPACE_DESCRIPTION = {
     'bovespa': ['Apontamento em Empresa de Capital Aberto - Bovespa', 'Cargos em empresas e/ou participações em assembleias.'],
     'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
     'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'],
-    'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'], /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
+    'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'],
+    /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
     'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
 
@@ -184,18 +186,25 @@ export class KronoosParse {
 
     searchCertidaoTRFPDF() {
         _.each([
-            ["SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região'],
-            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul'],
-            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo '],
+            ["SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
+            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
+            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
+            ["SELECT FROM 'CERTIDOES'.'TRT15'", 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', (str) => {
+                return !/não\s+existe\s+ação/i.test(str);
+            }],
+            ["SELECT FROM 'CERTIDOES'.'TRT02'", 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', (str) => !/NÃO CONSTA/i.test(str)]
         ], data => {
-            let [query, name, database] = data;
+            let [query, name, database, test] = data;
+            if (!test) {
+                test = (str) => /,\s*CONSTA,/i.test(str);
+            }
             this.serverCall(query, this.loader("fa-eye", `Capturando certidões no ${database} - ${this.cpf_cnpj}.`, {
                 data: {
-                    documento : this.cpf_cnpj,
+                    documento: this.cpf_cnpj,
                     nome: this.name
                 },
                 success: data => {
-                    if (!/,\s*CONSTA,/i.test($("body > text", data).text())) {
+                    if (!test($("body > text", data).text())) {
                         this.notFound(`Não conta apontamento na certidão do ${database}`);
                         return;
                     }
@@ -223,7 +232,10 @@ export class KronoosParse {
         async.each(_.range(1, 24), (n, callback) => {
             this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-eye', `Capturando dados do ministério público do trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
                 dataType: 'json',
-                data : {data: this.name, n: n},
+                data: {
+                    data: this.name,
+                    n: n
+                },
                 success: data => {
                     if (!data.aaData.length) return;
                     found = true;
@@ -236,9 +248,9 @@ export class KronoosParse {
                         let procData = JSON.parse(proc);
 
                         table($("<a/>").attr({
-                            "href" : `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
-                            "target" : "_blank",
-                            "title" : `Processo ${procData.proNumero}`
+                            "href": `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
+                            "target": "_blank",
+                            "title": `Processo ${procData.proNumero}`
                         }).text(procData.proNumero), date, status);
                     }
 
@@ -252,6 +264,43 @@ export class KronoosParse {
                     this.notFound("Não constam registros do nome no Ministério Público do Trabalho.");
             });
         });
+    }
+
+    searchComprot() {
+        this.serverCall("SELECT FROM 'COMPROT'.'CONSULTA'", this.loader("fa-eye", `Pesquisando processos administrativos perante o Ministério da Fazenda - ${this.cpf_cnpj}.`, {
+            dataType: 'json',
+            data: {
+                documento: this.cpf_cnpj
+            },
+            success: data => {
+                if (!data.totalDeProcessosEncontrados) {
+                    this.notFound();
+                    return;
+                }
+                let kelement = this.kronoosElement("Ministério da Fazenda - COMPROT",
+                    "COMPROT - Processo Administrativo perante o Ministério da Fazenda",
+                    data.totalDeProcessosEncontrados > 1 ?
+                    `Existem ${data.totalDeProcessosEncontrados} processos administrativos perante o COMPROT/Ministério da Fazenda.` :
+                    "Existe apontamento de processo administrativo perante o COMPROT/Ministério da Fazenda.");
+
+                let table = kelement.captionTable("Número do Processo", "Data", "Número do Processo");
+                kelement.table("Fonte de Dados")($("<a />").text("Consultar Processo").attr({
+                    'href': "https://comprot.fazenda.gov.br/comprotegov/site/index.html#ajax/processo-consulta.html"
+                }));
+
+
+                for (let processo of data.processos) {
+                    table(moment(pad(6, processo.dataProtocolo.toString(), '0'), "DDMMYYYY")
+                        .format("DD/MM/YYYY"), processo.numeroProcessoEditado);
+                }
+                if (data.processos.length < data.totalDeProcessosEncontrados) {
+                    kelement.paragraph("Para mais números de processo acesse a ferramenta de consulta do Ministério da Fazenda no endereço abaixo.");
+                }
+
+                kelement.behaviourAccurate(true);
+                this.append(kelement.element());
+            }
+        }));
     }
 
     searchTJSPCertidaoPDF(tipo, pedido, data) {
@@ -412,6 +461,7 @@ export class KronoosParse {
 
     searchAll() {
         this.jusSearch();
+        this.searchComprot();
         this.searchTjspDocument();
         this.searchCARFDocumento();
         this.searchCertidaoTRFPDF();
@@ -423,7 +473,7 @@ export class KronoosParse {
         this.searchDAU();
         this.searchBovespa();
         if (this.cnpj) this.searchCertidao();
-        if (this.cnpj) this.searchTJSPCertidao();
+        // if (this.cnpj) this.searchTJSPCertidao();
         this.searchReporterBrasil();
         this.searchCepim();
         this.searchExpulsoes();
@@ -466,7 +516,7 @@ export class KronoosParse {
             row[this.cpf ? "Data de Nascimento" : "Data de Abertura"] = dtNasc;
         }
 
-        if (this.cpf) this.searchTJSPCertidaoFisica();
+        // if (this.cpf) this.searchTJSPCertidaoFisica();
 
         if (!_.keys(row).length) return;
         this.firstElement().table(..._.keys(row))(..._.values(row));
@@ -598,14 +648,20 @@ export class KronoosParse {
                         "Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.",
                         "Emissão de Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.");
 
-                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
-                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
-                        download: `certidao-ibama-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
-                    }).append($("<img />").addClass("certidao")
-                        .attr({
-                            src: `data:image/png;base64,${$("body > png", data).text()}`
-                        })));
-                    kelement.behaviourAccurate(!/\NADA CONSTA/i.test($("body > text", data).text()));
+                    let msg = $("mensagem", data);
+                    if (msg) {
+                        kelement.table("Mensagem")(msg.text());
+                        kelement.behaviourAccurate(true);
+                    } else {
+                        kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                            href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                            download: `certidao-ibama-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
+                        }).append($("<img />").addClass("certidao")
+                            .attr({
+                                src: `data:image/png;base64,${$("body > png", data).text()}`
+                            })));
+                        kelement.behaviourAccurate(!/\NADA CONSTA/i.test($("body > text", data).text()));
+                    }
                     this.append(kelement.element());
                 }
             }, true));
@@ -1455,19 +1511,6 @@ export class KronoosParse {
                 success: jusSearch => {
                     if (!$("processo", jusSearch).length) this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
                     this.juristekCNJ(jusSearch, null, true, false);
-                }
-            }), lowPriority);
-    }
-
-    searchTjspDocument() {
-        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
-            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
-                data: {
-                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
-                },
-                success: jusSearch => {
-                    this.juristekCNJ(jusSearch, null, true, false);
-                    this.searchTjsp();
                 }
             }), lowPriority);
     }
