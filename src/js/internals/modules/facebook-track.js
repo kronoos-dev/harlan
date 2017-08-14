@@ -7,8 +7,9 @@ module.exports = function(controller) {
             if (f.fbq)
                 return;
             n = f.fbq = function() {
-                n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-            }
+                if (n.callMethod) n.callMethod.apply(n, arguments);
+                else n.queue.push(arguments);
+            };
             if (!f._fbq) f._fbq = n;
             n.push = n;
             n.loaded = !0;
