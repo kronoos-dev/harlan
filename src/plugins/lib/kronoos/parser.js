@@ -16,6 +16,11 @@ import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
 import CSV from 'csv-string';
 
+const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '209'", "'COMARCA' = '205'", "'COMARCA' = '207'", "'COMARCA' = '203'", "'COMARCA' = '210'", "'COMARCA' = '202'", "'COMARCA' = '208'", "'COMARCA' = '211'", "'COMARCA' = '206'", "'COMARCA' = '401'", "'COMARCA' = '424'", "'COMARCA' = '341'", "'COMARCA' = '403'", "'COMARCA' = '402'", "'COMARCA' = '428'", "'COMARCA' = '302'", "'COMARCA' = '432'",
+    "'COMARCA' = '348'", "'COMARCA' = '404'", "'COMARCA' = '304'", "'COMARCA' = '305'", "'COMARCA' = '220'", "'COMARCA' = '306'", "'COMARCA' = '355'", "'COMARCA' = '307'", "'COMARCA' = '308'", "'COMARCA' = '309'", "'COMARCA' = '310'", "'COMARCA' = '311'", "'COMARCA' = '221'", "'COMARCA' = '312'", "'COMARCA' = '471'", "'COMARCA' = '343'", "'COMARCA' = '407'", "'COMARCA' = '408'", "'COMARCA' = '349'", "'COMARCA' = '313'",
+    "'COMARCA' = '409'", "'COMARCA' = '354'", "'COMARCA' = '350'", "'COMARCA' = '314'", "'COMARCA' = '411'", "'COMARCA' = '410'", "'COMARCA' = '470'", "'COMARCA' = '315'", "'COMARCA' = '430'", "'COMARCA' = '317'", "'COMARCA' = '439'", "'COMARCA' = '318'", "'COMARCA' = '319'", "'COMARCA' = '320'", "'COMARCA' = '412'", "'COMARCA' = '222'", "'COMARCA' = '473'", "'COMARCA' = '414'", "'COMARCA' = '223'", "'COMARCA' = '321'",
+    "'COMARCA' = '433'", "'COMARCA' = '323'", "'COMARCA' = '346'", "'COMARCA' = '224'", "'COMARCA' = '472'", "'COMARCA' = '353'", "'COMARCA' = '324'", "'COMARCA' = '325'", "'COMARCA' = '345'", "'COMARCA' = '434'", "'COMARCA' = '417'", "'COMARCA' = '431'", "'COMARCA' = '327'", "'COMARCA' = '328'", "'COMARCA' = '342'", "'COMARCA' = '329'", "'COMARCA' = '425'", "'COMARCA' = '435'", "'COMARCA' = '344'", "'COMARCA' = '225'",
+    "'COMARCA' = '474'", "'COMARCA' = '426'", "'COMARCA' = '226'", "'COMARCA' = '351'", "'COMARCA' = '427'", "'COMARCA' = '334'", "'COMARCA' = '335'", "'COMARCA' = '429'", "'COMARCA' = '352'", "'COMARCA' = '337'", "'COMARCA' = '338'", "'COMARCA' = '420'", "'COMARCA' = '339'", "'COMARCA' = '421'", "'COMARCA' = '422'", "'COMARCA' = '436'", "'COMARCA' = '227'"];
 
 const MPT_STATES = {
     1: 'Rio de Janeiro',
@@ -198,7 +203,7 @@ export class KronoosParse {
             if (!test) {
                 test = (str) => /,\s*CONSTA,/i.test(str);
             }
-            this.serverCall(query, this.loader("fa-eye", `Capturando certidões no ${database} - ${this.cpf_cnpj}.`, {
+            this.serverCall(query, this.loader("fa-balance-scale", `Capturando certidões no ${database} - ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj,
                     nome: this.name
@@ -229,8 +234,8 @@ export class KronoosParse {
 
     searchMPT() {
         let found = false;
-        async.each(_.range(1, 24), (n, callback) => {
-            this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-eye', `Capturando dados do ministério público do trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
+        this.mptSync = async.each(_.range(1, 24), (n, callback) => {
+            this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-legal', `Capturando dados do ministério público do trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
                 dataType: 'json',
                 data: {
                     data: this.name,
@@ -267,22 +272,32 @@ export class KronoosParse {
     }
 
     searchTribunais() {
-        async.each([
+
+        let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null]);
+
+        this.tribunaisSync = async.eachLimit([
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`],
-        ], (n, callback) => {
+        ].concat(tjrjSearch), 10, (n, callback) => {
             let [query, uniq, description, notFound] = n;
-            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-eye', description, {
-                data: {data: query},
+            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', description, {
+                data: {
+                    data: query
+                },
                 complete: () => callback(),
                 success: data => {
-                    let procs = $("processo", data);
-                    if (!procs.length) {
-                        this.notFound(notFound);
+                    if ($("body > processo", data)) {
+                        this.juristekCNJ(data, null, true, !uniq);
                         return;
                     }
 
-                    procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-eye', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
+                    let procs = $("processo", data);
+                    if (!procs.length) {
+                        if (notFound) this.notFound(notFound);
+                        return;
+                    }
+
+                    procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
                         data: {
                             data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
                                     .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
@@ -295,7 +310,7 @@ export class KronoosParse {
     }
 
     searchComprot() {
-        this.serverCall("SELECT FROM 'COMPROT'.'CONSULTA'", this.loader("fa-eye", `Pesquisando processos administrativos perante o Ministério da Fazenda - ${this.cpf_cnpj}.`, {
+        this.serverCall("SELECT FROM 'COMPROT'.'CONSULTA'", this.loader("fa-legal", `Pesquisando processos administrativos perante o Ministério da Fazenda - ${this.cpf_cnpj}.`, {
             dataType: 'json',
             data: {
                 documento: this.cpf_cnpj
@@ -333,7 +348,7 @@ export class KronoosParse {
 
     searchTJSPCertidaoPDF(tipo, pedido, data) {
         this.serverCall("SELECT FROM 'TJSP'.'DOWNLOAD'",
-            this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${tipo} ${this.cpf_cnpj}.`, {
+            this.loader("fa-balance-scale", `Capturando certidões no Tribunal de Justiça de São Paulo - ${tipo} ${this.cpf_cnpj}.`, {
                 data: {
                     'nuPedido': pedido,
                     'dtPedido': data,
@@ -359,7 +374,7 @@ export class KronoosParse {
         if (!this.cpf || !this.name) return;
         for (let flGenero of ['M'])
             this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
-                this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cpf}.`, {
+                this.loader("fa-balance-scale", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cpf}.`, {
                     data: {
                         'nuCpfFormatado': this.cpf,
                         'nmPesquisa': this.name,
@@ -390,7 +405,7 @@ export class KronoosParse {
     searchPep() {
         if (!this.cpf) return;
         this.serverCall("SELECT FROM 'KRONOOS'.'ELEICOES'",
-            this.loader("fa-eye", `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
+            this.loader("fa-user-circle", `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
                 dataType: 'json',
                 data: {
                     'nome': `"${this.name}"`
@@ -462,7 +477,7 @@ export class KronoosParse {
     searchTJSPCertidao() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'TJSP'.'CERTIDAO'",
-            this.loader("fa-eye", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cnpj}.`, {
+            this.loader("fa-balance-scale", `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cnpj}.`, {
                 data: {
                     'nuCnpjFormatado': this.cnpj,
                     'nmPesquisa': this.name,
@@ -589,7 +604,7 @@ export class KronoosParse {
             keys[key] = true;
             klist(`${v('tipo')} ${v('logradouro')}, ${number} - ${v('complemento')} - ${v('cidade')} - ${v('estado')}, ${v('cep')}`);
             this.serverCall("SELECT FROM 'KRONOOS'.'GEOCODE'",
-                this.loader("fa-eye", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
+                this.loader("fa-map", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
                     dataType: 'json',
                     data: {
                         address: `${v('tipo')} ${v('logradouro')}, ${number} - ${v('cidade')} - ${v('estado')}, ${v('cep')}`
@@ -612,7 +627,7 @@ export class KronoosParse {
 
     searchDAU() {
         this.serverCall("SELECT FROM 'RFBDAU'.'CONSULTA'",
-            this.loader("fa-eye", `Pesquisando Dívida Ativa da União para o CNPJ ${this.cpf_cnpj}.`, {
+            this.loader("fa-money", `Pesquisando Dívida Ativa da União para o CNPJ ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj
                 },
@@ -643,7 +658,7 @@ export class KronoosParse {
     searchCNDT() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'CNDT'.'CERTIDAO'",
-            this.loader("fa-eye", `Certidão Negativa de Débitos Trabalhistas ${this.cpf_cnpj}.`, {
+            this.loader("fa-legal", `Certidão Negativa de Débitos Trabalhistas ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cnpj
                 },
@@ -667,7 +682,7 @@ export class KronoosParse {
     searchIbama() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'Ibama'.'CERTIDAO'",
-            this.loader("fa-eye", `Geração de Certidão Negativa de Débito do Ibama para o documento ${this.cpf_cnpj}.`, {
+            this.loader("fa-tree", `Geração de Certidão Negativa de Débito do Ibama para o documento ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cnpj,
                     nome: this.name
@@ -700,7 +715,7 @@ export class KronoosParse {
     searchMTE() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'MTE'.'CERTIDAO'",
-            this.loader("fa-eye", `Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração ${this.cpf_cnpj}.`, {
+            this.loader("fa-legal", `Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cnpj
                 },
@@ -724,7 +739,7 @@ export class KronoosParse {
 
     searchProtestos() {
         this.serverCall("SELECT FROM 'IEPTB'.'WS'",
-            this.loader("fa-eye", `Buscando por ocorrências de protestos para o documento ${this.cpf_cnpj}.`, {
+            this.loader("fa-money", `Buscando por ocorrências de protestos para o documento ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj
                 },
@@ -754,7 +769,7 @@ export class KronoosParse {
 
     searchCCF() {
         this.serverCall("SELECT FROM 'SEEKLOC'.'CCF'",
-            this.loader("fa-eye", `Buscando por ocorrências de cheques sem fundo para o documento ${this.cpf_cnpj}.`, {
+            this.loader("fa-money", `Buscando por ocorrências de cheques sem fundo para o documento ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj
                 },
@@ -804,7 +819,7 @@ export class KronoosParse {
     searchCnep() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'CNEP'",
-            this.loader("fa-eye", `Verificando cadastro nacional de empresas punidas com o CNPJ ${this.cnpj}.`, {
+            this.loader("fa-archive", `Verificando cadastro nacional de empresas punidas com o CNPJ ${this.cnpj}.`, {
                 data: {
                     documento: this.cnpj
                 },
@@ -833,7 +848,7 @@ export class KronoosParse {
     searchExpulsoes() {
         if (!this.cpf) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'EXPULSOES'",
-            this.loader("fa-eye", `Verificando sanções e expulsões na controladoria geral da união com o CPF ${this.cpf}.`, {
+            this.loader("fa-archive", `Verificando sanções e expulsões na controladoria geral da união com o CPF ${this.cpf}.`, {
                 data: {
                     documento: this.cpf
                 },
@@ -864,7 +879,7 @@ export class KronoosParse {
     searchCepim() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'CEPIM'",
-            this.loader("fa-eye", `Verificando entidades privadas sem fins lucrativas impedidas com o CNPJ ${this.cnpj}.`, {
+            this.loader("fa-archive", `Verificando entidades privadas sem fins lucrativas impedidas com o CNPJ ${this.cnpj}.`, {
                 error: () => this.notFound("Entidades privadas sem fins lucrativas impedidas na controladoria geral da união <small>Não existem de apontamentos cadastrais.</small>"),
                 data: {
                     documento: this.cnpj
@@ -892,7 +907,7 @@ export class KronoosParse {
     searchCertidao(nascimento = null, cpf_cnpj = null) {
         cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
         this.serverCall("SELECT FROM 'RFB'.'CERTIDAO'",
-            this.loader("fa-eye", `Verificando a situação do documento ${this.cpf_cnpj} junto a receita federal.`, {
+            this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a receita federal.`, {
                 data: {
                     documento: cpf_cnpj,
                     nascimento: nascimento
@@ -925,7 +940,7 @@ export class KronoosParse {
 
                         let geocode = `${v('logradouro')}, ${v('numero')} - ${v('bairro')} - ${v('municipio')}, ${v('uf')} - ${v('cep')}`;
                         this.serverCall("SELECT FROM 'KRONOOS'.'GEOCODE'",
-                            this.loader("fa-eye", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
+                            this.loader("fa-map", `Localizando para o documento ${this.cpf_cnpj} o endereço inscrito no CEP ${VMasker.toPattern(v('cep'), '99999-999')}.`, {
                                 dataType: 'json',
                                 data: {
                                     address: geocode
@@ -1071,7 +1086,7 @@ export class KronoosParse {
 
     searchCeis() {
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'CEIS'",
-            this.loader("fa-eye", `Verificando empresas de pessoas físicas sancionadas pelo documento ${this.cpf_cnpj}.`, {
+            this.loader("fa-archive", `Verificando empresas de pessoas físicas sancionadas pelo documento ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj
                 },
@@ -1101,7 +1116,7 @@ export class KronoosParse {
 
     searchMandado(idLog, numeroMandado) {
         this.serverCall("SELECT FROM 'PROCURADOS'.'MANDADO'",
-            this.loader("fa-eye", `Verificando mandado de prisão ${numeroMandado}.`, {
+            this.loader("fa-eye-slash", `Verificando mandado de prisão ${numeroMandado}.`, {
                 data: {
                     idLog: idLog,
                     numero: numeroMandado
@@ -1131,7 +1146,7 @@ export class KronoosParse {
         /* DEBUG PELO CPF 32078569852 */
         if (!this.cpf || !CPF.isValid(this.cpf)) return;
         this.serverCall("SELECT FROM 'PROCURADOS'.'CONSULTA'",
-            this.loader("fa-eye", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
+            this.loader("fa-eye-slash", `Verificando mandados de prisão através do CPF/CNPJ ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf,
                     nome: this.name
@@ -1269,7 +1284,7 @@ export class KronoosParse {
             }, () => {
                 this.controller.server.call("INSERT INTO 'KRONOOS'.'PUSH'", this.controller.call("error::ajax", {
                     data: {
-                        document: this.cpf_cnpj
+                        documento: this.cpf_cnpj
                     },
                     success: () => {
                         controller.alert({
@@ -1462,6 +1477,8 @@ export class KronoosParse {
             if (xhr) xhr.abort();
         if (this.taskGraphTrack) this.taskGraphTrack.kill();
         if (this.taskGraphParallel) this.taskGraphParallel.kill();
+        if (this.mptSync && this.mptSync.kill) this.mptSync.kill();
+        if (this.tribunaisSync && this.tribunaisSync.kill) this.tribunaisSync.kill();
     }
 
     graphTrack() {
@@ -1481,7 +1498,7 @@ export class KronoosParse {
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
-                    elements.push((cb) => this.serverCall("SELECT FROM 'KRONOOS'.'API'", this.errorAjax(
+                    elements.push(cb => this.serverCall("SELECT FROM 'KRONOOS'.'API'", this.errorAjax(
                         this.loader("fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${this.cpf_cnpj}.`, {
                             data: {
                                 documento: this.cpf_cnpj,

@@ -54,11 +54,11 @@ module.exports = function(controller) {
         if (++depth > 4) depth = 0;
         KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
         if (depth > 1) {
-            toastr.success(`Profundidade automática de consulta ajustada para ${depth} nós.`);
+            toastr.success(`Profundidade automática de consulta ajustada para ${depth} nós.`, "Profundidade de Pesquisa");
         } else if (depth) {
-            toastr.success(`Profundidade automática de consulta ajustada para um nó.`);
+            toastr.warning(`Profundidade automática de consulta ajustada para um nó.`, "Profundidade de Pesquisa");
         } else {
-            toastr.success(`Profundidade automática desabilidade.`);
+            toastr.warning(`Profundidade automática desabilidade.`, "Profundidade de Pesquisa");
         }
     });
 
