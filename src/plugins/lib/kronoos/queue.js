@@ -25,7 +25,7 @@ module.exports = function (controller) {
         });
 
         task.parser.xhr.push(jqXHR);
-    }, 3);
+    }, 5);
 
     controller.registerCall("kronoos::queue", () => {
         return ajaxQueue.length() + ajaxQueue.running();
