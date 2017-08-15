@@ -678,7 +678,7 @@ export class KronoosParse {
                         "Emissão de Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.");
 
                     let msg = $("mensagem", data);
-                    if (msg) {
+                    if (msg.length) {
                         kelement.table("Mensagem")(msg.text());
                         kelement.behaviourAccurate(true);
                     } else {
@@ -1672,7 +1672,6 @@ export class KronoosParse {
     }
 
     juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
-        debugger;
         let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
@@ -1789,6 +1788,25 @@ export class KronoosParse {
                 kparts(`${node.attr("tipo")} - ${node.text()}`);
             });
         }
+    }
+
+    cartesian() {
+        let r = [];
+        let arg = arguments;
+        let max = arg.length - 1;
+
+        let helper = (arr, i) => {
+            for (var j = 0, l = arg[i].length; j < l; j++) {
+                var a = arr.slice(0); // clone arr
+                a.push(arg[i][j]);
+                if (i == max)
+                    r.push(a);
+                else
+                    helper(a, i + 1);
+            }
+        };
+        helper([], 0);
+        return r;
     }
 
     append(...args) {
