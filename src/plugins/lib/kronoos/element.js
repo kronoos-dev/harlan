@@ -4,15 +4,15 @@ var KronoosElement = function(title, subtitle, sidenote) {
         content = $("<div />").addClass("content"),
         element = $("<div />").addClass("kronoos-element"),
         sideContent = $("<div />").addClass("kronoos-side-content full"),
-        titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
-        subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
-        sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
+        titleElement = $("<h3 />").append(title).addClass("kronoos-element-title"),
+        subtitleElement = $("<h4 />").append(subtitle).addClass("kronoos-element-subtitle"),
+        sidenoteElement = $("<h5 />").append(sidenote).addClass("kronoos-element-sidenote"),
         informationQA, informations, alertElement, aggregate, notation, behaviour,
         negativeCertificates;
 
     sideContent.append(titleElement)
         .append(subtitleElement);
-        
+
     if (sidenote)
         sideContent.append(sidenoteElement);
 
@@ -20,7 +20,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     container.data("instance", this);
 
     var label = (label) => {
-        return $("<label />").text(label);
+        return $("<label />").append(label);
     };
 
     this.negativeCertificateStatus = (icon, message) => {
@@ -208,7 +208,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
             tbody = $("<tbody />");
 
         if (caption) {
-            table.append($("<caption />").text(caption));
+            table.append($("<caption />").append(caption));
         }
 
         for (let item of header) {

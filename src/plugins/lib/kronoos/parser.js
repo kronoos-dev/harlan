@@ -210,7 +210,7 @@ export class KronoosParse {
                 },
                 success: data => {
                     if (!test($("body > text", data).text())) {
-                        this.notFound(`Não conta apontamento na certidão do ${database}`);
+                        this.notFound(`Não consta apontamento na certidão - ${database}`);
                         return;
                     }
 
@@ -503,6 +503,7 @@ export class KronoosParse {
     }
 
     searchAll() {
+        this.searchCrawler();
         this.jusSearch();
         this.searchComprot();
         this.searchTjspDocument();
@@ -564,6 +565,78 @@ export class KronoosParse {
 
         if (!_.keys(row).length) return;
         this.firstElement().table(..._.keys(row))(..._.values(row));
+    }
+
+    searchCrawler() {
+        let query = {
+            cpf_cnpj: cb => this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando na rede mundial pelo documento ${this.cpf_cnpj}`, {
+                method: 'GET',
+                dataType: 'json',
+                data: {data: `"${this.cpf_cnpj}"`},
+                success: data => cb(null, data),
+                error: () => cb()
+            })),
+        };
+
+        if (this.homonymous <= 1 && this.name.split(" ").length >= 3) {
+            query.name = cb => this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando na rede mundial pelo nome ${this.name}`, {
+                method: 'GET',
+                dataType: 'json',
+                data: {data: `"${this.name}"`},
+                success: data => {
+                    if (!data.value) return;
+                    let pages = data.value;
+                    if (!pages.length) return;
+                    let kelement = this.kronoosElement("Pesquisa de Notícias na Internet",
+                        `Consulta notícias na internet utilizando o nome completo ${this.name} e/ou o documento ${this.cpf_cnpj}.`,
+                        pages.length > 1 ?
+                        `Foram localizadas ${pages.length} notícias relevantes na internet utilizando o nome completo e/ou o documento.` :
+                        `Foi localizada notícia na internet utilizando o nome completo e/ou o documento.`);
+
+                        pages.map(page => kelement.captionTable(page.name, $("<a />").text(page.provider.name).attr({
+                            href: page.url,
+                            target: '_blank'
+                        }))(page.description));
+
+                        this.append(kelement.element());
+                }
+            }));
+
+        }
+
+        async.auto(query, (err, results) => {
+            let context = _.pick(results, (v) => {
+                if (!v) return false;
+                if (!v.webPages || !v.webPages.totalEstimatedMatches) return false;
+                return true;
+            });
+
+            if (!Object.keys(context).length) {
+                return false;
+            }
+
+            let pages = [].concat(..._.pluck(_.pluck(context, 'webPages'), 'value'));
+            let kelement = this.kronoosElement("Pesquisa na Internet",
+                `Consulta a internet utilizando o nome completo ${this.name} e/ou o documento ${this.cpf_cnpj}.`,
+                pages.length > 1 ?
+                `Foram localizadas ${pages.length} páginas relevantes na internet utilizando o nome completo e/ou o documento.` :
+                `Foi localizada página na internet utilizando o nome completo e/ou o documento.`);
+
+            pages.map(page => kelement.captionTable(page.name, $("<a />").text(page.displayUrl).attr({
+                href: page.url,
+                target: '_blank'
+            }))(page.snippet));
+            this.append(kelement.element());
+        });
+
+        this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando principais notícias para o nome ${this.name}`, {
+            method: 'GET',
+            dataType: 'json',
+            data: {query: 'news', data: `"${this.name}"`},
+            success: data => {
+                console.error(data);
+            }
+        }));
     }
 
     cbuscaTelefone() {
@@ -1578,6 +1651,7 @@ export class KronoosParse {
     }
 
     searchTjsp() {
+        debugger;
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {

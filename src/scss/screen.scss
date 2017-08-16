@@ -1513,7 +1513,7 @@ input.link {
                 max-width: 30%;
             }
             &:last-child {
-                max-width: auto;
+                max-width: none;
                 width: 100%;
             }
         }
