@@ -286,7 +286,7 @@ export class KronoosParse {
                 },
                 complete: () => callback(),
                 success: data => {
-                    if ($("body > processo", data)) {
+                    if ($("body > processo", data).length) {
                         this.juristekCNJ(data, null, true, !uniq);
                         return;
                     }
@@ -1651,7 +1651,6 @@ export class KronoosParse {
     }
 
     searchTjsp() {
-        debugger;
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
