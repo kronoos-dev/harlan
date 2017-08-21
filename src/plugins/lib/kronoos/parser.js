@@ -26,7 +26,7 @@ const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '20
 
 const MPT_STATES = require("./mpt-states");
 
-const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
+const CNJ_REGEX_TPL = '(\\s|^|-)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
@@ -253,6 +253,43 @@ export class KronoosParse {
         });
     }
 
+    searchSerasa() {
+        this.serverCall("SELECT FROM 'PROTESTOS'.'REFIN'", this.loader('fa-bank', `Acessando Serasa para a o documento ${this.cpf_cnpj}.`, {
+            dataType: 'json',
+            data: { documento: this.cpf_cnpj.replace(/[^0-9]/g, '') },
+            success: data => {
+
+                for (let spc of data.spc) {
+                    let kelement = this.kronoosElement("Consulta ao SPC/Serasa",
+                        "Apontamentos e Restrições Financeiras e Comerciais",
+                        "Pendências e restrições financeiras nos bureaus de crédito Serasa e SPC");
+                    kelement.captionTable("Anotações Negativa", "Associado", "Valor")(spc.NomeAssociado, spc.Valor);
+                    kelement.table("Data da Inclusão", "Data do Vencimento")(spc.DataDeInclusao, spc.DataDoVencimento);
+                    kelement.table("Entidade", "Número do Contrato", "Comprador, Fiador ou Avalista")(spc.Entidade, spc.NumeroContrato, spc.CompradorFiadorAvalista);
+                    kelement.table("Telefone Associado", "Cidade Associado", "UF Associado")(spc.TelefoneAssociado, spc.CidadeAssociado, spc.UfAssociado);
+                    kelement.behaviourAccurate(true);
+                    this.append(kelement.element());
+                }
+
+                for (let consultaRealizada of data.consultaRealizada) {
+                    let kelement = this.kronoosElement("Consulta Realizada por Associado do SPC/Serasa",
+                        "Consulta Realizada por Associado do SPC/Serasa",
+                        "Um associado do SPC/Serasa consultou este CNPJ/CPF a procura de apontamentos e restrições financeiras e comerciais");
+                    kelement.captionTable("Consulta Realizada", "Nome Associado", "CPF/CNPJ")(consultaRealizada.NomeAssociado, consultaRealizada.CpfCnpj);
+                    kelement.table("Data da Consulta", "Cidade Associado", "UF Associado")(consultaRealizada.DataDaConsulta, consultaRealizada.CidadeAssociado, consultaRealizada.UfAssociado);
+                    kelement.behaviourAccurate(false);
+                    this.append(kelement.element());
+                }
+
+
+                if (!data.spc.length) {
+                    this.notFound("Não foram localizados protestos na consulta ao SPC/Serasa");
+                }
+
+            }
+        }));
+    }
+
     searchTribunais() {
 
         let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null]);
@@ -386,6 +423,36 @@ export class KronoosParse {
                 }, true));
     }
 
+    searchPepCoaf() {
+        if (!this.cpf) return;
+        this.serverCall("SELECT FROM 'KRONOOS'.'PEP'",
+            this.loader("fa-user-circle", `Comparando documento com base de dados das pessoas políticamente expostas do COAF - ${this.cpf}.`, {
+                dataType: 'json',
+                data: {
+                    documento: this.cpf.replace(/[^0-9]/g, '')
+                },
+                success: (data) => {
+                    if (!data) {
+                        this.notFound("Pessoa Políticamente Exposta <small>Não consta na base de dados do COAF.</small>");
+                        return;
+                    }
+                    let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
+                        "A pessoa física se candidatou a cargo político e consta na base de dados do COAF.",
+                        "Visualização das candidaturas da pessoa física na base de dados do COAF.");
+                    kelement.behaviourAccurate(true);
+                    kelement.captionTable("Registros no COAF",
+                        "Sigla", "Descricão", "Nível", "Orgão")
+                        (data.siglaFuncaoPep, data['descriçãoFuncaoPep'],
+                         data.nivelFuncaoPep, data.nomeOrgaoPep);
+                    kelement.table("Início", "Fim", "Carência")
+                        (data.dtInicioExercicio, data.dtFimExercicio,
+                         data.dtFinalCarencia);
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
+
     searchPep() {
         if (!this.cpf) return;
         this.serverCall("SELECT FROM 'KRONOOS'.'ELEICOES'",
@@ -487,6 +554,8 @@ export class KronoosParse {
     }
 
     searchAll() {
+        this.searchPepCoaf();
+        this.searchSerasa();
         this.searchCrawler();
         this.jusSearch();
         this.searchComprot();
@@ -1751,7 +1820,7 @@ export class KronoosParse {
             let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
-
+            debugger;
             this.serverCall("SELECT FROM 'NATURAL'.'ENTITY_EXTRACTION'",
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
