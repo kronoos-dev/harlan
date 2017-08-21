@@ -1820,7 +1820,7 @@ export class KronoosParse {
             let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
-            debugger;
+
             this.serverCall("SELECT FROM 'NATURAL'.'ENTITY_EXTRACTION'",
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
