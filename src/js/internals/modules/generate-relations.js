@@ -100,8 +100,8 @@ var readAdapters = {
 
 
                 nodes.push(relation.createNode(
-                    $("cadastro cpf", document).text(),
-                    $("cadastro nome", document).text(),
+                    $("cadastro cpf", document).first().text(),
+                    $("cadastro nome", document).first().text(),
                     "user", {unlabel: true}));
 
                 return callback(null, nodes);
@@ -111,11 +111,11 @@ var readAdapters = {
             return (callback) => {
 
                 let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                    return relation.createEdge($("cadastro cpf", document).text(), $("cnpj", node).text());
+                    return relation.createEdge($("cadastro cpf", document).first().text(), $("cnpj", node).first().text());
                 }).toArray();
 
                 nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
-                    return relation.createEdge($("cadastro cpf", document).text(), $("doc", node).text());
+                    return relation.createEdge($("cadastro cpf", document).first().text(), $("doc", node).first().text());
                 }).toArray());
 
                 return callback(null, nodes);

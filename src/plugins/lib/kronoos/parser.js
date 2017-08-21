@@ -15,39 +15,16 @@ import saveAs from 'save-as';
 import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
 import CSV from 'csv-string';
+import cnjCourtsMap from './cnj-map';
 
 const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '209'", "'COMARCA' = '205'", "'COMARCA' = '207'", "'COMARCA' = '203'", "'COMARCA' = '210'", "'COMARCA' = '202'", "'COMARCA' = '208'", "'COMARCA' = '211'", "'COMARCA' = '206'", "'COMARCA' = '401'", "'COMARCA' = '424'", "'COMARCA' = '341'", "'COMARCA' = '403'", "'COMARCA' = '402'", "'COMARCA' = '428'", "'COMARCA' = '302'", "'COMARCA' = '432'",
     "'COMARCA' = '348'", "'COMARCA' = '404'", "'COMARCA' = '304'", "'COMARCA' = '305'", "'COMARCA' = '220'", "'COMARCA' = '306'", "'COMARCA' = '355'", "'COMARCA' = '307'", "'COMARCA' = '308'", "'COMARCA' = '309'", "'COMARCA' = '310'", "'COMARCA' = '311'", "'COMARCA' = '221'", "'COMARCA' = '312'", "'COMARCA' = '471'", "'COMARCA' = '343'", "'COMARCA' = '407'", "'COMARCA' = '408'", "'COMARCA' = '349'", "'COMARCA' = '313'",
     "'COMARCA' = '409'", "'COMARCA' = '354'", "'COMARCA' = '350'", "'COMARCA' = '314'", "'COMARCA' = '411'", "'COMARCA' = '410'", "'COMARCA' = '470'", "'COMARCA' = '315'", "'COMARCA' = '430'", "'COMARCA' = '317'", "'COMARCA' = '439'", "'COMARCA' = '318'", "'COMARCA' = '319'", "'COMARCA' = '320'", "'COMARCA' = '412'", "'COMARCA' = '222'", "'COMARCA' = '473'", "'COMARCA' = '414'", "'COMARCA' = '223'", "'COMARCA' = '321'",
     "'COMARCA' = '433'", "'COMARCA' = '323'", "'COMARCA' = '346'", "'COMARCA' = '224'", "'COMARCA' = '472'", "'COMARCA' = '353'", "'COMARCA' = '324'", "'COMARCA' = '325'", "'COMARCA' = '345'", "'COMARCA' = '434'", "'COMARCA' = '417'", "'COMARCA' = '431'", "'COMARCA' = '327'", "'COMARCA' = '328'", "'COMARCA' = '342'", "'COMARCA' = '329'", "'COMARCA' = '425'", "'COMARCA' = '435'", "'COMARCA' = '344'", "'COMARCA' = '225'",
-    "'COMARCA' = '474'", "'COMARCA' = '426'", "'COMARCA' = '226'", "'COMARCA' = '351'", "'COMARCA' = '427'", "'COMARCA' = '334'", "'COMARCA' = '335'", "'COMARCA' = '429'", "'COMARCA' = '352'", "'COMARCA' = '337'", "'COMARCA' = '338'", "'COMARCA' = '420'", "'COMARCA' = '339'", "'COMARCA' = '421'", "'COMARCA' = '422'", "'COMARCA' = '436'", "'COMARCA' = '227'"];
+    "'COMARCA' = '474'", "'COMARCA' = '426'", "'COMARCA' = '226'", "'COMARCA' = '351'", "'COMARCA' = '427'", "'COMARCA' = '334'", "'COMARCA' = '335'", "'COMARCA' = '429'", "'COMARCA' = '352'", "'COMARCA' = '337'", "'COMARCA' = '338'", "'COMARCA' = '420'", "'COMARCA' = '339'", "'COMARCA' = '421'", "'COMARCA' = '422'", "'COMARCA' = '436'", "'COMARCA' = '227'"
+];
 
-const MPT_STATES = {
-    1: 'Rio de Janeiro',
-    2: 'São Paulo',
-    3: 'Minas Gerais',
-    4: 'Rio Grande do Sul (RS)',
-    5: 'Bahia',
-    6: 'Pernambuco',
-    7: 'Ceará',
-    8: 'Amapá e Pará',
-    9: 'Paraná',
-    10: 'Distrito Federal e Tocantins',
-    11: 'Amazonas e Roraima',
-    12: 'Santa Catarina (SC)',
-    13: 'Paraíba',
-    14: 'Acre e Rondônia',
-    15: 'Campinas',
-    16: 'Maranhão',
-    17: 'Espírito Santo',
-    18: 'Goiás',
-    19: 'Alagoas',
-    20: 'Sergipe (SE)',
-    21: 'Rio Grande do Norte (RN)',
-    22: 'Piauí',
-    23: 'Mato Grosso',
-    24: 'Mato Grosso do Sul',
-};
+const MPT_STATES = require("./mpt-states");
 
 const CNJ_REGEX_TPL = '(\\s|^)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
@@ -80,6 +57,8 @@ const highPriority = 0;
 const normalPriority = 100;
 const lowPriority = 200;
 const searchBar = $(".kronoos-application .search-bar");
+
+let juristekInfo = null; /* Juristek INFO.INFO */
 
 export class KronoosParse {
 
@@ -158,6 +137,7 @@ export class KronoosParse {
     }
 
     serverCall(query, conf, priority = null) {
+        if (this.finishTimeout) clearTimeout(this.finishTimeout);
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
 
@@ -166,7 +146,8 @@ export class KronoosParse {
         conf.complete = (...args) => {
             if (!(--this.runningXhr)) {
                 this.header.element.removeClass("loading");
-                this.end();
+                if (this.finishTimeout) clearTimeout(this.finishTimeout);
+                this.finishTimeout = setTimeout(() => this.end(), 1000);
             }
             if (complete) complete(...args);
         };
@@ -217,8 +198,9 @@ export class KronoosParse {
                     let kelement = this.kronoosElement(`Certidão do ${database}`,
                         `Certidão do ${database}`,
                         `Visualização da Certidão no ${database}`);
-                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                    kelement.element().find(".kronoos-side-content").append($("< a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        target: '_blank',
                         download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({
@@ -328,6 +310,7 @@ export class KronoosParse {
 
                 let table = kelement.captionTable("Número do Processo", "Data", "Número do Processo");
                 kelement.table("Fonte de Dados")($("<a />").text("Consultar Processo").attr({
+                    target: '_blank',
                     'href': "https://comprot.fazenda.gov.br/comprotegov/site/index.html#ajax/processo-consulta.html"
                 }));
 
@@ -358,6 +341,7 @@ export class KronoosParse {
                         tipo,
                         "Visualização da Certidão no Tribunal de Justiça de São Paulo");
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        target: '_blank',
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
@@ -526,6 +510,7 @@ export class KronoosParse {
         this.searchCeis();
         this.searchCCF();
         this.searchProtestos();
+        this.searchCNJImprobidade();
 
         if (!this.ccbuscaData) {
             this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'",
@@ -572,7 +557,9 @@ export class KronoosParse {
             cpf_cnpj: cb => this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando na rede mundial pelo documento ${this.cpf_cnpj}`, {
                 method: 'GET',
                 dataType: 'json',
-                data: {data: `"${this.cpf_cnpj}"`},
+                data: {
+                    data: `"${this.cpf_cnpj}"`
+                },
                 success: data => cb(null, data),
                 error: () => cb()
             })),
@@ -582,7 +569,9 @@ export class KronoosParse {
             query.name = cb => this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando na rede mundial pelo nome ${this.name}`, {
                 method: 'GET',
                 dataType: 'json',
-                data: {data: `"${this.name}"`},
+                data: {
+                    data: `"${this.name}"`
+                },
                 success: data => {
                     if (!data.value) return;
                     let pages = data.value;
@@ -593,12 +582,12 @@ export class KronoosParse {
                         `Foram localizadas ${pages.length} notícias relevantes na internet utilizando o nome completo e/ou o documento.` :
                         `Foi localizada notícia na internet utilizando o nome completo e/ou o documento.`);
 
-                        pages.map(page => kelement.captionTable(page.name, $("<a />").text(page.provider.name).attr({
-                            href: page.url,
-                            target: '_blank'
-                        }))(page.description));
+                    pages.map(page => kelement.captionTable(page.name, $("<a />").text(page.provider.name).attr({
+                        href: page.url,
+                        target: '_blank',
+                    }))(page.description));
 
-                        this.append(kelement.element());
+                    this.append(kelement.element());
                 }
             }));
 
@@ -632,10 +621,11 @@ export class KronoosParse {
         this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando principais notícias para o nome ${this.name}`, {
             method: 'GET',
             dataType: 'json',
-            data: {query: 'news', data: `"${this.name}"`},
-            success: data => {
-                console.error(data);
-            }
+            data: {
+                query: 'news',
+                data: `"${this.name}"`
+            },
+            success: data => {}
         }));
     }
 
@@ -644,13 +634,37 @@ export class KronoosParse {
         if (!telefones.length) return;
 
         let klist = this.firstElement().list("Telefones");
-        telefones.each(function() {
-            klist(VMasker.toPattern($("ddd", this).text() +
-                $("numero", this).text(), "(99) 9999-99999"));
-        });
+        _.each(_.uniq(telefones.map((i, e) => VMasker.toPattern($("ddd", e).text() + $("numero", e).text(), "(99) 9999-99999")).toArray()), (e) => klist(e));
     }
 
-    end() {}
+    end() {
+        this.juristekInfo(info => {
+            let filter = _.uniq(_.filter(_.keys(this.procElements).map(cnj => {
+                let jtr = cnj.substr(-9).substr(0, 4); /* justiça e tribunal */
+                let j = jtr[0]; /* justiça */
+                let couldBeJTR = cnjCourtsMap[jtr] || cnjCourtsMap[j];
+
+                if (!couldBeJTR || !Array.isArray(couldBeJTR) || !couldBeJTR.length) {
+                    return null;
+                }
+
+                let tr = couldBeJTR[0];
+                if (!tr) return null;
+                if (typeof tr == 'object') {
+                    tr = _.keys(tr)[0];
+                    if (!tr) return null;
+                }
+                if (typeof tr !== 'string') return null;
+                let database = $(`body > database[name='${tr}']`, juristekInfo);
+                if (!database.length) return null;
+                return database.attr('name');
+            })));
+
+            let list = _.difference($('body > database', info).map((i, e) => $(e).attr('name')).toArray(), filter);
+            if (!list.length) return;
+            this.notFound(`Não foi possível localizar processos - ${list.join(', ')} <small>não é válido como certidão</small>.`);
+        });
+    }
 
     cbuscaEmpregos() {
         let rendaEmpregador = $("rendaEmpregador rendaEmpregador", this.ccbuscaData);
@@ -740,6 +754,7 @@ export class KronoosParse {
                         "Geração de Certidão Negativa de Débitos Trabalhistas no Tribunal Superior do Trabalho",
                         "Certidão Negativa de Débitos Trabalhistas - CNDT, documento indispensável à participação em licitações públicas.");
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        target: '_blank',
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-cndt-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
@@ -771,6 +786,7 @@ export class KronoosParse {
                         kelement.behaviourAccurate(true);
                     } else {
                         kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                            target: '_blank',
                             href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                             download: `certidao-ibama-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                         }).append($("<img />").addClass("certidao")
@@ -779,6 +795,35 @@ export class KronoosParse {
                             })));
                         kelement.behaviourAccurate(!/\NADA CONSTA/i.test($("body > text", data).text()));
                     }
+                    this.append(kelement.element());
+                }
+            }, true));
+    }
+
+
+    searchCNJImprobidade() {
+        this.serverCall("SELECT FROM 'CNJ'.'IMPROBIDADE'",
+            this.loader("fa-legal", `Pesquisando no cadastro do Conselho Nacional de Justiça - CNJ ${this.cpf_cnpj}.`, {
+                dataType: 'json',
+                data: {
+                    documento: this.cpf_cnpj
+                },
+                success: data => {
+                    if (!data.length) {
+                        this.notFound("Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade");
+                        return;
+                    }
+                    let kelement = this.kronoosElement("Conselho Nacional de Justiça - CNJ",
+                        "Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade",
+                        "Presença no cadastro nacional de condenações cíveis por ato de improbidade administrativa e inegibilidade.");
+
+                    kelement.table("Endereço do Processo")(..._.map(data, linkAddress => $("<a />")
+                        .attr({
+                            target: '_blank',
+                            href: linkAddress
+                        }).append(`Link para Processo <small>${linkAddress}</small>`)));
+
+                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
             }, true));
@@ -798,6 +843,7 @@ export class KronoosParse {
                         "Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.");
 
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        target: '_blank',
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         download: `certidao-mte-${this.cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
@@ -1475,7 +1521,10 @@ export class KronoosParse {
                     let ksources = kelement.list("Fontes");
                     source.each((idx) => {
                         let s = source.eq(idx).text();
-                        ksources($("<a />").attr("href", s).text(s).html());
+                        ksources($("<a />").attr({
+                            "href": s,
+                            target: '_blank'
+                        }).text(s).html());
                     });
 
                 } else if (!source.length && position.length) {
@@ -1484,7 +1533,10 @@ export class KronoosParse {
                     let ktable = kelement.table("Marcação", "Fontes");
                     source.each((i) => {
                         let s = source.eq(i).text();
-                        ktable(position.eq(i).text(), $("<a />").attr("href", s).text(s).html());
+                        ktable(position.eq(i).text(), $("<a />").attr({
+                            "href": s,
+                            target: '_blank'
+                        }).text(s).html());
                     });
                 }
             }
@@ -1506,6 +1558,15 @@ export class KronoosParse {
         this.procElements[proc] = kelement;
         kelement.paragraph(article.replace(match, `<strong>${match}</strong>`));
         this.append(kelement.element().attr("id", `cnj-${proc.replace(NON_NUMBER, '')}`));
+
+        this.juristekDetectCNJ(proc, data => {
+            if (!data) return;
+            kelement.table("Tribunal")($("<a />").text(data.description).attr({
+                target: '_blank',
+                href: data.url
+            }));
+        });
+
         return true;
     }
 
@@ -1664,7 +1725,7 @@ export class KronoosParse {
         this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
-                    data: this.name
+                    data: this.normalizeName(this.name)
                 },
                 success: jusSearch => this.juristek(jusSearch)
             }), lowPriority);
@@ -1703,7 +1764,9 @@ export class KronoosParse {
                         if (!c1) return;
                         c1 = $.parseHTML(c1);
                         let n1 = this.normalizeName(this.name);
-                        if (this.cpf && !$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) return;
+                        if (this.cpf && !$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) {
+                            if (this.homonymous > 1 || this.name.split(" ").length < 3) return;
+                        }
                         if (!this.parseProc(cnj, articleText, match[0])) return;
                         this.normalizeJuristek(cnj);
                     }
@@ -1758,14 +1821,66 @@ export class KronoosParse {
     }
 
     normalizeName(name) {
-        return removeDiacritics(name).toUpperCase().replace(/\s+/, ' ');
+        return removeDiacritics(name).toUpperCase().replace(/\s+/, ' ').replace(/[^A-Z0-9\s]/, '').replace(/(\s|^)(SA|LTDA|ME)(\s|$)/, '');
+    }
+
+    juristekInfo(callback) {
+        if (juristekInfo) return callback(juristekInfo);
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader("fa-balance-scale", `Analisando numeração dos tribunais de justiça do país.`, {
+            data: {
+                data: "SELECT FROM 'INFO'.'INFO'"
+            },
+            success: data => {
+                juristekInfo = data;
+                callback(data);
+            }
+        }));
+
+    }
+
+    juristekDetectCNJ(cnj, callback) {
+        let jtr = cnj.substr(-9).substr(0, 4); /* justiça e tribunal */
+        let j = jtr[0]; /* justiça */
+        let couldBeJTR = cnjCourtsMap[jtr] || cnjCourtsMap[j];
+        if (!couldBeJTR || !Array.isArray(couldBeJTR) || !couldBeJTR.length) {
+            return callback(null);
+        }
+
+        this.juristekInfo(data => {
+            this.juristekDetectCNJWithData(callback, data, couldBeJTR);
+        });
+    }
+
+    juristekDetectCNJWithData(callback, juristekInfo, couldBeJTR) {
+        let tr = couldBeJTR[0];
+
+        if (!tr) return callback(null);
+
+        if (typeof tr == 'object') {
+            tr = _.keys(tr)[0];
+            if (!tr) return callback(null);
+        }
+
+        if (typeof tr !== 'string') return callback(null);
+
+        let database = $(`body > database[name='${tr}']`, juristekInfo);
+
+        if (!database.length) return callback(null);
+
+        return callback({
+            name: database.attr('name'),
+            description: database.attr('description'),
+            url: database.attr('url')
+        });
     }
 
     juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
         let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
+        let numproc = null;
         if (cnj) {
+            numproc = cnj;
             cnjInstance = this.procElements[cnj];
             let procs = $("processo", ret);
 
@@ -1802,7 +1917,7 @@ export class KronoosParse {
                 return;
             }
             proc = ret;
-            let numproc = VMasker.toPattern($("numero_processo", proc).first().text().replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
+            numproc = VMasker.toPattern($("numero_processo", proc).first().text().replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
             if (!numproc) numproc = "";
             if (numproc && this.procElements[numproc]) {
                 cnjInstance = this.procElements[numproc];
@@ -1816,12 +1931,21 @@ export class KronoosParse {
             }
         }
 
+
         if (!cnjInstance) return;
         if (!proc) return;
 
         cnjInstance.clear();
         cnjInstance.element().data("parsedProc", proc);
         cnjInstance.element().data("nameSearch", nameSearch);
+
+        this.juristekDetectCNJ(numproc, data => {
+            if (!data) return;
+            cnjInstance.table("Tribunal")($("<a />").text(data.description).attr({
+                target: '_blank',
+                href: data.url
+            }));
+        });
 
         let urlProcesso,
             getNode = (x) => $(x, proc).first().text(),
