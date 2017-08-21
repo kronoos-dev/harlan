@@ -198,7 +198,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement(`Certidão do ${database}`,
                         `Certidão do ${database}`,
                         `Visualização da Certidão no ${database}`);
-                    kelement.element().find(".kronoos-side-content").append($("< a />").attr({
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                         target: '_blank',
                         download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
