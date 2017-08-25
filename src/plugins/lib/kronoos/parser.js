@@ -1300,6 +1300,16 @@ export class KronoosParse {
                     kelement.table("UF do órgão sancionador", "Origem da informação")
                         (x("UF-DO-ORGAO-SANCIONADOR"), x("ORIGEM-DA-INFORMACAO"));
 
+                    if (x("NUMERO-DO-PROCESSO")) {
+                        let proc = VMasker.toPattern(x("NUMERO-DO-PROCESSO").replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
+                        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader("fa-balance-scale", `Verificando processo CEIS ${proc} para o documento ${this.cpf_cnpj}`, {
+                            data: {data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${proc}'`},
+                            success: (data) => {
+                                this.juristekCNJ(data, null, true, false);
+                            }
+                        }));
+                    }
+
                     this.append(kelement.element());
                 },
             }, true));
