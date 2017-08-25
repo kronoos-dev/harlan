@@ -258,7 +258,10 @@ export class KronoosParse {
             dataType: 'json',
             data: { documento: this.cpf_cnpj.replace(/[^0-9]/g, '') },
             success: data => {
-
+                if (!data.spc) {
+                    toastr.warning("A consulta ao Serasa/SPC não está habilitada.", "Entre em contato e tente novamente.");
+                    return;
+                }
                 for (let spc of data.spc) {
                     let kelement = this.kronoosElement("Consulta ao SPC/Serasa",
                         "Apontamentos e Restrições Financeiras e Comerciais",
