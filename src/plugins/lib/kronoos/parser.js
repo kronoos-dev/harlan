@@ -26,7 +26,7 @@ const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '20
 
 const MPT_STATES = require("./mpt-states");
 
-const CNJ_REGEX_TPL = '(\\s|^|-)(\\d{7}\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
+const CNJ_REGEX_TPL = '(\\s|^|-)(\\d+\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
 const GET_PHOTO_OF = ['peps', 'congressmen', 'state_representatives'];
@@ -324,7 +324,10 @@ export class KronoosParse {
                             data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
                                     .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
                         },
-                        success: (data) => this.juristekCNJ(data, null, false, !uniq)
+                        success: (data) => {
+                            this.juristekCNJ(data, null, true, !uniq);
+                        }
+
                     })));
                 }
             }));
@@ -1800,7 +1803,7 @@ export class KronoosParse {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
                 },
                 success: jusSearch => {
-                    this.juristekCNJ(jusSearch);
+                    this.juristekCNJ(jusSearch, null, true, true);
                 }
             }), lowPriority);
     }
@@ -1818,6 +1821,7 @@ export class KronoosParse {
     juristek(jusSearch) {
         /* All fucking data! */
         const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`, 'gi');
+        let variable = `(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`;
 
         let cnjs = {};
         $("BPQL > body snippet", jusSearch).each((idx, article) => {
@@ -1827,7 +1831,7 @@ export class KronoosParse {
 
             if (!match) return;
 
-            let cnj = VMasker.toPattern(match[3].replace(NON_NUMBER, ''), "9999999-99.9999.9.99.9999");
+            let cnj = VMasker.toPattern(pad(20, match[3].replace(NON_NUMBER, ''), '0'), "9999999-99.9999.9.99.9999");
             if (cnjs[cnj]) return;
             cnjs[cnj] = true;
             if (this.procElements[cnj]) return;
@@ -1968,14 +1972,15 @@ export class KronoosParse {
             cnjInstance = this.procElements[cnj];
             let procs = $("processo", ret);
 
-            if (nameSearch) {
+            // if (nameSearch) {
                 procs = procs.filter((i, e) => {
+                    if (!$("partes parte", e).length) return true;
                     return $("partes parte", e).filter((x, a) => {
                         let n1 = this.normalizeName($(a).text());
                         return n1 == normalizedName;
                     }).length > 0;
                 });
-            }
+            // }
 
             if (!procs.length) {
                 cnjInstance.remove();
@@ -1989,14 +1994,15 @@ export class KronoosParse {
         } else {
             if (findProc) {
                 let procs = $("processo", ret);
-                if (nameSearch) {
+                // if (nameSearch) {
                     procs.filter((i, e) => {
+                        if (!$("partes parte", e).length) return true;
                         return $("partes parte", e).filter((x, a) => {
                             let n1 = this.normalizeName($(a).text());
                             return n1 == normalizedName;
                         }).length > 0;
                     });
-                }
+                // }
                 procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch));
                 return;
             }
@@ -2014,6 +2020,12 @@ export class KronoosParse {
                 this.append(cnjInstance.element().attr("id", `cnj-${numproc.replace(NON_NUMBER, '')}`));
             }
         }
+
+
+        if ($("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => {
+            let n1 = this.normalizeName($(a).text());
+            return n1 == normalizedName;
+        }).length) return;
 
 
         if (!cnjInstance) return;
