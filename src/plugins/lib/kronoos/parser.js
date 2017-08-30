@@ -1843,8 +1843,13 @@ export class KronoosParse {
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
                     method: 'POST',
+                    timeout: 10000,
                     data: {
                         text: articleShow.replace("/", "-")
+                    },
+                    error: () => {
+                        if (!this.parseProc(cnj, articleText, match[0])) return;
+                        this.normalizeJuristek(cnj);
                     },
                     success: data => {
                         let c1 = data['1-Entity-Tagged-Text'];
@@ -1963,6 +1968,21 @@ export class KronoosParse {
     }
 
     juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
+        try {
+            this._juristekCNJ(ret, cnj, findProc, nameSearch);
+        } catch (e) {
+            if (cnj) {
+                cnjInstance = this.procElements[cnj];
+                if (cnjInstance) {
+                    delete this.procElements[cnj];
+                    delete this.kelements[this.kelements.indexOf(cnjInstance)];
+                }
+            }
+            console.error(e);
+        }
+    }
+
+    _juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
         let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
@@ -2022,19 +2042,15 @@ export class KronoosParse {
         }
 
 
-        if ($("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => {
-            let n1 = this.normalizeName($(a).text());
-            return n1 == normalizedName;
-        }).length) {
+        if ($("partes parte", proc).length &&
+            !$("partes parte", proc).filter((x, a) =>  this.normalizeName($(a).text()) == normalizedName).length) {
             if (cnjInstance) {
                 cnjInstance.remove();
+                delete this.kelements[this.kelements.indexOf(cnjInstance)];
                 delete this.procElements[numproc];
             }
             return;
         }
-
-
-
 
         if (!cnjInstance) return;
         if (!proc) return;
@@ -2094,6 +2110,11 @@ export class KronoosParse {
 
         let [keys, values] = _.unzip(validPieces);
 
+        if (!keys) {
+            cnjInstance.remove();
+            delete this.kelements[this.kelements.indexOf(cnjInstance)];
+            delete this.procElements[numproc];
+        }
 
         for (let i = 0; i < keys.length; i += 2) {
             cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
