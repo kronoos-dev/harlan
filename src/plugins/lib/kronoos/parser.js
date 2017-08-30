@@ -2025,7 +2025,15 @@ export class KronoosParse {
         if ($("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => {
             let n1 = this.normalizeName($(a).text());
             return n1 == normalizedName;
-        }).length) return;
+        }).length) {
+            if (cnjInstance) {
+                cnjInstance.remove();
+                delete this.procElements[numproc];
+            }
+            return;
+        }
+
+
 
 
         if (!cnjInstance) return;
