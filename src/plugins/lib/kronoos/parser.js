@@ -137,10 +137,10 @@ export class KronoosParse {
     }
 
     serverCall(query, conf, priority = null) {
+        conf.method= 'GET';
         if (this.finishTimeout) clearTimeout(this.finishTimeout);
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
-
         let complete = conf.complete;
         conf.timeout = conf.timeout || 120000; /* 2 minutes */
         conf.complete = (...args) => {
@@ -562,6 +562,7 @@ export class KronoosParse {
         this.searchCrawler();
         this.jusSearch();
         this.searchComprot();
+        this.searchTjsp();
         this.searchTjspDocument();
         this.searchCARFDocumento();
         this.searchCertidaoTRFPDF();
@@ -1788,18 +1789,19 @@ export class KronoosParse {
                 },
                 success: jusSearch => {
                     this.juristekCNJ(jusSearch, null, true, false);
-                    this.searchTjsp();
                 }
-            }), lowPriority);
+        }), lowPriority);
     }
 
     searchTjsp() {
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
-            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}.`, {
                 data: {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
                 },
-                success: jusSearch => this.juristekCNJ(jusSearch)
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch);
+                }
             }), lowPriority);
     }
 
@@ -1833,7 +1835,6 @@ export class KronoosParse {
             let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
-
             this.serverCall("SELECT FROM 'NATURAL'.'ENTITY_EXTRACTION'",
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
@@ -1845,6 +1846,7 @@ export class KronoosParse {
                         let c1 = data['1-Entity-Tagged-Text'];
                         if (!c1) return;
                         c1 = $.parseHTML(c1);
+
                         let n1 = this.normalizeName(this.name);
                         if (this.cpf && !$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) {
                             if (this.homonymous > 1 || this.name.split(" ").length < 3) return;
