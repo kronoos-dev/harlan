@@ -69,8 +69,12 @@ module.exports = function(controller) {
             check.ocurrence = "Instituição bancária não monitorada";
             check.pushId = null;
         }
-
-        controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
+        try {
+            controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
+        } catch (e) {
+            console.error(e);
+            debugger;
+        }
     };
 
     controller.registerCall("icheques::insertDatabase", insertDatabase);
@@ -88,7 +92,7 @@ module.exports = function(controller) {
         if (checkDiff <= 0) {
             return controller.confs.icheques.price;
         }
-        var months = checkDiff  - controller.confs.icheques.monthsIncluded;
+        var months = checkDiff - controller.confs.icheques.monthsIncluded;
         if (months <= 0) {
             return controller.confs.icheques.price;
         }
@@ -99,18 +103,18 @@ module.exports = function(controller) {
     var newCheck = function(check, callback) {
         controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'",
             controller.call("error::ajax", {
-            data: check,
-            success: function(ret) {
-                if (!$("new", ret).length) {
-                    toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, "Efetue uma busca no sistema e tente novamente.");
+                data: check,
+                success: function(ret) {
+                    if (!$("new", ret).length) {
+                        toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, "Efetue uma busca no sistema e tente novamente.");
+                    }
+                    $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
+                    insertDatabase(check);
+                },
+                complete: function() {
+                    callback();
                 }
-                $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
-                insertDatabase(check);
-            },
-            complete: function() {
-                callback();
-            }
-        }));
+            }));
         return true;
     };
 
