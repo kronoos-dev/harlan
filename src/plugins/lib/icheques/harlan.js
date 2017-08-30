@@ -199,13 +199,13 @@ module.exports = function(controller) {
                     list = form.createList();
                 }
                 let days = moment().diff(inputMoment || moment(check.expire, "YYYYMMDD"), 'days');
-                list.item(days <= 180 ? "fa-check-square" : "fa-square", ["De 1 até 180 dias de atraso", "10% - do Principal", numeral((check.ammount / 100) * 0.9).format("$0,0.00")]);
-                list.item(days >= 181 && days <= 364 ? "fa-check-square" : "fa-square", ["De 181 Até 364 dias de atraso", "15% - do Principal", numeral((check.ammount / 100) * 0.85).format("$0,0.00")]);
-                list.item(days >= 365 && days <= 729 ? "fa-check-square" : "fa-square", ["De 365 Até 729 dias de atraso", "20% - do Principal", numeral((check.ammount / 100) * 0.8).format("$0,0.00")]);
-                list.item(days >= 730 && days <= 1094 ? "fa-check-square" : "fa-square", ["De 730 Até 1094 dias de atraso", "30% - do Principal", numeral((check.ammount / 100) * 0.7).format("$0,0.00")]);
-                list.item(days >= 1095 && days <= 1459 ? "fa-check-square" : "fa-square", ["De 1095 Até 1459 dias de atraso", "40% - do Principal", numeral((check.ammount / 100) * 0.6).format("$0,0.00")]);
-                list.item(days >= 1460 && days <= 1824 ? "fa-check-square" : "fa-square", ["De 1460 Até 1824 dias de atraso", "50% - do Principal", numeral((check.ammount / 100) * 0.5).format("$0,0.00")]);
-                list.item(days >= 1825 ? "fa-check-square" : "fa-square", ["Mais de 1825 dias de atraso", "60% - do Principal", numeral((check.ammount / 100) * 0.4).format("$0,0.00")]);
+                list.item("fa-check-square", ["Mais de 1 dia de atraso.", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 181 && days <= 364 ? "fa-check-square" : "fa-square", ["De 181 Até 364 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 365 && days <= 729 ? "fa-check-square" : "fa-square", ["De 365 Até 729 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 730 && days <= 1094 ? "fa-check-square" : "fa-square", ["De 730 Até 1094 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 1095 && days <= 1459 ? "fa-check-square" : "fa-square", ["De 1095 Até 1459 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 1460 && days <= 1824 ? "fa-check-square" : "fa-square", ["De 1460 Até 1824 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
+                // list.item(days >= 1825 ? "fa-check-square" : "fa-square", ["Mais de 1825 dias de atraso", "25% - do Principal", numeral((check.ammount / 100) * 0.75).format("$0,0.00")]);
             };
             renderList();
             inputExpire.change(() => renderList(moment(inputExpire.val(), "DD/MM/YYYY")));
