@@ -1972,7 +1972,7 @@ export class KronoosParse {
             this._juristekCNJ(ret, cnj, findProc, nameSearch);
         } catch (e) {
             if (cnj) {
-                cnjInstance = this.procElements[cnj];
+                let cnjInstance = this.procElements[cnj];
                 if (cnjInstance) {
                     delete this.procElements[cnj];
                     delete this.kelements[this.kelements.indexOf(cnjInstance)];
