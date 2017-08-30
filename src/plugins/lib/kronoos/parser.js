@@ -2114,6 +2114,7 @@ export class KronoosParse {
             cnjInstance.remove();
             delete this.kelements[this.kelements.indexOf(cnjInstance)];
             delete this.procElements[numproc];
+            return;
         }
 
         for (let i = 0; i < keys.length; i += 2) {
