@@ -8,6 +8,7 @@ module.exports = function(controller) {
      */
     var getSessionId = function(callback) {
         if (controller.query.apiKey) callback(controller.query.apiKey);
+        else if (sessionStorage.apiKey) callback(sessionStorage.apiKey);
         else localForage.getItem('sessionId', (err, value) => callback(err ? null : value));
     };
 
@@ -121,6 +122,7 @@ module.exports = function(controller) {
             return;
         }
         controller.serverCommunication.apiKey(key);
+        sessionStorage.apiKey = key;
 
         controller.trigger("authentication::authenticated", ret, function(err) {
             if (err) {
