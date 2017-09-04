@@ -667,32 +667,16 @@ export class KronoosParse {
             })),
         };
 
-        if (this.homonymous <= 1 && this.name.split(" ").length >= 3) {
+        if (this.cnpj || (this.homonymous <= 1 && this.name.split(" ").length >= 3)) {
             query.name = cb => this.serverCall("SELECT FROM 'WEBSEARCH'.'QUERY'", this.loader("fa-search", `Pesquisando na rede mundial pelo nome ${this.name}`, {
                 method: 'GET',
                 dataType: 'json',
                 data: {
                     data: `"${this.name}"`
                 },
-                success: data => {
-                    if (!data.value) return;
-                    let pages = data.value;
-                    if (!pages.length) return;
-                    let kelement = this.kronoosElement("Pesquisa de Notícias na Internet",
-                        `Consulta notícias na internet utilizando o nome completo ${this.name} e/ou o documento ${this.cpf_cnpj}.`,
-                        pages.length > 1 ?
-                        `Foram localizadas ${pages.length} notícias relevantes na internet utilizando o nome completo e/ou o documento.` :
-                        `Foi localizada notícia na internet utilizando o nome completo e/ou o documento.`);
-
-                    pages.map(page => kelement.captionTable(page.name, $("<a />").text(page.provider.name).attr({
-                        href: page.url,
-                        target: '_blank',
-                    }))(page.description));
-
-                    this.append(kelement.element());
-                }
+                success: data => cb(null, data),
+                error: () => cb()
             }));
-
         }
 
         async.auto(query, (err, results) => {

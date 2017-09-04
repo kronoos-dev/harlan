@@ -56,8 +56,7 @@ module.exports = (controller) => {
                             complete: () => cb()
                         });
                     }, () => {
-                        debugger;
-                        callback(null, nodes)
+                        callback(null, nodes);
                     });
             },
             trackEdges: (relation, legalDocument, document) => (callback) => {
@@ -66,7 +65,6 @@ module.exports = (controller) => {
                         .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g).map(e => e.replace(/[^\d]/g, '')))
                     .filter((c) => CPF.isValid(c))
                     .map(document => relation.createEdge(legalDocument, document));
-                debugger;
                 return callback(null, nodes);
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
