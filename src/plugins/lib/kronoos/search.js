@@ -8,9 +8,15 @@ import async from "async";
 import _ from "underscore";
 import VMasker from 'vanilla-masker';
 import pad from 'pad';
-import {KronoosParse} from './parser';
-import {KronoosStats} from './stats';
-import {KronoosMap} from './map';
+import {
+    KronoosParse
+} from './parser';
+import {
+    KronoosStats
+} from './stats';
+import {
+    KronoosMap
+} from './map';
 
 const removeDiacritics = require('diacritics').remove;
 
@@ -182,11 +188,29 @@ module.exports = function(controller) {
             controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name || ""} ${document}.`, {
                 method: 'GET',
                 data: {
-                    'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
-                    'q[1]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+                    'q[0]': "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
+                    'q[1]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
                     documento: document,
                 },
                 success: (ret) => {
+                    if (CNPJ.isValid(document)) {
+                        xhr.push(controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", controller.call("error::ajax",
+                            controller.call("kronoos::status::ajax", "fa-bank", `Capturando certidão CNPJ para ${name || ""} ${document}.`, {
+                                method: 'GET',
+                                data: {
+                                    documento: document
+                                },
+                                error: () => {
+                                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
+                                    controller.call("kronoos::search", document, name, ret);
+                                },
+                                success: (ret) => {
+                                    name = $("nome", ret).first().text() || name;
+                                    controller.call("kronoos::search", document, name, ret);
+                                }
+                            }))));
+                        return;
+                    }
                     name = name || $("BPQL > body cadastro > nome", ret).first().text();
                     controller.call("kronoos::search", document, name, ret);
                 }

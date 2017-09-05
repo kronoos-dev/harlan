@@ -293,16 +293,16 @@ export class KronoosParse {
                     n: n
                 },
                 success: data => {
-                    if (!data.aaData.length) return;
+                    let procs = data.aaData.filter(x => this.compareNames(x[0]));
+                    if (!procs.length) return;
                     found = true;
                     let kelement = this.kronoosElement(`Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
                         `Investigado pelo Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`, null);
 
                     let table = kelement.table("Processo", "Data", "Situação");
-                    for (let row of data.aaData) {
+                    for (let row of procs) {
                         let [investigado, proc, date, status] = row;
                         let procData = JSON.parse(proc);
-
                         table($("<a/>").attr({
                             "href": `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
                             "target": "_blank",
@@ -365,18 +365,17 @@ export class KronoosParse {
     }
 
     searchTribunais() {
-
+        let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`]);
         let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null]);
 
         this.tribunaisSync = async.eachLimit([
             [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal do Tribunal Federal 4º Região (Paraná)`],
             [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`],
             [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`],
-            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região`],
-
+            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`],
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`],
-        ].concat(tjrjSearch), 10, (n, callback) => {
+        ].concat(tjrjSearch, trf1Search), 10, (n, callback) => {
             let [query, uniq, description, notFound] = n;
             this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', description, {
                 data: {
@@ -385,7 +384,7 @@ export class KronoosParse {
                 complete: () => callback(),
                 success: data => {
                     if ($("body > processo", data).length) {
-                        this.juristekCNJ(data, null, true, !uniq);
+                        this.juristekCNJ(data, null, true, !uniq, !uniq);
                         return;
                     }
 
@@ -401,12 +400,13 @@ export class KronoosParse {
                                     .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
                         },
                         success: (data) => {
-                            this.juristekCNJ(data, null, true, !uniq);
+                            debugger;
+                            this.juristekCNJ(data, null, true, !uniq, !uniq);
                         }
 
                     })));
                 }
-            }));
+            }), lowPriority);
         }, err => {});
     }
 
@@ -640,7 +640,7 @@ export class KronoosParse {
         this.searchSerasa();
         this.searchCrawler();
         this.jusSearch();
-        this.searchTRF1();
+        // this.searchTRF1();
         this.searchComprot();
         this.searchTjsp();
         this.searchTjspDocument();
@@ -1851,8 +1851,13 @@ export class KronoosParse {
                     this.jucespQuery($("nome", data).text(), callback, formatted_document);
                 });
 
+                if (CNPJ.isValid(formatted_document)) {
+                    this.query("SELECT FROM 'RECUPERA'.'LocalizadorPartEmpresarialPJ'", formatted_document, elements);
+                }
+
                 this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
                 this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
+
                 if (CPF.isValid(formatted_document)) {
                     this.query("SELECT FROM 'FINDER'.'RELATIONS'", formatted_document, elements);
                 }
@@ -1951,7 +1956,6 @@ export class KronoosParse {
 
     jusSearch() {
         this.findOtherNames((names) => names.map(name => {
-            debugger;
             this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'",
                 this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${name}, documento ${this.cpf_cnpj}.`, {
                     data: {
@@ -2115,9 +2119,9 @@ export class KronoosParse {
         });
     }
 
-    juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
+    juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true, checkName = true) {
         try {
-            this._juristekCNJ(ret, cnj, findProc, nameSearch);
+            this._juristekCNJ(ret, cnj, findProc, nameSearch, checkName);
         } catch (e) {
             if (cnj) {
                 let cnjInstance = this.procElements[cnj];
@@ -2130,7 +2134,7 @@ export class KronoosParse {
         }
     }
 
-    _juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
+    _juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true, checkName = true) {
         let cnjInstance = null;
         let proc = null;
         let numproc = null;
@@ -2140,6 +2144,7 @@ export class KronoosParse {
             let procs = $("processo", ret);
 
             // if (nameSearch) {
+            if (checkName)
             procs = procs.filter((i, e) => {
                 if (!$("partes parte", e).length) return true;
                 return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
@@ -2159,12 +2164,13 @@ export class KronoosParse {
             if (findProc) {
                 let procs = $("processo", ret);
                 // if (nameSearch) {
+                if (checkName)
                 procs.filter((i, e) => {
                     if (!$("partes parte", e).length) return true;
                     return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
                 });
                 // }
-                procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch));
+                procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch, checkName));
                 return;
             }
             proc = ret;
@@ -2183,7 +2189,7 @@ export class KronoosParse {
         }
 
 
-        if ($("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => this.compareNames($(a).text())).length) {
+        if (checkName && $("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => this.compareNames($(a).text())).length) {
             if (cnjInstance) {
                 cnjInstance.remove();
                 delete this.kelements[this.kelements.indexOf(cnjInstance)];

@@ -35,6 +35,25 @@ module.exports = (controller) => {
 
     /* Adaptadores para Compreensão Documental */
     var readAdapters = {
+        "RECUPERA.LOCALIZADORPARTEMPRESARIALPJ" : {
+            trackNodes: (relation, legalDocument, document) => {
+                return (callback) => {
+                    return callback(null, $("PESSOA", document).map((idx, node) => {
+                        return relation.createNode($("CPF", node).text(), $("nome", node).text(), "user", {
+                            unlabel: true
+                        });
+                    }).toArray());
+                };
+            },
+            trackEdges: (relation, legalDocument, document) => {
+                return (callback) => {
+                    return callback(null, $("PESSOA", document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, $("CPF", node).text());
+                    }).toArray());
+                };
+            },
+            purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
+        },
         "JUCESP.DOCUMENT": {
             trackNodes: (relation, legalDocument, document) => (callback) => {
                 let nodes = [];
