@@ -14,6 +14,7 @@ import htmlDocx from 'html-docx-js';
 import saveAs from 'save-as';
 import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
+import metaphone from 'metaphone';
 import CSV from 'csv-string';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
@@ -72,6 +73,7 @@ export class KronoosParse {
         this.uniqid = uniqid();
         this.parameters = parameters;
         this.name = name.replace(/(\r)?\n/g, " ").replace(/\s+/g, ' ');
+        this.otherNames = [this.name];
         this.controller = controller;
         this.kelements = [];
         this.procElements = {};
@@ -129,6 +131,50 @@ export class KronoosParse {
         return this._brief;
     }
 
+    findOtherNames(onComplete) {
+        let metaname = metaphone(this.name);
+        let ceps = _.uniq($("cep", this.ccbuscaData)
+            .map((i, e) => $(e).text())
+            .toArray()
+            .filter((e) => /^[\d]{5}(\-)?[\d]{3}$/.test(e)));
+
+        if (!ceps.length) {
+            onComplete(this.otherNames);
+            return;
+        }
+
+        async.eachLimit(ceps, 2, (cep, callback) => this.serverCall("SELECT FROM 'CORREIOS'.'CONSULTA'",
+            this.loader("fa-map-marker", `Verificando o CEP ${cep} em busca de diferentes grafias para o nome ${this.name}.`, {
+                data: {
+                    cep: cep
+                },
+                success: (data) => {
+                    if (!$("logradouro", data).length) {
+                        callback();
+                        return;
+                    }
+                    this.serverCall("SELECT FROM 'CBUSCA'.'FILTRO'",
+                        this.loader("fa-puzzle-piece", `Verificando o CEP ${cep} em busca de diferentes grafias para o nome ${this.name}.`, {
+                            method: 'POST',
+                            dataType: 'json',
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                equalCep: cep,
+                                equalPrimeiroNome: this.name.split(" ")[0]
+                            }),
+                            success: (data) => {
+                                for (let result of data) {
+                                    if (metaname !== metaphone(result.values.nome)) return;
+                                    if (this.otherNames.indexOf(result.values.nome) !== -1) return;
+                                    this.otherNames.push(result.values.nome);
+                                }
+                            },
+                            complete: () => callback()
+                        }));
+                }
+            })), () => onComplete(this.otherNames));
+    }
+
     call(...args) {
         return this.controller.call(...args);
     }
@@ -138,7 +184,7 @@ export class KronoosParse {
     }
 
     serverCall(query, conf, priority = null) {
-        conf.method = 'GET';
+        if (!conf.method) conf.method = 'GET';
         if (this.finishTimeout) clearTimeout(this.finishTimeout);
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
@@ -349,7 +395,6 @@ export class KronoosParse {
                         return;
                     }
 
-                    debugger;
                     procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
                         data: {
                             data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
@@ -1117,7 +1162,9 @@ export class KronoosParse {
 
     searchJucespNire(nire) {
         this.serverCall("SELECT FROM 'JUCESP'.'DOCUMENT'", this.loader("fa-archive", `Procurando ficha cadastral da empresa ${this.name} (NIRE: ${nire}) junto a JUCESP.`, {
-            data : {nire: nire},
+            data: {
+                nire: nire
+            },
             success: (data) => {
                 let kelement = this.kronoosElement(`Ficha Cadastral da Empresa na Jucesp`,
                     `Ficha cadastral completa da empresa registrada na Jucesp desde 1992.`,
@@ -1137,7 +1184,9 @@ export class KronoosParse {
 
     searchJucesp(name) {
         this.serverCall("SELECT FROM 'JUCESP'.'SEARCH'", this.loader("fa-archive", `Procurando NIRE da empresa ${this.name} junto a JUCESP.`, {
-            data: {data: name || this.name},
+            data: {
+                data: name || this.name
+            },
             success: (data) => {
                 $("nire", data).each((i, e) => {
                     this.searchJucespNire($(e).text());
@@ -1711,11 +1760,15 @@ export class KronoosParse {
 
     jucespQuery(name, callback, cpf_cnpj) {
         this.serverCall("SELECT FROM 'JUCESP'.'SEARCH'", this.loader("fa-archive", `Procurando conexões com o NIRE da empresa ${name} junto a JUCESP.`, {
-            data: {data: name || this.name},
+            data: {
+                data: name || this.name
+            },
             error: () => callback(),
             success: (data) => async.each($("nire", data).map((i, e) => $(e).text()).toArray(), (nire, callback) => {
                 this.serverCall("SELECT FROM 'JUCESP'.'DOCUMENT'", this.loader("fa-archive", `Procurando conexões com a ficha cadastral da empresa ${name} (NIRE: ${nire}) junto a JUCESP.`, {
-                    data : {nire: nire},
+                    data: {
+                        nire: nire
+                    },
                     success: (data) => {
                         this.generateRelations.appendDocument(data, cpf_cnpj);
                     },
@@ -1795,7 +1848,7 @@ export class KronoosParse {
                         return;
                     }
 
-                    this.jucespQuery($("nome",data).text(), callback, formatted_document);
+                    this.jucespQuery($("nome", data).text(), callback, formatted_document);
                 });
 
                 this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
@@ -1897,19 +1950,22 @@ export class KronoosParse {
     }
 
     jusSearch() {
-        this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'",
-            this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${this.name}, documento ${this.cpf_cnpj}.`, {
-                data: {
-                    data: this.normalizeName(this.name)
-                },
-                success: jusSearch => this.juristek(jusSearch)
-            }), lowPriority);
+        this.findOtherNames((names) => names.map(name => {
+            debugger;
+            this.serverCall("SELECT FROM 'JUSSEARCH'.'CONSULTA'",
+                this.loader("fa-balance-scale", `Buscando por processos jurídicos para ${name}, documento ${this.cpf_cnpj}.`, {
+                    data: {
+                        data: this.normalizeName(name)
+                    },
+                    success: jusSearch => this.juristek(jusSearch, name)
+                }), lowPriority);
+        }));
     }
 
-    juristek(jusSearch) {
+    juristek(jusSearch, name) {
         /* All fucking data! */
-        const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`, 'gi');
-        let variable = `(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${this.name}`;
+        const CNJ_NUMBER = new RegExp(`(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${name || this.name}`, 'gi');
+        let variable = `(${CNJ_REGEX_TPL})((?!${CNJ_REGEX_TPL}).)*${name || this.name}`;
 
         let cnjs = {};
         $("BPQL > body snippet", jusSearch).each((idx, article) => {
@@ -1945,7 +2001,7 @@ export class KronoosParse {
                         c1 = $.parseHTML(c1);
 
                         let n1 = this.normalizeName(this.name);
-                        if (this.cpf && !$("span", c1).filter((i, e) => this.normalizeName($(e).text()) == n1).length) {
+                        if (this.cpf && !$("span", c1).filter((i, e) => this.compareNames($(e).text())).length) {
                             if (this.homonymous > 1 || this.name.split(" ").length < 3) return;
                         }
                         if (!this.parseProc(cnj, articleText, match[0])) return;
@@ -1953,7 +2009,11 @@ export class KronoosParse {
                     }
                 }));
         });
+    }
 
+    compareNames(name) {
+        let n1 = this.normalizeName(name);
+        return this.otherNames.filter(e => n1 == this.normalizeName(e)).length > 0;
     }
 
     normalizeJuristek(cnj) {
@@ -2071,7 +2131,6 @@ export class KronoosParse {
     }
 
     _juristekCNJ(ret, cnj = null, findProc = true, nameSearch = true) {
-        let normalizedName = this.normalizeName(this.name);
         let cnjInstance = null;
         let proc = null;
         let numproc = null;
@@ -2083,10 +2142,7 @@ export class KronoosParse {
             // if (nameSearch) {
             procs = procs.filter((i, e) => {
                 if (!$("partes parte", e).length) return true;
-                return $("partes parte", e).filter((x, a) => {
-                    let n1 = this.normalizeName($(a).text());
-                    return n1 == normalizedName;
-                }).length > 0;
+                return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
             });
             // }
 
@@ -2105,10 +2161,7 @@ export class KronoosParse {
                 // if (nameSearch) {
                 procs.filter((i, e) => {
                     if (!$("partes parte", e).length) return true;
-                    return $("partes parte", e).filter((x, a) => {
-                        let n1 = this.normalizeName($(a).text());
-                        return n1 == normalizedName;
-                    }).length > 0;
+                    return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
                 });
                 // }
                 procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch));
@@ -2130,8 +2183,7 @@ export class KronoosParse {
         }
 
 
-        if ($("partes parte", proc).length &&
-            !$("partes parte", proc).filter((x, a) => this.normalizeName($(a).text()) == normalizedName).length) {
+        if ($("partes parte", proc).length && !$("partes parte", proc).filter((x, a) => this.compareNames($(a).text())).length) {
             if (cnjInstance) {
                 cnjInstance.remove();
                 delete this.kelements[this.kelements.indexOf(cnjInstance)];

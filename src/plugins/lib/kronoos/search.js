@@ -183,7 +183,7 @@ module.exports = function(controller) {
                 method: 'GET',
                 data: {
                     'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
-                    // 'q[1]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+                    'q[1]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
                     documento: document,
                 },
                 success: (ret) => {
