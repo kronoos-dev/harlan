@@ -73,7 +73,6 @@ module.exports = function(controller) {
             controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
         } catch (e) {
             console.error(e);
-            debugger;
         }
     };
 

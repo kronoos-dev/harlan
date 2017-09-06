@@ -295,6 +295,7 @@ export class KronoosParse {
                 success: data => {
                     let procs = data.aaData.filter(x => this.compareNames(x[0]));
                     if (!procs.length) return;
+                    debugger;
                     found = true;
                     let kelement = this.kronoosElement(`Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
                         `Investigado pelo Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`, null);
@@ -400,7 +401,6 @@ export class KronoosParse {
                                     .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
                         },
                         success: (data) => {
-                            debugger;
                             this.juristekCNJ(data, null, true, !uniq, !uniq);
                         }
 
