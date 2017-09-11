@@ -2029,9 +2029,9 @@ export class KronoosParse {
         for (let index of matches) {
             let plusOne = data[index + (1 * direction)];
             let plusTwo = data[index + (2 * direction)];
-            if (plusOne && (plusOne[1] === 'PROPN' || BAD_NAMES.indexOf(plusOne[0]))) continue;
+            if (plusOne && (plusOne[1] === 'PROPN' || BAD_NAMES.indexOf(plusOne[0]) !== -1)) continue;
             if (plusOne && (plusOne[1] === 'ADP' || BAD_ADP.indexOf(plusOne[0].toLocaleLowerCase()) !== -1) && plusTwo &&
-                (BAD_NAMES.indexOf(plusTwo[0]) || plusTwo[1] == 'PROPN')) continue;
+                (BAD_NAMES.indexOf(plusTwo[0]) !== -1 || plusTwo[1] == 'PROPN')) continue;
             return true;
         }
         return false;
