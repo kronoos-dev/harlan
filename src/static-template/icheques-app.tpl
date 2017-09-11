@@ -1,6 +1,6 @@
 <div class="container app-header">
     <div class="content">
-        <div class='main'>
+        <div class="main">
             <div class="logo"><span></span>
                 <h1>iCheques</h1>
             </div>
@@ -21,13 +21,13 @@
 
 <div class="container menu">
     <ul>
-        <li id='application-new-check'><i class="fa fa-plus"></i>
+        <li id="application-new-check"><i class="fa fa-plus"></i>
             <div class="label">Adicionar Cheque</div>
         </li>
-        <li id='application-search'><i class="fa fa-search"></i>
+        <li id="application-search"><i class="fa fa-search"></i>
             <div class="label">Pesquisa</div>
         </li>
-        <li id='application-profile'><i class="fa fa-user"></i>
+        <li id="application-profile"><i class="fa fa-user"></i>
             <div class="label">Cadastro</div>
         </li>
     </ul>

@@ -1,8 +1,12 @@
+/* jshint loopfunc: true */
+
 import iconv from 'iconv-lite';
 import {
     CPF,
     CNPJ
 } from 'cpf_cnpj';
+
+import findIndexes from 'find-indexes';
 import async from "async";
 import _ from "underscore";
 import pad from 'pad';
@@ -28,6 +32,8 @@ const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '20
 
 const MPT_STATES = require("./mpt-states");
 
+const BAD_NAMES = ['amorim', 'silva', 'santos', 'goncalves', 'spagni', 'cancado', 'carioca'];
+const BAD_ADP = ['das', 'do', 'de', 'dos', 'di', 'da'];
 const CNJ_REGEX_TPL = '(\\s|^|-)(\\d+\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const CNJ_REGEX = new RegExp(CNJ_REGEX_TPL);
 const NON_NUMBER = /[^\d]/g;
@@ -189,7 +195,7 @@ export class KronoosParse {
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
         let complete = conf.complete;
-        conf.timeout = conf.timeout || 120000; /* 2 minutes */
+        conf.timeout = conf.timeout || 60000; /* 1 minute */
         conf.complete = (...args) => {
             if (!(--this.runningXhr)) {
                 this.header.element.removeClass("loading");
@@ -295,7 +301,6 @@ export class KronoosParse {
                 success: data => {
                     let procs = data.aaData.filter(x => this.compareNames(x[0]));
                     if (!procs.length) return;
-                    debugger;
                     found = true;
                     let kelement = this.kronoosElement(`Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
                         `Investigado pelo Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`, null);
@@ -851,7 +856,7 @@ export class KronoosParse {
 
     searchDAU() {
         this.serverCall("SELECT FROM 'RFBDAU'.'CONSULTA'",
-            this.loader("fa-money", `Pesquisando Dívida Ativa da União para o CNPJ ${this.cpf_cnpj}.`, {
+            this.loader("fa-money", `Pesquisando Dívida Ativa da União para o documento ${this.cpf_cnpj}.`, {
                 data: {
                     documento: this.cpf_cnpj
                 },
@@ -1987,32 +1992,63 @@ export class KronoosParse {
             let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
-            this.serverCall("SELECT FROM 'NATURAL'.'ENTITY_EXTRACTION'",
+            this.serverCall("SELECT FROM 'POLYGLOT'.'DATA'",
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
                     method: 'POST',
-                    timeout: 10000,
+                    // timeout: 210000,
                     data: {
-                        text: articleShow.replace("/", "-")
+                        data: articleShow
                     },
                     error: () => {
                         if (!this.parseProc(cnj, articleText, match[0])) return;
                         this.normalizeJuristek(cnj);
                     },
                     success: data => {
-                        let c1 = data['1-Entity-Tagged-Text'];
-                        if (!c1) return;
-                        c1 = $.parseHTML(c1);
+                        let nameRow = name.split(" ").map(x => x.toLocaleLowerCase());
+                        let matches = this.testMatch(nameRow, data);
 
-                        let n1 = this.normalizeName(this.name);
-                        if (this.cpf && !$("span", c1).filter((i, e) => this.compareNames($(e).text())).length) {
-                            if (this.homonymous > 1 || this.name.split(" ").length < 3) return;
+                        if (!this.completeName(matches, data)) {
+                            return;
                         }
+
+                        if (!this.completeName(matches.map(x => x - nameRow.length + 1), data, -1)) {
+                            return;
+                        }
+
                         if (!this.parseProc(cnj, articleText, match[0])) return;
                         this.normalizeJuristek(cnj);
                     }
                 }));
         });
+    }
+
+    completeName (matches, data, direction = 1) {
+        for (let index of matches) {
+            let plusOne = data[index + (1 * direction)];
+            let plusTwo = data[index + (2 * direction)];
+            if (plusOne && (plusOne[1] === 'PROPN' || BAD_NAMES.indexOf(plusOne[0]))) continue;
+            if (plusOne && (plusOne[1] === 'ADP' || BAD_ADP.indexOf(plusOne[0].toLocaleLowerCase()) !== -1) && plusTwo &&
+                (BAD_NAMES.indexOf(plusTwo[0]) || plusTwo[1] == 'PROPN')) continue;
+            return true;
+        }
+        return false;
+    }
+
+
+    testMatch (nameRow, data) {
+        let idx = 0;
+        let ret = [];
+        for (let i = 0; i < data.length; i++) {
+            if (data[i][0].toLocaleLowerCase() == nameRow[idx]) {
+                idx++;
+                if (idx === nameRow.length) {
+                    idx = 0;
+                    ret.push(i);
+                }
+            }
+        }
+        return ret;
     }
 
     compareNames(name) {

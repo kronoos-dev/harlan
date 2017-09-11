@@ -57,6 +57,8 @@
     "es6-shim": "^0.35.3",
     "escape-string-regexp": "^1.0.5",
     "filereader-stream": "^1.0.0",
+    "find-indexes": "^1.0.1",
+    "find-sequence": "^1.0.3",
     "genderize": "^1.5.2",
     "geolib": "^2.0.22",
     "glob": "^7.1.1",
