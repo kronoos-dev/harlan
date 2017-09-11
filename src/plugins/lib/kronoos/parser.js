@@ -2001,6 +2001,8 @@ export class KronoosParse {
                         data: articleShow
                     },
                     error: () => {
+                        if (this.homonymous > 1 && this.name.split(" ").length < 3)
+                            return;
                         if (!this.parseProc(cnj, articleText, match[0])) return;
                         this.normalizeJuristek(cnj);
                     },
