@@ -331,13 +331,17 @@ module.exports = function(controller) {
         KRONOOS_ACTION.submit();
     }
 
+    let mapElement = null;
     controller.registerTrigger("kronoos::end", "showmap", (data, callback) => {
         callback();
         let positions = _.map(_.filter(_.flatten(_.map(parsers, x => x.geocodes)), x => x.results && x.results.length), x => x.results[0].geometry.location);
         if (!positions.length) return;
 
         let kronoosMap = new KronoosMap();
-        let mapElement = $("<div />").addClass("map").css({
+        if (mapElement) {
+            mapElement.remove();
+        }
+        mapElement = $("<div />").addClass("map").css({
             height: '400px',
             width: '100%'
         });

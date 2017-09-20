@@ -92,6 +92,10 @@ export class KronoosParse {
         this.titleCanChange = false;
         this.geocodes = [];
 
+        this.confirmQueue = async.queue(function(task, callback) {
+            task(callback);
+        });
+
         if (CPF.isValid(cpf_cnpj)) {
             this.cpf = this.cpf_cnpj = CPF.format(cpf_cnpj);
         } else if (CNPJ.isValid(cpf_cnpj)) {
@@ -1828,13 +1832,17 @@ export class KronoosParse {
         });
         for (let xhr of this.xhr)
             if (xhr) xhr.abort();
+
         if (this.taskGraphTrack) this.taskGraphTrack.kill();
         if (this.taskGraphParallel) this.taskGraphParallel.kill();
         if (this.mptSync && this.mptSync.kill) this.mptSync.kill();
         if (this.tribunaisSync && this.tribunaisSync.kill) this.tribunaisSync.kill();
+        if (this.mptSync && this.confirmQueue) this.confirmQueue.kill();
     }
 
     graphTrack() {
+        let dontAskAgainInput = false,
+            dontAskAgain, defaultActionSearch = true;
 
         this.taskGraphTrack = async.timesSeries(this.depth, (i, callback) => this.generateRelations.track((data) => {
             let elements = [];
@@ -1869,10 +1877,11 @@ export class KronoosParse {
 
                 if (!this.cpf_cnpjs[cpf_cnpj]) {
                     this.cpf_cnpjs[cpf_cnpj] = true;
-                    elements.push(cb => this.serverCall("SELECT FROM 'KRONOOS'.'API'", this.errorAjax(
+
+                    let searchTarget = (cb) => this.serverCall("SELECT FROM 'KRONOOS'.'API'", this.errorAjax(
                         this.loader("fa-eye", `Pesquisando correlações através do nome ${node.label}, documento ${this.cpf_cnpj}.`, {
                             data: {
-                                documento: this.cpf_cnpj,
+                                documento: formatted_document,
                                 name: `"${node.label.replace("\n", "")}"`
                             },
                             success: (data) => {
@@ -1881,7 +1890,28 @@ export class KronoosParse {
                                 });
                             },
                             complete: () => cb()
-                        }))));
+                        })));
+
+                    elements.push(callback => this.confirmQueue.push((cb) => {
+                        if (dontAskAgain) {
+                            if (defaultActionSearch) searchTarget(() => {});
+                            return;
+                        }
+                        this.call("confirm", {
+                            title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
+                            subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`
+                        }, () => {
+                            dontAskAgain = dontAskAgainInput[1].is(":checked");
+                            defaultActionSearch = true;
+                            searchTarget(cb);
+                        }, () => {
+                            dontAskAgain = dontAskAgainInput[1].is(":checked");
+                            defaultActionSearch = false;
+                            cb();
+                        }, (modal, form, actions) => {
+                            dontAskAgainInput = form.addCheckbox("confirm", "Eu <strong>não desejo</strong> receber esta mensagem novamente.");
+                        });
+                    }, () => callback()));
                 }
             }
             this.taskGraphParallel = async.parallel(elements, () => callback());
@@ -2025,7 +2055,7 @@ export class KronoosParse {
         });
     }
 
-    completeName (matches, data, direction = 1) {
+    completeName(matches, data, direction = 1) {
         for (let index of matches) {
             let plusOne = data[index + (1 * direction)];
             let plusTwo = data[index + (2 * direction)];
@@ -2038,7 +2068,7 @@ export class KronoosParse {
     }
 
 
-    testMatch (nameRow, data) {
+    testMatch(nameRow, data) {
         let idx = 0;
         let ret = [];
         for (let i = 0; i < data.length; i++) {
@@ -2183,10 +2213,10 @@ export class KronoosParse {
 
             // if (nameSearch) {
             if (checkName)
-            procs = procs.filter((i, e) => {
-                if (!$("partes parte", e).length) return true;
-                return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
-            });
+                procs = procs.filter((i, e) => {
+                    if (!$("partes parte", e).length) return true;
+                    return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
+                });
             // }
 
             if (!procs.length) {
@@ -2203,10 +2233,10 @@ export class KronoosParse {
                 let procs = $("processo", ret);
                 // if (nameSearch) {
                 if (checkName)
-                procs.filter((i, e) => {
-                    if (!$("partes parte", e).length) return true;
-                    return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
-                });
+                    procs.filter((i, e) => {
+                        if (!$("partes parte", e).length) return true;
+                        return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
+                    });
                 // }
                 procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch, checkName));
                 return;
