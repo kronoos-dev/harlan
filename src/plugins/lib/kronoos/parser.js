@@ -204,11 +204,6 @@ export class KronoosParse {
         let success = conf.success;
         let error = conf.bipbopError;
 
-        if (!conf.data || typeof conf.data === "object") {
-            conf.data = conf.data || {};
-            conf.data.CACHE = 'DISABLED';
-        }
-
         conf.timeout = conf.timeout || 60000; /* 1 minute */
 
         let resourceUseAnalytics = (xml) => {
