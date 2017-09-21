@@ -16,7 +16,7 @@ module.exports = function (controller) {
         if (conf.statusElement)
             searchBarContainer.append(conf.statusElement.addClass("processing"));
 
-        jqXHR = task.parser.controller.server.call(target, conf, ...args).always(() => {
+        jqXHR = task.parser.controller.server.call(target, controller.call("error::ajax", conf, false), ...args).always(() => {
             let idx = task.parser.xhr.indexOf(jqXHR);
             if (idx !== -1)
                 delete task.parser.xhr[idx];
