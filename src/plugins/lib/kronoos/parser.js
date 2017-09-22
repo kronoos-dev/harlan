@@ -92,6 +92,7 @@ export class KronoosParse {
         this.runningXhr = 0;
         this.titleCanChange = false;
         this.geocodes = [];
+        this.resourceUse = 0;
 
         this.confirmQueue = async.queue(function(task, callback) {
             task(callback);
@@ -199,8 +200,38 @@ export class KronoosParse {
         if (this.finishTimeout) clearTimeout(this.finishTimeout);
         if (!(this.runningXhr++))
             this.header.element.addClass("loading");
+
         let complete = conf.complete;
+        let success = conf.success;
+        let error = conf.bipbopError;
+
         conf.timeout = conf.timeout || 60000; /* 1 minute */
+
+        let resourceUseAnalytics = (xml) => {
+            if (!xml || !(xml instanceof XMLDocument)) return;
+            /* fun things */
+            let resourceUse = parseInt($("BPQL > header", xml).attr("resourceUse"));
+            if (isNaN(resourceUse)) return;
+            this.resourceUse += resourceUse;
+            window.resourceUse = window.resourceUse || 0;
+            window.resourceUse += resourceUse;
+            if (resourceUse > 0) {
+                window.expensiveQuery = window.expensiveQuery || [];
+                window.expensiveQuery.push([query, conf]);
+            }
+        };
+
+        conf.bipbopError = (...args) => {
+            let [type, message, code, push, xml] = args;
+            resourceUseAnalytics(xml);
+            if (error) error(...args);
+        };
+
+        conf.success = (...args) => {
+            resourceUseAnalytics(args[0]);
+            if (success) success(...args);
+        };
+
         conf.complete = (...args) => {
             if (!(--this.runningXhr)) {
                 this.header.element.removeClass("loading");
@@ -2102,6 +2133,15 @@ export class KronoosParse {
     }
 
     normalizeJuristek(cnj) {
+
+        let hasNetworkIssue = () => {
+            if (!this.procElements[cnj]) {
+                return;
+            }
+            this.procElements[cnj].subtitle("Informação não estruturada pendente de confirmação humana.");
+            this.procElements[cnj].canDelete();
+        };
+
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Verificando processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                 data: {
@@ -2109,38 +2149,19 @@ export class KronoosParse {
                 },
                 success: ret => this.juristekCNJ(ret, cnj),
                 /* melhorar o quesito de erro! */
-                error: (jqXHR, ...args) => {
-                    let hasNetworkIssue = () => {
-                        if (!this.procElements[cnj]) {
-                            return;
-                        }
-                        this.procElements[cnj].subtitle("Informação não estruturada pendente de confirmação humana.");
-                        this.procElements[cnj].canDelete();
-                    };
-
-                    if (!jqXHR.responseText) {
+                error: () => hasNetworkIssue(),
+                bipbopError: (type, message, code, push, xml) => {
+                    if (!push) {
                         hasNetworkIssue();
                         return;
                     }
-
-                    try {
-                        var xml = $.parseXML(jqXHR.responseText);
-                        $.bipbopAssert(xml, (type, message, code, push) => {
-                            if (!push) {
-                                hasNetworkIssue();
-                                return;
-                            }
-                            if (!this.procElements[cnj]) {
-                                return;
-                            }
-                            this.procElements[cnj].remove();
-                            delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
-                            delete this.procElements[cnj];
-                            this.changeResult();
-                        });
-                    } catch (err) {
-                        hasNetworkIssue();
+                    if (!this.procElements[cnj]) {
+                        return;
                     }
+                    this.procElements[cnj].remove();
+                    delete this.kelements[this.kelements.indexOf(this.procElements[cnj])];
+                    delete this.procElements[cnj];
+                    this.changeResult();
                 }
             }), lowPriority);
 

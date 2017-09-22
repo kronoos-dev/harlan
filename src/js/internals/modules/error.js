@@ -48,14 +48,14 @@ module.exports = function(controller) {
         toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
     });
 
-    controller.registerCall("error::ajax", function(dict) {
+    controller.registerCall("error::ajax", function(dict, enableMessage = true) {
         var error = dict.error;
         dict.error = function(jqXHR, ...args) {
             try {
                 var xml = $.parseXML(jqXHR.responseText);
                 $.bipbopAssert(xml, dict.bipbopError || controller.reference("error::server"));
             } catch (err) {
-                toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
+                if (enableMessage) toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }
 
             if (error) {

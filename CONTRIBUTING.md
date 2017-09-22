@@ -12,7 +12,7 @@ Estas são principalmente diretrizes, e não regras. Use seu melhor julgamento e
 
 Se você notou um erro ou tem uma pergunta que não pertence ao Harlan
 [Lista de correspondência] (http://groups.google.com/group/bipbop) ou
-[Telegram] (https://web.telegram.org/#/im?p=c1130342554_15285734564282464304),
+[Telegram] (https://t.me/joinchat/FdQUYAoi3GLgimKVmHrphw),
 [Procure o rastreador de problemas] (https://github.com/bipbop/harlan/issues?q=something)
 Para ver se outra pessoa na comunidade já criou um ticket.
 Se não, vá em frente e [crie um](https://github.com/bipbop/harlan/issues/new)!
@@ -74,15 +74,15 @@ A execução deste comando tem como objetivo complilar todos módulos e subir um
 
 Se ocorrer falha ao subir o servidor verifique o log de exeução da ferramenta Gulp para verificar possível falha em carregar uma dependência.
 
-### 4. Veja suas alterações de forma automatica 
+### 4. Veja suas alterações de forma automatica
 
-Através da tarefa do Gulp [watch] é possível desenvolver de forma prática e rapida sem a necessidade de atualizações manuais, pois o Harlan utiliza a tecnologia "browser-sync" para buscar um melhor desempenho de desenvolvimento. 
+Através da tarefa do Gulp [watch] é possível desenvolver de forma prática e rapida sem a necessidade de atualizações manuais, pois o Harlan utiliza a tecnologia "browser-sync" para buscar um melhor desempenho de desenvolvimento.
 
 #### 5. Você encontrou um bug?  :mag_right:
 
 * ** Verifique se o bug já não foi relatado ** pesquisando no GitHub sob [Issues](https://github.com/bipbop/harlan/issues).
 
-* Se você não consegue encontrar um problema aberto abordando o problema,[crie uma issue](https://github.com/bipbop/harlan/issues/new). 
+* Se você não consegue encontrar um problema aberto abordando o problema,[crie uma issue](https://github.com/bipbop/harlan/issues/new).
 Certifique-se de incluir um título ** e uma descrição clara **, tanta informação relevante quanto possível,
 E um ** exemplo de código ** ou um ** caso de teste executável ** demonstrando o comportamento esperado que não está ocorrendo.
 
@@ -133,4 +133,3 @@ git checkout 159-add-american-translations
 git pull --rebase upstream master
 git push --force-with-lease 159-add-american-translations
 ```
-
