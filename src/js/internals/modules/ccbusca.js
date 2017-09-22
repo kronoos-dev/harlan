@@ -66,7 +66,7 @@ module.exports = (controller) => {
             printWindow.print();
         });
 
-        var juntaEmpresaHTML = controller.call("xmlDocument", ret);
+        var juntaEmpresaHTML = controller.call("xmlDocument", ret, 'CCBUSCA', 'DOCUMENT');
         juntaEmpresaHTML.find(".container").first().addClass("xml2html")
             .data("document", $(ret))
             .data("form", [{

@@ -46,9 +46,9 @@ module.exports = function(controller) {
     $("#login-about").text("Para acessar sua conta faça o login com usuário ou email e senha cadastrados.");
 
     $(controller.confs.container).append(siteTemplate);
-    $("#input-q").attr("placeholder",
-        controller.confs.isPhone ? "Pesquise por um cheque." :
-        "Pesquise por um CPF/CNPJ ou número de cheque cadastrado." );
+    $(".input-q").attr("placeholder",
+        controller.confs.isCordova ? "Digite um CPF, CNPJ ou CMC7." :
+        "Pesquise por um CPF/CNPJ ou número de cheque cadastrado.");
     $(".actions .container").prepend($("<div />").addClass("content support-phone").text("(11) 3661-4657 (Suporte)").prepend($("<i />").addClass("fa fa-phone")));
     $("body > .icheques-site .call-to-action").css({
         "height": window.innerHeight
@@ -165,10 +165,31 @@ module.exports = function(controller) {
 
         $.bipbopLoader.register = () => {
             $(controller.confs.container).append(container);
-            return () => {
-                container.remove();
-            };
+            return () => container.remove();
         };
     });
 
+    if (controller.confs.isCordova) {
+        $(".app-content").first().insertAfter(".icheques-app .app-header");
+        $(".icheques-app").removeAttr('style');
+        controller.registerCall("authentication::loggedin", () =>
+            controller.interface.helpers.activeWindow(".icheques-app"));
+        $("#application-new-check").click(controller.click("icheques::newcheck"));
+        $("#application-profile").click(controller.click("icheques::form::company"));
+
+        let appSearch = $(".app-search");
+        let appHeader = $(".app-header .main");
+
+        $("#application-search").click((e) => {
+            e.preventDefault();
+            if (appSearch.is(":visible")) {
+                appSearch.hide();
+                appHeader.show();
+            } else {
+                appSearch.show();
+                appHeader.hide();
+            }
+        });
+
+    }
 };

@@ -4,21 +4,23 @@ var KronoosElement = function(title, subtitle, sidenote) {
         content = $("<div />").addClass("content"),
         element = $("<div />").addClass("kronoos-element"),
         sideContent = $("<div />").addClass("kronoos-side-content full"),
-        titleElement = $("<h3 />").text(title).addClass("kronoos-element-title"),
-        subtitleElement = $("<h4 />").text(subtitle).addClass("kronoos-element-subtitle"),
-        sidenoteElement = $("<h5 />").text(sidenote).addClass("kronoos-element-sidenote"),
+        titleElement = $("<h3 />").append(title).addClass("kronoos-element-title"),
+        subtitleElement = $("<h4 />").append(subtitle).addClass("kronoos-element-subtitle"),
+        sidenoteElement = $("<h5 />").append(sidenote).addClass("kronoos-element-sidenote"),
         informationQA, informations, alertElement, aggregate, notation, behaviour,
         negativeCertificates;
 
     sideContent.append(titleElement)
-        .append(subtitleElement)
-        .append(sidenoteElement);
+        .append(subtitleElement);
+
+    if (sidenote)
+        sideContent.append(sidenoteElement);
 
     container.append(content.append(element.append(sideContent)));
     container.data("instance", this);
 
     var label = (label) => {
-        return $("<label />").text(label);
+        return $("<label />").append(label);
     };
 
     this.negativeCertificateStatus = (icon, message) => {
@@ -200,13 +202,21 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.captionTable = (caption, ...header) => {
+        return this.elementCaptionTable(null, caption, ...header);
+    };
+
+    this.elementTable = (appendTo, ...header) => {
+        return this.elementCaptionTable(appendTo, null, ...header);
+    };
+
+    this.elementCaptionTable = (appendTo, caption, ...header) => {
         var table = $("<table />").addClass("multi-label"),
             thead = $("<thead />"),
             headRow = $("<tr />"),
             tbody = $("<tbody />");
 
         if (caption) {
-            table.append($("<caption />").text(caption));
+            table.append($("<caption />").append(caption));
         }
 
         for (let item of header) {
@@ -228,7 +238,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
             return addItem;
         };
 
-        sideContent.append(table);
+        (appendTo || sideContent).append(table);
 
         return addItem;
     };
@@ -262,7 +272,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         image.src = url;
     };
 
-    this.list = (name, obj = {}) => {
+    this.list = (name, obj = {}, appendTo = null, moreClick = 0) => {
         let container = $("<div />").addClass("kronoos-list"),
             title = label(name),
             list = $("<ul />");
@@ -271,11 +281,36 @@ var KronoosElement = function(title, subtitle, sidenote) {
         obj.title = title;
         obj.list = list;
 
-        sideContent.append(container.append(title).append(list));
+        (appendTo || sideContent).append(container.append(title).append(list));
 
+        let itemCounter = 0;
         let addItem = (content, item = {}) => {
             item.element = $("<li />").html(content);
-            list.append(item.element);
+            itemCounter++;
+            if (moreClick && itemCounter > moreClick) {
+                item.element.addClass("hide-element");
+                if (!obj.nextElement) {
+                    obj.iconNextElement = $("<i />").addClass("fa fa-angle-down");
+                    list.append(obj.nextElement = $("<div />").attr("title", "Exibir Mais").append(obj.iconNextElement).addClass("more-click")).click(() => {
+                        if (obj.container.hasClass("show-all")) {
+                            obj.iconNextElement.removeClass("fa fa-angle-up");
+                            obj.iconNextElement.addClass("fa fa-angle-down");
+                            obj.container.removeClass("show-all");
+                        } else {
+                            obj.iconNextElement.removeClass("fa fa-angle-down");
+                            obj.iconNextElement.addClass("fa fa-angle-up");
+                            obj.container.addClass("show-all");
+                        }
+                    });
+                }
+            }
+
+
+            if (obj.nextElement) {
+                item.element.insertBefore(obj.nextElement);
+            } else {
+                list.append(item.element);
+            }
             return addItem;
         };
 
@@ -287,6 +322,12 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.paragraph = (content) => {
         sideContent.append($("<p />").html(content));
         return this;
+    };
+
+    this.flexContent = () => {
+        let element = $("<div />").addClass("flex-itens");
+        sideContent.append(element);
+        return element;
     };
 
     this.clear = () => {

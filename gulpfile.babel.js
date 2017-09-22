@@ -52,7 +52,7 @@ externalJsSources = [
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`,
-    `${vendors}/jquery-ajax-cache/dist/jquery-ajax-cache.js`
+    `${vendors}/outdated-browser/outdatedbrowser/outdatedbrowser.js`
 ],
 accuracyJsSources = [
     `${vendors}/jquery/dist/jquery.js`,
@@ -77,7 +77,7 @@ function i18n(locale) {
 
 require('gulp-task-list')(gulp);
 
-gulp.task("assets", () => {
+gulp.task("assets", ["outdatedbrowser:copy-files"], () => {
     return gulp.src([
         "src/assets/**/*"
     ])
@@ -216,6 +216,14 @@ gulp.task("build:extensions", [
     }));
 });
 
+// Copia os arquivos mobile para a iCheques
+gulp.task("outdatedbrowser:copy-files", [], () => {
+    return gulp.src([
+        `${vendors}/outdated-browser/outdatedbrowser/lang/**/*.html`,
+    ])
+    .pipe(gulp.dest(`${dist}/outdatedbrowser/lang`))
+    .pipe($.size({title: ">>> outdatedbrowser:copy-files"}));
+});
 
 gulp.task("build:plugins", [
     "build:plugins:template",

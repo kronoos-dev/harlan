@@ -8,9 +8,15 @@ import async from "async";
 import _ from "underscore";
 import VMasker from 'vanilla-masker';
 import pad from 'pad';
-import {KronoosParse} from './parser';
-import {KronoosStats} from './stats';
-import {KronoosMap} from './map';
+import {
+    KronoosParse
+} from './parser';
+import {
+    KronoosStats
+} from './stats';
+import {
+    KronoosMap
+} from './map';
 
 const removeDiacritics = require('diacritics').remove;
 
@@ -36,7 +42,7 @@ module.exports = function(controller) {
         photosQueue,
         brief,
         searchTimeout,
-        depth = controller.query.d ? parseInt(controller.query.d) : 2;
+        depth = controller.query.d ? parseInt(controller.query.d) : 0;
 
     const INPUT = $("#kronoos-q");
     const SEARCH_BAR = $(".kronoos-application .search-bar");
@@ -53,6 +59,13 @@ module.exports = function(controller) {
         KRONOOS_DEPTH.removeClass(`fa-thermometer-${depth}`);
         if (++depth > 4) depth = 0;
         KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
+        if (depth > 1) {
+            toastr.success(`Profundidade automática de consulta ajustada para ${depth} nós.`, "Profundidade de Pesquisa");
+        } else if (depth) {
+            toastr.warning(`Profundidade automática de consulta ajustada para um nó.`, "Profundidade de Pesquisa");
+        } else {
+            toastr.warning(`Profundidade automática desabilidade.`, "Profundidade de Pesquisa");
+        }
     });
 
     KRONOOS_LOGO.css("cursor", "pointer");
@@ -152,7 +165,7 @@ module.exports = function(controller) {
                     documento: document
                 },
                 success: (ret) => {
-                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).text(), document);
+                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document);
                 },
                 error: () => {
                     controller.call("kronoos::ccbusca", null, document);
@@ -175,12 +188,30 @@ module.exports = function(controller) {
             controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name || ""} ${document}.`, {
                 method: 'GET',
                 data: {
-                    'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
-                    'q[1]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+                    'q[0]': "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
+                    'q[1]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
                     documento: document,
                 },
                 success: (ret) => {
-                    name = name || $("BPQL > body cadastro > nome", ret).text();
+                    if (CNPJ.isValid(document)) {
+                        xhr.push(controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", controller.call("error::ajax",
+                            controller.call("kronoos::status::ajax", "fa-bank", `Capturando certidão CNPJ para ${name || ""} ${document}.`, {
+                                method: 'GET',
+                                data: {
+                                    documento: document
+                                },
+                                error: () => {
+                                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
+                                    controller.call("kronoos::search", document, name, ret);
+                                },
+                                success: (ret) => {
+                                    name = $("nome", ret).first().text() || name;
+                                    controller.call("kronoos::search", document, name, ret);
+                                }
+                            }))));
+                        return;
+                    }
+                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
                     controller.call("kronoos::search", document, name, ret);
                 }
             }))));
@@ -300,13 +331,17 @@ module.exports = function(controller) {
         KRONOOS_ACTION.submit();
     }
 
+    let mapElement = null;
     controller.registerTrigger("kronoos::end", "showmap", (data, callback) => {
         callback();
         let positions = _.map(_.filter(_.flatten(_.map(parsers, x => x.geocodes)), x => x.results && x.results.length), x => x.results[0].geometry.location);
         if (!positions.length) return;
 
         let kronoosMap = new KronoosMap();
-        let mapElement = $("<div />").addClass("map").css({
+        if (mapElement) {
+            mapElement.remove();
+        }
+        mapElement = $("<div />").addClass("map").css({
             height: '400px',
             width: '100%'
         });

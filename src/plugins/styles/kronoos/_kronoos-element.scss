@@ -56,7 +56,42 @@
     box-shadow: 0 10px 19px -19px rgb(0, 0, 0);
     .kronoos-list {
         margin: 32px 0;
+        li:nth-child(n+11)  {
+            display: none;
+        }
+        .more-click {
+            display: block;
+            width: 100%;
+            min-height: 49px;
+            text-align: center;
+            font-weight: bold;
+            background: linear-gradient(#dcdcdc, rgba(255, 255, 255, 0));
+            cursor: pointer;
+        }
+        li.hide-element {
+            display: none;
+        }
+        &.show-all li.hide-element {
+            display: block;
+        }
     }
+
+    .flex-itens {
+        display: flex;
+        margin: 32px 0;
+        & > * {
+            flex-grow: 1;
+            width: 50%;
+            margin: 0;
+            &:first-child {
+                margin-right: 10px;
+            }
+            &:last-child {
+                margin-left: 10px;
+            }
+        }
+    }
+
     small {
         font-size: 12px;
         &:after { content: " )"; }

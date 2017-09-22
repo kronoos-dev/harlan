@@ -827,14 +827,14 @@ module.exports = (controller) => {
                     validate: function(item) {
                         return numeral(item.element.val()).value() > 0;
                     }
-                }, {
+                }, /*{
                     "value": value.otherOccurrences,
                     "checked": value.otherOccurrences,
                     "name": "other-occurrences",
                     "type": "checkbox",
                     "labelText": "Enviar Outras Ocorrências",
                     "optional": true,
-                }, {
+                },*/ {
                     "value": value.blockedBead,
                     "checked": value.blockedBead,
                     "name": "blocked-bead",

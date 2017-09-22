@@ -235,7 +235,7 @@ module.exports = (controller) =>  {
 
     controller.registerBootstrap("credits", (callback) =>  {
         callback();
-        $("#action-credits").click((e) =>  {
+        $(".action-credits").click((e) =>  {
             controller.call("credits::buy");
         });
     });

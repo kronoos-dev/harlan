@@ -18,7 +18,7 @@ module.exports = (controller) => {
         showSkip: false,
     }, {
         'event': "next",
-        selector: "#action-credits",
+        selector: ".action-credits",
         description : "Inserimos crédito de cortesia.<br />Quando acabar, clique aqui para adicionar mais.",
         nextButton: {text: "Próximo"},
         skipButton: {text: "Sair"},

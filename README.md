@@ -1,6 +1,5 @@
 Bem Vindo ao Harlan
 ======
-[![Build Status](https://travis-ci.org/bipbop/harlan.svg?branch=master)](https://travis-ci.org/bipbop/harlan)
 
 **Conheça o modo mais conveniente de capturar dados e gerar relatórios para sua empresa, transforme o Harlan na plataforma nº 1 para ficar sabendo do que importa.**
 
@@ -18,17 +17,14 @@ Cada consulta salva é permanentemente atualizada, isto é, sempre que você con
 
 ### Open Source e Comunitário
 
-O Harlan é uma plataforma open-source distribuída sobre a licença MIT, o código fonte e maiores informações podem ser encontradas no nosso repositório de código [Bitbucket](https://bitbucket.org/bipbop/harlan). Ser uma plataforma livre significa que se você é desenvolvedor pode criar módulos e APIs para o sistema para atender demandas específicas, ganhando dinheiro com isso.
+O Harlan é uma plataforma open-source distribuída sobre a licença MIT, o código fonte e maiores informações podem ser encontradas no nosso repositório de código [github](https://github.com/bipbop/harlan). Ser uma plataforma livre significa que se você é desenvolvedor pode criar módulos e APIs para o sistema para atender demandas específicas, ganhando dinheiro com isso.
 
-O [Guia contribuição](https://github.com/bipbop/harlan/blob/master/CONTRIBUTING.md)
-É um bom lugar para começar. Se você tiver dúvidas, não hesite em perguntar.
-----------
+O [guia contribuição](https://github.com/bipbop/harlan/blob/master/CONTRIBUTING.md) é um bom lugar para começar. Se você tiver dúvidas, não hesite em perguntar.
 
 ### Suporte
 
-Encontrou algum problema no Harlan, alguma dúvida? Pergunte no [Stack Overflow](http://pt.stackoverflow.com/). 
+Encontrou algum problema no Harlan, alguma dúvida? Pergunte no [Stack Overflow](http://pt.stackoverflow.com/).
 
 #### Suporte Corporativo
 
-Dúvidas sobre implementação? A BIPBOP responderá suas questões em até duas horas de maneira efetiva e garantida. Assine em [checkout](https://irql.bipbop.com.br/api/checkout.html).
-
+Dúvidas sobre implementação? A BIPBOP responderá suas questões em até duas horas de maneira efetiva e garantida. Assine em [checkout](https://api.bipbop.com.br/checkout.html).

@@ -1,11 +1,11 @@
 /**
  * Módulo responsável por listar as consultas do INFO.INFO na UX
  */
-module.exports = function (controller) {
+module.exports = function(controller) {
 
     var xhr;
 
-    var parseWrapper = function (field) {
+    var parseWrapper = function(field) {
         var jField = $(field);
         var options = jField.find("option");
         var attributes = {
@@ -21,19 +21,19 @@ module.exports = function (controller) {
         var label = $("<label />").text(jField.attr("caption"));
         var input = $(!options.length ? "<input />" : "<select />").attr(attributes);
 
-        options.each(function (idx, optNode) {
+        options.each(function(idx, optNode) {
             var jOptNode = $(optNode);
             input.append($("<option />").text(jOptNode.text()).attr("value", jOptNode.attr("value")));
         });
 
         return $("<div />")
-                .addClass("input-wrapper")
-                .append(label)
-                .append(input);
+            .addClass("input-wrapper")
+            .append(label)
+            .append(input);
     };
 
-    var factoryShowForm = function (section, button) {
-        return function (e) {
+    var factoryShowForm = function(section, button) {
+        return function(e) {
             e.preventDefault();
             var iButton = button.find("i");
             var flipElements = section.find("form, section, footer");
@@ -47,7 +47,7 @@ module.exports = function (controller) {
         };
     };
 
-    var parseFormContent = function (tableJNode, databaseJNode, header, wrappers) {
+    var parseFormContent = function(tableJNode, databaseJNode, header, wrappers) {
         var nFields = wrappers.length;
         if (nFields % 2)
             nFields += 1;
@@ -68,11 +68,11 @@ module.exports = function (controller) {
         }
 
         return $("<div />")
-                .addClass("container filters")
-                .append($("<div />").addClass("content").append(contentFilters));
+            .addClass("container filters")
+            .append($("<div />").addClass("content").append(contentFilters));
     };
 
-    var parseForm = function (tableJNode, databaseJNode, header, section) {
+    var parseForm = function(tableJNode, databaseJNode, header, section) {
         var wrappers = [];
 
         var form = $("<form />").addClass("block-filters").attr({
@@ -80,7 +80,7 @@ module.exports = function (controller) {
             action: "#"
         });
 
-        tableJNode.find("field").each(function (idx, field) {
+        tableJNode.find("field").each(function(idx, field) {
             wrappers.push(parseWrapper(field));
         });
 
@@ -100,14 +100,14 @@ module.exports = function (controller) {
         return form;
     };
 
-    var factoryCloseSection = function (section) {
-        return function (e) {
+    var factoryCloseSection = function(section) {
+        return function(e) {
             e.preventDefault();
             section.remove();
         };
     };
 
-    var parseHeader = function (tableJNode, databaseJNode, section) {
+    var parseHeader = function(tableJNode, databaseJNode, section) {
         var header = $("<header />");
         var container = $("<div />").addClass("container");
         var content = $("<div />").addClass("content");
@@ -131,18 +131,18 @@ module.exports = function (controller) {
         section.append(header);
     };
 
-    var parseSection = function (tableJNode, databaseJNode, section) {
+    var parseSection = function(tableJNode, databaseJNode, section) {
         section.append($("<section />").addClass("results"));
     };
 
-    var parseFooter = function (tableJNode, databaseJNode, section) {
+    var parseFooter = function(tableJNode, databaseJNode, section) {
         var footer = $("<footer />").addClass("load-more hide");
         var container = $("<div />").addClass("container");
         var content = $("<div />").addClass("content").text("Mais Resultados");
         section.append(footer.append(container.append(content)));
     };
 
-    var parseTable = function (tableJNode, databaseJNode) {
+    var parseTable = function(tableJNode, databaseJNode) {
         var section = $("<section />").addClass("group-type database");
         parseHeader(tableJNode, databaseJNode, section);
         parseSection(tableJNode, databaseJNode, section);
@@ -150,16 +150,16 @@ module.exports = function (controller) {
         return section;
     };
 
-    var loadExternalJavascript = function (domTable, jElement) {
+    var loadExternalJavascript = function(domTable, jElement) {
         var jsonps = jElement.find("harlanJSONP");
         if (!jsonps.length)
             return false;
 
         var requestsMissing = jsonps.length;
 
-        jsonps.each(function (i, element) {
-            var completedRequest = function (idx) {
-                return function () {
+        jsonps.each(function(i, element) {
+            var completedRequest = function(idx) {
+                return function() {
                     controller.store.unset(idx);
                     if (!--requestsMissing) {
                         $(".app-content").append(domTable);
@@ -176,7 +176,7 @@ module.exports = function (controller) {
                 cache: true,
                 jsonpCallback: jElement.attr("callback"),
                 success: completedRequest(jElement.attr("callback")),
-                error: function () {
+                error: function() {
                     console.log("Ocorreu um erro no callback " + jElement.text());
                     controller.store.unset(jElement.attr("callback"));
                 },
@@ -189,7 +189,7 @@ module.exports = function (controller) {
 
     var items = [];
 
-    var parseDocument = function (jDocument, text, modal) {
+    var parseDocument = function(jDocument, text, modal) {
 
         text = text.toLowerCase();
 
@@ -197,11 +197,11 @@ module.exports = function (controller) {
             items[idx].remove();
         }
 
-        jDocument.find("database table[harlan=\"enabled\"]").each(function (idx, element) {
+        jDocument.find("database table[harlan=\"enabled\"]").each(function(idx, element) {
             var tableJNode = $(element);
             var databaseJNode = tableJNode.closest("database");
 
-            var matchText = function (node) {
+            var matchText = function(node) {
                 var validAttrs = ["label", "name", "description"];
                 for (var idx in validAttrs) {
                     if (node.attr(validAttrs[idx]).toLowerCase().indexOf(text) >= 0)
@@ -217,28 +217,28 @@ module.exports = function (controller) {
             items.push(modal.item(databaseJNode.attr("label") || databaseJNode.attr("name"),
                     tableJNode.attr("label") || tableJNode.attr("name"),
                     tableJNode.attr("description"))
-                    .addClass("database")
-                    .click(function () {
-                        var domTable = parseTable(tableJNode, databaseJNode);
-                        controller.trigger("findDatabase::table::" +
-                                databaseJNode.attr("name").toUpperCase() + "::" +
-                                tableJNode.attr("name").toUpperCase(), {
+                .addClass("database")
+                .click(function() {
+                    var domTable = parseTable(tableJNode, databaseJNode);
+                    controller.trigger("findDatabase::table::" +
+                        databaseJNode.attr("name").toUpperCase() + "::" +
+                        tableJNode.attr("name").toUpperCase(), {
                             dom: domTable,
                             about: tableJNode
                         });
-                        if (!loadExternalJavascript(domTable, tableJNode))
-                            $(".app-content").append(domTable);
-                    }));
+                    if (!loadExternalJavascript(domTable, tableJNode))
+                        $(".app-content").append(domTable);
+                }));
         });
     };
 
-    controller.registerTrigger("findDatabase::instantSearch", "findDatabase::instantSearch", function (args, callback) {
+    controller.registerTrigger("findDatabase::instantSearch", "findDatabase::instantSearch", function(args, callback) {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }
 
         var text = args[0],
-                modal = args[1];
+            modal = args[1];
 
         if (!/^[a-z]{3,}[a-z\s*]/i.test(text)) {
             callback();
@@ -246,49 +246,48 @@ module.exports = function (controller) {
         }
 
         xhr = controller.serverCommunication.call("SELECT FROM 'INFO'.'INFO'", {
-            complete: function () {
+            complete: function() {
                 callback();
             },
-            success: function (domDocument) {
+            success: function(domDocument) {
                 parseDocument($(domDocument), text, modal);
             },
             cache: true
         });
     });
 
-    controller.registerBootstrap("databaseSearch", function (callback) {
+    controller.registerBootstrap("databaseSearch", function(callback) {
         callback();
+        $(".input-q").each((i, v) => {
+            let inputDatabaseSearch = $(v);
+            var autocomplete = controller.call("autocomplete", inputDatabaseSearch);
 
-        var inputDatabaseSearch = $("#input-q");
-        var autocomplete = controller.call("autocomplete", inputDatabaseSearch);
+            var searchLength;
+            var searchId;
 
-        var searchLength;
-        var searchId;
+            inputDatabaseSearch.keyup(function() {
+                var search = inputDatabaseSearch.val();
+                var newLength = search.length;
 
-        inputDatabaseSearch.keyup(function () {
-            var search = inputDatabaseSearch.val();
-            var newLength = search.length;
+                if (newLength === searchLength)
+                    return;
 
-            if (newLength === searchLength)
-                return;
+                autocomplete.empty();
+                searchLength = newLength;
 
-            autocomplete.empty();
-            searchLength = newLength;
+                if (searchId)
+                    clearTimeout(searchId);
 
-            if (searchId)
-                clearTimeout(searchId);
-
-            searchId = setTimeout(function () {
-                $(".q").addClass("loading");
-                controller.trigger("findDatabase::instantSearch", [search, autocomplete], function (args, callback) {
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
-                    $(".q").removeClass("loading");
-                });
-            }, controller.confs.instantSearchDelay);
-
+                searchId = setTimeout(function() {
+                    $(".q").addClass("loading");
+                    controller.trigger("findDatabase::instantSearch", [search, autocomplete], function(args, callback) {
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
+                        $(".q").removeClass("loading");
+                    });
+                }, controller.confs.instantSearchDelay);
+            });
         });
-
     });
 };

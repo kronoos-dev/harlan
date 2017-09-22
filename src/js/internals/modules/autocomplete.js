@@ -7,7 +7,7 @@ module.exports = function (controller) {
      * @param mixed jinput
      * @returns {module.exports.autocomplete}
      */
-    var autocomplete = function (input) {
+    var Autocomplete = function (input) {
         var inputContainer = $("<div />").addClass("autocomplete");
         /* Input Element First */
 
@@ -111,7 +111,7 @@ module.exports = function (controller) {
      * Autocomplete de um formulário
      */
     controller.registerCall("autocomplete", function (input) {
-        return new autocomplete(input);
+        return new Autocomplete(input);
     });
 
 };
