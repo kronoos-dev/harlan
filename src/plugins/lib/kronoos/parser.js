@@ -55,6 +55,7 @@ const NAMESPACE_DESCRIPTION = {
     'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
     'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'],
     'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'],
+
     /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
     'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
@@ -809,7 +810,6 @@ export class KronoosParse {
     cbuscaTelefone() {
         let telefones = $("telefones telefone", this.ccbuscaData);
         if (!telefones.length) return;
-
         let phones = _.uniq(telefones.map((i, e) => VMasker.toPattern($("ddd", e).text() + $("numero", e).text(), "(99) 9999-99999")).toArray());
         let klist = this.firstElement().captionTable("Telefones");
         for (let i = 0; i < phones.length; i+=3) {
@@ -1944,6 +1944,7 @@ export class KronoosParse {
                             if (defaultActionSearch) searchTarget(() => {});
                             return;
                         }
+
                         this.call("confirm", {
                             title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
                             subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`
@@ -1956,7 +1957,7 @@ export class KronoosParse {
                             defaultActionSearch = false;
                             cb();
                         }, (modal, form, actions) => {
-                            dontAskAgainInput = form.addCheckbox("confirm", "Eu <strong>não desejo</strong> receber esta mensagem novamente.");
+                            dontAskAgainInput = form.addCheckbox("confirm", "Eu <strong>não desejo</strong> receber esta mensagem novamente <em>(aplicado para todos os targets relacionados com o atual)</em>.");
                         });
                     }, () => callback()));
                 }
