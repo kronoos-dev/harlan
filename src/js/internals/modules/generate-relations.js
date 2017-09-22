@@ -35,6 +35,25 @@ module.exports = (controller) => {
 
     /* Adaptadores para Compreensão Documental */
     var readAdapters = {
+        "RECUPERA.LOCALIZADORPJFILIAIS" : {
+            trackNodes: (relation, legalDocument, document) => {
+                return (callback) => {
+                    return callback(null, $("PESSOA", document).map((idx, node) => {
+                        return relation.createNode($("CNPJ", node).text(), $("RAZAO", node).text(), "user", {
+                            unlabel: true
+                        });
+                    }).toArray());
+                };
+            },
+            trackEdges: (relation, legalDocument, document) => {
+                return (callback) => {
+                    return callback(null, $("PESSOA", document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, $("CNPJ", node).text());
+                    }).toArray());
+                };
+            },
+            purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
+        },
         "RECUPERA.LOCALIZADORPARTEMPRESARIALPJ" : {
             trackNodes: (relation, legalDocument, document) => {
                 return (callback) => {
@@ -202,10 +221,11 @@ module.exports = (controller) => {
         var documents = {};
         var labelIdentification = {};
 
-        this.createEdge = (vfrom, vto) => {
+        this.createEdge = (vfrom, vto, relationType = null) => {
             return {
                 from: vfrom.replace(START_ZERO, ''),
-                to: vto.replace(START_ZERO, '')
+                to: vto.replace(START_ZERO, ''),
+                relationType: relationType
             };
         };
 

@@ -202,6 +202,14 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.captionTable = (caption, ...header) => {
+        return this.elementCaptionTable(null, caption, ...header);
+    };
+
+    this.elementTable = (appendTo, ...header) => {
+        return this.elementCaptionTable(appendTo, null, ...header);
+    };
+
+    this.elementCaptionTable = (appendTo, caption, ...header) => {
         var table = $("<table />").addClass("multi-label"),
             thead = $("<thead />"),
             headRow = $("<tr />"),
@@ -230,7 +238,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
             return addItem;
         };
 
-        sideContent.append(table);
+        (appendTo || sideContent).append(table);
 
         return addItem;
     };
@@ -264,7 +272,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         image.src = url;
     };
 
-    this.list = (name, obj = {}) => {
+    this.list = (name, obj = {}, appendTo = null, moreClick = 0) => {
         let container = $("<div />").addClass("kronoos-list"),
             title = label(name),
             list = $("<ul />");
@@ -273,11 +281,36 @@ var KronoosElement = function(title, subtitle, sidenote) {
         obj.title = title;
         obj.list = list;
 
-        sideContent.append(container.append(title).append(list));
+        (appendTo || sideContent).append(container.append(title).append(list));
 
+        let itemCounter = 0;
         let addItem = (content, item = {}) => {
             item.element = $("<li />").html(content);
-            list.append(item.element);
+            itemCounter++;
+            if (moreClick && itemCounter > moreClick) {
+                item.element.addClass("hide-element");
+                if (!obj.nextElement) {
+                    obj.iconNextElement = $("<i />").addClass("fa fa-angle-down");
+                    list.append(obj.nextElement = $("<div />").attr("title", "Exibir Mais").append(obj.iconNextElement).addClass("more-click")).click(() => {
+                        if (obj.container.hasClass("show-all")) {
+                            obj.iconNextElement.removeClass("fa fa-angle-up");
+                            obj.iconNextElement.addClass("fa fa-angle-down");
+                            obj.container.removeClass("show-all");
+                        } else {
+                            obj.iconNextElement.removeClass("fa fa-angle-down");
+                            obj.iconNextElement.addClass("fa fa-angle-up");
+                            obj.container.addClass("show-all");
+                        }
+                    });
+                }
+            }
+
+
+            if (obj.nextElement) {
+                item.element.insertBefore(obj.nextElement);
+            } else {
+                list.append(item.element);
+            }
             return addItem;
         };
 
@@ -289,6 +322,12 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.paragraph = (content) => {
         sideContent.append($("<p />").html(content));
         return this;
+    };
+
+    this.flexContent = () => {
+        let element = $("<div />").addClass("flex-itens");
+        sideContent.append(element);
+        return element;
     };
 
     this.clear = () => {

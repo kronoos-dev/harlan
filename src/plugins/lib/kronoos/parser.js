@@ -253,7 +253,7 @@ export class KronoosParse {
     notFound(...args) {
         if (!this._notFoundList) {
             this._notFoundObject = {};
-            this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject);
+            this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject, null, 10);
         }
         return this._notFoundList(...args);
     }
@@ -725,7 +725,7 @@ export class KronoosParse {
 
     cbuscaMae() {
         let row = {};
-        let maeNode = $("nomemae", this.ccbuscaData);
+        let maeNode = $("nomemae", this.ccbuscaData).first();
         if (maeNode.length && maeNode.text()) {
             row["Nome da Mãe"] = maeNode.text();
             this.mae = maeNode.text();
@@ -810,8 +810,12 @@ export class KronoosParse {
         let telefones = $("telefones telefone", this.ccbuscaData);
         if (!telefones.length) return;
 
-        let klist = this.firstElement().list("Telefones");
-        _.each(_.uniq(telefones.map((i, e) => VMasker.toPattern($("ddd", e).text() + $("numero", e).text(), "(99) 9999-99999")).toArray()), (e) => klist(e));
+        let phones = _.uniq(telefones.map((i, e) => VMasker.toPattern($("ddd", e).text() + $("numero", e).text(), "(99) 9999-99999")).toArray());
+        let klist = this.firstElement().captionTable("Telefones");
+        for (let i = 0; i < phones.length; i+=3) {
+            klist(phones[i], phones[i+1], phones[i+2]);
+        }
+
     }
 
     end() {
@@ -846,17 +850,24 @@ export class KronoosParse {
     cbuscaEmpregos() {
         let rendaEmpregador = $("rendaEmpregador rendaEmpregador", this.ccbuscaData);
         if (!rendaEmpregador.length) return;
-        let klist = this.firstElement().list("Empregadores");
+        let klist = this.firstElement().list("Empregadores", {}, this.groupElement());
         rendaEmpregador.each((idx, value) => {
             let v = x => $(x, value).text();
             klist(`${v('empregador')} <small>${v('setorEmpregador')}</small> - ${v('cboDescricao')} <small>${v('faixaRenda')} em ${moment(v('rendaDataRef'), "YYYY-MM-DD").format("DD/MM/YYYY")}, ${moment(v('rendaDataRef'), "YYYY-MM-DD").fromNow()}.</small>`);
         });
     }
 
+    groupElement() {
+        if (!this.grouElements) {
+            this.grouElements = this.firstElement().flexContent();
+        }
+        return this.grouElements;
+    }
+
     cbuscaEnderecos() {
         let enderecos = $("enderecos endereco", this.ccbuscaData);
         if (!enderecos.length) return;
-        let klist = this.firstElement().list("Endereço");
+        let klist = this.firstElement().list("Endereço", {}, this.groupElement());
         let keys = {};
         enderecos.each((idx, value) => {
             let v = x => $(x, value).text();
@@ -1901,6 +1912,11 @@ export class KronoosParse {
 
                 this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
                 this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
+                this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
+
+                if (CNPJ.isValid(formatted_document)) {
+                    this.query("SELECT FROM 'RECUPERA'.'LocalizadorPJFiliais'", formatted_document, elements);
+                }
 
                 if (CPF.isValid(formatted_document)) {
                     this.query("SELECT FROM 'FINDER'.'RELATIONS'", formatted_document, elements);
