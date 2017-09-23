@@ -55,8 +55,10 @@ module.exports = function(controller) {
                 var xml = $.parseXML(jqXHR.responseText);
                 $.bipbopAssert(xml, dict.bipbopError || controller.reference("error::server"));
             } catch (err) {
+                if (dict.bipbopError) dict.bipbopError(null, null, 0, false, null);
                 if (enableMessage) toastr.error("Não foi possível processar a sua requisição.", "Tente novamente mais tarde.");
             }
+
 
             if (error) {
                 error(jqXHR, ...args);

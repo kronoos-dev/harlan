@@ -251,6 +251,18 @@ export class KronoosParse {
         return this.call("kronoos::status::ajax", ...args);
     }
 
+    errorHappen(...args) {
+        if (!this._errorHappendList) {
+            this._errorHappendObject = {
+                // class: 'red',
+                paragraph: "Os erros de captura podem ocorrer no caso de indisponibilidade do servidor e ou mudança na disposição dos dados. Para maiores informações contate nosso suporte técnico.",
+
+            };
+            this._errorHappendList = this.firstElement().list("<i class='fa fa-exclamation-triangle' /> Ocorreram Erros na Captura", this._errorHappendObject, null, 10);
+        }
+        return this._errorHappendList(...args);
+    }
+
     notFound(...args) {
         if (!this._notFoundList) {
             this._notFoundObject = {};
@@ -278,6 +290,7 @@ export class KronoosParse {
                     documento: this.cpf_cnpj,
                     nome: this.name
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`),
                 success: data => {
                     if (!test($("body > text", data).text())) {
                         this.notFound(`Não consta apontamento na certidão - ${database}`);
@@ -311,6 +324,7 @@ export class KronoosParse {
                         documento: this.cpf_cnpj.replace(/[^0-9]/, ''),
                         secao: n[0]
                     },
+                    bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Tribunal Regional Federal - ${n[1]}`),
                     success: data => {
                         if ($("confirmacao:contains('N A D A C O N S T A')", data).length) return;
                         if (!$("confirmacao", data).length) return;
@@ -328,12 +342,13 @@ export class KronoosParse {
     searchMPT() {
         let found = false;
         this.mptSync = async.each(_.range(1, 24), (n, callback) => {
-            this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-legal', `Capturando dados do ministério público do trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
+            this.serverCall("SELECT FROM 'MPT'.'CONSULTA'", this.loader('fa-legal', `Capturando dados do Ministério Público do Trabalho ${n}º região - ${MPT_STATES[n]}, para o nome ${this.name}.`, {
                 dataType: 'json',
                 data: {
                     data: this.name,
                     n: n
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`),
                 success: data => {
                     let procs = data.aaData.filter(x => this.compareNames(x[0]));
                     if (!procs.length) return;
@@ -370,6 +385,7 @@ export class KronoosParse {
             data: {
                 documento: this.cpf_cnpj.replace(/[^0-9]/g, '')
             },
+            bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Serasa (REFIN/PEFIN)`),
             success: data => {
                 if (!data.spc) {
                     toastr.warning("A consulta ao Serasa/SPC não está habilitada.", "Entre em contato e tente novamente.");
@@ -407,23 +423,32 @@ export class KronoosParse {
     }
 
     searchTribunais() {
-        let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`]);
-        let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null]);
+        let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Tribunal Federal 1º Região - ${x[1]}`]);
+        let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
 
         this.tribunaisSync = async.eachLimit([
-            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal do Tribunal Federal 4º Região (Paraná)`],
-            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`],
-            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`],
-            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`],
-            [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`],
-            [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`],
+            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, 'Tribunal Federal 4º Região (Paraná)'],
+            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, 'Tribunal Federal 4º Região (Rio Grande do Sul)'],
+            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, 'Tribunal Federal 4º Região (Santa Catarina)'],
+            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
+            [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`, 'Tribunal do Rio Grande do Sul'],
+            [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`, 'Superior Tribunal de Justiça'],
         ].concat(tjrjSearch, trf1Search), 10, (n, callback) => {
-            let [query, uniq, description, notFound] = n;
+            let [query, uniq, description, notFound, name] = n;
             this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', description, {
                 data: {
                     data: query
                 },
                 complete: () => callback(),
+                bipbopError: (type, message, code, push, xml) => {
+                    if (push) {
+                        if (notFound) this.notFound(notFound);
+                        return;
+                    }
+                    if (name) {
+                        this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - ${name}, utilizando Diário Oficial como alternativa.`);
+                    }
+                },
                 success: data => {
                     if ($("body > processo", data).length) {
                         this.juristekCNJ(data, null, true, !uniq, !uniq);
@@ -457,6 +482,7 @@ export class KronoosParse {
             data: {
                 documento: this.cpf_cnpj
             },
+            bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Ministério da Fazenda (Processos Administrativos).`),
             success: data => {
                 if (!data.totalDeProcessosEncontrados) {
                     this.notFound();
@@ -554,6 +580,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf.replace(/[^0-9]/g, '')
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Pessoas Políticamente Expostas (COAF).`),
                 success: (data) => {
                     if (!data) {
                         this.notFound("Pessoa Políticamente Exposta <small>Não consta na base de dados do COAF.</small>");
@@ -584,6 +611,7 @@ export class KronoosParse {
                 data: {
                     'nome': `"${this.name}"`
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Pessoas Políticamente Expostas (TSE).`),
                 success: (data) => {
                     let behaviour = 'behaviourAccurate';
                     data = _.values(data);
@@ -627,6 +655,7 @@ export class KronoosParse {
         this.serverCall("SELECT FROM 'KRONOOSMODA'.'LISTA'",
             this.loader("fa-eye", `Verificando CNPJ na lista do aplicativo Moda Livre - ${this.cnpj}.`, {
                 dataType: "json",
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Moda Livre (Trabalho Análogo ao da Escravidão).`),
                 success: (data) => {
                     let results = _.filter(data, (reg) => reg.status_cor != 'verde' && new RegExp(`( |^)${reg.nome_marca}( |$)`, 'i').test(this.name));
                     if (!results.length) {
@@ -812,8 +841,8 @@ export class KronoosParse {
         if (!telefones.length) return;
         let phones = _.uniq(telefones.map((i, e) => VMasker.toPattern($("ddd", e).text() + $("numero", e).text(), "(99) 9999-99999")).toArray());
         let klist = this.firstElement().captionTable("Telefones");
-        for (let i = 0; i < phones.length; i+=3) {
-            klist(phones[i], phones[i+1], phones[i+2]);
+        for (let i = 0; i < phones.length; i += 3) {
+            klist(phones[i], phones[i + 1], phones[i + 2]);
         }
 
     }
@@ -906,6 +935,17 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf_cnpj
                 },
+                bipbopError: (type, message, code, push, xml) => {
+                    if (/são insuficientes para a emissão de certidão/.test(message)) {
+                        let kelement = this.kronoosElement("CND Federal",
+                            "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
+                            "Existem pendências e/ou incosistência de informações no sistema da Receita Federal para o documento informado.");
+                        kelement.behaviourAccurate(true);
+                        this.append(kelement.element());
+                        return;
+                    }
+                    this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União`);
+                },
                 success: (data) => {
                     let kelement = this.kronoosElement("CND Federal",
                         "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
@@ -920,13 +960,6 @@ export class KronoosParse {
                     kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
                     this.append(kelement.element());
                 },
-                error: () => {
-                    let kelement = this.kronoosElement("CND Federal",
-                        "Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União",
-                        "Existem pendências e/ou incosistência de informações no sistema da Receita Federal para o documento informado.");
-                    kelement.behaviourAccurate(true);
-                    this.append(kelement.element());
-                }
             }, true));
     }
 
@@ -937,6 +970,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cnpj
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Certidão Negativa de Débitos Trabalhistas`),
                 success: (data) => {
                     let kelement = this.kronoosElement("Certidão Negativa de Débitos Trabalhistas - TST",
                         "Geração de Certidão Negativa de Débitos Trabalhistas no Tribunal Superior do Trabalho",
@@ -963,6 +997,7 @@ export class KronoosParse {
                     documento: this.cnpj,
                     nome: this.name
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Certidão Negativa de Débito do Ibama`),
                 success: (data) => {
                     let kelement = this.kronoosElement("Certidão de Débito do Ibama",
                         "Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.",
@@ -1025,6 +1060,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cnpj
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Secretaria de Inspeção do Trabalho - SIT`),
                 success: (data) => {
                     let kelement = this.kronoosElement("Secretaria de Inspeção do Trabalho - SIT",
                         "Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração",
@@ -1050,6 +1086,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf_cnpj
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Instituto de Estudos de Protesto de Títulos do Brasil`),
                 success: (data) => {
                     let iterateOver = $("BPQL > body > consulta > conteudo > cartorio", data);
 
@@ -1080,6 +1117,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf_cnpj
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - BACEN (Cheques sem Fundo)`),
                 success: (data) => {
                     let iterateOver = $("data resposta list > *", data);
                     if (!iterateOver.length) {
@@ -1216,6 +1254,7 @@ export class KronoosParse {
             data: {
                 nire: nire
             },
+            bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP ${nire}`),
             success: (data) => {
                 let kelement = this.kronoosElement(`Ficha Cadastral da Empresa na Jucesp`,
                     `Ficha cadastral completa da empresa registrada na Jucesp desde 1992.`,
@@ -1238,6 +1277,7 @@ export class KronoosParse {
             data: {
                 data: name || this.name
             },
+            bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP`),
             success: (data) => {
                 $("nire", data).each((i, e) => {
                     this.searchJucespNire($(e).text());
@@ -1248,12 +1288,13 @@ export class KronoosParse {
 
     searchCertidao(nascimento = null, cpf_cnpj = null) {
         cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
-        this.serverCall("SELECT FROM 'RFB'.'CERTIDAO'",
+        this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJ'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
             this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a receita federal.`, {
                 data: {
                     documento: cpf_cnpj,
                     nascimento: nascimento
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Receita Federal (${this.cpf ? "Certidão Negativa" : "Cartão do CNPJ"})`),
                 success: (data) => {
                     let x = n => $(n, data).first().text();
                     let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? "CPF" : "CNPJ"} pela Receita Federal`,
@@ -1479,6 +1520,7 @@ export class KronoosParse {
                     idLog: idLog,
                     numero: numeroMandado
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Mandados de Prisão (SINESP)`),
                 success: (data) => {
                     let x = n => $(n, data).first().text();
                     let mae = x("genitoras");
@@ -1509,6 +1551,7 @@ export class KronoosParse {
                     documento: this.cpf,
                     nome: this.name
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Mandados de Prisão (SINESP)`),
                 success: (data) => {
                     let idLog = $("idLog", data).text();
                     var ctx = this;
@@ -1532,19 +1575,26 @@ export class KronoosParse {
     }
 
     downloadCSV() {
-        let csvString = CSV.stringify(['Partes Contrária', 'Descrição do Tipo de Ação',
-            'Número do Processo', 'Fórum / Vara', 'Valor da Causa'
-        ], ";");
-        let procs = _.map(_.filter(this.kelements, x => !!x.element().data("parsedProc")),
-            x => x.element().data("parsedProc"));
-        for (let processoElement of procs) {
-            csvString += CSV.stringify([
-                $("partes parte", processoElement).map((i, e) => `${$(e).attr("tipo")}: ${$(e).text()}`).toArray().join(", "), [$("acao", processoElement).first().text(), $("area", processoElement).first().text()].join(", "),
-                $("numero_processo", processoElement).first().text(), [$("foro", processoElement).first().text(), $("vara", processoElement).first().text()].join(", "),
-                $("valor_causa", processoElement).first().text()
-            ], ";");
-        }
-        saveAs(new Blob([iconv.encode(csvString, "ISO-8859-1")]), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.csv`);
+        this.serverCall("INSERT INTO 'NOYSPROJURIS'.'DATA'", this.loader("fa-file-excel-o", `Exportando processos capturados de ${this.name} para seu endereço de e-mail.`, {
+            data: {
+                table: JSON.stringify(Object.keys(this.procElements).map(x => [x])),
+                interface: JSON.stringify(["", "1", "2", "2", [{
+                        "db": "PROJURIS",
+                        "table": "PROJURIS"
+                    }],
+                    [],
+                    []
+                ])
+            },
+            success: (data) => this.alert({
+                icon: 'pass',
+                title: `Parabéns! Os processos do documento ${this.cpf || this.cnpj} de ${this.name} estão sendo exportados.`,
+                subtitle: `Você receberá um e-mail assim que a operação para ${this.name} for concluída.`,
+                paragraph: `Todos os processos do documento ${this.cpf || this.cnpj} de ${this.name} estão sendo exportados,
+                                        aguarde o recebimento do email com o arquivo.`
+            })
+
+        }));
     }
 
     downloadDOCX() {
@@ -1617,6 +1667,7 @@ export class KronoosParse {
             list.add("fa-file-word-o", "DOCX - Microsoft Word 2007 (Windows)").click(e => {
                 e.preventDefault();
                 this.downloadDOCX();
+                modal.close();
             });
             // list.add("fa-file-text-o", "Formato de Texto Markdown").click(e => {
             //     e.preventDefault();
@@ -1626,9 +1677,10 @@ export class KronoosParse {
             //     e.preventDefault();
             //     this.downloadImage();
             // });
-            list.add("fa-file-excel-o", "CSV - Comma-separated values (Excel)").click(e => {
+            list.add("fa-file-excel-o", "Excel de processos via e-mail.").click(e => {
                 e.preventDefault();
                 this.downloadCSV();
+                modal.close();
             });
             modal.createActions().cancel();
         });
@@ -1645,7 +1697,7 @@ export class KronoosParse {
                         documento: this.cpf_cnpj
                     },
                     success: () => {
-                        controller.alert({
+                        this.alert({
                             icon: 'pass',
                             title: `Parabéns! O documento ${this.cpf || this.cnpj} está sendo acompanhando.`,
                             subtitle: `Você receberá um e-mail caso ocorra alguma atualização no cadastro de ${this.name}`,
@@ -2003,6 +2055,7 @@ export class KronoosParse {
                 data: {
                     'data': `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
+                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Conselho Administrativo de Recursos Fiscais`),
                 success: jusSearch => {
                     if (!$("processo", jusSearch).length) {
                         this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");

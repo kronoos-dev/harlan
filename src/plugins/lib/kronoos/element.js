@@ -281,7 +281,16 @@ var KronoosElement = function(title, subtitle, sidenote) {
         obj.title = title;
         obj.list = list;
 
+        if (obj.class) {
+            obj.title.addClass(obj.class);
+        }
+
         (appendTo || sideContent).append(container.append(title).append(list));
+
+        if (obj.paragraph) {
+            $("<p />").append(obj.paragraph).insertAfter(obj.title);
+        }
+
 
         let itemCounter = 0;
         let addItem = (content, item = {}) => {
