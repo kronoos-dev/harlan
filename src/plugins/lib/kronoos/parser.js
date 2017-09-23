@@ -2020,9 +2020,10 @@ export class KronoosParse {
                 if (!data.nodes.length)
                     return;
                 this.networkData = data;
-                let [network, node] = this.firstElement().addNetwork(data.nodes, data.edges, {
+                let element = this.firstElement();
+                let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
                     groups: data.groups
-                });
+                }));
                 network.on("click", params => {
                     if (!params.nodes[0]) {
                         return;

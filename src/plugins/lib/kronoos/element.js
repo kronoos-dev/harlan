@@ -244,6 +244,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.networkOptions = {
+        clickToUse: true,
         physics: {
             enabled: false
         }
