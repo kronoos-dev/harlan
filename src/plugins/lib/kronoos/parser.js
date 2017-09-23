@@ -143,6 +143,43 @@ export class KronoosParse {
         return this._brief;
     }
 
+    openReceipt(htmlNode) {
+        let printWindow = window.open("about:blank", "", "_blank");
+        if (!printWindow) return;
+        printWindow.document.write($(htmlNode).text());
+        printWindow.focus();
+    }
+
+    openReceipts(xml) {
+        let items = $("BPQL > header > source[type='text/html']", xml);
+
+        if (items.length === 0) {
+            this.alert({
+                title: `Não existem recibos para serem exibidos.`,
+                subtitle: `Talvez essa seja uma operação que não emita recibo, verifique se existe um código de comprovante no corpo do resultado.`,
+                paragraph: `Algumas consultas não apresentam comprovante na forma de recibo HTML (HyperText Markup Language), entre em contato com o suporte para maiores informações.`
+            });
+            return;
+        }
+
+        if (items.lenght == 1) {
+            this.openReceipt(items);
+            return;
+        }
+
+        let modal = this.call("modal");
+        modal.title("Abrir Recibo de Consulta");
+        modal.subtitle("Existe mais de um arquivo comprovante para o resultado informado.");
+        modal.paragraph("Clique sobre o resultado para abrir o comprovante em uma nova janela.");
+        let list = modal.createForm().createList();
+        items.each((i, htmlNode) => list.item("fa-file-o", `Abrir comprovante Nº ${i+1}`).click((e) => {
+            e.preventDefault();
+            this.openReceipt(htmlNode);
+
+        }));
+        modal.createActions().cancel();
+    }
+
     findOtherNames(onComplete) {
         let metaname = metaphone(this.name);
         let ceps = _.uniq($("cep", this.ccbuscaData)
@@ -1300,6 +1337,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? "CPF" : "CNPJ"} pela Receita Federal`,
                         "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
 
+
                     if (CPF.isValid(cpf_cnpj)) {
                         kelement.table("Nome", "Código Comprovante")(x("nome"), x("codigo-comprovante"));
                         kelement.table("Data Consulta", "Situação")(x("data-consulta"), x("situacao"));
@@ -1316,6 +1354,11 @@ export class KronoosParse {
                         kelement.table("Atividade Econômica", "E-mail", "Telefone")
                             (`${$("atividade-economica", data).attr("codigo") || ""} ${x("atividade-economica")}`,
                                 x("email"), x("telefones"));
+                        kelement.table("Cartão do CNPJ")
+                            ($("<a />").text("Comprovante de Consulta").attr("href", "#").click((e) => {
+                                e.preventDefault();
+                                this.openReceipts(data);
+                            }));
 
                         let v = n => $(`endereco ${n}`, data).text();
                         kelement.list("Endereço")

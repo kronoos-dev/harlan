@@ -232,7 +232,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
             let row = $("<tr />");
             for (let item of items) {
-                row.append($("<td />").html(item));
+                row.append($("<td />").append(item));
             }
             tbody.append(row);
             return addItem;
