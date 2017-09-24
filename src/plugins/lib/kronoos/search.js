@@ -193,6 +193,7 @@ module.exports = function(controller) {
                     documento: document,
                 },
                 success: (ret) => {
+                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
                     if (CNPJ.isValid(document)) {
                         xhr.push(controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", controller.call("error::ajax",
                             controller.call("kronoos::status::ajax", "fa-bank", `Capturando certidão CNPJ para ${name || ""} ${document}.`, {
@@ -204,14 +205,13 @@ module.exports = function(controller) {
                                     name = name || $("BPQL > body cadastro > nome", ret).first().text();
                                     controller.call("kronoos::search", document, name, ret);
                                 },
-                                success: (ret) => {
-                                    name = $("nome", ret).first().text() || name;
+                                success: (rfb) => {
+                                    name = $("nome", rfb).first().text() || name;
                                     controller.call("kronoos::search", document, name, ret);
                                 }
                             }))));
                         return;
                     }
-                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
                     controller.call("kronoos::search", document, name, ret);
                 }
             }))));
