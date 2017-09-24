@@ -73,7 +73,6 @@ export class KronoosParse {
 
     constructor(controller, depth, name, cpf_cnpj, kronoosData,
         ccbuscaData = null, defaultType = "maximized", parameters = {}, brief = null) {
-
         this.stats = brief;
         this.depth = depth;
         this.networkData = null;
@@ -1326,7 +1325,7 @@ export class KronoosParse {
     searchCertidao(nascimento = null, cpf_cnpj = null) {
         cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
         this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJ'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
-            this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a receita federal.`, {
+            this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a Receita Federal.`, {
                 data: {
                     documento: cpf_cnpj,
                     nascimento: nascimento
@@ -1822,27 +1821,6 @@ export class KronoosParse {
                 kelement.behaviourHomonym(true);
             }
 
-            // if (GET_PHOTO_OF.indexOf(namespace) !== -1) {
-            //     // insertMethod = "prepend";
-            //     // if (this.header) {
-            //     //     insertMethod = "insertAfter";
-            //     //     insertElement = this.header.element;
-            //     //
-            //     // }
-            //     this.serverCall("SELECT FROM 'KRONOOS'.'PHOTOS'", {
-            //         data: {
-            //             name: name
-            //         },
-            //         dataType: "json",
-            //         success: (ret) => {
-            //             for (let picture of ret) {
-            //                 kelement.picture(picture);
-            //                 return;
-            //             }
-            //         }
-            //     });
-            // }
-
             if (notes.length) {
                 let knotes = kelement.list("Notas");
                 notes.each((idx) => {
@@ -1936,7 +1914,8 @@ export class KronoosParse {
                 data: {
                     documento: cpf_cnpj,
                     cpf: cpf_cnpj,
-                    cnpj: cpf_cnpj
+                    cnpj: cpf_cnpj,
+                    mostrarTodos: 1
                 },
                 success: (data) => {
                     this.generateRelations.appendDocument(data, cpf_cnpj);
@@ -2002,7 +1981,7 @@ export class KronoosParse {
                 });
 
                 if (CNPJ.isValid(formatted_document)) {
-                    this.query("SELECT FROM 'RECUPERA'.'LocalizadorPartEmpresarialPJ'", formatted_document, elements);
+                    this.query("SELECT FROM 'RECUPERA'.'LOCALIZADORPARTEMPRESARIALPJ'", formatted_document, elements);
                 }
 
                 this.query("SELECT FROM 'CBUSCA'.'CONSULTA'", formatted_document, elements);
@@ -2010,7 +1989,37 @@ export class KronoosParse {
                 this.query("SELECT FROM 'CCBUSCA'.'CONSULTA'", formatted_document, elements);
 
                 if (CNPJ.isValid(formatted_document)) {
-                    this.query("SELECT FROM 'RECUPERA'.'LocalizadorPJFiliais'", formatted_document, elements);
+                    this.query("SELECT FROM 'RECUPERA'.'LOCALIZADORPJFILIAIS'", formatted_document, elements, (data, cb) => {
+                        let currentDocument = 1;
+                        let works = true;
+                        async.doUntil(callback => {
+                            let document = `${formatted_document.substr(0, 8)}${pad(4, (currentDocument++).toString(), '0')}`;
+                            document += this.verifierDigit(document);
+                            document += this.verifierDigit(document);
+                            let fdocument = CNPJ.format(document);
+                            if (this.cpf_cnpjs[fdocument] || $("CNPJ", data).filter((i, v) => $(v).text() == document).length) {
+                                /* already exists */
+                                cb();
+                                return;
+                            }
+
+                            this.serverCall("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'", this.loader("fa-eye", `Verificando filiais para o CNPJ ${cpf_cnpj}.`, {
+                                data: {
+                                    documento: document
+                                },
+                                success: data => {
+                                    this.generateRelations.appendDocument(data, cpf_cnpj);
+                                    callback();
+                                },
+                                error: (...args) => {
+                                    works = false;
+                                    callback(args);
+                                }
+                            }));
+                        }, () => !works, () => {
+                            cb();
+                        });
+                    });
                 }
 
                 if (CPF.isValid(formatted_document)) {
@@ -2036,7 +2045,8 @@ export class KronoosParse {
 
                     elements.push(callback => this.confirmQueue.push((cb) => {
                         if (dontAskAgain) {
-                            if (defaultActionSearch) searchTarget(() => {});
+                            if (defaultActionSearch) searchTarget(cb);
+                            else cb();
                             return;
                         }
 
@@ -2052,7 +2062,7 @@ export class KronoosParse {
                             defaultActionSearch = false;
                             cb();
                         }, (modal, form, actions) => {
-                            dontAskAgainInput = form.addCheckbox("confirm", "Eu <strong>não desejo</strong> receber esta mensagem novamente <em>(aplicado para todos os targets relacionados com o atual)</em>.");
+                            dontAskAgainInput = form.addCheckbox("confirm", "Aplicar ação para todos os targets relacionados com o atual.");
                         });
                     }, () => callback()));
                 }
@@ -2171,7 +2181,6 @@ export class KronoosParse {
                 this.loader("fa-cube", `Usando inteligência artificial no processo Nº ${cnj} para ${this.cpf_cnpj}.`, {
                     dataType: 'json',
                     method: 'POST',
-                    // timeout: 210000,
                     data: {
                         data: articleShow
                     },
@@ -2346,13 +2355,11 @@ export class KronoosParse {
             cnjInstance = this.procElements[cnj];
             let procs = $("processo", ret);
 
-            // if (nameSearch) {
             if (checkName)
                 procs = procs.filter((i, e) => {
                     if (!$("partes parte", e).length) return true;
                     return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
                 });
-            // }
 
             if (!procs.length) {
                 cnjInstance.remove();
@@ -2366,13 +2373,11 @@ export class KronoosParse {
         } else {
             if (findProc) {
                 let procs = $("processo", ret);
-                // if (nameSearch) {
                 if (checkName)
                     procs.filter((i, e) => {
                         if (!$("partes parte", e).length) return true;
                         return $("partes parte", e).filter((x, a) => this.compareNames($(a).text())).length > 0;
                     });
-                // }
                 procs.map((index, element) => this.juristekCNJ(element, null, false, nameSearch, checkName));
                 return;
             }
@@ -2500,6 +2505,22 @@ export class KronoosParse {
 
     append(...args) {
         return this.appendElement.append(...args);
+    }
+
+    verifierDigit(numbers) {
+        var index = 2;
+        var reverse = numbers.split("").reduce(function(buffer, number) {
+            return [parseInt(number, 10)].concat(buffer);
+        }, []);
+
+        var sum = reverse.reduce(function(buffer, number) {
+            buffer += number * index;
+            index = (index === 9 ? 2 : index + 1);
+            return buffer;
+        }, 0);
+
+        var mod = sum % 11;
+        return (mod < 2 ? 0 : 11 - mod);
     }
 
 }
