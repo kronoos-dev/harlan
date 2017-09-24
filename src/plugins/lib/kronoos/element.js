@@ -252,12 +252,13 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.addNetwork = (nodesArray, edgesArray, options = null) => {
         options = options || this.networkOptions;
-        let elem = $("<div />").addClass("result-network"),
-            network = new vis.Network(elem.get(0), {
+        let elem = $("<div />").addClass("result-network");
+        element.append(elem);
+        let network = new vis.Network(elem.get(0), {
                 nodes: nodesArray,
                 edges: edgesArray
             }, options);
-        element.append(elem);
+        network.fit();
         return [network, elem];
     };
 
