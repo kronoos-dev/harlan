@@ -23,6 +23,38 @@ $text-color: #393939;
 
 .kronoos-print {
 
+    .kronoos-resume {
+        page-break-after: always;
+        h3 {
+            font-size: 29px;
+        }
+        h4 {
+            font-size: 21px;
+            font-weight: bold;
+        }
+        i {
+            display: none;
+        }
+        ol > li {
+            font-size: 18px;
+            line-height: 180%;
+            border-bottom: 1px solid #eee;
+        }
+        .content > ul > li {
+            margin: 24px auto;
+        }
+    }
+
+    .map {
+        display: none;
+    }
+
+    .kronoos-header {
+        .kronoos-title {
+            font-size: 29px;
+        }
+    }
+
     .kronoos-element-container {
         page-break-after: always;
     }
