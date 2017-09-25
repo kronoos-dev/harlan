@@ -463,9 +463,10 @@ export class KronoosParse {
         let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
 
         this.tribunaisSync = async.eachLimit([
-            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, 'Tribunal Federal 4º Região (Paraná)'],
-            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, 'Tribunal Federal 4º Região (Rio Grande do Sul)'],
-            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo nome ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, 'Tribunal Federal 4º Região (Santa Catarina)'],
+            [`SELECT FROM 'TJRJ'.'NOME' WHERE 'NOME_PARTE' = '${this.name}' AND 'ORIGEM' = '1'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio de Janeiro, em todas as comarcas`, null, `Tribunal de Justiça do Rio de Janeiro, todas as comarcas`],
+            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, 'Tribunal Federal 4º Região (Paraná)'],
+            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, 'Tribunal Federal 4º Região (Rio Grande do Sul)'],
+            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, 'Tribunal Federal 4º Região (Santa Catarina)'],
             [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`, 'Tribunal do Rio Grande do Sul'],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`, 'Superior Tribunal de Justiça'],
@@ -2070,30 +2071,43 @@ export class KronoosParse {
             this.taskGraphParallel = async.parallel(elements, () => callback());
         }), () => {
             this.generateRelations.track((data) => {
-                if (!data.nodes.length)
-                    return;
-                this.networkData = data;
-                let element = this.firstElement();
-                let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
-                    groups: data.groups
-                }));
-                network.on("click", params => {
-                    if (!params.nodes[0]) {
+                async.each(data.nodes, (node, cb) => {
+                    debugger;
+                    let document = pad(14, CNPJ.strip(node.id), '0');
+                    if (!CNPJ.isValid(document)) return cb();
+                    this.serverCall("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'", this.loader("fa-archive", `Atualizando nome do CNPJ ${CNPJ.format(document)} - ${node.label}`, {
+                        data: {documento: document},
+                        success: (data) => {
+                            node.label = $("nome", data).first().text();
+                        },
+                        complete: () => cb()
+                    }));
+                }, () => {
+                    if (!data.nodes.length)
                         return;
-                    }
+                    this.networkData = data;
+                    let element = this.firstElement();
+                    let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
+                        groups: data.groups
+                    }));
+                    network.on("click", params => {
+                        if (!params.nodes[0]) {
+                            return;
+                        }
 
-                    let doc = pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0');
-                    if (!CPF.isValid(doc) && !CNPJ.isValid(doc)) {
-                        this.alert({
-                            title: "Não foi possível pesquisar a pessoa solicitada.",
-                            subtitle: "A informação de conexão que possuimos não permite rastreamento posterior",
-                            paragraph: "É provável que não tenhamos metadados suficientes para realizar esta pesquisa."
-                        });
-                        return;
-                    }
+                        let doc = pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0');
+                        if (!CPF.isValid(doc) && !CNPJ.isValid(doc)) {
+                            this.alert({
+                                title: "Não foi possível pesquisar a pessoa solicitada.",
+                                subtitle: "A informação de conexão que possuimos não permite rastreamento posterior",
+                                paragraph: "É provável que não tenhamos metadados suficientes para realizar esta pesquisa."
+                            });
+                            return;
+                        }
 
-                    var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
-                    if (win) win.focus();
+                        var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
+                        if (win) win.focus();
+                    });
                 });
             });
         });
