@@ -71,7 +71,9 @@ module.exports = function (controller) {
     this.call = (query, configuration) => {
         let conf = Object.assign({method: 'POST'}, configuration);
         controller.trigger("serverCommunication::call", [query, conf]);
-        return $.bipbop(query, bipbopApiKey, conf);
+        return $.bipbop(query, bipbopApiKey, conf).always((...args) => {
+            controller.trigger("serverCommunication::responseComplete", [query, configuration, args]);
+        });
     };
 
     /* ALIAS */
