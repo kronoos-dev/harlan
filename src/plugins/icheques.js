@@ -13,8 +13,6 @@ harlan.addPlugin((controller) => {
     controller.unregisterTrigger("findDatabase::instantSearch", "socialprofile");
     controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
 
-    controller.call("ccbusca::enable");
-
     controller.registerCall("accountOverview", () => {});
 
     controller.confs.debtCollector = "juridico@pgn.srv.br";
@@ -69,6 +67,7 @@ harlan.addPlugin((controller) => {
     require("./lib/icheques/enjoyhint")(controller);
     require("./lib/icheques/daemon")(controller);
     require("./lib/icheques/progress")(controller);
+    require("./lib/icheques/ccbusca")(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar
