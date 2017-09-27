@@ -18,10 +18,17 @@ $text-color: #393939;
       content: none !important;
     }
 
-
 }
 
 .kronoos-print {
+
+    label, p, h1, h2, h3, h4 span, li, tr, td {
+        page-break-inside: avoid;
+    }
+
+    li {
+        display: block;
+    }
 
     .kronoos-resume {
         page-break-after: always;
@@ -39,6 +46,7 @@ $text-color: #393939;
             font-size: 18px;
             line-height: 180%;
             border-bottom: 1px solid #eee;
+            display: block;
         }
         .content > ul > li {
             margin: 24px auto;
@@ -56,7 +64,7 @@ $text-color: #393939;
     }
 
     .kronoos-element-container {
-        page-break-after: always;
+        // page-break-after: always;
     }
 
     .kronoos-actions {

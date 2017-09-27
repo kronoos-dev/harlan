@@ -687,7 +687,7 @@ module.exports = function(controller) {
             icon.click((e) => {
                 e.preventDefault();
                 if (!showing) {
-                    xmlDocument = controller.call("xmlDocument", ret);
+                    xmlDocument = controller.call("xmlDocument", ret, "CCBUSCA", "CONSULTA");
                     section[2].find(".fa-plus-square-o").click();
                     icon.addClass("fa-user-times");
                     icon.removeClass("fa-user-plus");
