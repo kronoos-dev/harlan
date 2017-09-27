@@ -1647,7 +1647,7 @@ export class KronoosParse {
             .map((i, e) => $(e).html()).toArray().join();
 
         saveAs(htmlDocx
-            .asBlob(iconv.encode(`<!DOCTYPE html><html><body>${htmlContent}</body></html>`, "ISO-8859-1").toString(), {
+            .asBlob(`<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body>${htmlContent}</body></html>`, {
                 orientation: 'portrait'
             }),
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.docx`);
