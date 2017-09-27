@@ -184,37 +184,46 @@ module.exports = function(controller) {
             controller.call("kronoos::search", document, name, ret);
         }
 
-        xhr.push(controller.server.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", controller.call("error::ajax",
+        let findBureau = (callback, query, data = {}) => xhr.push(controller.server.call(query,
             controller.call("kronoos::status::ajax", "fa-bank", `Acessando bureau de crédito para ${name || ""} ${document}.`, {
                 method: 'GET',
-                data: {
-                    'q[0]': "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
-                    'q[1]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+                data: Object.assign({
                     documento: document,
-                },
-                success: (ret) => {
-                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
-                    if (CNPJ.isValid(document)) {
-                        xhr.push(controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'", controller.call("error::ajax",
-                            controller.call("kronoos::status::ajax", "fa-bank", `Capturando certidão CNPJ para ${name || ""} ${document}.`, {
-                                method: 'GET',
-                                data: {
-                                    documento: document
-                                },
-                                error: () => {
-                                    name = name || $("BPQL > body cadastro > nome", ret).first().text();
-                                    controller.call("kronoos::search", document, name, ret);
-                                },
-                                success: (rfb) => {
-                                    name = $("nome", rfb).first().text() || name;
-                                    controller.call("kronoos::search", document, name, ret);
-                                }
-                            }))));
-                        return;
-                    }
-                    controller.call("kronoos::search", document, name, ret);
-                }
-            }))));
+                }, data),
+                error: () => callback("Can't use that query"),
+                success: (ret) => callback(null, ret)
+            })));
+
+
+        async.tryEach([
+            (callback) => findBureau(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+                'q[0]': "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
+                'q[1]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+            }),
+            (callback) => findBureau(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'")
+        ], (err, ret) => {
+            if (err) return;
+            name = name || $("BPQL > body cadastro > nome", ret).first().text();
+            if (CNPJ.isValid(document)) {
+                xhr.push(controller.server.call("SELECT FROM 'RFB'.'CERTIDAO'",
+                    controller.call("kronoos::status::ajax", "fa-bank", `Capturando certidão CNPJ para ${name || ""} ${document}.`, {
+                        method: 'GET',
+                        data: {
+                            documento: document
+                        },
+                        error: () => {
+                            name = name || $("BPQL > body cadastro > nome", ret).first().text();
+                            controller.call("kronoos::search", document, name, ret);
+                        },
+                        success: (rfb) => {
+                            name = $("nome", rfb).first().text() || name;
+                            controller.call("kronoos::search", document, name, ret);
+                        }
+                    })));
+                return;
+            }
+            controller.call("kronoos::search", document, name, ret);
+        });
     });
 
     controller.registerCall("kronoos::search", (document, name, cbuscaData) => {

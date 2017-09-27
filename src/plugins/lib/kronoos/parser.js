@@ -2072,7 +2072,6 @@ export class KronoosParse {
         }), () => {
             this.generateRelations.track((data) => {
                 async.each(data.nodes, (node, cb) => {
-                    debugger;
                     let document = pad(14, CNPJ.strip(node.id), '0');
                     if (!CNPJ.isValid(document)) return cb();
                     this.serverCall("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'", this.loader("fa-archive", `Atualizando nome do CNPJ ${CNPJ.format(document)} - ${node.label}`, {

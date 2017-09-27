@@ -1,5 +1,6 @@
 var CPF = require("cpf_cnpj").CPF;
 var CNPJ = require("cpf_cnpj").CNPJ;
+var async = require("async");
 
 module.exports = function (controller) {
 
@@ -76,6 +77,11 @@ module.exports = function (controller) {
         sectionDocumentGroup[1].append(juntaEmpresaHTML);
 
         (function () {
+            if ($("ccf-failed", ret).length) {
+                appendMessage("consulta de cheque sem fundo falhou");
+                return;
+            }
+
             let totalRegistro = parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
             if (!totalRegistro) {
                 appendMessage("sem cheques devolvidos");
@@ -89,6 +95,10 @@ module.exports = function (controller) {
         })();
 
         (function () {
+            if ($("ieptb-failed", ret).length) {
+                appendMessage("consulta de protesto falhou");
+                return;
+            }
             if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
                 appendMessage("sem protestos");
                 return;

@@ -636,57 +636,69 @@ module.exports = function(controller) {
             }
         });
 
-        let ccbuscaQuery = {
-            documento: task[0]
-        };
+        let queryTry = (callback, query, data = {}) => controller.server.call(query, {
+                cache: true,
+                data: Object.assign({
+                    documento: task[0]
+                }, data),
+                success: (ret) => callback(null, ret),
+                error: () => callback("Can't use this query")
+            });
+
+        let queryList = [];
 
         if (CNPJ.isValid(task[0])) {
-            ccbuscaQuery['q[0]'] = "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'";
-            ccbuscaQuery['q[1]'] = "SELECT FROM 'RFB'.'CERTIDAO'";
+            queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+                'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
+                'q[1]' : "SELECT FROM 'RFB'.'CERTIDAO'",
+            }));
+            queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+                'q[0]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
+                'q[1]' : "SELECT FROM 'RFB'.'CERTIDAO'",
+            }));
         }
 
-        controller.server.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
-            cache: true,
-            data: ccbuscaQuery,
-            success: function(ret) {
-                let xmlDocument = null,
-                    icon = $("<i />").addClass("fa fa-user-plus"),
-                    showing = false;
+        queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'"));
+        queryList.push((callback) => queryTry(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'"));
 
-                section[2].prepend($("<li />").append(icon)
-                    .attr("title", "Informações do Sacado"));
-
-                section[2].find(".action-resize i").click(function() {
-                    if (!$(this).hasClass("fa-plus-square-o")) {
-                        icon.removeClass("fa-user-times");
-                        icon.addClass("fa-user-plus");
-                        xmlDocument.remove();
-                        showing = false;
-                    }
-                });
-
-                icon.click((e) => {
-                    e.preventDefault();
-                    if (!showing) {
-                        xmlDocument = controller.call("xmlDocument", ret);
-                        section[2].find(".fa-plus-square-o").click();
-                        icon.addClass("fa-user-times");
-                        icon.removeClass("fa-user-plus");
-                        result.element().prepend(xmlDocument);
-                    } else {
-                        icon.removeClass("fa-user-times");
-                        icon.addClass("fa-user-plus");
-                        xmlDocument.remove();
-                    }
-                    showing = !showing;
-                });
-            },
-            error: function() {
+        async.tryEach(queryList, (err, ret) => {
+            section[0].removeClass("loading");
+            if (err) {
                 result.content().prepend(result.addItem("Documento", task[0]));
-            },
-            complete: function() {
-                section[0].removeClass("loading");
+                return;
             }
+
+            let xmlDocument = null,
+                icon = $("<i />").addClass("fa fa-user-plus"),
+                showing = false;
+
+            section[2].prepend($("<li />").append(icon)
+                .attr("title", "Informações do Sacado"));
+
+            section[2].find(".action-resize i").click(function() {
+                if (!$(this).hasClass("fa-plus-square-o")) {
+                    icon.removeClass("fa-user-times");
+                    icon.addClass("fa-user-plus");
+                    xmlDocument.remove();
+                    showing = false;
+                }
+            });
+
+            icon.click((e) => {
+                e.preventDefault();
+                if (!showing) {
+                    xmlDocument = controller.call("xmlDocument", ret);
+                    section[2].find(".fa-plus-square-o").click();
+                    icon.addClass("fa-user-times");
+                    icon.removeClass("fa-user-plus");
+                    result.element().prepend(xmlDocument);
+                } else {
+                    icon.removeClass("fa-user-times");
+                    icon.addClass("fa-user-plus");
+                    xmlDocument.remove();
+                }
+                showing = !showing;
+            });
         });
 
         return section[0];

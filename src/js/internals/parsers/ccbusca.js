@@ -316,6 +316,9 @@ module.exports = function (controller) {
             if (/^\**$/.test(data))
                 continue;
             if (idx === "CPF/CNPJ") {
+                data = data.replace(/^0+/, '');
+                data = pad(14, data, '0');
+                data = CNPJ.isValid(data) ? data : data.substr(3);
                 if (CPF.isValid(data)) result.addItem("CPF", CPF.format(data), nodes[idx]);
                 else result.addItem("CNPJ", CNPJ.format(data), nodes[idx]);
                 continue;

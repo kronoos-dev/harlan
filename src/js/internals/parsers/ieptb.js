@@ -15,11 +15,17 @@ module.exports = function(controller) {
             result.addItem("Telefone", $("telefone", element).text());
             result.addItem("Cidade", $("cidade", element).text());
 
-            let data = $("data", element).text();
-            let valor = $("valor", element).text();
+            $("protesto", element).each((i, v) => {
+                let data = $("data", v).text();
+                let valor = $("valor", v).text();
 
-            if (data && !/^\s*$/.test(data)) result.addItem("Data do protesto", moment(data, ["YYYY-MM-DD", "DD-MM-YYYY"]).format("DD/MM/YYYY"));
-            if (valor && !/^\s*$/.test(valor)) result.addItem("Valor do protesto", numeral(valor.replace(".", ",")).format("$0,0.00"), "valor");
+                result.addSeparator("Protesto em Cartório",
+                    $("nome", element).text(),
+                    $("endereco", element).text());
+
+                if (data && !/^\s*$/.test(data)) result.addItem("Data do protesto", moment(data, ["YYYY-MM-DD", "DD-MM-YYYY"]).format("DD/MM/YYYY"));
+                if (valor && !/^\s*$/.test(valor)) result.addItem("Valor do protesto", numeral(valor.replace(".", ",")).format("$0,0.00"), "valor");
+            });
         });
         return result.element();
     };
