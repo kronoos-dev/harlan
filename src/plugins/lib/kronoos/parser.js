@@ -1740,7 +1740,7 @@ export class KronoosParse {
                 let currentRow = sheet.row(row++);
                 currentRow.cell(1).value($("partes parte", proc)
                     .map((i, e) => `${$(e).attr("tipo")}: ${$(e).text()}`)
-                    .toArray().join("\r\n")); // Partes
+                    .toArray().join(" - ")); // Partes
 
                 currentRow.cell(2).value(g("acao") || g("area")); // Tipo de Acao
                 let numeroProcesso = currentRow.cell(3).value(g("numero_processo")); // Numero do Processo
