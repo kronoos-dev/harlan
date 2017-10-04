@@ -19,9 +19,9 @@ module.exports = function(controller) {
                 let data = $("data", v).text();
                 let valor = $("valor", v).text();
 
-                result.addSeparator("Protesto em Cartório",
-                    $("nome", element).text(),
-                    $("endereco", element).text());
+                result.addSeparator("Detalhes de Protesto",
+                    "Informações a respeito de um dos títulos representados no cartório.",
+                    "Verifique as informações a respeito de valor e data referentes a um protesto.");
 
                 if (data && !/^\s*$/.test(data)) result.addItem("Data do protesto", moment(data, ["YYYY-MM-DD", "DD-MM-YYYY"]).format("DD/MM/YYYY"));
                 if (valor && !/^\s*$/.test(valor)) result.addItem("Valor do protesto", numeral(valor.replace(".", ",")).format("$0,0.00"), "valor");

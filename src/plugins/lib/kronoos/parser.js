@@ -69,6 +69,32 @@ const searchBar = $(".kronoos-application .search-bar");
 
 let juristekInfo = null; /* Juristek INFO.INFO */
 
+function b64toBlob(b64Data, contentType, sliceSize) {
+    contentType = contentType || '';
+    sliceSize = sliceSize || 512;
+
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        var byteNumbers = new Array(slice.length);
+        for (var i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        var byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {
+        type: contentType
+    });
+    return blob;
+};
+
 export class KronoosParse {
 
     constructor(controller, depth, name, cpf_cnpj, kronoosData,
@@ -290,11 +316,10 @@ export class KronoosParse {
     errorHappen(...args) {
         if (!this._errorHappendList) {
             this._errorHappendObject = {
-                // class: 'red',
                 paragraph: "Os erros de captura podem ocorrer no caso de indisponibilidade do servidor e ou mudança na disposição dos dados. Para maiores informações contate nosso suporte técnico.",
-
             };
             this._errorHappendList = this.firstElement().list("<i class='fa fa-exclamation-triangle' /> Ocorreram Erros na Captura", this._errorHappendObject, null, 10);
+            this._errorHappendObject.container.addClass("kronoos-error-happen");
         }
         return this._errorHappendList(...args);
     }
@@ -303,6 +328,7 @@ export class KronoosParse {
         if (!this._notFoundList) {
             this._notFoundObject = {};
             this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject, null, 10);
+            this._notFoundObject.container.addClass("kronoos-not-found");
         }
         return this._notFoundList(...args);
     }
@@ -431,7 +457,7 @@ export class KronoosParse {
                     let kelement = this.kronoosElement("Consulta ao SPC/Serasa",
                         "Apontamentos e Restrições Financeiras e Comerciais",
                         "Pendências e restrições financeiras nos bureaus de crédito Serasa e SPC");
-                    kelement.captionTable("Anotações Negativa", "Associado", "Valor")(spc.NomeAssociado, spc.Valor);
+                    kelement.captionTable("Anotação Negativa", "Associado", "Valor")(spc.NomeAssociado, spc.Valor);
                     kelement.table("Data da Inclusão", "Data do Vencimento")(spc.DataDeInclusao, spc.DataDoVencimento);
                     kelement.table("Entidade", "Número do Contrato", "Comprador, Fiador ou Avalista")(spc.Entidade, spc.NumeroContrato, spc.CompradorFiadorAvalista);
                     kelement.table("Telefone Associado", "Cidade Associado", "UF Associado")(spc.TelefoneAssociado, spc.CidadeAssociado, spc.UfAssociado);
@@ -1617,6 +1643,26 @@ export class KronoosParse {
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.txt`);
     }
 
+    downloadPDF() {
+        this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                template: 'kronoos-dossier-print',
+                data: JSON.stringify({
+                    nome: this.name,
+                    documento: this.cpf_cnpj,
+                    elements: _.map(this.kelements, (x) => {
+                        let element = x.element().clone();
+                        element.find(".result-network").remove();
+                        element.find(".kronoos-not-found").remove();
+                        return element.html();
+                    }).join('')
+                }),
+            },
+            success: (data) => saveAs(b64toBlob(data), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.pdf`)
+        }));
+    }
     downloadCSV() {
         this.serverCall("INSERT INTO 'NOYSPROJURIS'.'DATA'", this.loader("fa-file-excel-o", `Exportando processos capturados de ${this.name} para seu endereço de e-mail.`, {
             data: {
@@ -1723,6 +1769,12 @@ export class KronoosParse {
             list.add("fa-file-excel-o", "Excel de processos via e-mail.").click(e => {
                 e.preventDefault();
                 this.downloadCSV();
+                modal.close();
+            });
+            list.add("fa-file-pdf-o", "Dossiê em formato PDF.").click(e => {
+                e.preventDefault();
+                debugger;
+                this.downloadPDF();
                 modal.close();
             });
             modal.createActions().cancel();
@@ -2075,7 +2127,9 @@ export class KronoosParse {
                     let document = pad(14, CNPJ.strip(node.id), '0');
                     if (!CNPJ.isValid(document)) return cb();
                     this.serverCall("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'", this.loader("fa-archive", `Atualizando nome do CNPJ ${CNPJ.format(document)} - ${node.label}`, {
-                        data: {documento: document},
+                        data: {
+                            documento: document
+                        },
                         success: (data) => {
                             node.label = $("nome", data).first().text();
                         },

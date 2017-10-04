@@ -340,6 +340,8 @@ module.exports = function(controller) {
         KRONOOS_ACTION.submit();
     }
 
+    controller.registerCall("kronoos::parsers", () => parsers);
+
     let mapElement = null;
     controller.registerTrigger("kronoos::end", "showmap", (data, callback) => {
         callback();
