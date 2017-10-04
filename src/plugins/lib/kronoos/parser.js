@@ -1863,7 +1863,7 @@ export class KronoosParse {
             };
 
             list.add("fa-file-word-o", "DOCX - Microsoft Word 2007 (Windows)").click(clickEvent('downloadDOCX'));
-            list.add("fa-file-excel-o", "Excel simples de processos instântaneo.").click(clickEvent('downloadXLSX'));
+            list.add("fa-file-excel-o", "Excel simples de processos instantâneo.").click(clickEvent('downloadXLSX'));
             list.add("fa-file-excel-o", "Excel de processos via e-mail.").click(clickEvent('downloadXLSXEmail'));
             list.add("fa-file-pdf-o", "Dossiê em formato PDF.").click(clickEvent('downloadPDF'));
             modal.createActions().cancel();
