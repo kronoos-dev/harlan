@@ -1,5 +1,6 @@
 /* jshint loopfunc: true */
 
+import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
 import {
     CPF,
@@ -93,7 +94,7 @@ function b64toBlob(b64Data, contentType, sliceSize) {
         type: contentType
     });
     return blob;
-};
+}
 
 export class KronoosParse {
 
@@ -1643,6 +1644,27 @@ export class KronoosParse {
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.txt`);
     }
 
+    triggerPDF() {
+        this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                template: 'kronoos-dossier-print',
+                data: JSON.stringify({
+                    nome: this.name,
+                    documento: this.cpf_cnpj,
+                    elements: _.map(this.kelements, (x) => {
+                        let element = x.element().clone();
+                        element.find(".result-network").remove();
+                        element.find(".kronoos-not-found").remove();
+                        return element.html();
+                    }).join('')
+                }),
+            },
+            success: (data) => this.controller.trigger("kronoos::pdf::trigger", data)
+        }));
+    }
+
     downloadPDF() {
         this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
             method: 'POST',
@@ -1663,7 +1685,84 @@ export class KronoosParse {
             success: (data) => saveAs(b64toBlob(data), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.pdf`)
         }));
     }
-    downloadCSV() {
+
+    downloadXLSX() {
+        let unregisterLoader = this.controller.call("kronoos::status", "fa-file-excel-o", `Gerando arquivo Excel para ${this.name}, documento ${this.cpf_cnpj}`);
+        XlsxPopulate.fromBlankAsync().then(workbook => {
+            let sheet = workbook.sheet(0);
+
+            let header = sheet.row(1);
+
+            header.cell(1).value("Partes").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(2).value("Tipo de Acao").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(3).value("Numero do Processo").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(4).value("Fórum / Vara").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(5).value("Dt. Distrib.").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(6).value("Vl. da Causa").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+            header.cell(7).value("Posição Atual").style({
+                fill: "eeeeee",
+                bold: true,
+                horizontalAlignment: 'center'
+            });
+
+            let row = 2;
+            for (let element of _.values(this.procElements)) {
+
+                let proc = element.element().data("parsedProc");
+                if (!proc) continue;
+
+                let g = selector => $(selector, proc).first().text();
+
+                let currentRow = sheet.row(row++);
+                currentRow.cell(1).value($("partes parte", proc)
+                    .map((i, e) => `${$(e).attr("tipo")}: ${$(e).text()}`)
+                    .toArray().join("\r\n")); // Partes
+
+                currentRow.cell(2).value(g("acao") || g("area")); // Tipo de Acao
+                let numeroProcesso = currentRow.cell(3).value(g("numero_processo")); // Numero do Processo
+                let urlProcesso = g("url_processo");
+                if (urlProcesso) {
+                    numeroProcesso.hyperlink(urlProcesso);
+                }
+
+                currentRow.cell(4).value([g("foro") || g("origem_processo"), g("vara")].filter(x => !!x).join(" / ")); // Forum / Vara
+                currentRow.cell(5).value(g("andamento:last data")); // Posição Atual
+                currentRow.cell(6).value(g("valor_causa")); // Valor da Causa
+                currentRow.cell(7).value(`${g("andamento data")}: ${g("andamento descricao")}`); // Posição Atual
+            }
+
+            workbook.outputAsync().then(blob => {
+                unregisterLoader();
+                saveAs(blob, `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.xlsx`);
+            });
+        });
+    }
+
+    downloadXLSXEmail() {
         this.serverCall("INSERT INTO 'NOYSPROJURIS'.'DATA'", this.loader("fa-file-excel-o", `Exportando processos capturados de ${this.name} para seu endereço de e-mail.`, {
             data: {
                 table: JSON.stringify(Object.keys(this.procElements).map(x => [x])),
@@ -1746,37 +1845,27 @@ export class KronoosParse {
 
         this.header.actionElements.download.click((e) => {
             e.preventDefault();
+
             let modal = this.call("modal");
+
             modal.gamification("accuracy");
             modal.title("Exportação de Dossiê");
             modal.subtitle("Escolha o formato de exportação do dossiê.");
             modal.paragraph("O dossiê exportado pode perder características de estilo ou não funcionar em todos os programas.");
+
             let form = modal.createForm();
             let list = form.createList();
-            list.add("fa-file-word-o", "DOCX - Microsoft Word 2007 (Windows)").click(e => {
+
+            let clickEvent = action => e => {
                 e.preventDefault();
-                this.downloadDOCX();
+                this[action]();
                 modal.close();
-            });
-            // list.add("fa-file-text-o", "Formato de Texto Markdown").click(e => {
-            //     e.preventDefault();
-            //     this.downloadMarkdown();
-            // });
-            // list.add("fa-file-image-o", "Arquivo de Imagem Kronoos").click(e => {
-            //     e.preventDefault();
-            //     this.downloadImage();
-            // });
-            list.add("fa-file-excel-o", "Excel de processos via e-mail.").click(e => {
-                e.preventDefault();
-                this.downloadCSV();
-                modal.close();
-            });
-            list.add("fa-file-pdf-o", "Dossiê em formato PDF.").click(e => {
-                e.preventDefault();
-                debugger;
-                this.downloadPDF();
-                modal.close();
-            });
+            };
+
+            list.add("fa-file-word-o", "DOCX - Microsoft Word 2007 (Windows)").click(clickEvent('downloadDOCX'));
+            list.add("fa-file-excel-o", "Excel simples de processos instântaneo.").click(clickEvent('downloadXLSX'));
+            list.add("fa-file-excel-o", "Excel de processos via e-mail.").click(clickEvent('downloadXLSXEmail'));
+            list.add("fa-file-pdf-o", "Dossiê em formato PDF.").click(clickEvent('downloadPDF'));
             modal.createActions().cancel();
         });
 
@@ -2495,6 +2584,7 @@ export class KronoosParse {
             pieces = _.pairs({
                 "Valor Causa": getNode("valor_causa"),
                 "Foro": getNode("foro"),
+                "Origem do Processo": getNode("origem_processo"),
                 "Vara": getNode("vara"),
                 "Comarca": getNode("comarca"),
                 "Número Antigo": getNode("numero_antigo"),

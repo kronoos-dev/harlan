@@ -341,6 +341,7 @@ module.exports = function(controller) {
     }
 
     controller.registerCall("kronoos::parsers", () => parsers);
+    controller.registerCall("kronoos::pdf::trigger", () => parsers.map(parser => parser.triggerPDF()));
 
     let mapElement = null;
     controller.registerTrigger("kronoos::end", "showmap", (data, callback) => {

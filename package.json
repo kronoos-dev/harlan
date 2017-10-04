@@ -163,6 +163,7 @@
     "weight-manager": "^1.0.1",
     "wordnet-db": "^3.1.2",
     "wordwrap": "^1.0.0",
+    "xlsx-populate": "^1.11.0",
     "xml-query": "^1.4.0",
     "xml-reader": "^2.4.3"
   },
