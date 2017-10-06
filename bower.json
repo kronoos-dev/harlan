@@ -53,7 +53,8 @@
     "csshake": "^1.5.1",
     "jquery-ajax-cache": "^2.0.1",
     "jquery-ui": "jquery.ui#^1.12.1",
-    "outdated-browser": "^1.1.5"
+    "outdated-browser": "^1.1.5",
+    "jszip": "^3.1.4"
   },
   "resolutions": {
     "jquery": "~3.2.0",

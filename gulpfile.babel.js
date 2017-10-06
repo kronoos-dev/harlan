@@ -52,6 +52,7 @@ externalJsSources = [
     `${vendors}/pikaday/pikaday.js`,
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`,
+    `${vendors}/jszip/dist/jszip.min.js`,
     `${vendors}/outdated-browser/outdatedbrowser/outdatedbrowser.js`
 ],
 accuracyJsSources = [

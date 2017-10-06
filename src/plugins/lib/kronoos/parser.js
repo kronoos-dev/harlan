@@ -466,15 +466,20 @@ export class KronoosParse {
                     this.append(kelement.element());
                 }
 
-                for (let consultaRealizada of data.consultaRealizada) {
+                if (data.consultaRealizada.length) {
                     let kelement = this.kronoosElement("Consulta Realizada por Associado do SPC/Serasa",
                         "Consulta Realizada por Associado do SPC/Serasa",
                         "Um associado do SPC/Serasa consultou este CNPJ/CPF a procura de apontamentos e restrições financeiras e comerciais");
-                    kelement.captionTable("Consulta Realizada", "Nome Associado", "CPF/CNPJ")(consultaRealizada.NomeAssociado, consultaRealizada.CpfCnpj);
-                    kelement.table("Data da Consulta", "Cidade Associado", "UF Associado")(consultaRealizada.DataDaConsulta, consultaRealizada.CidadeAssociado, consultaRealizada.UfAssociado);
+
+                    for (let consultaRealizada of data.consultaRealizada) {
+                        kelement.captionTable("Consulta Realizada", "Nome Associado", "CPF/CNPJ")(consultaRealizada.NomeAssociado, consultaRealizada.CpfCnpj);
+                        kelement.table("Data da Consulta", "Cidade Associado", "UF Associado")(consultaRealizada.DataDaConsulta, consultaRealizada.CidadeAssociado, consultaRealizada.UfAssociado);
+                    }
+
                     kelement.behaviourAccurate(false);
                     this.append(kelement.element());
                 }
+
 
 
                 if (!data.spc.length) {
@@ -1674,7 +1679,7 @@ export class KronoosParse {
                 data: JSON.stringify({
                     nome: this.name,
                     documento: this.cpf_cnpj,
-                    elements: _.map(this.kelements, (x) => {
+                    elements: _.map(_.filter(this.kelements, n => !n.element().find(".certidao").length), (x) => {
                         let element = x.element().clone();
                         element.find(".result-network").remove();
                         element.find(".kronoos-not-found").remove();
@@ -1682,7 +1687,18 @@ export class KronoosParse {
                     }).join('')
                 }),
             },
-            success: (data) => saveAs(b64toBlob(data), `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.pdf`)
+            success: (data) => {
+                let zip = new JSZip();
+
+                zip.file(`${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
+                    CNPJ : CPF).strip(this.cpf_cnpj)}.pdf`, data, {base64: true});
+                let certidoesDirectory = zip.folder("certidoes");
+                _.map(this.kelements, element => element.element().find('a[download]').each((i, e) =>
+                    certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {base64: true})));
+                zip.generateAsync({type:"blob"}).then((content) =>
+                    saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
+                        CNPJ : CPF).strip(this.cpf_cnpj)}.zip`));
+            }
         }));
     }
 
