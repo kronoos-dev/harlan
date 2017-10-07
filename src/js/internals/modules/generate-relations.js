@@ -256,7 +256,8 @@ module.exports = (controller) => {
             return {
                 from: vfrom.replace(START_ZERO, ''),
                 to: vto.replace(START_ZERO, ''),
-                relationType: relationType.toLowerCase()
+                relationType: relationType.toLowerCase(),
+                title: relationType
             };
         };
 
