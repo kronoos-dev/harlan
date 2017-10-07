@@ -2192,7 +2192,7 @@ export class KronoosParse {
 
                     elements.push(callback => this.confirmQueue.push((cb) => {
                         let edge = _.find(data.edges, edge => edge.from == node.id || edge.to == node.id);
-                        let connection = _.find(data.nodes, node => edge.from == node.id ? edge.to : edge.from);
+                        let connection = _.find(data.nodes, c => c.id == (edge.from == node.id ? edge.to : edge.from));
 
                         if (dontAskAgain[edge.relationType]) {
                             if (defaultActionSearch[edge.relationType]) searchTarget(cb);
@@ -2204,7 +2204,7 @@ export class KronoosParse {
                         this.call("confirm", {
                             title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
                             subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`,
-                            paragraph: `A conexão é para ${connection.label} <small>${connection.id}</small> do tipo ${edge.relationType}`
+                            paragraph: `A conexão é para ${connection.label} <small>(${f(connection.id)})</small> do tipo ${edge.relationType}.`
                         }, () => {
                             dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
                             defaultActionSearch[edge.relationType] = true;
