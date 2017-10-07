@@ -56,7 +56,7 @@ module.exports = (controller) => {
                     let incricao = CNPJ.format($("RFB > incricao", document).first().text());
                     let mainNode = relation.createEdge(legalDocument, inscricao);
                     return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(incricao, relation.labelIdentification($(node).text()));
+                        return relation.createEdge(incricao, relation.labelIdentification($(node).text()), "societária");
                     }).toArray().concat(mainNode));
                 };
             },
@@ -75,7 +75,7 @@ module.exports = (controller) => {
             trackEdges: (relation, legalDocument, document) => {
                 return (callback) => {
                     return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $("CNPJ", node).text());
+                        return relation.createEdge(legalDocument, $("CNPJ", node).text(), "societária");
                     }).toArray());
                 };
             },
@@ -94,7 +94,7 @@ module.exports = (controller) => {
             trackEdges: (relation, legalDocument, document) => {
                 return (callback) => {
                     return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $("CPF", node).text());
+                        return relation.createEdge(legalDocument, $("CPF", node).text(), "societária");
                     }).toArray());
                 };
             },
@@ -133,7 +133,7 @@ module.exports = (controller) => {
                         .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g).map(e => e.replace(/[^\d]/g, '')))
                     .filter((c) => CPF.isValid(c))
                     .filter((c) => CPF.strip(c) !== '37554311816');
-                let nodes = cpfList.map(document => relation.createEdge(legalDocument, document));
+                let nodes = cpfList.map(document => relation.createEdge(legalDocument, document, "societária"));
                 return callback(null, nodes);
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
@@ -151,7 +151,7 @@ module.exports = (controller) => {
             trackEdges: (relation, legalDocument, document) => {
                 return (callback) => {
                     return callback(null, $("socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $(node).text());
+                        return relation.createEdge(legalDocument, $(node).text(), "societária");
                     }).toArray());
                 };
             },
@@ -174,7 +174,7 @@ module.exports = (controller) => {
                 return (callback) => {
                     let response = callback(null, $("localizePessoasRelacionadas > localizePessoasRelacionadas", document).map((idx, node) => {
                         if (/^6/.test($("grupo", node).text())) return;
-                        return relation.createEdge(legalDocument, $("documento", node).text());
+                        return relation.createEdge(legalDocument, $("documento", node).text(), $("relacao", node).text());
                     }).toArray());
                     return response;
                 };
@@ -196,7 +196,7 @@ module.exports = (controller) => {
             trackEdges: (relation, legalDocument, document) => {
                 return (callback) => {
                     return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, relation.labelIdentification($(node).text()));
+                        return relation.createEdge(legalDocument, relation.labelIdentification($(node).text()), "Societária");
                     }).toArray());
                 };
             },
@@ -252,11 +252,11 @@ module.exports = (controller) => {
         let documents = {};
         let labelIdentification = {};
 
-        this.createEdge = (vfrom, vto, relationType = null) => {
+        this.createEdge = (vfrom, vto, relationType = "societária") => {
             return {
                 from: vfrom.replace(START_ZERO, ''),
                 to: vto.replace(START_ZERO, ''),
-                relationType: relationType
+                relationType: relationType.toLowerCase()
             };
         };
 

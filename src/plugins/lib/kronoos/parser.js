@@ -1,5 +1,6 @@
 /* jshint loopfunc: true */
 
+import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
 import {
@@ -69,6 +70,12 @@ const lowPriority = 200;
 const searchBar = $(".kronoos-application .search-bar");
 
 let juristekInfo = null; /* Juristek INFO.INFO */
+
+function f(document) {
+    let formatted_document = pad(document.length > 11 ? 14 : 11, document, '0');
+    if (!CPF.isValid(formatted_document) && !CNPJ.isValid(formatted_document)) return document;
+    return (CPF.isValid(formatted_document) ? CPF : CNPJ).format(formatted_document);
+}
 
 function b64toBlob(b64Data, contentType, sliceSize) {
     contentType = contentType || '';
@@ -1649,27 +1656,6 @@ export class KronoosParse {
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.txt`);
     }
 
-    triggerPDF() {
-        this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                template: 'kronoos-dossier-print',
-                data: JSON.stringify({
-                    nome: this.name,
-                    documento: this.cpf_cnpj,
-                    elements: _.map(this.kelements, (x) => {
-                        let element = x.element().clone();
-                        element.find(".result-network").remove();
-                        element.find(".kronoos-not-found").remove();
-                        return element.html();
-                    }).join('')
-                }),
-            },
-            success: (data) => this.controller.trigger("kronoos::pdf::trigger", data)
-        }));
-    }
-
     downloadPDF() {
         this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
             method: 'POST',
@@ -1695,9 +1681,11 @@ export class KronoosParse {
                 let certidoesDirectory = zip.folder("certidoes");
                 _.map(this.kelements, element => element.element().find('a[download]').each((i, e) =>
                     certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {base64: true})));
-                zip.generateAsync({type:"blob"}).then((content) =>
+                zip.generateAsync({type:"blob"}).then(content => {
+                    this.controller.trigger("kronoos::zip", content);
                     saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
-                        CNPJ : CPF).strip(this.cpf_cnpj)}.zip`));
+                        CNPJ : CPF).strip(this.cpf_cnpj)}.zip`);
+                });
             }
         }));
     }
@@ -2116,7 +2104,8 @@ export class KronoosParse {
 
     graphTrack() {
         let dontAskAgainInput = false,
-            dontAskAgain, defaultActionSearch = true;
+            dontAskAgain = {},
+            defaultActionSearch = {};
 
         this.taskGraphTrack = async.timesSeries(this.depth, (i, callback) => this.generateRelations.track((data) => {
             let elements = [];
@@ -2202,25 +2191,30 @@ export class KronoosParse {
                         })));
 
                     elements.push(callback => this.confirmQueue.push((cb) => {
-                        if (dontAskAgain) {
-                            if (defaultActionSearch) searchTarget(cb);
+                        let edge = _.find(data.edges, edge => edge.from == node.id || edge.to == node.id);
+                        let connection = _.find(data.nodes, node => edge.from == node.id ? edge.to : edge.from);
+
+                        if (dontAskAgain[edge.relationType]) {
+                            if (defaultActionSearch[edge.relationType]) searchTarget(cb);
                             else cb();
                             return;
                         }
 
+
                         this.call("confirm", {
                             title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
-                            subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`
+                            subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`,
+                            paragraph: `A conexão é para ${connection.label} <small>${connection.id}</small> do tipo ${edge.relationType}`
                         }, () => {
-                            dontAskAgain = dontAskAgainInput[1].is(":checked");
-                            defaultActionSearch = true;
+                            dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
+                            defaultActionSearch[edge.relationType] = true;
                             searchTarget(cb);
                         }, () => {
-                            dontAskAgain = dontAskAgainInput[1].is(":checked");
-                            defaultActionSearch = false;
+                            dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
+                            defaultActionSearch[edge.relationType] = false;
                             cb();
                         }, (modal, form, actions) => {
-                            dontAskAgainInput = form.addCheckbox("confirm", "Aplicar ação para todos os targets relacionados com o atual.");
+                            dontAskAgainInput = form.addCheckbox("confirm", `Aplicar ação para todos os targets relacionados (${edge.relationType}).`);
                         });
                     }, () => callback()));
                 }
@@ -2244,6 +2238,7 @@ export class KronoosParse {
                     if (!data.nodes.length)
                         return;
                     this.networkData = data;
+                    this.writeNetworkTable();
                     let element = this.firstElement();
                     let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
                         groups: data.groups
@@ -2270,6 +2265,17 @@ export class KronoosParse {
             });
         });
     }
+
+    writeNetworkTable() {
+        if (!this.networkData.edges.length) return;
+        let relationTable = this.firstElement().captionTable("Lista Relações", "De", "Com", "Relação");
+        for (let edge of this.networkData.edges) {
+            let from = _.find(this.networkData.nodes, (node) => edge.from == node.id),
+                to = _.find(this.networkData.nodes, (node) => edge.to == node.id);
+            if (!from || !to) continue;
+            relationTable(`${from.label}<br /><small>${f(from.id)}</small>`, `${to.label}<br /><small>${f(to.id)}</small>`, capitalize(edge.relationType));
+        }
+        }
 
     errorAjax(...args) {
         return this.call("error::ajax", ...args);
