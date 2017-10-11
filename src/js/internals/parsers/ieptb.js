@@ -13,7 +13,8 @@ module.exports = function(controller) {
 
             result.addItem("Protestos", $("protestos", element).text()).addClass("center");
             result.addItem("Telefone", $("telefone", element).text());
-            result.addItem("Cidade", $("cidade", element).text());
+            let cidade = $("cidade", element).text();
+            if (cidade) result.addItem("Cidade", cidade);
 
             $("protesto", element).each((i, v) => {
                 let data = $("data", v).text();
