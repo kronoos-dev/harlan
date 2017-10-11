@@ -1656,23 +1656,27 @@ export class KronoosParse {
             `${moment().format("YYYY-MM-DD")}-${this.name}-${this.cpf_cnpj}.txt`);
     }
 
+    printData() {
+        return {
+            template: 'kronoos-dossier-print',
+            data: JSON.stringify({
+                nome: this.name,
+                documento: this.cpf_cnpj,
+                elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
+                    let element = x.element().clone();
+                    element.find(".result-network").remove();
+                    element.find(".kronoos-not-found").remove();
+                    return element.html();
+                }).join('')
+            })
+        };
+    }
+
     downloadPDF() {
         this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
             method: 'POST',
             dataType: 'json',
-            data: {
-                template: 'kronoos-dossier-print',
-                data: JSON.stringify({
-                    nome: this.name,
-                    documento: this.cpf_cnpj,
-                    elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
-                        let element = x.element().clone();
-                        element.find(".result-network").remove();
-                        element.find(".kronoos-not-found").remove();
-                        return element.html();
-                    }).join('')
-                }),
-            },
+            data: this.printData(),
             success: (data) => {
                 let zip = new JSZip();
 
