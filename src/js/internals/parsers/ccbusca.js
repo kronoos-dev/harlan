@@ -281,7 +281,7 @@ module.exports = function (controller) {
                                             .get()
                                             .map((p) => parseInt($(p).text()))
                                             .reduce((a, b) => a + b, 0);
-                    items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${totalProtestos}.`);
+                    items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${isNaN(totalProtestos) ? "1 ou mais" : totalProtestos}.`);
                 }});
 
 

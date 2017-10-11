@@ -1677,11 +1677,17 @@ export class KronoosParse {
                 let zip = new JSZip();
 
                 zip.file(`${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
-                    CNPJ : CPF).strip(this.cpf_cnpj)}.pdf`, data, {base64: true});
+                    CNPJ : CPF).strip(this.cpf_cnpj)}.pdf`, data, {
+                    base64: true
+                });
                 let certidoesDirectory = zip.folder("certidoes");
                 _.map(_.filter(this.kelements, e => !!e), element => element.element().find('a[download]').each((i, e) =>
-                    certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {base64: true})));
-                zip.generateAsync({type:"blob"}).then(content => {
+                    certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {
+                        base64: true
+                    })));
+                zip.generateAsync({
+                    type: "blob"
+                }).then(content => {
                     this.controller.trigger("kronoos::zip", content);
                     saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
                         CNPJ : CPF).strip(this.cpf_cnpj)}.zip`);
@@ -2275,7 +2281,7 @@ export class KronoosParse {
             if (!from || !to) continue;
             relationTable(`${from.label}<br /><small>${f(from.id)}</small>`, `${to.label}<br /><small>${f(to.id)}</small>`, capitalize(edge.relationType));
         }
-        }
+    }
 
     errorAjax(...args) {
         return this.call("error::ajax", ...args);
