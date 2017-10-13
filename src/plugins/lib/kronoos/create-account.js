@@ -32,7 +32,7 @@ module.exports = function(controller) {
                 append: form.multiField(),
                 labelPosition: "before"
             },
-            inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou?", objEmail).magicLabel(),
+            inputCommercialReference = form.addInput("commercialReference", "text", "Quem nos indicou? / Referência comercial", objEmail).magicLabel(),
             inputCpf = form.addInput("cpf", "text", "CPF", objDocument).mask("000.000.000-00").magicLabel(),
             inputCnpj = form.addInput("cnpj", "text", "CNPJ (opcional)", objDocument, "CNPJ (opcional)").mask("00.000.000/0000-00").magicLabel(),
             inputZipcode = form.addInput("cep", "text", "CEP", objLocation).mask("00000-000").magicLabel(),
