@@ -1664,8 +1664,7 @@ export class KronoosParse {
                 documento: this.cpf_cnpj,
                 elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
                     let element = x.element().clone();
-                    element.find(".result-network").remove();
-                    element.find(".kronoos-not-found").remove();
+                    
                     return element.html();
                 }).join('')
             })
