@@ -144,6 +144,10 @@ module.exports = (controller) => {
                 item.element.attr("disabled", "disabled").addClass("uinput-disabled");
             }
 
+            if (item.builder) {
+                item.builder(item);
+            }
+
             return this;
         };
 

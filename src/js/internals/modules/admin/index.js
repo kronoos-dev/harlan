@@ -82,9 +82,7 @@ module.exports = function(controller) {
                         "placeholder": "Marcador (tag)"
                     }]
                 }]
-            })).css({
-                "background-color": "#bbb"
-            });
+            })).addClass("gray-button");
 
             report.button("Criar Conta", () => {
                 controller.call("admin::createCompany");

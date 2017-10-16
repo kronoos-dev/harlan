@@ -3,6 +3,7 @@
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
+import { htmlEncode } from 'js-htmlencode';
 import {
     CPF,
     CNPJ
@@ -70,6 +71,35 @@ const lowPriority = 200;
 const searchBar = $(".kronoos-application .search-bar");
 
 let juristekInfo = null; /* Juristek INFO.INFO */
+
+export function downloadPDF(controller, data) {
+    debugger;
+    controller.server.call("SELECT FROM 'EXPORTVIEW'.'PDF'", {
+        method: 'POST',
+        dataType: 'json',
+        data: data.lastResponse.printData,
+        success: (data) => {
+            let zip = new JSZip();
+
+            zip.file(`${moment().format("YYYY-MM-DD")}-${data.name}-${(CNPJ.isValid(data.documento) ? CNPJ : CPF).strip(data.documento)}.pdf`, data, {
+                base64: true
+            });
+
+            let certidoesDirectory = zip.folder("certidoes");
+            _.map($(".kronoos-element-container", data.lastResponse.outerHTML).map((i, e) => $(e).html()).asArray(), element => element.element().find('a[download]').each((i, e) =>
+                certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {
+                    base64: true
+                })));
+            zip.generateAsync({
+                type: "blob"
+            }).then(content => {
+                this.controller.trigger("kronoos::zip", content);
+                saveAs(content, `${moment().format("YYYY-MM-DD")}-${data.name}-${(CNPJ.isValid(data.documento) ?
+                    CNPJ : CPF).strip(data.documento)}.zip`);
+            });
+        }
+    });
+}
 
 function f(document) {
     let formatted_document = pad(document.length > 11 ? 14 : 11, document, '0');
@@ -1032,7 +1062,7 @@ export class KronoosParse {
                     kelement.table("Validade", "Código de Controle")
                         ($("validade", data).text(), $("codigo_de_controle", data).text());
                     let text = $("descricao", data).text();
-                    kelement.paragraph(text);
+                    kelement.paragraph(htmlEncode(text));
                     kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
                     this.append(kelement.element());
                 },
@@ -1890,9 +1920,11 @@ export class KronoosParse {
                 subtitle: `Acompanhamento para o ${this.cpf ? "CPF" : "CNPJ"} ${this.cpf_cnpj}.`,
                 paragraph: "O sistema irá te informar a respeito de quaisquer novas alterações das informações deste relatório / target.",
             }, () => {
-                this.controller.server.call("INSERT INTO 'KRONOOS'.'PUSH'", this.controller.call("error::ajax", {
+                this.controller.server.call("INSERT INTO 'DOSSIERKRONOOS'.'CAPTURE'", this.controller.call("error::ajax", {
+                    dataType: "json",
                     data: {
-                        documento: this.cpf_cnpj
+                        documento: this.cpf_cnpj,
+                        name: this.name
                     },
                     success: () => {
                         this.alert({

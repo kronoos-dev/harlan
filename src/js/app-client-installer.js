@@ -1,4 +1,5 @@
-/*jshint -W054 */
+import ClientLoader from './internals/library/client-loader';
+
 require("pseudo-worker/polyfill");
 
 (function(path, size, compressedSize, encode) {
@@ -6,6 +7,7 @@ require("pseudo-worker/polyfill");
     'use strict';
 
     var
+        clientLoader = null,
         contentIndex = 0,
         content = new Buffer(size),
         streamHttp = require("stream-http"),
@@ -19,23 +21,17 @@ require("pseudo-worker/polyfill");
         };
 
     domReady(function() {
-        var installScreen = document.getElementById("install-screen"),
-            interfaceProgress = document.getElementById("loader-progress"),
-            interfaceLogo = document.getElementById("loader-logo");
-
-        installScreen.className = installScreen.className.replace(/(\s|^)hide(\s|$)/g, '');
-
+        let harlanClient = $("<div />").class("harlan-client").prependTo("body");
+        clientLoader = new ClientLoader(harlanClient);
         updateInterfaceProgress = function() {
             var progress = (downloadedSize + decompressedSize) / totalSize;
-            if (progress > 80) {
-                interfaceLogo.className = "fa-spin";
-            }
-            interfaceProgress.style.width = (progress * 100).toString() + "%";
+            clientLoader.parse(progress);
         };
     });
 
     inflateWorker.onmessage = function(message) {
         if (message.data === null) {
+            if (clientLoader) clientLoader.close();
             (new Function(content.toString(encode)))();
             inflateWorker.terminate(); /* goodbye! */
             return;

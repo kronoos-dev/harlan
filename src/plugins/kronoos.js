@@ -6,6 +6,7 @@ harlan.addPlugin((controller) => {
         };
     });
 
+    controller.confs.iugu.token = "ACB933ED6C0B4990958189EB32E59C87";
     controller.confs.smartsupp = "b93ee5f4a3a18f17b7189239ed61a235cff9aa7b";
 
     require("./lib/kronoos/create-account")(controller);
@@ -21,5 +22,6 @@ harlan.addPlugin((controller) => {
     require("./lib/kronoos/search")(controller);
     require("./lib/kronoos/search-by-name")(controller);
     require("./lib/kronoos/enjoyhint")(controller);
+    require("./lib/kronoos/async-dossier")(controller);
 
 });

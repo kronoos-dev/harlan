@@ -1,3 +1,5 @@
 .harlan-client {
-    @import 'screen.scss';
+    @import "compass";
+    @import "compass/reset";
+    @import "compass/reset/utilities";
 }
