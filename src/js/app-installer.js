@@ -26,11 +26,7 @@ require("pseudo-worker/polyfill");
         installScreen.className = installScreen.className.replace(/(\s|^)hide(\s|$)/g, '');
 
         updateInterfaceProgress = function() {
-            var progress = (downloadedSize + decompressedSize) / totalSize;
-            if (progress > 80) {
-                interfaceLogo.className = "fa-spin";
-            }
-            interfaceProgress.style.width = (progress * 100).toString() + "%";
+            interfaceProgress.style.width = (((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "%";
         };
     });
 
@@ -57,4 +53,4 @@ require("pseudo-worker/polyfill");
         });
     });
 
-})("js/app.js.gz?h=/* @echo MD5 */", parseInt('/* @echo APP_SIZE */'), parseInt('/* @echo COMPRESSED_SIZE */'), "utf-8");
+})("/js/app.js.gz?h=/* @echo MD5 */", parseInt('/* @echo APP_SIZE */'), parseInt('/* @echo COMPRESSED_SIZE */'), "utf-8");

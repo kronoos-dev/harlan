@@ -55,16 +55,7 @@ externalJsSources = [
     `${vendors}/jszip/dist/jszip.min.js`,
     `${vendors}/outdated-browser/outdatedbrowser/outdatedbrowser.js`
 ],
-accuracyJsSources = [
-    `${vendors}/jquery/dist/jquery.js`,
-    `${vendors}/jquery-mask-plugin/src/jquery.mask.js`,
-    `${vendors}/toastr/toastr.js`,
-    `${vendors}/moment/min/moment-with-locales.js`,
-    `${vendors}/numeral/numeral.js`,
-    `${vendors}/numeral/locales/pt-br.js`,
-],
-ichequesKeystore = "icheques.keystore",
-accuracyKeystore = "accuracy.keystore";
+ichequesKeystore = "icheques.keystore";
 
 function i18n(locale) {
     return gulp.src("src/js/internals/i18n/" + locale + "/**/*.json")
@@ -330,8 +321,35 @@ gulp.task("service-worker", () => {
     .pipe($.size({title: ">>> service-worker"}));
 });
 
+gulp.task("build:installer", ["build:installer:client", "build:installer:main"])
+
 // Cria o loader da aplicação Harlan
-gulp.task("build:installer", ["build:application"], () => {
+gulp.task("build:installer:client", ["build:application"], () => {
+    return browserify({
+        entries: `${src}/js/app-client-installer.js`,
+        debug: !PRODUCTION
+    })
+    .transform(babelify, {presets: ["es2015", "react"]})
+    .bundle()
+    .pipe(source("app-client-installer.js"))
+    .pipe(buffer())
+    .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
+    .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.concat("app-client-installer.js"))
+    .pipe($.preprocess({context: {
+        CLIENT_COMPRESSED_SIZE: fs.statSync(`${dist}/js/app-client.js.gz`).size,
+        CLIENT_APP_SIZE: fs.statSync(`${dist}/js/app-client.js`).size,
+        CLIENT_MD5: crypto.createHash('md5').update(fs.readFileSync(`${dist}/js/app-client.js`)).digest("hex")
+    }}))
+    .pipe($.if(DEVEL, $.sourcemaps.write(".")))
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.size({title: ">>> build:installer"}));
+});
+
+
+// Cria o loader da aplicação Harlan
+gulp.task("build:installer:main", ["build:application"], () => {
     return browserify({
         entries: `${src}/js/app-installer.js`,
         debug: !PRODUCTION
@@ -354,63 +372,8 @@ gulp.task("build:installer", ["build:application"], () => {
     .pipe($.size({title: ">>> build:installer"}));
 });
 
-// Copia os arquivos mobile para o Accuracy
-gulp.task("app:copy-files:accuracy", () => {
-    return gulp.src([
-        `${dist}/images/accuracy/icon.png`,
-        `${dist}/images/accuracy/text.png`,
-        `${dist}/images/gamification.png`,
-        `${dist}/accuracy-cordova.html`,
-        `${dist}/js/app-accuracy.js`,
-        `${dist}/js/accuracy.js`,
-        `${dist}/fonts/fontawesome-webfont.eot`,
-        `${dist}/css/app.css`,
-        `${dist}/fonts/fontawesome-webfont.svg`,
-        `${dist}/fonts/FontAwesome.otf`,
-        `${dist}/fonts/fontawesome-webfont.woff`,
-        `${dist}/fonts/fontawesome-webfont.woff2`,
-        `${dist}/fonts/fontawesome-webfont.ttf`,
-    ], {base: dist})
-    .pipe(gulp.dest("cordova/accuracy/www"))
-    .pipe($.size({title: ">>> app:copy-files"}));
-});
-
-// Copia os arquivos mobile para a iCheques
-gulp.task("app:copy-files", ["app:copy-files:accuracy"], () => {
-    return gulp.src([
-        `${dist}/**`,
-        `!${dist}/images/bg/**/*.{jpg,jpeg}`,
-        `!${dist}/js/**/*.{gz,map}`
-    ])
-    .pipe(gulp.dest("cordova/icheques/www"))
-    .pipe($.size({title: ">>> app:copy-files"}));
-});
-
 // Compila as aplicações mobile
-gulp.task("build:cordova", ["build:app:icheques", "build:app:accuracy"]);
-
-// Compila a aplicação accuracy
-gulp.task("build:application:accuracy", ["jshint"], () => {
-    return browserify({
-        entries: `${src}/js/app-accuracy.js`,
-        debug: !PRODUCTION
-    })
-    .transform(babelify, {presets: ["es2015"]})
-    .bundle()
-    .pipe(source("app-accuracy.js"))
-    .pipe(buffer())
-    .pipe($.preprocess(PREPROCESSOR_CONTEXT))
-    .pipe($.addSrc(accuracyJsSources))
-    .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
-    .pipe($.if(PRODUCTION, $.stripDebug()))
-    .pipe($.if(PRODUCTION, $.uglify()))
-    .pipe($.concat("app-accuracy.js"))
-    .pipe($.if(DEVEL, $.sourcemaps.write(".")))
-    .pipe(gulp.dest(`${dist}/js`))
-    .pipe($.pako.gzip())
-    .pipe(gulp.dest(`${dist}/js`))
-    .pipe($.size({title: ">>> build:application"}));
-});
+gulp.task("build:cordova", ["build:app:icheques"]);
 
 // Compila a aplicação Harlan
 gulp.task("build:application:main", ["jshint", "i18n"], () => {
@@ -435,8 +398,31 @@ gulp.task("build:application:main", ["jshint", "i18n"], () => {
     .pipe($.size({title: ">>> build:application"}));
 });
 
+// Compila a aplicação Harlan
+gulp.task("build:application:client", ["jshint", "i18n"], () => {
+    return browserify({
+        entries: `${src}/js/app-client.js`,
+        debug: !PRODUCTION
+    })
+    .transform(babelify, {presets: ["es2015", "react"]})
+    .bundle()
+    .pipe(source("app-client.js"))
+    .pipe(buffer())
+    .pipe($.preprocess(PREPROCESSOR_CONTEXT))
+    .pipe($.if(DEVEL, $.sourcemaps.init({loadMaps: true})))
+    .pipe($.if(PRODUCTION, $.stripDebug()))
+    .pipe($.if(PRODUCTION, $.uglify()))
+    .pipe($.concat("app-client.js"))
+    .pipe($.if(DEVEL, $.sourcemaps.write(".")))
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.pako.gzip())
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.size({title: ">>> build:application"}));
+});
+
+
 // Compila as aplicações JavaScript
-gulp.task("build:application", ["build:application:accuracy", "build:application:main"]);
+gulp.task("build:application", ["build:application:main", "build:application:client"]);
 
 // Compila as imagens do tipo vetor
 gulp.task("build:images:vector", () => {
@@ -484,7 +470,30 @@ gulp.task("fonts", () => {
     .pipe($.size({title: ">>> fonts"}));
 });
 
-gulp.task("styles", () => {
+gulp.task("styles:client", () => {
+    return gulp.src([
+        `${src}/scss/client.scss`
+    ])
+    .pipe($.compass({
+        css: `${dist}/css`,
+        sass: `${src}/scss`,
+        image: `${dist}/images`
+    }))
+    .pipe(buffer())
+    .pipe($.autoprefixer())
+    .pipe($.importCss())
+    .pipe($.concat("client.css"))
+    .pipe($.cssnano({
+        reduceIdents: false,
+        mergeIdents: false
+    }))
+    .pipe(gulp.dest(`${dist}/css`))
+    .pipe($.size({title: ">>> styles"}))
+    .pipe(reload({stream: true}));
+});
+
+
+gulp.task("styles:main", () => {
     return gulp.src([
         `${src}/scss/screen.scss`
     ])
@@ -505,6 +514,8 @@ gulp.task("styles", () => {
     .pipe($.size({title: ">>> styles"}))
     .pipe(reload({stream: true}));
 });
+
+gulp.task("styles", ["styles:client", "styles:main"]);
 
 gulp.task("default", cb => {
     return runSequence("build", "watch", cb);
@@ -577,16 +588,7 @@ $.shell.task(`cordova build android --release -- "--keystore=${ichequesKeystore}
     cwd: './cordova/icheques'
 }));
 
-gulp.task("build:app", ["build:app:icheques", "build:app:accuracy"]);
-
-gulp.task("build:app:accuracy", ["app:copy-files"],
-$.shell.task(`cordova build android --release -- "--keystore=${accuracyKeystore}" --alias=accuracy --password=accuracy`, {
-    cwd: './cordova/accuracy'
-}));
-
-gulp.task("release:app:accuracy", () => {
-    return runSequence("build", "build:app:accuracy");
-});
+gulp.task("build:app", ["build:app:icheques"]);
 
 gulp.task("release:app:icheques", () => {
     return runSequence("build", "build:app:icheques");
@@ -598,16 +600,6 @@ $.shell.task("cordova run android", {
     cwd: './cordova/icheques'
 }));
 
-gulp.task("install:app:accuracy", ["app:copy-files"],
-$.shell.task("cordova run android", {
-    cwd: './cordova/accuracy',
-}));
-
-gulp.task("watch:app:accuracy", ["watch"], () => {
-    gulp.watch([`${dist}/**/*`], function (event) {
-        return runSequence("app:copy-files", "install:app:accuracy");
-    });
-});
 
 gulp.task("watch:app:icheques", ["watch"], () => {
     gulp.watch([`${dist}/**/*`], function (event) {

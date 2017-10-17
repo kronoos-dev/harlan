@@ -219,11 +219,15 @@ var KronoosElement = function(title, subtitle, sidenote) {
             table.append($("<caption />").append(caption));
         }
 
-        for (let item of header) {
-            headRow.append($("<td />").append(label(item)));
+
+        if (header.length) {
+            for (let item of header) {
+                headRow.append($("<td />").append(label(item)));
+            }
+            table.append(thead.append(headRow));
         }
 
-        table.append(thead.append(headRow)).append(tbody);
+        table.append(tbody);
 
         let addItem = (...items) => {
             if (!items.length) {
