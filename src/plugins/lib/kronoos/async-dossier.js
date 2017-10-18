@@ -75,7 +75,7 @@ module.exports = function(controller) {
                     ${(CPF.isValid(data.documento) ? CPF : CNPJ).format(data.documento)}.` :
             `Dossiê carregado${data.name ? " para " + data.name : "" }, documento
                     ${(CPF.isValid(data.documento) ? CPF : CNPJ).format(data.documento)}.`, !data.lastResponse ?
-            "O carregamento do dossiê foi carregado com sucesso, nosso sistema processou com sucesso e gerou um PDF que pode ser carregado através do botão ao lado. Caso precise de um dossiê mais atualizado você pode solicitar clicando no botão refrescar ao lado deste registro." :
+            "O carregamento do dossiê foi finalizado com sucesso, nosso sistema processou com sucesso e gerou um PDF que pode ser baixado através do botão ao lado. Caso precise de um dossiê mais atualizado você pode solicitar clicando no botão refrescar ao lado deste registro." :
             "O dossiê solicitado ainda não foi carregado, nosso sistema está processando e assim que o carregamento for concluído este registro será atualizado para sua comodidade em sua interface. Não é necesśario atualizar a tela de seu navegador para capturar os novos resultados. Caso esteja demorando experimente entrar em contato com o nosso suporte técnico.", [
                 data.lastResponse ? ["fa-file-pdf-o", "Download do Dossiê", () => {
                     window.location = data.response;
