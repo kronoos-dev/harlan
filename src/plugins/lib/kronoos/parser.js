@@ -3,7 +3,9 @@
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
-import { htmlEncode } from 'js-htmlencode';
+import {
+    htmlEncode
+} from 'js-htmlencode';
 import {
     CPF,
     CNPJ
@@ -71,35 +73,6 @@ const lowPriority = 200;
 const searchBar = $(".kronoos-application .search-bar");
 
 let juristekInfo = null; /* Juristek INFO.INFO */
-
-export function downloadPDF(controller, data) {
-    debugger;
-    controller.server.call("SELECT FROM 'EXPORTVIEW'.'PDF'", {
-        method: 'POST',
-        dataType: 'json',
-        data: data.lastResponse.printData,
-        success: (data) => {
-            let zip = new JSZip();
-
-            zip.file(`${moment().format("YYYY-MM-DD")}-${data.name}-${(CNPJ.isValid(data.documento) ? CNPJ : CPF).strip(data.documento)}.pdf`, data, {
-                base64: true
-            });
-
-            let certidoesDirectory = zip.folder("certidoes");
-            _.map($(".kronoos-element-container", data.lastResponse.outerHTML).map((i, e) => $(e).html()).asArray(), element => element.element().find('a[download]').each((i, e) =>
-                certidoesDirectory.file($(e).attr("download"), $(e).attr("href").split(',')[1], {
-                    base64: true
-                })));
-            zip.generateAsync({
-                type: "blob"
-            }).then(content => {
-                this.controller.trigger("kronoos::zip", content);
-                saveAs(content, `${moment().format("YYYY-MM-DD")}-${data.name}-${(CNPJ.isValid(data.documento) ?
-                    CNPJ : CPF).strip(data.documento)}.zip`);
-            });
-        }
-    });
-}
 
 function f(document) {
     let formatted_document = pad(document.length > 11 ? 14 : 11, document, '0');
@@ -527,9 +500,50 @@ export class KronoosParse {
         }));
     }
 
+    tribunalSearch(n, callback) {
+        let [query, uniq, description, notFound, name] = n;
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', description, {
+            data: {
+                data: query
+            },
+            complete: () => callback(),
+            bipbopError: (type, message, code, push, xml) => {
+                if (push) {
+                    if (notFound) this.notFound(notFound);
+                    return;
+                }
+                if (name) {
+                    this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - ${name}, utilizando Diário Oficial como alternativa.`);
+                }
+            },
+            success: data => {
+                if ($("body > processo", data).length) {
+                    this.juristekCNJ(data, null, true, !uniq, !uniq);
+                    return;
+                }
+
+                let procs = $("processo", data);
+                if (!procs.length) {
+                    if (notFound) this.notFound(notFound);
+                    return;
+                }
+
+                procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
+                    data: {
+                        data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
+                                .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
+                    },
+                    success: (data) => {
+                        this.juristekCNJ(data, null, true, !uniq, !uniq);
+                    }
+
+                })));
+            }
+        }), lowPriority);
+    }
+
     searchTribunais() {
         let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Tribunal Federal 1º Região - ${x[1]}`]);
-        let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
 
         this.tribunaisSync = async.eachLimit([
             [`SELECT FROM 'TJRJ'.'NOME' WHERE 'NOME_PARTE' = '${this.name}' AND 'ORIGEM' = '1'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio de Janeiro, em todas as comarcas`, null, `Tribunal de Justiça do Rio de Janeiro, todas as comarcas`],
@@ -539,47 +553,11 @@ export class KronoosParse {
             [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`, 'Tribunal do Rio Grande do Sul'],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`, 'Superior Tribunal de Justiça'],
-        ].concat(tjrjSearch, trf1Search), 10, (n, callback) => {
-            let [query, uniq, description, notFound, name] = n;
-            this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', description, {
-                data: {
-                    data: query
-                },
-                complete: () => callback(),
-                bipbopError: (type, message, code, push, xml) => {
-                    if (push) {
-                        if (notFound) this.notFound(notFound);
-                        return;
-                    }
-                    if (name) {
-                        this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - ${name}, utilizando Diário Oficial como alternativa.`);
-                    }
-                },
-                success: data => {
-                    if ($("body > processo", data).length) {
-                        this.juristekCNJ(data, null, true, !uniq, !uniq);
-                        return;
-                    }
-
-                    let procs = $("processo", data);
-                    if (!procs.length) {
-                        if (notFound) this.notFound(notFound);
-                        return;
-                    }
-
-                    procs.each((i, node) => this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader('fa-balance-scale', `Capturando dados do processo ${VMasker.toPattern($("numero_processo", node).first().text(), "9999999-99.9999.9.99.9999")} para ${this.name}`, {
-                        data: {
-                            data: `SELECT FROM '${$('tribunal_nome', node).text()}'.'${$('tribunal_consulta', node).text()}' WHERE ${$("parametro", node)
-                                    .map((i,n) => `'${$(n).attr("name")}' = '${$(n).text()}'`).toArray().join(" AND ")}`
-                        },
-                        success: (data) => {
-                            this.juristekCNJ(data, null, true, !uniq, !uniq);
-                        }
-
-                    })));
-                }
-            }), lowPriority);
-        }, err => {});
+        ].concat(trf1Search), 10, (...args) => this.tribunalSearch(...args), err => {
+            let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
+            if (_.findIndex(_.keys(this.procElements), (v) => /\.8\.19.\d{4}$/.test(v)) !== -1)
+                this.tribunaisSync = async.eachLimit(tjrjSearch, 10,  (...args) => this.tribunalSearch(...args), err => {});
+        });
     }
 
     searchComprot() {
@@ -1694,14 +1672,14 @@ export class KronoosParse {
                 documento: this.cpf_cnpj,
                 elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
                     let element = x.element().clone();
-                    
+
                     return element.html();
                 }).join('')
             })
         };
     }
 
-    downloadPDF() {
+    generateZip(blobCallback) {
         this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
             method: 'POST',
             dataType: 'json',
@@ -1710,7 +1688,7 @@ export class KronoosParse {
                 let zip = new JSZip();
 
                 zip.file(`${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
-                    CNPJ : CPF).strip(this.cpf_cnpj)}.pdf`, data, {
+                        CNPJ : CPF).strip(this.cpf_cnpj)}.pdf`, data, {
                     base64: true
                 });
                 let certidoesDirectory = zip.folder("certidoes");
@@ -1720,13 +1698,14 @@ export class KronoosParse {
                     })));
                 zip.generateAsync({
                     type: "blob"
-                }).then(content => {
-                    this.controller.trigger("kronoos::zip", content);
-                    saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
-                        CNPJ : CPF).strip(this.cpf_cnpj)}.zip`);
-                });
+                }).then(content => blobCallback(content));
             }
         }));
+    }
+
+    downloadPDF() {
+        generateZip(content => saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
+            CNPJ : CPF).strip(this.cpf_cnpj)}.zip`));
     }
 
     downloadXLSX() {
