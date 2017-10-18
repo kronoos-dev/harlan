@@ -8,11 +8,10 @@ module.exports = function(controller) {
 
     let report;
     let timeline;
-    let dossiers;
+    let dossiers = {};
 
     controller.registerCall("kronoos::async::new", () => {
         let name;
-        dossiers = {};
         controller.call("form", data =>
             controller.server.call("INSERT INTO 'DOSSIERKRONOOS'.'CAPTURE'", controller.call("error::ajax", {
                 dataType: "json",
@@ -71,14 +70,16 @@ module.exports = function(controller) {
     });
 
     function parseDossier(data) {
-        let tlElement = timeline.add(data.lastResponse ? data.lastResponse.sec : data.created.sec, !data.lastResponse ?
+        let tlElement = timeline.add(data.lastResponse ? data.lastResponse.sec || data.lastResponse : data.created.sec || data.created, !data.lastResponse ?
             `Aguardando carregamento${data.name ? " para " + data.name : "" }, documento
                     ${(CPF.isValid(data.documento) ? CPF : CNPJ).format(data.documento)}.` :
             `Constam apontamentos${data.name ? " para " + data.name : "" }, documento
                     ${(CPF.isValid(data.documento) ? CPF : CNPJ).format(data.documento)}.`, !data.lastResponse ?
             "O carregamento do dossiê foi carregado com sucesso, nosso sistema processou com sucesso e gerou um PDF que pode ser carregado através do botão ao lado. Caso precise de um dossiê mais atualizado você pode solicitar clicando no botão refrescar ao lado deste registro." :
             "O dossiê solicitado ainda não foi carregado, nosso sistema está processando e assim que o carregamento for concluído este registro será atualizado para sua comodidade em sua interface. Não é necesśario atualizar a tela de seu navegador para capturar os novos resultados. Caso esteja demorando experimente entrar em contato com o nosso suporte técnico.", [
-                data.lastResponse ? ["fa-file-pdf-o", "Download do Dossiê", () => downloadPDF(controller, data)] : ["fa-spin fa-spinner", "Carregando o Dossiê", () => controller.alert({
+                data.lastResponse ? ["fa-file-pdf-o", "Download do Dossiê", () => {
+                    window.location = data.response;
+                }] : ["fa-spin fa-spinner", "Carregando o Dossiê", () => controller.alert({
                     title: "O dossiê ainda não foi carregado no sistema",
                     subtitle: "Aguarde a conclusão para poder continuar esta operação.",
                     paragraph: "Os dossiês são preparados imediatamente, contanto podem levar alguns minutos para serem concluídos por causa da diversidade das fontes de informação."
@@ -119,7 +120,12 @@ module.exports = function(controller) {
 
         controller.server.call("SELECT FROM 'DOSSIERKRONOOS'.'CAPTURE'", {
             dataType: "json",
-            success: (data) => data.map(data => parseDossier(data))
+            success: (data) => {
+                dossiers = {};
+                data.map(data => {
+                    dossiers[data.documento] = parseDossier(data);
+                });
+            }
         });
 
         report.button("Adicionar Acompanhamentos", function() {
@@ -142,6 +148,7 @@ module.exports = function(controller) {
 
     controller.registerTrigger("serverCommunication::websocket::dossierUpdate", "dossierUpdate", (data, cb) => {
         cb();
+        debugger;
         let row = parseDossier(data);
         if (dossiers[data.documento]) {
             dossiers[data.documento].replaceWith(row);
