@@ -556,7 +556,7 @@ export class KronoosParse {
         ].concat(trf1Search), 10, (...args) => this.tribunalSearch(...args), err => {
             let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
             if (_.findIndex(_.keys(this.procElements), (v) => /\.8\.19.\d{4}$/.test(v)) !== -1)
-                this.tribunaisSync = async.eachLimit(tjrjSearch, 10,  (...args) => this.tribunalSearch(...args), err => {});
+                this.tribunaisSync = async.eachLimit(tjrjSearch, 10, (...args) => this.tribunalSearch(...args), err => {});
         });
     }
 
@@ -1672,18 +1672,26 @@ export class KronoosParse {
                 documento: this.cpf_cnpj,
                 elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
                     let element = x.element().clone();
+                    let walk = document.createTreeWalker(element.get(0), NodeFilter.SHOW_TEXT, null, false);
+
+                    let n;
+                    while ((n = walk.nextNode())) {
+                        n.textContent = n.textContent.replace(/[\n\r\t]/, ' ');
+                    }
 
                     return element.html();
+
                 }).join('')
             })
         };
     }
 
     generateZip(blobCallback) {
+        let printData = this.printData();
         this.serverCall("SELECT FROM 'EXPORTVIEW'.'PDF'", this.loader("fa-file-pdf-o", `Exportando o dossiê capturado de ${this.name} para PDF.`, {
             method: 'POST',
             dataType: 'json',
-            data: this.printData(),
+            data: printData,
             success: (data) => {
                 let zip = new JSZip();
 
