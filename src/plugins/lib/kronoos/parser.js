@@ -1704,7 +1704,7 @@ export class KronoosParse {
     }
 
     downloadPDF() {
-        generateZip(content => saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
+        this.generateZip(content => saveAs(content, `${moment().format("YYYY-MM-DD")}-${this.name}-${(CNPJ.isValid(this.cpf_cnpj) ?
             CNPJ : CPF).strip(this.cpf_cnpj)}.zip`));
     }
 
