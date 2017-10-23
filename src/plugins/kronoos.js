@@ -21,9 +21,9 @@ harlan.addPlugin((controller) => {
     require("./lib/kronoos/search")(controller);
     require("./lib/kronoos/search-by-name")(controller);
     require("./lib/kronoos/async-dossier")(controller);
+    require("./lib/kronoos/contract-accept")(controller);
 
     if (controller.confs.kronoos.isKronoos) {
-        require("./lib/kronoos/contract-accept")(controller);
         require("./lib/kronoos/enjoyhint")(controller);
     }
 
