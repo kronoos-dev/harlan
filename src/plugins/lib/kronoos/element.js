@@ -239,11 +239,15 @@ var KronoosElement = function(title, subtitle, sidenote) {
                 row.append($("<td />").append(item));
             }
             tbody.append(row);
-            return addItem;
+
+            /* rowFnc.element contains the element and is the row function */
+            let rowFnc = (...args) => addItem(...args);
+            rowFnc.element = row;
+            return rowFnc;
         };
 
         (appendTo || sideContent).append(table);
-
+        addItem.element = table;
         return addItem;
     };
 

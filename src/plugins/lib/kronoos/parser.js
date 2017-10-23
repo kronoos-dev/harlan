@@ -11,6 +11,7 @@ import {
     CNPJ
 } from 'cpf_cnpj';
 
+import { CognitiveDossier } from './cognitive-dossier';
 import findIndexes from 'find-indexes';
 import async from "async";
 import _ from "underscore";
@@ -27,9 +28,9 @@ import metaphone from 'metaphone';
 import CSV from 'csv-string';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
-import {CognitiveDossier} from './cognitive-dossier.js';
 
-const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '209'", "'COMARCA' = '205'", "'COMARCA' = '207'", "'COMARCA' = '203'", "'COMARCA' = '210'", "'COMARCA' = '202'", "'COMARCA' = '208'", "'COMARCA' = '211'", "'COMARCA' = '206'", "'COMARCA' = '401'", "'COMARCA' = '424'", "'COMARCA' = '341'", "'COMARCA' = '403'", "'COMARCA' = '402'", "'COMARCA' = '428'", "'COMARCA' = '302'", "'COMARCA' = '432'",
+const TJRJ_COMARCA = [
+    "'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '209'", "'COMARCA' = '205'", "'COMARCA' = '207'", "'COMARCA' = '203'", "'COMARCA' = '210'", "'COMARCA' = '202'", "'COMARCA' = '208'", "'COMARCA' = '211'", "'COMARCA' = '206'", "'COMARCA' = '401'", "'COMARCA' = '424'", "'COMARCA' = '341'", "'COMARCA' = '403'", "'COMARCA' = '402'", "'COMARCA' = '428'", "'COMARCA' = '302'", "'COMARCA' = '432'",
     "'COMARCA' = '348'", "'COMARCA' = '404'", "'COMARCA' = '304'", "'COMARCA' = '305'", "'COMARCA' = '220'", "'COMARCA' = '306'", "'COMARCA' = '355'", "'COMARCA' = '307'", "'COMARCA' = '308'", "'COMARCA' = '309'", "'COMARCA' = '310'", "'COMARCA' = '311'", "'COMARCA' = '221'", "'COMARCA' = '312'", "'COMARCA' = '471'", "'COMARCA' = '343'", "'COMARCA' = '407'", "'COMARCA' = '408'", "'COMARCA' = '349'", "'COMARCA' = '313'",
     "'COMARCA' = '409'", "'COMARCA' = '354'", "'COMARCA' = '350'", "'COMARCA' = '314'", "'COMARCA' = '411'", "'COMARCA' = '410'", "'COMARCA' = '470'", "'COMARCA' = '315'", "'COMARCA' = '430'", "'COMARCA' = '317'", "'COMARCA' = '439'", "'COMARCA' = '318'", "'COMARCA' = '319'", "'COMARCA' = '320'", "'COMARCA' = '412'", "'COMARCA' = '222'", "'COMARCA' = '473'", "'COMARCA' = '414'", "'COMARCA' = '223'", "'COMARCA' = '321'",
     "'COMARCA' = '433'", "'COMARCA' = '323'", "'COMARCA' = '346'", "'COMARCA' = '224'", "'COMARCA' = '472'", "'COMARCA' = '353'", "'COMARCA' = '324'", "'COMARCA' = '325'", "'COMARCA' = '345'", "'COMARCA' = '434'", "'COMARCA' = '417'", "'COMARCA' = '431'", "'COMARCA' = '327'", "'COMARCA' = '328'", "'COMARCA' = '342'", "'COMARCA' = '329'", "'COMARCA' = '425'", "'COMARCA' = '435'", "'COMARCA' = '344'", "'COMARCA' = '225'",
@@ -131,6 +132,7 @@ export class KronoosParse {
         this.titleCanChange = false;
         this.geocodes = [];
         this.resourceUse = 0;
+        this.responses = [];
 
         this.confirmQueue = async.queue(function(task, callback) {
             task(callback);
@@ -282,7 +284,15 @@ export class KronoosParse {
 
         conf.timeout = conf.timeout || 60000; /* 1 minute */
 
-        let resourceUseAnalytics = (xml) => {
+        let resourceUseAnalytics = (xml, hasError) => {
+
+            this.responses.push({
+                query: query,
+                data: conf.data,
+                response: xml,
+                hasError: hasError
+             });
+
             if (!xml || !(xml instanceof XMLDocument)) return;
             /* fun things */
             let resourceUse = parseInt($("BPQL > header", xml).attr("resourceUse"));
@@ -298,12 +308,12 @@ export class KronoosParse {
 
         conf.bipbopError = (...args) => {
             let [type, message, code, push, xml] = args;
-            resourceUseAnalytics(xml);
+            resourceUseAnalytics(xml, true);
             if (error) error(...args);
         };
 
         conf.success = (...args) => {
-            resourceUseAnalytics(args[0]);
+            resourceUseAnalytics(args[0], false);
             if (success) success(...args);
         };
 
