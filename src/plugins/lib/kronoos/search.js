@@ -163,7 +163,9 @@ module.exports = function(controller) {
             xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
                 controller.call("kronoos::status::ajax", "fa-user", `Capturando dados de identidade através do documento ${document}.`, {
                     data: {
-                        documento: document
+                        documento: document,
+                        kronoos: true
+
                     },
                     success: (ret) => {
                         controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document);
@@ -337,10 +339,13 @@ module.exports = function(controller) {
         });
     });
 
-    if (controller.query.k) {
-        INPUT.val((CPF.isValid(controller.query.k) ? CPF : CNPJ).format(controller.query.k));
-        KRONOOS_ACTION.submit();
-    }
+    controller.registerTrigger("authentication::authenticated", "kronoos::autosearch", (i, cb) => {
+        cb();
+        if (controller.query.k) {
+            INPUT.val((CPF.isValid(controller.query.k) ? CPF : CNPJ).format(controller.query.k));
+            KRONOOS_ACTION.submit();
+        }
+    });
 
     controller.registerCall("kronoos::parsers", () => parsers);
 

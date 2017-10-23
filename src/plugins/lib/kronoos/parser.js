@@ -27,6 +27,7 @@ import metaphone from 'metaphone';
 import CSV from 'csv-string';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
+import {CognitiveDossier} from './cognitive-dossier.js';
 
 const TJRJ_COMARCA = ["'COMARCA' = '201'", "'COMARCA' = '204'", "'COMARCA' = '209'", "'COMARCA' = '205'", "'COMARCA' = '207'", "'COMARCA' = '203'", "'COMARCA' = '210'", "'COMARCA' = '202'", "'COMARCA' = '208'", "'COMARCA' = '211'", "'COMARCA' = '206'", "'COMARCA' = '401'", "'COMARCA' = '424'", "'COMARCA' = '341'", "'COMARCA' = '403'", "'COMARCA' = '402'", "'COMARCA' = '428'", "'COMARCA' = '302'", "'COMARCA' = '432'",
     "'COMARCA' = '348'", "'COMARCA' = '404'", "'COMARCA' = '304'", "'COMARCA' = '305'", "'COMARCA' = '220'", "'COMARCA' = '306'", "'COMARCA' = '355'", "'COMARCA' = '307'", "'COMARCA' = '308'", "'COMARCA' = '309'", "'COMARCA' = '310'", "'COMARCA' = '311'", "'COMARCA' = '221'", "'COMARCA' = '312'", "'COMARCA' = '471'", "'COMARCA' = '343'", "'COMARCA' = '407'", "'COMARCA' = '408'", "'COMARCA' = '349'", "'COMARCA' = '313'",
@@ -64,6 +65,7 @@ const NAMESPACE_DESCRIPTION = {
     /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
     'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
+
 
 const removeDiacritics = require('diacritics').remove;
 
@@ -656,6 +658,29 @@ export class KronoosParse {
                 }, true));
     }
 
+    cognitiveParser() {
+        if (this.cognitiveDossier) return;
+        let cognitiveDossier = new CognitiveDossier(this);
+        this.cognitiveDossier = cognitiveDossier;
+        let table = null;
+
+        let generateTable = () => {
+            let table = this.firstElement().captionTable("Relatório Cognitivo");
+            table.element.addClass("cognitive-dossier");
+            return table;
+        };
+
+        cognitiveDossier.generateOutput((title, score, paragraph) => {
+            table = table || generateTable();
+            let row = table(null, paragraph);
+            let cells = $("td", row.element);
+            let s = Math.ceil(score * 100);
+            harlan.interface.widgets.radialProject(cells.first(), s).element.addClass(s > 60 ? "warning" : (s > 40 ? "attention" : "default"));
+            $("<label />").text(title).appendTo(cells.last());
+            /* copy that motherfucker hahahaha */
+        });
+    }
+
     searchPepCoaf() {
         if (!this.cpf) return;
         this.serverCall("SELECT FROM 'KRONOOS'.'PEP'",
@@ -932,6 +957,7 @@ export class KronoosParse {
     }
 
     end() {
+        this.cognitiveParser();
         this.juristekInfo(info => {
             let filter = _.uniq(_.filter(_.keys(this.procElements).map(cnj => {
                 let jtr = cnj.substr(-9).substr(0, 4); /* justiça e tribunal */
