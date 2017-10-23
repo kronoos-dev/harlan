@@ -1,6 +1,6 @@
 module.exports = (controller) => {
-
-    $("#login-about").text("Soluções na implementação de práticas relacionadas à " +
-        "responsabilidade socioambiental e anticorrupção.");
-    
+    if (controller.confs.kronoos.isKronoos) {
+        $("#login-about").text("Soluções na implementação de práticas relacionadas à " +
+            "responsabilidade socioambiental e anticorrupção.");
+    }
 };

@@ -141,36 +141,38 @@ module.exports = function(controller) {
     KRONOOS_ACTION.submit((e) => {
         $(INPUT).blur();
         e.preventDefault();
-
         clearAll();
 
-        let document = INPUT.val();
+        controller.call("kronoos::contractAccepted::app", () => {
 
-        var SPECIAL_MATCH = /^\s*123\.?456\.?789\-?10\s*$/.test(document);
-        if (!CPF.isValid(document) && !CNPJ.isValid(document) && !SPECIAL_MATCH) {
-            toastr.error("O documento informado não é um CPF ou CNPJ válido.",
-                "Preencha um CPF ou CNPJ válido para poder realizar a consulta Kronoos");
-            return;
-        }
+            let document = INPUT.val();
 
-        if (SPECIAL_MATCH) {
-            return controller.call("kronoos::search", document, "John Doe", true);
-        }
+            var SPECIAL_MATCH = /^\s*123\.?456\.?789\-?10\s*$/.test(document);
+            if (!CPF.isValid(document) && !CNPJ.isValid(document) && !SPECIAL_MATCH) {
+                toastr.error("O documento informado não é um CPF ou CNPJ válido.",
+                    "Preencha um CPF ou CNPJ válido para poder realizar a consulta Kronoos");
+                return;
+            }
 
-        $(".kronoos-print-document").text((CPF.isValid(document) ? CPF : CNPJ).format(document));
+            if (SPECIAL_MATCH) {
+                return controller.call("kronoos::search", document, "John Doe", true);
+            }
 
-        xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
-            controller.call("kronoos::status::ajax", "fa-user", `Capturando dados de identidade através do documento ${document}.`, {
-                data: {
-                    documento: document
-                },
-                success: (ret) => {
-                    controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document);
-                },
-                error: () => {
-                    controller.call("kronoos::ccbusca", null, document);
-                }
-            })));
+            $(".kronoos-print-document").text((CPF.isValid(document) ? CPF : CNPJ).format(document));
+
+            xhr.push(controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'",
+                controller.call("kronoos::status::ajax", "fa-user", `Capturando dados de identidade através do documento ${document}.`, {
+                    data: {
+                        documento: document
+                    },
+                    success: (ret) => {
+                        controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document);
+                    },
+                    error: () => {
+                        controller.call("kronoos::ccbusca", null, document);
+                    }
+                })));
+        });
     });
 
     controller.registerCall("kronoos::parse", (name, document, kronoosData, cbuscaData = null, style = "maximized", parameters = {}) => {

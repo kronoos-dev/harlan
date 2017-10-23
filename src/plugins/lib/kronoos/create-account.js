@@ -270,22 +270,24 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("authentication::need", function(callback) {
-        if (controller.serverCommunication.freeKey()) {
-            controller.call("kronoos::login", callback);
-            return true;
+    if (controller.confs.kronoos.isKronoos) {
+        controller.registerCall("authentication::need", function(callback) {
+            if (controller.serverCommunication.freeKey()) {
+                controller.call("kronoos::login", callback);
+                return true;
+            }
+
+            if (callback) {
+                callback();
+            }
+
+            return false;
+        });
+
+        if (controller.query.createAccount) {
+            controller.call("kronoos::createAccount", null, controller.query.contractLocation || null,
+                {}, controller.query.createAccount || 'Account');
         }
-
-        if (callback) {
-            callback();
-        }
-
-        return false;
-    });
-
-    if (controller.query.createAccount) {
-        controller.call("kronoos::createAccount", null, controller.query.contractLocation || null,
-            {}, controller.query.createAccount || 'Account');
     }
 
 };

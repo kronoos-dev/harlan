@@ -1,6 +1,11 @@
 import VMasker from 'vanilla-masker';
-import { CPF, CNPJ } from 'cpf_cnpj';
-import { downloadPDF } from './parser.js';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
+import {
+    downloadPDF
+} from './parser.js';
 
 const masks = ['999.999.999-99', '99.999.999/9999-99'];
 
@@ -10,7 +15,7 @@ module.exports = function(controller) {
     let timeline;
     let dossiers = {};
 
-    controller.registerCall("kronoos::async::new", () => {
+    controller.registerCall("kronoos::async::new", () => controller.call("kronoos::contractAccepted::app", () => {
         let name;
         controller.call("form", data =>
             controller.server.call("INSERT INTO 'DOSSIERKRONOOS'.'CAPTURE'", controller.call("error::ajax", {
@@ -67,7 +72,7 @@ module.exports = function(controller) {
                 ]
             }]
         });
-    });
+    }));
 
     function parseDossier(data) {
         let tlElement = timeline.add(data.lastResponse ? data.lastResponse.sec || data.lastResponse : data.created.sec || data.created, !data.lastResponse ?
@@ -87,7 +92,7 @@ module.exports = function(controller) {
                 ["fa-refresh", "Atualizar", () => controller.server.call("UPDATE 'PUSH'.'JOB'", controller.call("error::ajax", {
                     data: {
                         pushAt: moment().unix(),
-                        id: data.push.$id.$id
+                        id: data.push.$id.$id || data.push.$id || data.push
                     },
                     success: () => controller.alert({
                         icon: 'pass',
@@ -128,9 +133,16 @@ module.exports = function(controller) {
             }
         });
 
-        report.button("Adicionar Acompanhamentos", function() {
-            controller.call("kronoos::async::new");
-        });
+        report.button("Adicionar Acompanhamentos", () => controller.call("kronoos::async::new"));
+
+        report.newAction("fa-play-circle", () =>
+            controller.interface.helpers.activeWindow(".kronoos-application"),
+            "Pesquisa Kronoos");
+
+        if (!controller.confs.kronoos.isKronoos) {
+            report.newAction("fa-info-circle", () => window.open("https://www.kronoos.com"), "Sobre o Kronoos");
+        }
+
 
         // report.newAction("fa-filter", () => {
         //

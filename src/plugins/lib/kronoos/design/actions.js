@@ -7,10 +7,12 @@ module.exports = (controller) => {
         });
     };
 
-    controller.interface.helpers.menu.add("Kronoos", "undo").nodeLink.click((e) => {
-        e.preventDefault();
-        controller.interface.helpers.activeWindow(".kronoos-application");
-    });
+    if (controller.confs.kronoos.isKronoos) {
+        controller.interface.helpers.menu.add("Kronoos", "undo").nodeLink.click((e) => {
+            e.preventDefault();
+            controller.interface.helpers.activeWindow(".kronoos-application");
+        });
+    }
 
     $(".kronoos-action-harlan").click((e) => {
         e.preventDefault();
