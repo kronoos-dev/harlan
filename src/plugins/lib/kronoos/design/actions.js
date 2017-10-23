@@ -7,7 +7,8 @@ module.exports = (controller) => {
         });
     };
 
-    controller.interface.helpers.menu.add("Kronoos", "undo").nodeLink.click((e) => {
+    controller.interface.helpers.menu.add("Kronoos",
+        controller.confs.kronoos.isKronoos ? "undo" : "id-card").nodeLink.click((e) => {
         e.preventDefault();
         controller.interface.helpers.activeWindow(".kronoos-application");
     });

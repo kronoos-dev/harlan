@@ -1679,8 +1679,11 @@ export class KronoosParse {
                         n.textContent = n.textContent.replace(/[\n\r\t]/, ' ');
                     }
 
-                    return element.html();
+                    element.find("canvas").each((i, e) => $(e).replaceWith($("<img />").attr({
+                        src: e.toDataURL("image/jpeg")
+                    })));
 
+                    return element.html();
                 }).join('')
             })
         };
