@@ -132,6 +132,10 @@ module.exports = function(controller) {
             controller.call("kronoos::async::new");
         });
 
+        report.newAction("fa-play-circle", () =>
+            controller.interface.helpers.activeWindow(".kronoos-application"),
+            "Pesquisa Kronoos");
+
         // report.newAction("fa-filter", () => {
         //
         // }, "Filtrar Dossiês");
