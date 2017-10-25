@@ -1712,7 +1712,7 @@ export class KronoosParse {
 
                     let n;
                     while ((n = walk.nextNode())) {
-                        n.textContent = n.textContent.replace(/[\n\r\t]/, ' ');
+                        n.textContent = n.textContent.replace(/[\n\r\t]/g, ' ');
                     }
 
                     element.find("canvas").each((i, e) => $(e).replaceWith($("<img />").attr({
