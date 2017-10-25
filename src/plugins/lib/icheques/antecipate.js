@@ -443,36 +443,42 @@ module.exports = function(controller) {
                 return;
             }
 
-            if (!geoposition) {
-                controller.call("alert", {
-                    title: "Não foi possível capturar sua solicitação!",
-                    subtitle: "Para antecipar você precisa habilitar a geolocalização no seu navegador. Entre em contato com o suporte: (11) 3661-4657."
-                });
-                return;
-            }
-
-            banks = _.sortBy(_.filter(banks.toArray(), (element) => calculateDistance({
-                lat: geoposition.coords.latitude,
-                lon: geoposition.coords.longitude
-            }, {
-                lat: parseLocation(element, "geocode > geometry > location > lat"),
-                lon: parseLocation(element, "geocode > geometry > location > lng")
-            }) <= 200000), (element) => calculateDistance({
-                lat: geoposition.coords.latitude,
-                lon: geoposition.coords.longitude
-            }, {
-                lat: parseLocation(element, "geocode > geometry > location > lat"),
-                lon: parseLocation(element, "geocode > geometry > location > lng")
-            }));
-
-            if (!banks.length) {
-                if (!banks.length) {
+            if (!validBankReferences.length) {
+                if (!geoposition) {
                     controller.call("alert", {
-                        title: "Não foi possível encontrar um parceiro antecipador!",
-                        subtitle: "Sinto muito mas não há parceiros iCheques na sua região.",
-                        paragraph: "Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657."
+                        title: "Não foi possível capturar sua solicitação!",
+                        subtitle: "Para antecipar você precisa habilitar a geolocalização no seu navegador. Entre em contato com o suporte: (11) 3661-4657."
                     });
                     return;
+                }
+
+
+                banks = _.sortBy(_.filter(banks.toArray(), (element) => {
+
+                    return calculateDistance({
+                        lat: geoposition.coords.latitude,
+                        lon: geoposition.coords.longitude
+                    }, {
+                        lat: parseLocation(element, "geocode > geometry > location > lat"),
+                        lon: parseLocation(element, "geocode > geometry > location > lng")
+                    }) <= 200000;
+                }), (element) => calculateDistance({
+                    lat: geoposition.coords.latitude,
+                    lon: geoposition.coords.longitude
+                }, {
+                    lat: parseLocation(element, "geocode > geometry > location > lat"),
+                    lon: parseLocation(element, "geocode > geometry > location > lng")
+                }));
+
+                if (!banks.length) {
+                    if (!banks.length) {
+                        controller.call("alert", {
+                            title: "Não foi possível encontrar um parceiro antecipador!",
+                            subtitle: "Sinto muito mas não há parceiros iCheques na sua região.",
+                            paragraph: "Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657."
+                        });
+                        return;
+                    }
                 }
             }
 

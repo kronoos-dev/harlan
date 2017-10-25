@@ -10,10 +10,17 @@ module.exports = (controller) => {
         modal.createActions().cancel();
 
         navigator.geolocation.getCurrentPosition((geoposition) => {
-            callback(geoposition);
             modal.close();
+            callback(geoposition);
         }, () => {
-            callback();
+            if (!controller.confs.user || !controller.confs.user.geocode || !controller.confs.user.geocode.geometry || !controller.confs.user.geocode.geometry.location) {
+                modal.close();
+                callback();
+                return;
+            }
+
+            modal.close();
+            callback({coords: {latitude: controller.confs.user.geocode.geometry.location.lat, longitude: controller.confs.user.geocode.geometry.location.lng}});
         }, {
             enableHighAccuracy: true
         });
