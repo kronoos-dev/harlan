@@ -149,7 +149,7 @@ module.exports = function(controller) {
         // }, "Filtrar Dossiês");
 
 
-        report.gamification("pass");
+        report.gamification("kronoos");
         $(".app-content").append(report.element());
     });
 
