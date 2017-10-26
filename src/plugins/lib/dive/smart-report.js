@@ -90,36 +90,36 @@ module.exports = (controller) => {
                     return new Color(color);
                 });
 
-        var i = 0;
-        controller.call("dive::smartReport::doughnut::show",
-                "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX'",
-                "Restituição do Imposto de Renda",
-                "Exercício do Ano Corrente",
-                require("../../markdown/dive/restituicao.html"),
-                () => new Color(harmonyColors[i++]));
-
-
-
-        i = 0;
-        controller.call("dive::smartReport::doughnut::show",
-                "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX' WHERE 'LASTYEAR' = 'TRUE'",
-                "Restituição do Imposto de Renda",
-                "Exercício do Ano Anterior",
-                require("../../markdown/dive/restituicao.html"),
-                () => new Color(harmonyColors[i++]));
-
-        controller.call("dive::smartReport::polar::show",
-                "SELECT FROM 'DIVE'.'SpecialReportCBusca'",
-                "Quantidade Média de Registros",
-                "Situação dos CPF/CNPJs no bureau de crédito Dive.",
-                require("../../markdown/dive/bureau-dive.html"),
-                {
-                    avgTotalAddress: "Endereços",
-                    avgTotalCar: "Carros",
-                    avgTotalPhone: "Telefones",
-                    avgTotalEmail: "Emails",
-                    avgTotalCompany: "Empresas"
-                }, {});
+        // var i = 0;
+        // controller.call("dive::smartReport::doughnut::show",
+        //         "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX'",
+        //         "Restituição do Imposto de Renda",
+        //         "Exercício do Ano Corrente",
+        //         require("../../markdown/dive/restituicao.html"),
+        //         () => new Color(harmonyColors[i++]));
+        //
+        //
+        //
+        // i = 0;
+        // controller.call("dive::smartReport::doughnut::show",
+        //         "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX' WHERE 'LASTYEAR' = 'TRUE'",
+        //         "Restituição do Imposto de Renda",
+        //         "Exercício do Ano Anterior",
+        //         require("../../markdown/dive/restituicao.html"),
+        //         () => new Color(harmonyColors[i++]));
+        //
+        // controller.call("dive::smartReport::polar::show",
+        //         "SELECT FROM 'DIVE'.'SpecialReportCBusca'",
+        //         "Quantidade Média de Registros",
+        //         "Situação dos CPF/CNPJs no bureau de crédito Dive.",
+        //         require("../../markdown/dive/bureau-dive.html"),
+        //         {
+        //             avgTotalAddress: "Endereços",
+        //             avgTotalCar: "Carros",
+        //             avgTotalPhone: "Telefones",
+        //             avgTotalEmail: "Emails",
+        //             avgTotalCompany: "Empresas"
+        //         }, {});
     });
 
 

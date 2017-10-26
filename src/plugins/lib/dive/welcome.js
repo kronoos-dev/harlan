@@ -1,5 +1,8 @@
 import _ from 'underscore';
-import { CPF, CNPJ } from 'cpf_cnpj';
+import {
+    CPF,
+    CNPJ
+} from 'cpf_cnpj';
 import sprintf from 'sprintf';
 
 module.exports = (controller) => {
@@ -7,7 +10,10 @@ module.exports = (controller) => {
     controller.registerTrigger("findDatabase::instantSearch", "dive::search::document", function(args, callback) {
         controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
             dataType: "json",
-            data: {text: args[0], limit: 3},
+            data: {
+                text: args[0],
+                limit: 3
+            },
             success: (data) => {
                 let document;
                 if (!data.count) return;
@@ -15,7 +21,7 @@ module.exports = (controller) => {
                     document = CPF.isValid(row.label) ? CPF.format(row.label) : CNPJ.format(row.label);
                     args[1].item("Dive", "Abertura de Registro", sprintf("Nome: %s, Documento: %s", row.reduce.name, document))
                         .addClass("dive")
-                        .click((e) => {
+                        .click(e => {
                             e.preventDefault();
                             controller.call("dive::open", row);
                         });
@@ -36,66 +42,97 @@ module.exports = (controller) => {
 
         controller.call("tooltip", actions, "Pesquisar").append($("<i />").addClass("fa fa-search"))
             .click(controller.click("socialprofile", entity.label, undefined, undefined, (report) => {
-            report.element().append(section);
-        }));
+                report.element().append(section);
+            }));
 
 
         for (let hyperlink of _.values(entity.hyperlink)) {
             controller.call("dive::plugin", hyperlink, {
                 data: entity,
-                section : sectionDocumentGroup
+                section: sectionDocumentGroup
             });
         }
 
         controller.call("tooltip", actions, "Apagar").append($("<i />").addClass("fa fa-trash"))
             .click((e) => {
-            controller.call("dive::delete", entity, () => {
-                section.remove();
+                controller.call("dive::delete", entity, () => {
+                    section.remove();
+                });
             });
-        });
 
         controller.call("tooltip", actions, "Histórico").append($("<i />").addClass("fa fa-archive"))
             .click((e) => {
-            controller.call("dive::history", entity);
-        });
+                controller.call("dive::history", entity);
+            });
 
         controller.call("tooltip", actions, "Informações Globais").append($("<i />").addClass("fa fa-database"))
             .click((e) => {
-            e.preventDefault();
-            for (let push of entity.push) {
-                controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
-                    controller.call("loader::ajax", {
-                        data: {
-                            id: push.id
-                        },
-                        success: (ret) => {
-                            results.prepend(controller.call("xmlDocument", ret));
-                        }
-                    }, true));
-            }
-        });
+                e.preventDefault();
+                for (let push of entity.push) {
+                    controller.server.call("SELECT FROM 'PUSHDIVE'.'DOCUMENT'",
+                        controller.call("loader::ajax", {
+                            data: {
+                                id: push.id
+                            },
+                            success: ret => results.prepend(controller.call("xmlDocument", ret))
+                        }, true));
+                }
+            });
 
 
     });
 
-    controller.registerTrigger("authentication::authenticated", "dive::authenticated", function(arg, cb) {
+
+    controller.registerTrigger(["plugin::authenticated", "authentication::authenticated"], "dive::events", function(arg, cb) {
         cb();
         var report = controller.call("report",
-                "Recuperação de Ativos Dive",
-                "Mergulhe sua cobrança em dados no streaming.",
-                "Através deste módulo fique sabendo em tempo real o que acontece na sua carteira de devedores, são informações que te ajudarão a descobrir quem e quando cobrar alguém.",
-                false),
-            timeline = report.timeline(controller);
+                "Acompanhamento Cadastral e Análise de Crédito",
+                "Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.",
+                "Com essa ferramenta, informe-se em tempo real de todas as atividades de pessoas físicas e jurídicas de seu interesse. Saiba de tudo o que acontece e tenha avaliações de crédito imediatas, de forma contínua e precisa.",
+                false);
 
-        var generateActions = (data) => {
-            var update = (useful) => {
-                return (obj) => {
+        let watchEntityTimeline = report.timeline(controller);
+        let timeline = report.timeline(controller);
+
+        var generateActions = (data, entity) => {
+
+            let items = [
+                ["fa-search", "Pesquisar", () => controller.call("socialprofile", entity.label)],
+                ["fa-archive", "Histórico", () => controller.call("dive::history", entity)]
+            ];
+
+
+            if (data) {
+
+                var update = (useful) => {
+                    return (obj) => {
+                        obj.item.remove();
+                        controller.server.call("UPDATE 'DIVE'.'EVENT'", {
+                            dataType: "json",
+                            type: "POST",
+                            data: {
+                                useful: useful,
+                                id: data._id
+                            },
+                            complete: () => {
+                                getActions({
+                                    limit: 1,
+                                    skip: timeline.length()
+                                });
+                            }
+                        });
+                    };
+                };
+
+                items.push(["fa-check", "Relevante", update(true)]);
+                items.push(["fa-times", "Irrelevante", update(false)]);
+            } else {
+                items.push(['fa-trash', "Remover", (obj) => {
                     obj.item.remove();
-                    controller.server.call("UPDATE 'DIVE'.'EVENT'", {
-                        contentType: "application/json",
+                    controller.server.call("DELETE FROM 'DIVE'.'ENTITY'", {
+                        dataType: "json",
                         type: "POST",
                         data: {
-                            useful: useful,
                             id: data._id
                         },
                         complete: () => {
@@ -105,16 +142,10 @@ module.exports = (controller) => {
                             });
                         }
                     });
-                };
-            };
+                }])
+            }
 
-            return [
-                ["fa-search", "Pesquisar", () => controller.call("socialprofile", data.entity.label)],
-                ["fa-archive", "Histórico", () => controller.call("dive::history", data.entity)],
-                ["fa-folder-open", "Abrir", () => controller.call("dive::open", data.entity)],
-                ["fa-check", "Relevante", update(true)],
-                ["fa-times", "Irrelevante", update(false)],
-            ];
+            return items;
         };
 
         var getActions = (data) => {
@@ -123,22 +154,37 @@ module.exports = (controller) => {
                 data: data || {},
                 success: function(ret) {
                     for (let data of ret.events) {
-                        timeline.add(data.created, data.title, data.description, generateActions(data)).attr("data-entity", data.entity._id);
+                        timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
                     }
                 }
             });
         };
 
+        controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
+             dataType: "json",
+             success: function(ret) {
+                 for (let entity of _.values(ret.items)) {
+                     watchEntityTimeline.add(entity.created, `Acompanhamento do documento número ${entity.label} ativa.`,
+                        'O documento está sendo acompanhado e qualquer novo evento será notificado.', generateActions(null, entity)).attr("data-entity", entity._id);
+                 }
+             }
+        });
+
+
         getActions();
+
+        controller.registerTrigger("serverCommunication::websocket::DatabaseDive", "DatabaseDive", (entity, cb) => {
+            cb();
+            watchEntityTimeline.add(entity.created, `Acompanhamento do documento número ${entity.label} ativa.`,
+               'O documento está sendo acompanhado e qualquer novo evento será notificado.', generateActions(null, entity)).attr("data-entity", entity._id);
+        });
 
         controller.registerTrigger("serverCommunication::websocket::diveEvent", "diveEvent", (data, cb) => {
             cb();
-            timeline.add(data.created, data.title, data.description, generateActions(data)).attr("data-entity", data.entity._id);
+            timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
         });
 
-        report.button("Adicionar Documentos", function() {
-            controller.call("dive::new");
-        });
+        report.button("Adicionar Documentos", () => controller.call("dive::new"));
 
         report.gamification("dive");
         $(".app-content").append(report.element());
