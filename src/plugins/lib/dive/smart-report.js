@@ -80,30 +80,40 @@ module.exports = (controller) => {
     controller.registerTrigger("authentication::authenticated::end", "dive::smartReport", () => {
         closeItems();
 
-        var rfbColors = {
-            success: 0,
-            warning: 0,
-            error: 0
-        };
-        controller.call("dive::smartReport::doughnut::show",
-            "SELECT FROM 'DIVE'.'SpecialReportRFB'",
-            "Situação dos Documentos",
-            "Situação dos CPF/CNPJs na Receita Federal.",
-            require("../../markdown/dive/receita-federal.html"),
-            (node) => {
-                var statusIdx = $("_id", node).text().split(" ")[0].toLowerCase();
-                var color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
-                return new Color(color);
-            });
 
-        let i = 0;
-        controller.call("dive::smartReport::doughnut::show",
-            "SELECT FROM 'DIVE'.'RiscoReport'",
-            "Risco de Crédito",
-            "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
-            require("../../markdown/dive/bureau-dive.html"),
-            (node) => new Color(harmonyColors[i++]));
 
+        controller.registerCall("dive::report::rfb", () => {
+            var rfbColors = {
+                success: 0,
+                warning: 0,
+                error: 0
+            };
+            controller.call("dive::smartReport::doughnut::show",
+                "dive::report::rfb",
+                "SELECT FROM 'DIVE'.'SpecialReportRFB'",
+                "Situação dos Documentos",
+                "Situação dos CPF/CNPJs na Receita Federal.",
+                require("../../markdown/dive/receita-federal.html"),
+                (node) => {
+                    var statusIdx = $("_id", node).text().split(" ")[0].toLowerCase();
+                    var color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
+                    return new Color(color);
+                });
+        });
+
+        controller.registerCall("dive::report::riscoReport", () => {
+            let i = 0;
+            controller.call("dive::smartReport::doughnut::show",
+                "dive::report::riscoReport",
+                "SELECT FROM 'DIVE'.'RiscoReport'",
+                "Risco de Crédito",
+                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                require("../../markdown/dive/bureau-dive.html"),
+                (node) => new Color(harmonyColors[i++]));
+        });
+
+        controller.call("dive::report::rfb");
+        controller.call("dive::report::riscoReport");
 
         // var i = 0;
         // controller.call("dive::smartReport::doughnut::show",
@@ -138,10 +148,11 @@ module.exports = (controller) => {
     });
 
 
-    controller.registerCall("dive::smartReport::doughnut::show", (endpoint, title, subtitle, markdown, nodeColor) => {
+    controller.registerCall("dive::smartReport::doughnut::show", (callback, endpoint, title, subtitle, markdown, nodeColor) => {
         controller.serverCommunication.call(endpoint, {
             success: (ret) => {
                 controller.call("dive::smartReport::doughnut",
+                    callback,
                     title,
                     subtitle,
                     markdown,
@@ -218,7 +229,7 @@ module.exports = (controller) => {
 
     });
 
-    controller.registerCall("dive::smartReport::doughnut", (title, subtitle, markdown, ret, nodeColor) => {
+    controller.registerCall("dive::smartReport::doughnut", (caller, title, subtitle, markdown, ret, nodeColor) => {
 
         if (!$("BPQL > body > reduce > result", ret).children().length) {
             return;
@@ -229,7 +240,10 @@ module.exports = (controller) => {
             subtitle);
 
         report.paragraph().html(markdown);
-
+        report.newAction("fa-refresh", () => {
+            report.close();
+            controller.call(caller);
+        }, "Atualizar");
         report.newContent();
 
         var canvas = report.canvas(250, 250);
@@ -266,7 +280,9 @@ module.exports = (controller) => {
 
                 controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
                     dataType: "json",
-                    data: {entity: $("elements > node", node).map((i, e) => $(e).text()).toArray().join(',')},
+                    data: {
+                        entity: $("elements > node", node).map((i, e) => $(e).text()).toArray().join(',')
+                    },
                     success: ret => {
                         for (let entity of _.values(ret.items)) {
                             controller.call("dive::entity::timeline", watchEntityTimeline, entity);
