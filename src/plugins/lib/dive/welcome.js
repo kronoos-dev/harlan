@@ -1,8 +1,5 @@
 import _ from 'underscore';
-import {
-    CPF,
-    CNPJ
-} from 'cpf_cnpj';
+import { CPF, CNPJ } from 'cpf_cnpj';
 import sprintf from 'sprintf';
 
 module.exports = (controller) => {
@@ -86,13 +83,12 @@ module.exports = (controller) => {
     controller.registerTrigger(["plugin::authenticated", "authentication::authenticated"], "dive::events", function(arg, cb) {
         cb();
         var report = controller.call("report",
-                "Acompanhamento Cadastral e Análise de Crédito",
-                "Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.",
-                "Com essa ferramenta, informe-se em tempo real de todas as atividades de pessoas físicas e jurídicas de seu interesse. Saiba de tudo o que acontece e tenha avaliações de crédito imediatas, de forma contínua e precisa.",
-                false);
+            "Acompanhamento Cadastral e Análise de Crédito",
+            "Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.",
+            "Com essa ferramenta, informe-se em tempo real de todas as atividades de pessoas físicas e jurídicas de seu interesse. Saiba de tudo o que acontece e tenha avaliações de crédito imediatas, de forma contínua e precisa.",
+            false);
 
         let watchEntityTimeline = report.timeline(controller);
-        let timeline = report.timeline(controller);
 
         var generateActions = (data, entity) => {
 
@@ -142,47 +138,58 @@ module.exports = (controller) => {
                             });
                         }
                     });
-                }])
+                }]);
+                items.push(['fa-list-alt', "Eventos", () => {
+                    var report = controller.call("report",
+                        `Linha do Tempo para o Documento ${entity.label}`,
+                        "Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.",
+                        "Com essa ferramenta, informe-se em tempo real de todas as atividades de pessoas físicas e jurídicas de seu interesse. Saiba de tudo o que acontece e tenha avaliações de crédito imediatas, de forma contínua e precisa.");
+
+                    let timeline = report.timeline(controller);
+
+                    controller.server.call("SELECT FROM 'DIVE'.'EVENTS'", {
+                        dataType: "json",
+                        data: {
+                            entity: entity._id
+                        },
+                        success: function(ret) {
+                            for (let data of ret.events) {
+                                timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
+                            }
+                        }
+                    });
+
+
+                    // controller.registerTrigger("serverCommunication::websocket::diveEvent", "diveEvent", (data, cb) => {
+                    //     cb();
+                    //     timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
+                    // });
+
+                    report.gamification("accuracy");
+                    $(".app-content").append(report.element());
+                }]);
             }
 
             return items;
         };
 
-        var getActions = (data) => {
-            controller.server.call("SELECT FROM 'DIVE'.'EVENTS'", {
-                dataType: "json",
-                data: data || {},
-                success: function(ret) {
-                    for (let data of ret.events) {
-                        timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
-                    }
-                }
-            });
-        };
-
         controller.server.call("SELECT FROM 'DIVE'.'ENTITYS'", {
-             dataType: "json",
-             success: function(ret) {
-                 for (let entity of _.values(ret.items)) {
-                     watchEntityTimeline.add(entity.created, `Acompanhamento do documento número ${entity.label} ativa.`,
+            dataType: "json",
+            success: function(ret) {
+                for (let entity of _.values(ret.items)) {
+                    watchEntityTimeline.add(entity.created, `Acompanhamento do documento número ${entity.label} ativa.`,
                         'O documento está sendo acompanhado e qualquer novo evento será notificado.', generateActions(null, entity)).attr("data-entity", entity._id);
-                 }
-             }
+                }
+            }
         });
 
-
-        getActions();
 
         controller.registerTrigger("serverCommunication::websocket::DatabaseDive", "DatabaseDive", (entity, cb) => {
             cb();
             watchEntityTimeline.add(entity.created, `Acompanhamento do documento número ${entity.label} ativa.`,
-               'O documento está sendo acompanhado e qualquer novo evento será notificado.', generateActions(null, entity)).attr("data-entity", entity._id);
+                'O documento está sendo acompanhado e qualquer novo evento será notificado.', generateActions(null, entity)).attr("data-entity", entity._id);
         });
 
-        controller.registerTrigger("serverCommunication::websocket::diveEvent", "diveEvent", (data, cb) => {
-            cb();
-            timeline.add(data.created, data.title, data.description, generateActions(data, data.entity)).attr("data-entity", data.entity._id);
-        });
 
         report.button("Adicionar Documentos", () => controller.call("dive::new"));
 
