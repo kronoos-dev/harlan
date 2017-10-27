@@ -4,6 +4,10 @@ module.exports = function(controller) {
         controller.confs.kronoos.isKronoos = true;
         controller.registerBootstrap("kronoos::init::plataform", function(callback) {
             $.getScript("/js/kronoos.js", function() {
+                if (controller.confs.disableDive) {
+                    callback();
+                    return;
+                }
                 $.getScript("/js/dive.js", function() {
                     callback();
                 });
