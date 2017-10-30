@@ -115,7 +115,7 @@ module.exports = (controller) => {
         controller.registerCall("dive::report::protestos", () => {
             let i = 0;
             controller.call("dive::smartReport::doughnut::show",
-                "dive::report::riscoReport",
+                "dive::report::protestos",
                 "SELECT FROM 'DIVE'.'PROTESTOS'",
                 "Protestos em Cartório",
                 "Protestos em cartório dos CPF/CNPJs acompanhados.",
@@ -126,7 +126,7 @@ module.exports = (controller) => {
         controller.registerCall("dive::report::ccf", () => {
             let i = 0;
             controller.call("dive::smartReport::doughnut::show",
-                "dive::report::riscoReport",
+                "dive::report::ccf",
                 "SELECT FROM 'DIVE'.'CCF'",
                 "Cheque sem Fundo",
                 "Cheques sem fundo dos CPF/CNPJs acompanhados.",
