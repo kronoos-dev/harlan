@@ -4,9 +4,16 @@ module.exports = function (controller) {
         controller.registerBootstrap("icheques::init::plataform", function (callback) {
             controller.confs.disableDive = true;
             $.getScript("/js/icheques.js", function () {
+
+                if (navigator.userAgent.match(/iPad/i) !== null) {
+                    callback();
+                    return;
+                }
+
                 $.getScript("/js/kronoos.js", function () {
                     callback();
                 });
+                
             });
         });
     }
