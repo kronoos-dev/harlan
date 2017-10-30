@@ -112,6 +112,30 @@ module.exports = (controller) => {
                 (node) => new Color(harmonyColors[i++]));
         });
 
+        controller.registerCall("dive::report::protestos", () => {
+            let i = 0;
+            controller.call("dive::smartReport::doughnut::show",
+                "dive::report::riscoReport",
+                "SELECT FROM 'DIVE'.'PROTESTOS'",
+                "Protestos em Cartório",
+                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                require("../../markdown/dive/bureau-dive.html"),
+                (node) => new Color(harmonyColors[i++]));
+        });
+
+        controller.registerCall("dive::report::ccf", () => {
+            let i = 0;
+            controller.call("dive::smartReport::doughnut::show",
+                "dive::report::riscoReport",
+                "SELECT FROM 'DIVE'.'CCF'",
+                "Cheque sem Fundo",
+                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                require("../../markdown/dive/bureau-dive.html"),
+                (node) => new Color(harmonyColors[i++]));
+        });
+
+        controller.call("dive::report::ccf");
+        controller.call("dive::report::protestos");
         controller.call("dive::report::rfb");
         controller.call("dive::report::riscoReport");
 
