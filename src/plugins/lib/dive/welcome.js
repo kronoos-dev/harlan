@@ -22,7 +22,7 @@ module.exports = (controller) => {
                         type: "POST",
                         data: {
                             useful: useful,
-                            id: data._id
+                            id: entity._id
                         },
                         complete: () => {
                             getActions({
