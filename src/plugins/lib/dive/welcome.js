@@ -43,7 +43,7 @@ module.exports = (controller) => {
                     dataType: "json",
                     type: "POST",
                     data: {
-                        id: data._id
+                        id: entity._id
                     },
                     complete: () => {
                         getActions({
