@@ -1706,8 +1706,8 @@ export class KronoosParse {
             data: JSON.stringify({
                 nome: this.name,
                 documento: this.cpf_cnpj,
-                elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), (x) => {
-                    let element = x.element().clone();
+                elements: _.map(_.filter(this.kelements, n => n && !n.element().find(".certidao").length), originalContext => {
+                    let element = originalContext.element().clone();
                     let walk = document.createTreeWalker(element.get(0), NodeFilter.SHOW_TEXT, null, false);
 
                     let n;
@@ -1715,9 +1715,11 @@ export class KronoosParse {
                         n.textContent = n.textContent.replace(/[\n\r\t]/g, ' ');
                     }
 
-                    element.find("canvas").each((i, e) => $(e).replaceWith($("<img />").attr({
-                        src: e.toDataURL("image/jpeg")
+                    element.find(".result-network canvas").each((x, e) => $(e).replaceWith($("<img />").attr({
+                        src: originalContext.element().find(".result-network canvas").get(0).toDataURL("image/png", 1)
                     })));
+
+                    element.find('*').removeAttr('style');
 
                     return element.html();
                 }).join('')
