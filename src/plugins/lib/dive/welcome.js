@@ -196,7 +196,7 @@ module.exports = (controller) => {
             controller.call("dive::entity::timeline", watchEntityTimeline, entity);
         });
 
-        report.button("Adicionar Documentos", () => controller.call("dive::new"));
+        report.button("Adicionar Acompanhamento", () => controller.call("dive::new"));
 
         report.gamification("dive");
         $(".app-content").append(report.element());
