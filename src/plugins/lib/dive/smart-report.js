@@ -107,7 +107,7 @@ module.exports = (controller) => {
                 "dive::report::riscoReport",
                 "SELECT FROM 'DIVE'.'RiscoReport'",
                 "Risco de Crédito",
-                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                "Risco de crédito dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/riscocredito.html"),
                 (node) => new Color(harmonyColors[i++]));
         });
@@ -118,7 +118,7 @@ module.exports = (controller) => {
                 "dive::report::riscoReport",
                 "SELECT FROM 'DIVE'.'PROTESTOS'",
                 "Protestos em Cartório",
-                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                "Protestos em cartório dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/protestos.html"),
                 (node) => new Color(harmonyColors[i++]));
         });
@@ -129,7 +129,7 @@ module.exports = (controller) => {
                 "dive::report::riscoReport",
                 "SELECT FROM 'DIVE'.'CCF'",
                 "Cheque sem Fundo",
-                "Risco de crédito dos CPF/CNPJs inseridos no acompanhamento.",
+                "Cheques sem fundo dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/ccf.html"),
                 (node) => new Color(harmonyColors[i++]));
         });
