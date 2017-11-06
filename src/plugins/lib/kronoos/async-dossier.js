@@ -133,11 +133,13 @@ module.exports = function(controller) {
             }
         });
 
+        report.button("Consulta Avulsa", () => controller.interface.helpers.activeWindow(".kronoos-application")).addClass("gray-button");
         report.button("Adicionar Monitoramento", () => controller.call("kronoos::async::new"));
 
         report.newAction("fa-play-circle", () =>
             controller.interface.helpers.activeWindow(".kronoos-application"),
             "Pesquisa Kronoos");
+
 
         if (!controller.confs.kronoos.isKronoos) {
             report.newAction("fa-info-circle", () => window.open("https://www.kronoos.com"), "Sobre o Kronoos");
