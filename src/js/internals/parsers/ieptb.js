@@ -6,7 +6,7 @@ module.exports = function(controller) {
 
         var result = controller.call("result"),
             jdocument = $(document);
-        _.each(jdocument.find("BPQL > body > consulta > conteudo > cartorio"), (element) => {
+        _.each(jdocument.find("BPQL > body > consulta > conteudo > cartorio"), element => {
             result.addSeparator("Protestos em Cartório",
                 $("nome", element).text(),
                 $("endereco", element).text());

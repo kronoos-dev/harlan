@@ -50,7 +50,7 @@ module.exports = function(controller) {
             report.button("Disparar E-mail", () => controller.call("form", filter => {
                 let apiKeys = [],
                     total = 0;
-                doUntil((callback) => controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'", {
+                doUntil(callback => controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'", {
                     data: Object.assign({
                         skip: apiKeys.length
                     }, filter),
@@ -94,7 +94,7 @@ module.exports = function(controller) {
 
             report.gamification("accuracy");
             $(".app-content").append(report.element());
-            controller.call("admin::report", (graph) => {
+            controller.call("admin::report", graph => {
                 graph.gamification("levelUp");
             }, report.element());
         });

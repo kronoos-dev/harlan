@@ -180,7 +180,7 @@ module.exports = function (controller) {
         var result = controller.call("result"),
             jdocument = $(document);
 
-        _.each(jdocument.find("data resposta list > *"), (element) => {
+        _.each(jdocument.find("data resposta list > *"), element => {
 
             let bankName = bankCodes[$("banco", element).text()] ||
                 bankCodes[$("banco", element).text().replace(/^0+/, '')];

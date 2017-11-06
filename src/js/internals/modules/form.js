@@ -9,7 +9,7 @@ import {
 } from 'change-case';
 import async from "async";
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     let GenerateForm = function(callback, onCancel) {
 
@@ -32,7 +32,7 @@ module.exports = (controller) => {
             return this;
         };
 
-        this.configure = (c) => {
+        this.configure = c => {
             assert(typeof c === "object");
             assert(Array.isArray(c.screens));
             assert(c.screens.length > 0);
@@ -42,7 +42,7 @@ module.exports = (controller) => {
             return this;
         };
 
-        this.setValues = (x) => {
+        this.setValues = x => {
             for (let k in x) this.setValue(k, x[k]);
             return this;
         };
@@ -57,8 +57,8 @@ module.exports = (controller) => {
                 return;
             }
 
-            _.each(configuration.screens, (v) => {
-                _.each(_.flatten(v.fields), (field) => {
+            _.each(configuration.screens, v => {
+                _.each(_.flatten(v.fields), field => {
                     if (camelCase(field.name) === name) {
                         if (field.type == "file") {
                             /* can't set */
@@ -169,13 +169,13 @@ module.exports = (controller) => {
                 let file = input.element.get(0).files[0];
                 let result;
 
-                let cb = (r) => {
+                let cb = r => {
                     result = r;
                 };
 
                 let reader = new FileReader();
 
-                reader.onload = (e) => {
+                reader.onload = e => {
                     let r = {};
                     r[input.name] = file.name;
                     r[input.contentKey || `${input.name}@content`] = e.target.result;
@@ -184,7 +184,7 @@ module.exports = (controller) => {
 
                 reader.readAsText(file);
 
-                return (callback) => {
+                return callback => {
                     if (result) {
                         callback(result);
                         return;
@@ -213,7 +213,7 @@ module.exports = (controller) => {
             return input.element.val();
         };
 
-        this.readValues = (callback) => {
+        this.readValues = callback => {
             let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => {
                 return [
                     camelCase(input.name),
@@ -237,7 +237,7 @@ module.exports = (controller) => {
             return results;
         };
 
-        this.getField = (name) => {
+        this.getField = name => {
             let items = _.flatten(_.pluck(configuration.screens, 'fields'));
             for (let i in items) {
                 if (items[i].name == name) {
@@ -275,7 +275,7 @@ module.exports = (controller) => {
 
             let form = modal.createForm();
 
-            form.element().submit((e) => {
+            form.element().submit(e => {
                 e.preventDefault();
 
                 (screen.validate || this.defaultScreenValidation)((validInput) => {
@@ -359,7 +359,7 @@ module.exports = (controller) => {
                 if (item.validateAsync) {
                     let callbackEnveloped = callback;
                     callback = () => {
-                        item.validateAsync((valid) => {
+                        item.validateAsync(valid => {
                             if (!valid) ret = false;
                             callbackEnveloped();
                         }, item, screen, configuration);

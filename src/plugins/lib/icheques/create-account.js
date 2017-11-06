@@ -237,7 +237,7 @@ module.exports = function(controller) {
 
         var actions = modal.createActions();
 
-        actions.add("Cancelar").click((e) => {
+        actions.add("Cancelar").click(e => {
             e.preventDefault();
             modal.close();
         });

@@ -4,10 +4,10 @@ import {
     CNPJ
 } from 'cpf_cnpj';
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::remove::phone", (element, section, username, ddd, phone, pabx) =>
-        element.addClass("can-remove").click((e) => {
+        element.addClass("can-remove").click(e => {
             e.preventDefault();
             controller.call("confirm", {
                 title: "Deseja realmente remover este telefone?"
@@ -19,7 +19,7 @@ module.exports = (controller) => {
                         phone: phone,
                         pabx: pabx
                     },
-                    success: (response) => {
+                    success: response => {
                         controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     }
                 });
@@ -27,7 +27,7 @@ module.exports = (controller) => {
         }));
 
     controller.registerCall("admin::remove::email", (element, section, username, email) =>
-        element.addClass("can-remove").click((e) => {
+        element.addClass("can-remove").click(e => {
             e.preventDefault();
             controller.call("confirm", {
                 title: "Deseja realmente remover este email?"
@@ -37,7 +37,7 @@ module.exports = (controller) => {
                         username: username,
                         email: email
                     },
-                    success: (response) => {
+                    success: response => {
                         controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     }
                 });
@@ -59,7 +59,7 @@ module.exports = (controller) => {
 
         for (let nodeValue of data) {
             let item = list.item("fa fa-tag", nodeValue);
-            item.click((e) => {
+            item.click(e => {
                 e.preventDefault();
                 controller.confirm({
                     title: `Deseja remover a tag ${nodeValue}?`,
@@ -79,7 +79,7 @@ module.exports = (controller) => {
         }
 
         let actions = modal.createActions();
-        actions.add("Nova Tag").click((e) => {
+        actions.add("Nova Tag").click(e => {
             e.preventDefault();
             controller.call("admin::tag::create", username);
             modal.close();
@@ -87,14 +87,14 @@ module.exports = (controller) => {
         actions.cancel();
     });
 
-    controller.registerCall("admin::tags", (username) => {
+    controller.registerCall("admin::tags", username => {
         controller.server.call("SELECT FROM 'BIPBOPCOMPANYS'.'TAGS'",
             controller.call("error::ajax", controller.call("loader::ajax", {
                 data: {
                     username: username
                 },
                 dataType: "json",
-                success: (data) => controller.call("admin::tags::view", data, username)
+                success: data => controller.call("admin::tags::view", data, username)
             })));
     });
 
@@ -108,7 +108,7 @@ module.exports = (controller) => {
         form.addSubmit("submit", "Adicionar");
         let actions = modal.createActions();
         actions.cancel();
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             controller.server.call("INSERT INTO 'BIPBOPCOMPANYS'.'TAG'",
                 controller.call("loader::ajax", controller.call("error::ajax", {
@@ -116,7 +116,7 @@ module.exports = (controller) => {
                         tag: tag.val(),
                         username: username
                     },
-                    success: (data) => {
+                    success: data => {
                         toastr.success(`A tag ${tag.val()} foi adicionada com sucesso.`,
                             'O comportamento do cliente foi alterado.');
                         modal.close();
@@ -263,7 +263,7 @@ module.exports = (controller) => {
 
         var lockSymbol = $("<i />").addClass("fa").addClass(isActive ? "fa-unlock-alt" : "fa-lock"),
             lockProcess = false,
-            doLocking = (e) => {
+            doLocking = e => {
                 e.preventDefault();
                 if (lockProcess) {
                     return;
@@ -309,7 +309,7 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Tags").append($("<i />").addClass("fa fa-tags"))
                 .click(controller.click("admin::tags", username));
 
-            controller.call("tooltip", actions, "Abrir Conta").append($("<i />").addClass("fa fa-folder-open")).click((e) => {
+            controller.call("tooltip", actions, "Abrir Conta").append($("<i />").addClass("fa fa-folder-open")).click(e => {
                 e.preventDefault();
                 window.open(`${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`);
             });
@@ -317,13 +317,13 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Editar Endereço").append($("<i />").addClass("fa fa-map"))
                 .click(controller.click("admin::changeAddress", companyNode, username, section));
 
-            controller.call("tooltip", actions, "Dados Bancários").append($("<i />").addClass("fa fa-bank")).click((e) => {
+            controller.call("tooltip", actions, "Dados Bancários").append($("<i />").addClass("fa fa-bank")).click(e => {
                 controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'bankAccount'", {
                     dataType: "json",
                     data: {
                         username: username
                     },
-                    success: (data) => {
+                    success: data => {
                         controller.call("bankAccount::update", null, !data ? {} : data, "UPDATE 'BIPBOPCOMPANYS'.'bankAccount'", {
                             username: username
                         }, {
@@ -338,7 +338,7 @@ module.exports = (controller) => {
             });
 
 
-            controller.call("tooltip", actions, "Revogar Contrato").append($("<i />").addClass("fa fa-hand-paper-o")).click((e) => {
+            controller.call("tooltip", actions, "Revogar Contrato").append($("<i />").addClass("fa fa-hand-paper-o")).click(e => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("DELETE FROM 'BIPBOPCOMPANYS'.'contractAccepted'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
@@ -352,7 +352,7 @@ module.exports = (controller) => {
                 });
             });
 
-            controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-credit-card")).click((e) => {
+            controller.call("tooltip", actions, "Pós-pago").append($("<i />").addClass("fa fa-credit-card")).click(e => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'POSTPAID'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
@@ -368,7 +368,7 @@ module.exports = (controller) => {
                 });
             });
 
-            controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click((e) => {
+            controller.call("tooltip", actions, "Nova Chave API").append($("<i />").addClass("fa fa-key")).click(e => {
                 controller.call("confirm", {}, () => {
                     controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'APIKEY'",
                         controller.call("error::ajax", controller.call("loader::ajax", {
@@ -382,7 +382,7 @@ module.exports = (controller) => {
                 });
             });
 
-            controller.call("tooltip", actions, "Nova Senha").append($("<i />").addClass("fa fa-asterisk")).click((e) => {
+            controller.call("tooltip", actions, "Nova Senha").append($("<i />").addClass("fa fa-asterisk")).click(e => {
                 e.preventDefault();
                 controller.call("admin::changePassword", username);
             });
@@ -395,7 +395,7 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Adicionar E-mail").append($("<i />").addClass("fa fa-at"))
                 .click(controller.click("admin::email", username, section));
 
-            controller.call("tooltip", actions, "Alterar Créditos").append($("<i />").addClass("fa fa-money")).click((e) => {
+            controller.call("tooltip", actions, "Alterar Créditos").append($("<i />").addClass("fa fa-money")).click(e => {
                 e.preventDefault();
                 let modal = controller.modal();
                 modal.gamification("moneyBag");
@@ -416,7 +416,7 @@ module.exports = (controller) => {
                 var invertCredits = form.addCheckbox("invert", "Saldo Devedor", credits < 0);
 
                 form.addSubmit("change-credits", "Alterar Créditos");
-                form.element().submit((e) => {
+                form.element().submit(e => {
                     e.preventDefault();
                     var ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(":checked") ? -1 : 1);
                     controller.server.call("UPDATE 'BIPBOPCOMPANYS'.'CREDITS'",
@@ -441,10 +441,10 @@ module.exports = (controller) => {
             controller.call("tooltip", actions, "Adicionar Telefone").append($("<i />").addClass("fa fa-phone"))
                 .click(controller.click("admin::phone", username, section));
 
-            controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click((e) => {
+            controller.call("tooltip", actions, "Consumo").append($("<i />").addClass("fa fa-tasks")).click(e => {
                 e.preventDefault();
                 var unregister = $.bipbopLoader.register();
-                controller.call("admin::report", (report) => {
+                controller.call("admin::report", report => {
                     report.gamification("lives");
 
                     $('html, body').animate({

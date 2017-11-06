@@ -1,6 +1,6 @@
 import VMasker from 'vanilla-masker';
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     const masks = ['999.999.999-99', '99.999.999/9999-99'],
         kronoosInput = $("#kronoos-q"),

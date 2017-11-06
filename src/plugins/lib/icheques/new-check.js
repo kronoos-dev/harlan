@@ -104,7 +104,7 @@ module.exports = function(controller) {
         form.addSubmit("checkout", "Enviar para Monitoramento").click(function(e) {
             e.preventDefault();
             newCheckWrapper = null;
-            controller.call("icheques::checkout", _.filter(storage, (i) => {
+            controller.call("icheques::checkout", _.filter(storage, i => {
                 return i;
             }));
             modal.close();
@@ -143,7 +143,7 @@ module.exports = function(controller) {
                 image: imageData
             },
             dataType: "json",
-            success: (data) => callback(cmcValue || data.cmcValue, cpfValue || data.cpfValue),
+            success: data => callback(cmcValue || data.cmcValue, cpfValue || data.cpfValue),
             error: () => callback(cmcValue, cpfValue)
         });
     });
@@ -170,7 +170,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::newcheck", function(callback, cmcValue, cpfValue) {
-        controller.call("icheques::chequePicture", (image) =>
+        controller.call("icheques::chequePicture", image =>
             controller.call("icheques::imagetocmc", image, cmcValue, cpfValue, (cmcValue, cpfValue) =>
                 controller.call("icheques::newcheck::form", callback, cmcValue, cpfValue, image)));
     });

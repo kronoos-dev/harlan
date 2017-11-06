@@ -11,7 +11,7 @@ module.exports = function(controller) {
 
         controller.server.call("SELECT FROM 'ICHEQUES'.'IPAYTHEBILL'", controller.call("loader::ajax", {
             dataType: "json",
-            success: (data) => {
+            success: data => {
                 if (data) {
                     controller.call("credits::has", 150, () => {
                         controller.call("ccbusca", val);

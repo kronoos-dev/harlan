@@ -142,7 +142,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::calculateBill", function(checks, callback) {
         controller.server.call("SELECT FROM 'ICHEQUES'.'IPAYTHEBILL'", controller.call("loader::ajax", {
             dataType: "json",
-            success: (data) => {
+            success: data => {
                 if (data) {
                     controller.call("icheques::calculateBill::pay", checks, callback);
                 } else {

@@ -1,18 +1,18 @@
 const MAX_RESULTS = 10;
 import _ from 'underscore';
 
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("admin::openCompanys", (report, data = {}) => {
         var skip = 0;
-        var results = controller.call("moreResults", MAX_RESULTS).callback((callback) => {
+        var results = controller.call("moreResults", MAX_RESULTS).callback(callback => {
             controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'",
                 controller.call("loader::ajax", controller.call("error::ajax", {
                     data: $.extend({
                         limit: MAX_RESULTS,
                         skip: skip
                     }, data),
-                    success: (response) => {
-                        callback(_.map($("BPQL > body > company", response), (company) => {
+                    success: response => {
+                        callback(_.map($("BPQL > body > company", response), company => {
                             return controller.call("admin::viewCompany", company, false, null, true);
                         }));
                     }

@@ -31,7 +31,7 @@ module.exports = function (controller) {
         return ajaxQueue.length() + ajaxQueue.running();
     });
 
-    controller.registerCall("kronoos::ajax::queue::remove", (filter) => {
+    controller.registerCall("kronoos::ajax::queue::remove", filter => {
         ajaxQueue.remove(filter);
         controller.trigger("kronoos::ajax::queue::change");
     });

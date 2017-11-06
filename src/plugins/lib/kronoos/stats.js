@@ -25,7 +25,7 @@ export class KronoosStats {
         }
         let nameElement = $("<h4 />").text(name);
         container.append(nameElement); // name - title
-        nameElement.click((e) => {
+        nameElement.click(e => {
             e.preventDefault();
             if (click) click();
         });

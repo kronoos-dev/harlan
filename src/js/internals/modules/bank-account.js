@@ -110,7 +110,7 @@ var banks = (function() {
     };
 
     var keys = _.sortBy(_.keys(obj));
-    return _.object(keys, _.map(keys, (key) => obj[key]));
+    return _.object(keys, _.map(keys, key => obj[key]));
 })();
 
 module.exports = function (controller) {
@@ -124,7 +124,7 @@ module.exports = function (controller) {
         });
     };
 
-    controller.registerCall("bankAccount::need", (callback) => {
+    controller.registerCall("bankAccount::need", callback => {
         if (!controller.confs.user.bankAccount) {
             controller.call("billingInformation::need", () => {
                 controller.call("bankAccount::update", callback);
@@ -139,7 +139,7 @@ module.exports = function (controller) {
         callback = callback || defaultCallback;
 
         bank = bank || controller.confs.user.bankAccount || ["", "", ""];
-        let form = controller.call("form", (opts) => {
+        let form = controller.call("form", opts => {
             controller.serverCommunication.call(endpoint || "UPDATE 'HARLAN'.'bankAccount'",
             controller.call("error::ajax", controller.call("loader::ajax", {
                 dataType: 'json',

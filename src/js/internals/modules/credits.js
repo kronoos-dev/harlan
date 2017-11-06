@@ -3,7 +3,7 @@
 var sprintf = require("sprintf"),
     escaper = require("true-html-escape");
 
-module.exports = (controller) =>  {
+module.exports = controller =>  {
 
     var companyCredits = 0;
 
@@ -16,7 +16,7 @@ module.exports = (controller) =>  {
         modal.title("Parabéns! Seus créditos foram carregados.");
         modal.subtitle("Um e-mail foi enviado para sua caixa de entrada com todos os detalhes.");
         var form = modal.createForm();
-        form.element().submit((e) =>  {
+        form.element().submit(e =>  {
             e.preventDefault();
             if (callback)
                 callback();
@@ -25,7 +25,7 @@ module.exports = (controller) =>  {
         form.addSubmit("cancel", "Sair");
     };
 
-    var changeCredits = (credits) =>  {
+    var changeCredits = credits =>  {
         companyCredits = credits;
         $(".credits span").text(numeral(Math.abs(credits) / 100).format('0,0.00'));
 
@@ -51,10 +51,10 @@ module.exports = (controller) =>  {
                 modal.subtitle("Para continuar essa operação você precisa adquirir créditos.");
                 modal.addParagraph(sprintf("Estão faltando %s para você poder continuar, adquira créditos.", numeral(Math.abs(missing) / 100).format("$0,0.00")));
                 form = modal.createForm();
-                form.element().submit((e) =>  {
+                form.element().submit(e =>  {
                     e.preventDefault();
                     modal.close();
-                    controller.call("credits::buy", Math.abs(missing), (ret) =>  {
+                    controller.call("credits::buy", Math.abs(missing), ret =>  {
                         defaultChargeCallback(ret, callback);
                     });
                 });
@@ -67,7 +67,7 @@ module.exports = (controller) =>  {
                 modal.subtitle(sprintf("O valor para esta operação ficou em %s.", credits));
                 modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.0).format("$0,0.00")));
                 form = modal.createForm();
-                form.element().submit((e) =>  {
+                form.element().submit(e =>  {
                     e.preventDefault();
                     modal.close();
                     callback();
@@ -117,20 +117,20 @@ module.exports = (controller) =>  {
         modal.subtitle("Selecione o Método de Pagamento");
         var form = modal.createForm();
 
-        form.element().submit((e) =>  {
+        form.element().submit(e =>  {
             e.preventDefault();
             modal.close();
             controller.call("credits::charge::creditCard", value, quantity, description, callback);
         });
 
         form.addSubmit("creditcard", "Cartão de Crédito");
-        form.addSubmit("bankslip", "Boleto Bancário").click((e) =>  {
+        form.addSubmit("bankslip", "Boleto Bancário").click(e =>  {
             e.preventDefault();
             modal.close();
             controller.call("credits::charge::bankSlip", value, quantity, description);
         });
 
-        modal.createActions().add(controller.i18n.system.cancel()).click((e) =>  {
+        modal.createActions().add(controller.i18n.system.cancel()).click(e =>  {
             e.preventDefault();
             modal.close();
         });
@@ -144,7 +144,7 @@ module.exports = (controller) =>  {
                 value: value,
                 quantity: quantity || 1
             },
-            success: (data) =>  {
+            success: data =>  {
                 controller.call("alert", {
                     icon: "pass",
                     title: "Seu pagamento foi gerado com sucesso!",
@@ -163,7 +163,7 @@ module.exports = (controller) =>  {
             callback = callback || defaultChargeCallback;
             quantity = quantity || 1;
 
-            controller.call("iugu::requestPaymentToken", (token) =>  {
+            controller.call("iugu::requestPaymentToken", token =>  {
                 controller.serverCommunication.call("SELECT FROM 'HARLANCREDITS'.'PURCHASE'",
                     controller.call("error::ajax", controller.call("loader::ajax", {
                         data: {
@@ -172,7 +172,7 @@ module.exports = (controller) =>  {
                             token: token.id,
                             quantity: quantity
                         },
-                        success: (ret) =>  {
+                        success: ret =>  {
                             callback(ret);
                         }
                     })));
@@ -192,8 +192,8 @@ module.exports = (controller) =>  {
                 var form = modal.createForm(),
                     list = form.createList();
 
-                var charge = (value) =>  {
-                    return (e) =>  {
+                var charge = value =>  {
+                    return e =>  {
                         e.preventDefault();
                         modal.close();
                         controller.call("credits::charge", value, null, null, callback);
@@ -233,9 +233,9 @@ module.exports = (controller) =>  {
         });
     });
 
-    controller.registerBootstrap("credits", (callback) =>  {
+    controller.registerBootstrap("credits", callback =>  {
         callback();
-        $(".action-credits").click((e) =>  {
+        $(".action-credits").click(e =>  {
             controller.call("credits::buy");
         });
     });

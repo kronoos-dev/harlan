@@ -15,7 +15,7 @@ module.exports = function(controller) {
 
     controller.registerCall("admin::report::dataset", function(responses) {
         var datasets = {};
-        var labels = _.map(responses, (item) => {
+        var labels = _.map(responses, item => {
             $(item).children("report").each((idx, value) => {
                 var reader = $(value),
                     id = reader.children("id").text();
@@ -66,7 +66,7 @@ module.exports = function(controller) {
                 "P1M": "Mensal"
             }, null, "Intervalo");
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             controller.call("admin::report", callback, report.element(),
@@ -81,8 +81,8 @@ module.exports = function(controller) {
 
     controller.registerCall("admin::report::download", function(ajaxQuery, labels) {
 
-        let download = (report) => {
-                return (e) => {
+        let download = report => {
+                return e => {
                     e.preventDefault();
                     window.location.assign(buildURL(bipbop.webserviceAddress, {
                         queryParams: $.extend({}, ajaxQuery, {

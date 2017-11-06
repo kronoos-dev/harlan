@@ -14,7 +14,7 @@ var Timeline = function() {
         }
 
         obj.expansionIcon = $("<i />").addClass("fa fa-angle-down");
-        obj.expansion = $("<span />").addClass("timeline-expand").append(obj.expansionIcon).click((e) => {
+        obj.expansion = $("<span />").addClass("timeline-expand").append(obj.expansionIcon).click(e => {
             e.preventDefault();
             if (obj.item.hasClass("expanded")) {
                 obj.item.removeClass("expanded");
@@ -96,7 +96,7 @@ var Timeline = function() {
 
 };
 
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("timeline", () => {
         return new Timeline();
     });

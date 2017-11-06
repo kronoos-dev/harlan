@@ -8,7 +8,7 @@ const genericMessage = (resolve, reject, event, error = null, opts = {}) => {
     }, opts)).then(resolve).catch(reject);
 };
 
-self.addEventListener('push', (event) =>
+self.addEventListener('push', event =>
 event.waitUntil(new Promise((resolve, reject) =>
 localForage.getItem('apikey', (err, apiKey) => {
 

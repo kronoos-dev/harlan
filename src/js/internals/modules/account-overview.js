@@ -17,7 +17,7 @@ module.exports = function(controller) {
 
     controller.registerCall("accountOverview::dataset", function(responses) {
         var datasets = {};
-        var labels = _.map(responses, (item) => {
+        var labels = _.map(responses, item => {
             $(item).children("report").each((idx, value) => {
                 var reader = $(value),
                     id = reader.children("id").text();
@@ -68,7 +68,7 @@ module.exports = function(controller) {
                 "P1M": "Mensal"
             }, null, "Intervalo");
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             controller.call("accountOverview", callback, report.element(),
@@ -83,8 +83,8 @@ module.exports = function(controller) {
 
     controller.registerCall("accountOverview::download", function(ajaxQuery, labels) {
 
-        let download = (report) => {
-                return (e) => {
+        let download = report => {
+                return e => {
                     e.preventDefault();
                     window.location.assign(buildURL(bipbop.webserviceAddress, {
                         queryParams: $.extend({}, ajaxQuery, {
@@ -168,7 +168,7 @@ module.exports = function(controller) {
         }
 
         controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
-        controller.call("accountOverview", (graph) => {
+        controller.call("accountOverview", graph => {
             graph.gamification("levelUp");
         });
     });

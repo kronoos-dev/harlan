@@ -54,7 +54,7 @@ module.exports = function(controller) {
     KRONOOS_SEARCH_BY_NAME.click(controller.click("kronoos::searchByName"));
 
     KRONOOS_DEPTH.addClass(`fa-thermometer-${depth}`);
-    KRONOOS_DEPTH.click((e) => {
+    KRONOOS_DEPTH.click(e => {
         e.preventDefault();
         KRONOOS_DEPTH.removeClass(`fa-thermometer-${depth}`);
         if (++depth > 4) depth = 0;
@@ -69,7 +69,7 @@ module.exports = function(controller) {
     });
 
     KRONOOS_LOGO.css("cursor", "pointer");
-    KRONOOS_LOGO.click((e) => {
+    KRONOOS_LOGO.click(e => {
         e.preventDefault();
         if (SEARCH_BAR.hasClass("full")) {
             SEARCH_BAR.removeClass("full").addClass("minimize");
@@ -138,7 +138,7 @@ module.exports = function(controller) {
         return brief;
     };
 
-    KRONOOS_ACTION.submit((e) => {
+    KRONOOS_ACTION.submit(e => {
         $(INPUT).blur();
         e.preventDefault();
         clearAll();
@@ -167,7 +167,7 @@ module.exports = function(controller) {
                         kronoos: true
 
                     },
-                    success: (ret) => controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document),
+                    success: ret => controller.call("kronoos::ccbusca", $("BPQL > body > nome", ret).first().text(), document),
                     error: () => controller.call("kronoos::ccbusca", null, document)
                 })));
         });
@@ -191,16 +191,16 @@ module.exports = function(controller) {
                     documento: document,
                 }, data),
                 error: () => callback("Can't use that query"),
-                success: (ret) => callback(null, ret)
+                success: ret => callback(null, ret)
             })));
 
 
         async.tryEach([
-            (callback) => findBureau(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+            callback => findBureau(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
                 'q[0]': "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
                 'q[1]': "SELECT FROM 'CCBUSCA'.'CONSULTA'",
             }),
-            (callback) => findBureau(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'")
+            callback => findBureau(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'")
         ], (err, ret) => {
             if (err) return;
             name = name || $("BPQL > body cadastro > nome", ret).first().text();
@@ -215,7 +215,7 @@ module.exports = function(controller) {
                             name = name || $("BPQL > body cadastro > nome", ret).first().text();
                             controller.call("kronoos::search", document, name, ret);
                         },
-                        success: (rfb) => {
+                        success: rfb => {
                             name = $("nome", rfb).first().text() || name;
                             controller.call("kronoos::search", document, name, ret);
                         }
@@ -300,7 +300,7 @@ module.exports = function(controller) {
                             "size": "original",
                             "mapfilter": "true"
                         },
-                        success: (ret) => {
+                        success: ret => {
                             for (let picture of ret.photos.slice(0, 10)) {
                                 photosQueue.push(picture);
                                 if (!registered) {

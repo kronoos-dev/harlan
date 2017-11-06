@@ -20,7 +20,7 @@ module.exports = function(controller) {
         else localForage.setItem('sessionId', value, cb);
     };
 
-    controller.registerCall("authentication::unsetSessionId", (cb) => setSessionId(null, cb));
+    controller.registerCall("authentication::unsetSessionId", cb => setSessionId(null, cb));
 
     /**
      * Set the default page! \m/
@@ -115,7 +115,7 @@ module.exports = function(controller) {
     });
 
     var authenticate = (key, ret, cb) => getSessionId(storedKey => {
-        cb = cb || ((s) => console.debug(`authentication ${s ? "success" : "failed"}`));
+        cb = cb || (s => console.debug(`authentication ${s ? "success" : "failed"}`));
         key = key || storedKey;
         if (!key) {
             cb(false);
@@ -195,7 +195,7 @@ module.exports = function(controller) {
             })));
     });
 
-    controller.registerBootstrap("authentication::cordova::clear", (callback) => {
+    controller.registerBootstrap("authentication::cordova::clear", callback => {
         callback();
         $("#form-login").trigger("reset");
     });

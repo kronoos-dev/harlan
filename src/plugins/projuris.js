@@ -1,5 +1,5 @@
 /* global controller, numeral, Infinity, NaN, moment */
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     const MAX_RESULTS = 10;
     const REGEX_TRIBUNAL = /SELECT\s+FROM\s+'([^']*)'\.'([^']*)'/i;
@@ -57,7 +57,7 @@ harlan.addPlugin((controller) => {
                 radial.element.addClass("attention animated flash");
             }
 
-            var moreResults = controller.call("moreResults", MAX_RESULTS).callback((callback) => {
+            var moreResults = controller.call("moreResults", MAX_RESULTS).callback(callback => {
                 skip += MAX_RESULTS;
                 controller.serverCommunication.call("SELECT FROM 'PUSHJURISTEK'.'REPORT'",
                     controller.call("loader::ajax", controller.call("error::ajax", {
@@ -65,7 +65,7 @@ harlan.addPlugin((controller) => {
                             limit: MAX_RESULTS,
                             skip: skip
                         },
-                        success: (response) => {
+                        success: response => {
                             var items = [];
                             $("BPQL > body push", response).each((idx, node) => {
                                 items.push(controller.call("projuris::parseResult", node));
@@ -91,7 +91,7 @@ harlan.addPlugin((controller) => {
         }
     }));
 
-    controller.registerCall("projuris::parseResult", (node) => {
+    controller.registerCall("projuris::parseResult", node => {
         var jnode = $(node);
         var resultNode = controller.call("result");
         resultNode.addItem("Título", jnode.attr("label"));

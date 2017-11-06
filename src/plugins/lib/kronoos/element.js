@@ -19,7 +19,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     container.append(content.append(element.append(sideContent)));
     container.data("instance", this);
 
-    var label = (label) => {
+    var label = label => {
         return $("<label />").append(label);
     };
 
@@ -65,7 +65,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         // element.append($("<a />").attr({href: "#"})
         //     .append($("<i />").addClass("fa fa-times"))
         //     .addClass("kronoos-delete-element")
-        //     .click((e) => {
+        //     .click(e => {
         //         e.preventDefault();
         //         this.remove();
         //     }));
@@ -176,17 +176,17 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return this;
     };
 
-    this.title = (text) => {
+    this.title = text => {
         titleElement.text(text);
         return this;
     };
 
-    this.sidenote = (text) => {
+    this.sidenote = text => {
         sidenoteElement.text(text);
         return this;
     };
 
-    this.subtitle = (text) => {
+    this.subtitle = text => {
         subtitleElement.text(text);
         return this;
     };
@@ -270,7 +270,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return [network, elem];
     };
 
-    this.picture = (url) => {
+    this.picture = url => {
         var image = new Image();
         image.onload = () => {
             let picture = $("<div />")
@@ -338,7 +338,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return addItem;
     };
 
-    this.paragraph = (content) => {
+    this.paragraph = content => {
         sideContent.append($("<p />").html(content));
         return this;
     };
@@ -361,14 +361,14 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return container;
     };
 
-    this.aggregate = (callback) => {
+    this.aggregate = callback => {
         aggregate = callback;
     };
 
     return this;
 };
 
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("kronoos::element", function() {
         return new KronoosElement(...arguments);
     });

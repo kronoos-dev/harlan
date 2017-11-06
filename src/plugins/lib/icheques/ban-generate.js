@@ -24,7 +24,7 @@ module.exports = function(controller) {
         var form = modal.createForm(),
             clientName = form.addInput("name", "text", "Código ou Nome de Cliente", {}, "", clientId);
         form.addSubmit("submit", "Gerar .BAN");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             var clientId = clientName.val().replace(/\s+/g, ' ').trim();
@@ -44,7 +44,7 @@ module.exports = function(controller) {
         modal.paragraph("Estamos neste momento capturando as informações dos cheques e seus titulares para a geração do arquivo BAN.");
         var setProgress = modal.addProgress();
 
-        return [modal, setProgress, (blob) => {
+        return [modal, setProgress, blob => {
             controller.call("download", blob, `iwba_${clientId}_${moment().format("DDMMYYhhmmss")}.ban`);
         }];
     });

@@ -4,7 +4,7 @@ import {
 
 module.exports = function(controller) {
 
-    controller.registerCall("icheques::item::add::time", (check) => {
+    controller.registerCall("icheques::item::add::time", check => {
         controller.call("confirm", {
             icon: "reload",
             title: "Mais um mês de monitoramento.",
@@ -24,7 +24,7 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::item::photo", (check) => {
+    controller.registerCall("icheques::item::photo", check => {
         controller.server.call("SELECT FROM 'ICHEQUES'.'PHOTO'", {
             dataType: 'json',
             data: {
@@ -62,7 +62,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::item::edit", function(check, callback, optionalAmmount = true, edit = null, confirm = true) {
 
         var xhr, cmc7Data = new CMC7Parser(check.cmc),
-            form = controller.call("form", (parameters) => {
+            form = controller.call("form", parameters => {
                 if (xhr) xhr.abort();
                 parameters.cmc = check.cmc;
                 parameters.ammount = Math.floor(parameters.ammount * 100);
@@ -100,7 +100,7 @@ module.exports = function(controller) {
                 nextButton: "Alterar Dados",
                 magicLabel: true,
                 actions: [
-                    ["Fotografar", (modal) => {
+                    ["Fotografar", modal => {
                         modal.close();
                         controller.call("icheques::chequePicture", image => {
                             if (!image) return;
@@ -175,7 +175,7 @@ module.exports = function(controller) {
             data: {
                 documento: check.cpf || check.cnpj
             },
-            success: (ret) => {
+            success: ret => {
                 form.setValue("name", $("BPQL > body nome", ret).text());
             }
         });

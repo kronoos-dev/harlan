@@ -120,8 +120,8 @@ module.exports = function(controller) {
                 data: {
                     apiKey: apiKey
                 },
-                success: (ret) => {
-                    var form = controller.call("form", (confs) => {
+                success: ret => {
+                    var form = controller.call("form", confs => {
                         controller.server.call("SELECT FROM 'BIPBOPAPIKEY'.'UPDATE'", {
                             data: $.extend({
                                 apiKey: apiKey,
@@ -186,7 +186,7 @@ module.exports = function(controller) {
                 return (status ? "fa-check" : "fa-times") + " block";
             };
             var acc = list.add([iconStatus()].concat(controller.confs.subaccount.icons), [cnpj ? CNPJ.format(cnpj) : (cpf ? CPF.format(cpf) : "Sem Documento"), username]);
-            acc.find(".fa-key").click((e) => {
+            acc.find(".fa-key").click(e => {
                 e.preventDefault();
                 controller.call("alert", {
                     icon: "locked",
@@ -195,11 +195,11 @@ module.exports = function(controller) {
                     paragraph: `A chave de API <strong class="apiKey">${apiKey}</strong> do usuário ${username} deve ser manipulada com segurança absoluta, não devendo ser repassada a terceiros. Tenha certeza que você sabe o que está fazendo.`
                 });
             });
-            acc.find(".fa-cogs").click((e) => {
+            acc.find(".fa-cogs").click(e => {
                 e.preventDefault();
                 controller.call("subaccount::limit", apiKey);
             });
-            acc.find(".fa-folder-open").click((e) => {
+            acc.find(".fa-folder-open").click(e => {
                 e.preventDefault();
                 controller.call("confirm", {
                     icon: "powerUp",
@@ -210,7 +210,7 @@ module.exports = function(controller) {
                     window.open(`${document.location.protocol}\/\/${document.location.host}?apiKey=${encodeURIComponent(apiKey)}`);
                 });
             });
-            acc.find(".block").click((e) => {
+            acc.find(".block").click(e => {
                 e.preventDefault();
                 var unregisterLoader = $.bipbopLoader.register();
                 controller.serverCommunication.call("SELECT FROM 'BIPBOPAPIKEY'.'CHANGESTATUS'", {
@@ -242,7 +242,7 @@ module.exports = function(controller) {
                     skip: skip,
                     limit: limit
                 },
-                success: (data) => {
+                success: data => {
                     var queryResults = parseInt($("BPQL > body count", data).text()),
                         currentPage = Math.floor(skip / limit) + 1,
                         pages = Math.ceil(queryResults / limit);

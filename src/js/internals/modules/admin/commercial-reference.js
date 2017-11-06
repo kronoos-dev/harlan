@@ -6,7 +6,7 @@ import _ from 'underscore';
 import Color from "color";
 
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     let harmonizer = new Harmonizer();
 
@@ -14,13 +14,13 @@ module.exports = (controller) => {
         controller.server.call("SELECT FROM 'BIPBOPCOMPANYSREPORT'.'TAGS'", {
             dataType: 'json',
             data: data,
-            success: (dataset) => {
+            success: dataset => {
                 if (!dataset.length) return;
                 var report = controller.call("report",
                         "Cadastro de Tags em Usuários",
                         "Lista das tags cadastradas nos usuários.", null, true),
-                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map((i) => i * 10)),
-                    colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map((i) => i * 10));
+                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map(i => i * 10)),
+                    colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map(i => i * 10));
 
                 controller.trigger("admin::tagsViewer", report);
                 report.paragraph("Através do gráfico ao lado pode se ver as tags comerciais mais utilizadas em sua aplicação. O usuário ou o administador podem editar as tags através dos dados cadastrais.");
@@ -32,7 +32,7 @@ module.exports = (controller) => {
                     return obj._id || null;
                 }));
 
-                var reduceData = _.sortBy(_.map(groupData, (group) => {
+                var reduceData = _.sortBy(_.map(groupData, group => {
                     return _.reduce(group, (a, b) => {
                         return {
                             _id: a._id,
@@ -66,7 +66,7 @@ module.exports = (controller) => {
                         "background-color": colors[i],
                         "color": new Color(colors[i]).light() ? "#000" : "#fff",
                         'cursor': 'pointer'
-                    }).click((e) => {
+                    }).click(e => {
                         e.preventDefault();
                         controller.call("admin::openCompanys", report, {
                             tag: opt.tag
@@ -82,12 +82,12 @@ module.exports = (controller) => {
         controller.server.call(controller.endpoint.commercialReferenceOverview, {
             dataType: 'json',
             data: data,
-            success: (dataset) => {
+            success: dataset => {
                 var report = controller.call("report",
                         "Referências Comerciais",
                         "Lista das referências comerciais.", null, true),
-                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map((i) => i * 10)),
-                    colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map((i) => i * 10));
+                    colors = harmonizer.harmonize("#cdfd9f", [...Array(dataset.length).keys()].map(i => i * 10)),
+                    colorsHightlight = harmonizer.harmonize("#c0fc86", [...Array(dataset.length).keys()].map(i => i * 10));
 
                 controller.trigger("admin::commercialReference", report);
                 report.paragraph("Através do gráfico ao lado pode se ver quem são as maiores referências comerciais para sua aplicação. O usuário ou o administador podem editar a referência comercial através dos dados cadastrais.");
@@ -99,7 +99,7 @@ module.exports = (controller) => {
                     return obj._id || null;
                 }));
 
-                var reduceData = _.sortBy(_.map(groupData, (group) => {
+                var reduceData = _.sortBy(_.map(groupData, group => {
                     return _.reduce(group, (a, b) => {
                         return {
                             _id: a._id,
@@ -133,7 +133,7 @@ module.exports = (controller) => {
                         "background-color": colors[i],
                         "color": new Color(colors[i]).light() ? "#000" : "#fff",
                         'cursor': 'pointer'
-                    }).click((e) => {
+                    }).click(e => {
                         e.preventDefault();
                         controller.call("admin::openCompanys", report, {
                             commercialReference: opt.commercialReference
@@ -161,12 +161,12 @@ module.exports = (controller) => {
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) => {
+        return _.map(_.values(_.groupBy(data, item => {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), (value) => {
+        })), value => {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";

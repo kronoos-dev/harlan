@@ -104,7 +104,7 @@ export default class Sync {
                     jobId: jobId,
                     call: call,
                     parameters: parameters
-                }, (err) => {
+                }, err => {
                     for (let cb of this.taskCallbacks) cb(err);
                 });
             }));
@@ -122,7 +122,7 @@ export default class Sync {
                     if (cb) cb(err);
                     return;
                 }
-                localForage.removeItem(jobId, (err) => {
+                localForage.removeItem(jobId, err => {
                     if (err) {
                         if(cb) cb(err);
                         return;

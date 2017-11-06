@@ -10,7 +10,7 @@ module.exports = function(controller) {
                 apiKey: controller.query.apiKey,
                 id: controller.query.banId
             },
-            success: (ret) => {
+            success: ret => {
                 console.log(ret);
                 let storage = [],
                     companyObj = controller.call("data::company", $(ret).find("body > company"));

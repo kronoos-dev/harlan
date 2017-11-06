@@ -23,14 +23,14 @@ module.exports = function (controller) {
                 separatorData);
 
         let actions = separator.find(".actions");
-        controller.call("tooltip", actions, "Dados para Depósito").append($("<i />").addClass("fa fa-bank")).click((e) => {
+        controller.call("tooltip", actions, "Dados para Depósito").append($("<i />").addClass("fa fa-bank")).click(e => {
             e.preventDefault();
 
             let [bank, ag, acc] = check.companyData.bankAccount;
             let name = check.companyData.nome || check.companyData.responsavel,
                 document = check.companyData.cnpj ? CNPJ.format(check.companyData.cnpj) : CPF.format(check.companyData.cpf);
 
-            let form = controller.call("form", (i) => {
+            let form = controller.call("form", i => {
 
                 let item = {
                     check: check._id,
@@ -41,7 +41,7 @@ module.exports = function (controller) {
                 i.ammount = Math.floor(i.ammount * 100);
                 /* Remove o Listener da Cobrança */
                 var validate = new RegExp(`(\\?|\\&)id\=${escapeStringRegexp(check._id)}`, 'gi'),
-                    historyCallback = _.filter(data.data.historyCallback, (c) => validate.test(c));
+                    historyCallback = _.filter(data.data.historyCallback, c => validate.test(c));
                 if (historyCallback.length) {
                     item.historyCallback = historyCallback[0];
                 }
@@ -50,7 +50,7 @@ module.exports = function (controller) {
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     dataType: "json",
                     data: Object.assign(item, i),
-                    success: (ret) => {
+                    success: ret => {
                         result.element().remove();
                         if (ret.deleted) {
                             $(`*[data-entity='${data.data._id}']`).remove();
@@ -190,7 +190,7 @@ module.exports = function (controller) {
         controller.server.call("SELECT FROM 'DIVE'.'ICHEQUES'", {
             dataType: "json",
             data : {id : qs._id},
-            success: (c) => {
+            success: c => {
                 if (!c.count) return;
                 let result = format(c.list[qs._id], url, data);
                 data.section[1].append(result.element());

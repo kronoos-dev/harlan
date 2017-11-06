@@ -1,5 +1,5 @@
 /* global toastr */
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     controller.registerCall("admin::roleTypes", function() {
         return {

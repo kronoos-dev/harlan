@@ -11,7 +11,7 @@ var SAFARI_HACK_REFRESH_RATE = 500;
 /**
  * Inicializa um modal
  */
-module.exports = (controller) =>  {
+module.exports = controller =>  {
 
     var Modal = function () {
         var modal = $("<div />").addClass("modal-content");
@@ -21,7 +21,7 @@ module.exports = (controller) =>  {
         var actions = $("<ul />").addClass("modal-actions");
         modal.append(actions);
 
-        var onEsc = (e) => {
+        var onEsc = e => {
             if (e.keyCode == 27) {
                 this.close();
             }
@@ -51,26 +51,26 @@ module.exports = (controller) =>  {
                 action();
             }).appendTo(actions);
 
-        this.gamification = (type) =>  {
+        this.gamification = type =>  {
             var image = $("<div />")
                     .addClass("gamification").addClass(gamificationIcons[type] || type);
             modal.append(image);
             return image;
         };
 
-        this.title = (content) =>  {
+        this.title = content =>  {
             var h2 = $("<h2 />").text(content);
             modal.append(h2);
             return h2;
         };
 
-        this.subtitle = (content) =>  {
+        this.subtitle = content =>  {
             var h3 = $("<h3 />").text(content);
             modal.append(h3);
             return h3;
         };
 
-        this.paragraph = (content) =>  {
+        this.paragraph = content =>  {
             var p = $("<p />").html(content);
             modal.append(p);
             return p;
@@ -81,7 +81,7 @@ module.exports = (controller) =>  {
         this.addProgress = (initProgress = 0) =>  {
             var progress = controller.call("progress::init", initProgress);
             modal.append(progress.element);
-            return (perc) =>  {
+            return perc =>  {
                 controller.call("progress::update", progress, perc);
             };
         };
@@ -128,7 +128,7 @@ module.exports = (controller) =>  {
         this.createActions = () =>  {
             var actions = $("<ul />").addClass("actions");
             modal.append(actions);
-            var add = (name) => {
+            var add = name => {
                 var link = $("<a />").attr("href", "#").html(name),
                         item = $("<li> /").append(link);
                 actions.append(item);
@@ -137,13 +137,13 @@ module.exports = (controller) =>  {
             return {
                 add: add,
                 cancel: (onExit, text) =>  {
-                    add(text || controller.i18n.system.cancel()).click((e) => {
+                    add(text || controller.i18n.system.cancel()).click(e => {
                         e.preventDefault();
                         if (onExit) onExit();
                         this.close();
                     });
                 },
-                observation: (name) =>  {
+                observation: name =>  {
                     var item = $("<li> /").html(name);
                     actions.append(item);
                     return item;

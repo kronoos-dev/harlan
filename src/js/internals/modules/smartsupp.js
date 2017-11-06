@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerTrigger('bootstrap::end', 'smartsupp', (data, cb, _smartsupp = {}) => {
         cb();

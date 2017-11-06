@@ -48,7 +48,7 @@ module.exports = function (controller) {
             'opacity': 0.9
         }).mousedown(function() {
             let lastPosition = null;
-            body.bind("mousemove.radialProject", (e) => {
+            body.bind("mousemove.radialProject", e => {
                 if (lastPosition) {
                     position[0] += lastPosition.pageX - e.pageX;
                     position[1] += lastPosition.pageY - e.pageY;

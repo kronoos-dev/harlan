@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("kronoos::print", () => {
         if (controller.call("kronoos::queue")) {

@@ -1,4 +1,4 @@
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     if (controller.confs.kronoos.isKronoos) {
         controller.registerCall("admin::roleTypes", function() {

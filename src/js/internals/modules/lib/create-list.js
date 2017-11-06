@@ -7,7 +7,7 @@ module.exports = function(element) {
     var container = $("<div />").addClass("list-container").append(list);
     element.append(container);
 
-    var elementCellCounter = (element) => {
+    var elementCellCounter = element => {
         return $(element).children().length;
     };
 

@@ -4,7 +4,7 @@ import vis from "vis";
 
 const IS_EMPTY = /^\s*$/;
 
-module.exports = (controller) =>  {
+module.exports = controller =>  {
 
     var Result = function (inputContainer, inputContent, inputResult)  {
         var container = inputContainer || $("<div />").addClass("container");
@@ -35,7 +35,7 @@ module.exports = (controller) =>  {
             items.headerContent.append(items.headerSubtitle);
             items.headerContent.append(items.resultsDisplay);
 
-            items.addItem = (icon) =>  {
+            items.addItem = icon =>  {
                 var item = $('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon));
                 items.menu.append(item);
                 return item;
@@ -93,7 +93,7 @@ module.exports = (controller) =>  {
             var radial =  generateAlert(widget, percent, context);
 
             var change = radial.change;
-            radial.change = (percent) =>  {
+            radial.change = percent =>  {
                 change(percent);
                 generateAlert(radial, percent, context);
             };
@@ -119,7 +119,7 @@ module.exports = (controller) =>  {
             var node = $("<div />").addClass("field icon");
 
             node.append($("<div />").addClass("value")
-                .append($("<i />").addClass(`fa ${icon}`))).click((e) => {
+                .append($("<i />").addClass(`fa ${icon}`))).click(e => {
                     e.preventDefault();
                     if (action) action();
             });
@@ -175,7 +175,7 @@ module.exports = (controller) =>  {
         return new Result();
     });
 
-    controller.registerCall("result::import", (result) =>  {
+    controller.registerCall("result::import", result =>  {
         assert.ok(result.hasClass("result"));
 
         var container = result.find(".container").first();

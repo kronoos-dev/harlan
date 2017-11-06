@@ -22,21 +22,21 @@ const CRITERIA_COLOR = {
         "E": ""
     },
     PHOTO_INTERVAL = 10000,
-    corrigeArtigos = (str) => {
+    corrigeArtigos = str => {
         _.each([
             'o', 'os', 'a', 'as', 'um', 'uns', 'uma', 'umas',
             'a', 'ao', 'aos', 'a', 'as',
             'de', 'do', 'dos', 'da', 'das', 'dum', 'duns', 'duma', 'dumas',
             'em', 'no', 'nos', 'na', 'nas', 'num', 'nuns', 'numa', 'numas',
             'por', 'per', 'pelo', 'pelos', 'pela', 'pelas'
-        ], (art) => {
+        ], art => {
             str = str.replace(new RegExp(`\\s${art}\\s`, 'ig'), ` ${art} `);
         });
         return str;
     };
 
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var parseSocialProfile = (data, args) => {
         let socialProfiles = data.find("socialProfiles > socialProfiles");
@@ -53,7 +53,7 @@ module.exports = (controller) => {
                             jSocialProfile.find("bio").text(),
                             jSocialProfile.find("followers").text(),
                             jSocialProfile.find("username").text()
-                        ].filter((i) => i).join(" - ")
+                        ].filter(i => i).join(" - ")
                     }),
                     socialProfileIcon = $("<i />").addClass(`fa fa-${socialIcons[jSocialProfile.find("typeId").text()] || "external-link"}`);
                 socialProfilesContainer.append(socialProfileContainer.append(socialProfileHref.append(socialProfileIcon)));
@@ -93,7 +93,7 @@ module.exports = (controller) => {
             recoverPhoto();
         }
 
-        let parseMoneyData = (a) => numeral(parseFloat(data.find(a).text())).format('$0,0.00'),
+        let parseMoneyData = a => numeral(parseFloat(data.find(a).text())).format('$0,0.00'),
             subtitle = args.report.element().find("h3");
 
         args.report.label(`Classificação ${data.find("criteria").text()}`)
@@ -160,7 +160,7 @@ module.exports = (controller) => {
         let item = args.timeline.add(null, "Obter informações socioeconômicas e de perfil na internet.",
             "Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.", [
                 ["fa-folder-open", "Abrir", () => {
-                    let email = _.uniq(Array.from(args.ccbusca.getElementsByTagName("email")).map((a) => a.firstChild.nodeValue.trim()).filter((a) => a))[0],
+                    let email = _.uniq(Array.from(args.ccbusca.getElementsByTagName("email")).map(a => a.firstChild.nodeValue.trim()).filter(a => a))[0],
                         modal = controller.call("modal");
 
                     modal.title("E-mail para Cruzamento");
@@ -171,7 +171,7 @@ module.exports = (controller) => {
                         emailField = form.addInput("email", "email", "Endereço de e-mail do usuário (opcional).").val(email);
 
                     form.addSubmit("send", "Pesquisar");
-                    form.element().submit((e) => {
+                    form.element().submit(e => {
                         e.preventDefault();
                         modal.close();
                         controller.server.call("SELECT FROM 'SocialProfile'.'Consulta'",
@@ -180,7 +180,7 @@ module.exports = (controller) => {
                                     documento: args.document,
                                     email: emailField.val()
                                 },
-                                success: (data) => {
+                                success: data => {
                                     parseSocialProfile($(data), args);
                                     item.remove();
                                 }
@@ -220,7 +220,7 @@ module.exports = (controller) => {
         let form = modal.createForm(),
             nasc = form.addInput("nasc", "type", "Nascimento (dia/mês/ano)").mask("00/00/0000");
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             let birthday = nasc.val();
             if (!moment(birthday, "DD/MM/YYYY").isValid()) {
@@ -237,14 +237,14 @@ module.exports = (controller) => {
     };
 
     var openEmail = (report, email, document) => {
-        return (e) => {
+        return e => {
             e.preventDefault();
             window.open(`mailto:${email}`, '_blank');
         };
     };
 
     var openPhone = (report, ddd, numero, document) => {
-        return (e) => {
+        return e => {
             e.preventDefault();
             var modal = controller.confirm({
                 icon: "phone-icon-7",
@@ -289,24 +289,24 @@ module.exports = (controller) => {
                         node = null;
                     }
 
-                    generateRelations.track((data) => {
+                    generateRelations.track(data => {
                         [network, node] = result.addNetwork(data.nodes, data.edges, {
                             groups: data.groups
                         });
 
-                        let oneclick = (params) => {
+                        let oneclick = params => {
                             if (!params.nodes[0] || ids[params.nodes[0]]) {
                                 return;
                             }
 
                             ids[params.nodes[0]] = true;
 
-                            let getDocument = (query) =>
-                                (callback) => controller.server.call(query, controller.call("loader::ajax", {
+                            let getDocument = query =>
+                                callback => controller.server.call(query, controller.call("loader::ajax", {
                                     data: {
                                         documento: pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0')
                                     },
-                                    success: (data) => generateRelations.appendDocument(data, params.nodes[0]),
+                                    success: data => generateRelations.appendDocument(data, params.nodes[0]),
                                     complete: () => callback()
                                 }, true));
 
@@ -317,10 +317,10 @@ module.exports = (controller) => {
                             ], () => {
                                 track();
                             });
-                        }, doubleclick = (params) => controller.call("socialprofile", params.nodes[0]);
+                        }, doubleclick = params => controller.call("socialprofile", params.nodes[0]);
 
                         let clickTimer = null;
-                        network.on("click", (params) => {
+                        network.on("click", params => {
                             if (clickTimer) {
                                 clearTimeout(clickTimer);
                                 clickTimer = null;
@@ -337,7 +337,7 @@ module.exports = (controller) => {
                 };
             controller.server.call("SELECT FROM 'CBUSCA'.'CONSULTA'", controller.call("loader::ajax", {
                 data: { documento : document },
-                success: (data) => generateRelations.appendDocument(data, document),
+                success: data => generateRelations.appendDocument(data, document),
                 complete: () => track()
             }, true));
         };
@@ -480,7 +480,7 @@ module.exports = (controller) => {
         });
 
         var game = report.gamification("silhouette").addClass(isCPF ? "cpf" : "cnpj");
-        detect(name.split(" ")[0]).then((gender) => {
+        detect(name.split(" ")[0]).then(gender => {
             if (gender === 'female') {
                 game.addClass("people-2");
             }
@@ -500,7 +500,7 @@ module.exports = (controller) => {
                 data: {
                     documento: document
                 },
-                success: (ret) => {
+                success: ret => {
                     buildReport(document, name, ret, results, specialParameters, callback);
                 },
                 bipbopError: (exceptionType, exceptionMessage, exceptionCode) => {
@@ -524,13 +524,13 @@ module.exports = (controller) => {
                 data: $.extend({
                     documento: document
                 }, specialParameters),
-                success: (ret) => {
+                success: ret => {
                     ccbusca(document, $("BPQL > body nome", ret).text(), results, specialParameters, callback);
                 },
                 bipbopError: (exceptionType, exceptionMessage, exceptionCode) => {
                     if (isCPF && exceptionType == "ExceptionDatabase" &&
                         exceptionCode == e.ExceptionDatabase.missingArgument) {
-                        askBirthday(CPF.format(document), (birthday) => {
+                        askBirthday(CPF.format(document), birthday => {
                             controller.call("socialprofile", document, $.extend({}, specialParameters, {
                                 nascimento: birthday
                             }), results, callback);
@@ -551,7 +551,7 @@ module.exports = (controller) => {
             data: {
                 documento: args.document
             },
-            success: (ret) => {
+            success: ret => {
                 args.report.results.append(controller.call("xmlDocument", ret, 'RFB', 'CERTIDAO'));
             },
             complete: () => {

@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("admin::email", (username, section) => {
         var modal = controller.call("modal");
         modal.title("Adicionar E-mail");
@@ -9,7 +9,7 @@ module.exports = (controller) => {
             email = form.addInput("email", "email", "Endereço de E-mail"),
             emailType = form.addSelect("emailType", "Tipo do Email", controller.call("admin::contactTypes"));
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             controller.serverCommunication.call("INSERT INTO 'BIPBOPCOMPANYS'.'EMAIL'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
@@ -18,7 +18,7 @@ module.exports = (controller) => {
                     email: email.val(),
                     type: emailType.val()
                 },
-                success: (response) => {
+                success: response => {
                     controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     modal.close();
                 }

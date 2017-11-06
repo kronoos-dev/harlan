@@ -3,14 +3,14 @@ var CPF = require("cpf_cnpj").CPF,
     emailRegex = require("email-regex"),
     PHONE_REGEX = /^[\(]?\d{2}[\)]?\s*\d{4}[\-]?\d{4,5}$/;
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var billingInformation;
 
     controller.registerCall("billingInformation::need", function(callback, validator) {
         controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
             controller.call("error::ajax", controller.call("loader::ajax", {
-                success: (response) => {
+                success: response => {
                     if ((validator && !validator(response)) || !$("BPQL > body > has", response).length) {
                         controller.call("billingInformation::changeAddress", () => {
                             controller.call("billingInformation::need", callback, validator);
@@ -25,7 +25,7 @@ module.exports = (controller) => {
     controller.registerCall("billingInformation::force", (callback, next) => {
         controller.serverCommunication.call("SELECT FROM 'HARLAN'.'billingInformation'",
             controller.call("error::ajax", controller.call("loader::ajax", {
-                success: (response) => {
+                success: response => {
                     controller.call("billingInformation::changeAddress", () => {
                         if (callback) callback();
                         else
@@ -35,16 +35,16 @@ module.exports = (controller) => {
             })));
     });
 
-    controller.registerBootstrap("billingInformation", (cb) => {
+    controller.registerBootstrap("billingInformation", cb => {
         cb();
-        controller.interface.helpers.menu.add("Empresa", "user").nodeLink.click((e) => {
+        controller.interface.helpers.menu.add("Empresa", "user").nodeLink.click(e => {
             e.preventDefault();
             controller.call("billingInformation::force");
         });
     });
 
     controller.registerCall("billingInformation::changeAddress", (callback, response, next) => {
-        var form = controller.call("form", (opts) => {
+        var form = controller.call("form", opts => {
             controller.serverCommunication.call("UPDATE 'HARLAN'.'billingInformation'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
@@ -97,7 +97,7 @@ module.exports = (controller) => {
                         "optional": false,
                         "disabled": CNPJ.isValid(document),
                         "value": document.replace(/[^0-9]/g, ''),
-                        validate: (item) => {
+                        validate: item => {
                             return CNPJ.isValid(item.element.val()) || CPF.isValid(item.element.val());
                         },
                         validateAsync: function(callback, item, screen, configuration) {
@@ -194,7 +194,7 @@ module.exports = (controller) => {
                             return $(element).children("email:eq(1)").text() == "financeiro";
                         }).children("email:eq(0)").text(),
                         "placeholder": "E-mail do Financeiro",
-                        "validate": (item) => {
+                        "validate": item => {
                             return emailRegex().test(item.element.val());
                         }
                     }, {
@@ -204,7 +204,7 @@ module.exports = (controller) => {
                         "value": telefone,
                         "mask": "(00) 0000-00009",
                         "placeholder": "Telefone de Contato",
-                        "validate": (item) => {
+                        "validate": item => {
                             return PHONE_REGEX.test(item.element.val());
                         }
                     }]

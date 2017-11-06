@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     if (!harlan.query.operationScore) {
         return;
@@ -26,7 +26,7 @@ module.exports = (controller) => {
 
 
         form.addSubmit("enviar", "Enviar");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             controller.server.call("UPDATE 'ICHEQUES'.'Antecipate'", controller.call("loader::ajax", {

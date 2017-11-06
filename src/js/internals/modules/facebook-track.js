@@ -1,7 +1,7 @@
 module.exports = function(controller) {
 
     /** ugly facebook code */
-    controller.registerBootstrap("facebook::track", (callback) => {
+    controller.registerBootstrap("facebook::track", callback => {
 
         !function(f, b, e, v, n, t, s) {
             if (f.fbq)

@@ -8,7 +8,7 @@ var useragent /* jssip instance */ ,
     makecall /* callback for registered jssip */ ,
     cachedPCConfig /* cached peer connection config */ ;
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerTrigger("findDatabase::instantSearch", "softphone", function(args, callback) {
         callback();
@@ -35,15 +35,15 @@ module.exports = (controller) => {
             });
     });
 
-    controller.registerBootstrap("softphone", (cb) => {
+    controller.registerBootstrap("softphone", cb => {
         cb();
-        controller.interface.helpers.menu.add("Discar", "phone").nodeLink.click((e) => {
+        controller.interface.helpers.menu.add("Discar", "phone").nodeLink.click(e => {
             e.preventDefault();
             controller.call("softphone::keypad");
         });
     });
 
-    controller.registerCall("softphone::configuration", (callback) => {
+    controller.registerCall("softphone::configuration", callback => {
         if (!localStorage.softphoneConfiguration) {
             if (callback) {
                 controller.call("softphone::configure", callback);
@@ -55,8 +55,8 @@ module.exports = (controller) => {
         return configuration;
     });
 
-    controller.registerCall("softphone::configure", (callback) => {
-        let form = controller.call("form", (items) => {
+    controller.registerCall("softphone::configure", callback => {
+        let form = controller.call("form", items => {
                 let configuration = $.extend(items, {
                     ws_servers: items.websocket,
                     uri: `sip:${items.authorizationUser}@${items.domain}`,
@@ -179,7 +179,7 @@ module.exports = (controller) => {
         controller.call("softphone::disconnect");
     });
 
-    controller.registerCall("softphone", (callback) => {
+    controller.registerCall("softphone", callback => {
         if (useragent && useragent.isRegistered()) {
             callback(useragent);
             return;
@@ -189,7 +189,7 @@ module.exports = (controller) => {
             return;
         }
 
-        controller.call("softphone::configuration", (configuration) => {
+        controller.call("softphone::configuration", configuration => {
             useragent = new JsSIP.UA(configuration);
             let events = ['connected', 'disconnected', 'registered', 'unregistered', 'registrationFailed', 'newSession', 'newMessage'];
             for (let event of events) {
@@ -202,7 +202,7 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("softphone::disconnect", (callback) => {
+    controller.registerCall("softphone::disconnect", callback => {
         if (!useragent) {
             if (callback) callback();
             return;
@@ -228,7 +228,7 @@ module.exports = (controller) => {
             inputValidNumber = form.addCheckbox("valid-number", "O telefone continua válido?", true);
 
         form.addSubmit("enviar", "Enviar");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
         });
@@ -242,7 +242,7 @@ module.exports = (controller) => {
             title = modal.title("Estamos realizando a ligação."),
             paragraph = modal.paragraph("Aguarde enquanto conectamos você ao número discado, certifique que seu headset esteja conectado. Não recomendamos o uso de caixas de som para ligação pois as mesmas podem causar eco e ruídos na ligação. Nós desejamos que sua ligação seja proveitosa.");
 
-        let lastIcon, gamificationIcon = (icon) => {
+        let lastIcon, gamificationIcon = icon => {
             if (lastIcon) {
                 gamification.removeClass(lastIcon);
             }
@@ -342,7 +342,7 @@ module.exports = (controller) => {
         });
     };
 
-    controller.registerCall("softphone::terminateCalls", (callback) => {
+    controller.registerCall("softphone::terminateCalls", callback => {
         if (!useragent) {
             if (callback) callback();
             return;
@@ -351,13 +351,13 @@ module.exports = (controller) => {
         if (callback) callback();
     });
 
-    controller.registerCall("softphone::xirsys", (callback) => {
+    controller.registerCall("softphone::xirsys", callback => {
         if (cachedPCConfig) {
             callback(cachedPCConfig);
             return;
         }
 
-        controller.call("softphone::configuration", (configuration) => {
+        controller.call("softphone::configuration", configuration => {
             $.ajax({
                 url: "https://service.xirsys.com/ice",
                 data: {
@@ -387,7 +387,7 @@ module.exports = (controller) => {
     });
 
     controller.registerCall("softphone::call", (address, onEnd = defaultOnEnd, callHandler = defaultCallHandler) => {
-        controller.call("softphone", (ua) => {
+        controller.call("softphone", ua => {
             let uri = address.indexOf('@') === -1 ?
                 `sip:${address}@${runningConfiguration.domain}` :
                 `sip:${address}`;
@@ -425,7 +425,7 @@ module.exports = (controller) => {
             actions = modal.createActions(),
             phoneInput = form.addInput("phone", "text", "Telefone para Discagem", {}, false).val(value);
 
-        actions.add("Limpar").click((e) => {
+        actions.add("Limpar").click(e => {
             e.preventDefault();
             phoneInput.val("");
         });
@@ -438,7 +438,7 @@ module.exports = (controller) => {
 
         phoneInput.focus();
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             callback(phoneInput.val());

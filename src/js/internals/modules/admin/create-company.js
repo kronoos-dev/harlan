@@ -3,7 +3,7 @@ var owasp = require('owasp-password-strength-test'),
     CPF = require("cpf_cnpj").CPF,
     CNPJ = require("cpf_cnpj").CNPJ;
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::createAccount::formDescription", function() {
         return {
@@ -293,13 +293,13 @@ module.exports = (controller) => {
         };
     });
 
-    controller.registerCall("admin::createCompany", (description) => {
+    controller.registerCall("admin::createCompany", description => {
         /* global module */
-        var form = controller.call("form", (opts) => {
+        var form = controller.call("form", opts => {
             controller.serverCommunication.call(controller.endpoint.createCompany,
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
-                    success: (response) => {
+                    success: response => {
                         var modal = controller.call("modal");
                         modal.gamification("star");
                         modal.title("Parabéns! Conta criada com sucesso.");
@@ -307,7 +307,7 @@ module.exports = (controller) => {
                         modal.addParagraph(`O usuário ${opts.username} foi adicionado com sucesso, adicionalmente foi encaminhado um e-mail para o mesmo contendo instruções de acesso.`);
                         var form = modal.createForm();
                         form.cancelButton("Sair");
-                        modal.createActions().add("Criar outra Conta").click((e) => {
+                        modal.createActions().add("Criar outra Conta").click(e => {
                             e.preventDefault();
                             modal.close();
                             controller.call("admin::createCompany");

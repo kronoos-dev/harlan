@@ -31,7 +31,7 @@ var rfbStatus = {
 };
 
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var items = [];
 
@@ -50,7 +50,7 @@ module.exports = (controller) => {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = (data) => {
+    var reduceDataset = data => {
 
         var sum = _.reduce(data, (a, b) => {
             return {
@@ -62,12 +62,12 @@ module.exports = (controller) => {
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) => {
+        return _.map(_.values(_.groupBy(data, item => {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), (value) => _.reduce(value, (a, b) => {
+        })), value => _.reduce(value, (a, b) => {
             a.value += b.value;
             a.color = "#93A7D8";
             a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
@@ -94,7 +94,7 @@ module.exports = (controller) => {
                 "Situação dos Documentos",
                 "Situação dos CPF/CNPJs na Receita Federal.",
                 require("../../markdown/dive/receita-federal.html"),
-                (node) => {
+                node => {
                     var statusIdx = $("_id", node).text().split(" ")[0].toLowerCase();
                     var color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
                     return new Color(color);
@@ -109,7 +109,7 @@ module.exports = (controller) => {
                 "Risco de Crédito",
                 "Risco de crédito dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/riscocredito.html"),
-                (node) => new Color(harmonyColors[i++]));
+                node => new Color(harmonyColors[i++]));
         });
 
         controller.registerCall("dive::report::protestos", () => {
@@ -120,7 +120,7 @@ module.exports = (controller) => {
                 "Protestos em Cartório",
                 "Protestos em cartório dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/protestos.html"),
-                (node) => new Color(harmonyColors[i++]));
+                node => new Color(harmonyColors[i++]));
         });
 
         controller.registerCall("dive::report::ccf", () => {
@@ -131,7 +131,7 @@ module.exports = (controller) => {
                 "Cheque sem Fundo",
                 "Cheques sem fundo dos CPF/CNPJs acompanhados.",
                 require("../../markdown/dive/ccf.html"),
-                (node) => new Color(harmonyColors[i++]));
+                node => new Color(harmonyColors[i++]));
         });
 
         controller.call("dive::report::ccf");
@@ -174,7 +174,7 @@ module.exports = (controller) => {
 
     controller.registerCall("dive::smartReport::doughnut::show", (callback, endpoint, title, subtitle, markdown, nodeColor) => {
         controller.serverCommunication.call(endpoint, {
-            success: (ret) => {
+            success: ret => {
                 controller.call("dive::smartReport::doughnut",
                     callback,
                     title,
@@ -189,7 +189,7 @@ module.exports = (controller) => {
     controller.registerCall("dive::smartReport::polar::show", (endpoint, title, subtitle, markdown, inputs, labels) => {
         controller.serverCommunication.call(endpoint, {
 
-            success: (ret) => {
+            success: ret => {
                 controller.call("dive::smartReport::polar",
                     title,
                     subtitle,

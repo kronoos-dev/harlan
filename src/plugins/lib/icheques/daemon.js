@@ -71,7 +71,7 @@ module.exports = function (controller) {
             inputServer = form.addInput("server", "text", "10.0.57.14\\SQLEXPRESS", l2, "Endereço do Servidor", configuration.database.server),
             inputDatabase = form.addInput("database", "text", "Factoring", l2, "Nome do Banco de Dados", configuration.database.database);
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
 
             let sendData = {

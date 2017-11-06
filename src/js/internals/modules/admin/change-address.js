@@ -1,12 +1,12 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::changeAddress", (companyNode, username, section) => {
-        var form = controller.call("form", (opts) => {
+        var form = controller.call("form", opts => {
             opts.username = username;
             controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'ADDRESS'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
-                    success: (response) => {
+                    success: response => {
                         controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     }
                 })));

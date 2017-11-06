@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("dive::delete", (entity, callback) => {
         controller.confirm({}, () => {

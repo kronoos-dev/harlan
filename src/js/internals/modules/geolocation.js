@@ -1,6 +1,6 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
-    controller.registerCall("geolocation", (callback) => {
+    controller.registerCall("geolocation", callback => {
         let modal = controller.call("modal");
         modal.gamification("magicWand");
         modal.title("Aguarde enquanto obtemos sua localização.");
@@ -9,7 +9,7 @@ module.exports = (controller) => {
 
         modal.createActions().cancel();
 
-        navigator.geolocation.getCurrentPosition((geoposition) => {
+        navigator.geolocation.getCurrentPosition(geoposition => {
             modal.close();
             callback(geoposition);
         }, () => {

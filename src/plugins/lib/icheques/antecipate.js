@@ -70,7 +70,7 @@ module.exports = function(controller) {
         let form = modal.createForm();
 
         form.addSubmit("close", "Ok");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
         });
@@ -79,7 +79,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::register::all", function() {
         controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
             dataType: "json",
-            success: (profile) => {
+            success: profile => {
                 controller.call("icheques::register::all::show", profile);
             },
             error: () => {
@@ -98,7 +98,7 @@ module.exports = function(controller) {
     controller.registerCall("icheques::antecipate", function(checks) {
         controller.server.call("SELECT FROM 'ICHEQUESPROFILE'.'PROFILE'", {
             dataType: "json",
-            success: (profile) => {
+            success: profile => {
                 controller.call("icheques::antecipate::init", checks, profile);
             },
             error: () => {
@@ -123,7 +123,7 @@ module.exports = function(controller) {
         let expired = [],
             now = moment().format("YYYYMMDD");
 
-        checks = _.filter(checks, (check) => {
+        checks = _.filter(checks, check => {
             let booleanExpiration = check.expire < now;
             if (booleanExpiration) {
                 expired.push(check);
@@ -131,7 +131,7 @@ module.exports = function(controller) {
             return !booleanExpiration;
         });
 
-        checks = _.filter(checks, (check) => {
+        checks = _.filter(checks, check => {
             return check.situation === "Cheque sem ocorrências" ||
                 check.situation === "Cheque com outras ocorrências" ||
                 check.situation === "Instituição bancária não monitorada" ||
@@ -149,13 +149,13 @@ module.exports = function(controller) {
         }
 
         // Adicionando as propriedades vindas do CMC7Parser
-        checks = checks.map((check) => Object.assign({}, check, new CMC7Parser(check.cmc)));
+        checks = checks.map(check => Object.assign({}, check, new CMC7Parser(check.cmc)));
 
         // Ordenando pelo número do cheque
         checks = _.sortBy(checks, "number");
 
         controller.call("billingInformation::need", () => {
-            var noAmmountChecks = _.filter(checks, (obj) => {
+            var noAmmountChecks = _.filter(checks, obj => {
                 return !obj.ammount;
             });
 
@@ -168,25 +168,25 @@ module.exports = function(controller) {
                     paragraph: "Tudo que precisar ser editado com o valor será aberto para que você possa repetir esta operação, edite e tente novamente.",
                 }, () => {
                     var q = queue((check, cb) => {
-                        controller.call("icheques::item::setAmmount", check, cb, (form) => {
-                            form.actions.add("Parar Edição").click((e) => {
+                        controller.call("icheques::item::setAmmount", check, cb, form => {
+                            form.actions.add("Parar Edição").click(e => {
                                 form.close(false);
                                 cb("stop", check);
                             });
                         });
                     }, 1);
 
-                    q.push(noAmmountChecks, (err) => {
+                    q.push(noAmmountChecks, err => {
                         if (err == "stop") {
                             q.kill();
-                            controller.call("icheques::antecipate", _.filter(checks, (obj) => {
+                            controller.call("icheques::antecipate", _.filter(checks, obj => {
                                 return obj.ammount > 0;
                             }));
                         }
                     });
 
                     q.drain = () => {
-                        controller.call("icheques::antecipate", _.filter(checks, (obj) => {
+                        controller.call("icheques::antecipate", _.filter(checks, obj => {
                             return obj.ammount > 0;
                         }));
                     };
@@ -204,7 +204,7 @@ module.exports = function(controller) {
                         controller.call("icheques::antecipate::filter", ret, checks, profile);
                     }
                 })));
-        }, (ret) => {
+        }, ret => {
             if (!$("BPQL > body > company > cnpj", ret).text().length) {
                 toastr.warning("É necessário um CNPJ de faturamento para poder continuar.",
                     "Você não possui um CNPJ no cadastro.");
@@ -217,7 +217,7 @@ module.exports = function(controller) {
     var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
         if (text) {
             text = text.trim();
-            checks = _.filter(checks, (check) => {
+            checks = _.filter(checks, check => {
                 let doc = check.cnpj ? CNPJ.format(check.cnpj) : CPF.format(check.cpf);
                 return doc.toString().includes(text) || check.number.toString().includes(text);
             });
@@ -240,7 +240,7 @@ module.exports = function(controller) {
             currentPage = Math.floor(skip / limit) + 1,
             pages = Math.ceil(queryResults / limit);
 
-        _.each(checks.slice(skip, skip + limit), (element) => {
+        _.each(checks.slice(skip, skip + limit), element => {
             let doc = element.cnpj ? CNPJ.format(element.cnpj) : CPF.format(element.cpf); /* aplica mascara quando nao tiver*/
             list.add("fa-trash", [
                 // Número do Cheque
@@ -281,20 +281,20 @@ module.exports = function(controller) {
             blockedBead = [],
             processingOnes = [];
 
-        otherOccurrences = _.filter(checks, (check) => {
+        otherOccurrences = _.filter(checks, check => {
             return check.situation === "Cheque com outras ocorrências" ||
                 check.situation === "Instituição bancária não monitorada";
         });
 
-        blockedBead = _.filter(checks, (check) => {
+        blockedBead = _.filter(checks, check => {
             return check.situation === "O talão do cheque está bloqueado";
         });
 
-        processingOnes = _.filter(checks, (check) => {
+        processingOnes = _.filter(checks, check => {
             return !check.situation;
         });
 
-        checks = goodChecks = _.filter(checks, (check) => {
+        checks = goodChecks = _.filter(checks, check => {
             return check.situation === "Cheque sem ocorrências";
         });
 
@@ -348,7 +348,7 @@ module.exports = function(controller) {
             updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum, callback);
         });
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
 
             var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
@@ -388,13 +388,13 @@ module.exports = function(controller) {
     });
 
     controller.registerCall("icheques::antecipate::show", (data, checks, profile, filterReference = true) =>
-        controller.call("geolocation", (geoposition) => {
+        controller.call("geolocation", geoposition => {
             var banks = $("BPQL > body > fidc", data),
                 validBankReferences = $();
 
             /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
             if (filterReference && commercialReference) {
-                _.each(commercialReference.split(","), (reference) => {
+                _.each(commercialReference.split(","), reference => {
                     banks.each(function(i, element) {
                         if ($("username", element).text() == reference ||
                             $("cnpj", element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
@@ -453,7 +453,7 @@ module.exports = function(controller) {
                 }
 
 
-                banks = _.sortBy(_.filter(banks.toArray(), (element) => {
+                banks = _.sortBy(_.filter(banks.toArray(), element => {
 
                     return calculateDistance({
                         lat: geoposition.coords.latitude,
@@ -462,7 +462,7 @@ module.exports = function(controller) {
                         lat: parseLocation(element, "geocode > geometry > location > lat"),
                         lon: parseLocation(element, "geocode > geometry > location > lng")
                     }) <= 200000;
-                }), (element) => calculateDistance({
+                }), element => calculateDistance({
                     lat: geoposition.coords.latitude,
                     lon: geoposition.coords.longitude
                 }, {
@@ -490,7 +490,7 @@ module.exports = function(controller) {
             var form = modal.createForm(),
                 list = form.createList();
 
-            _.each(banks, (element) => {
+            _.each(banks, element => {
                 var approved = $(element).children("approvedCustomer").text() === "true";
 
                 list.add("fa-share", [
@@ -539,7 +539,7 @@ module.exports = function(controller) {
     var companyData = (paragraph, element) => {
         var phones = $("<ul />").addClass("phones");
         $("company > telefone > node", element).each((idx, node) => {
-            var get = (idx) => {
+            var get = idx => {
                 return $(`node:eq(${idx.toString()})`, node).text();
             };
 
@@ -553,7 +553,7 @@ module.exports = function(controller) {
             emails.append($("<li />").text(emailAddress));
         });
 
-        var get = (idx) => {
+        var get = idx => {
             return $(`endereco node:eq(${idx.toString()})`, element).text();
         };
 
@@ -587,7 +587,7 @@ module.exports = function(controller) {
         modal.paragraph("A liberação da antecipadora pode ocorrer em até 7 dias úteis.");
         companyData(paragraph, element);
         var form = modal.createForm();
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             controller.server.call("INSERT INTO 'ICHEQUES'.'FIDC'",
                 controller.call("error::ajax", {
@@ -640,7 +640,7 @@ module.exports = function(controller) {
 
         var form = modal.createForm();
         form.addSubmit("send", "Antecipar");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             controller.call("confirm", {
@@ -672,7 +672,7 @@ module.exports = function(controller) {
     });
 
 
-    controller.registerCall("icheques::register::all::show", (profile) => {
+    controller.registerCall("icheques::register::all::show", profile => {
         controller.serverCommunication.call("SELECT FROM 'ICHEQUESFIDC'.'LIST'",
             controller.call("loader::ajax", controller.call("error::ajax", {
                 data: {

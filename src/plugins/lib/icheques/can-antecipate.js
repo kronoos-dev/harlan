@@ -13,7 +13,7 @@ const obtainChecks = squel
     .where("(EXPIRE > ?) AND (OPERATION = 0)", moment().format("YYYYMMDD"))
     .toString();
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var update = null;
 

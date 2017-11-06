@@ -26,7 +26,7 @@ module.exports = function(controller) {
                 success: () => toastr.success(`Um novo acompanhamento foi adicionado para o documento ${data.documento}`,
                     "Em alguns instantes o dossiê será finalizado e as informações estarão a sua disposição")
             }))).configure({
-            title: "Adicionar Acompanhamento",
+            title: "Adicionar Monitoramento",
             subtitle: "Preencha o formulário para acompanhar o dossiê Kronoos.",
             paragraph: "Uma vez preenchido o sistema acompanhará o target.",
             gamification: "star",
@@ -36,7 +36,7 @@ module.exports = function(controller) {
                         name: "documento",
                         type: "text",
                         placeholder: "Documento do Target",
-                        builder: (item) => {
+                        builder: item => {
                             const mask = () => {
                                 let v = item.element.val();
                                 item.element.val(VMasker.toPattern(v, masks[v.length > 14 ? 1 : 0]));
@@ -46,7 +46,7 @@ module.exports = function(controller) {
                             item.element.on('focus', () => item.element.val(""));
                             item.element.on('keydown', mask);
                         },
-                        validate: (item) => CPF.isValid(item.element.val()) || CNPJ.isValid(item.element.val()),
+                        validate: item => CPF.isValid(item.element.val()) || CNPJ.isValid(item.element.val()),
                         validateAsync: (callback, item) => controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
                             data: {
                                 documento: item.element.val()
@@ -125,7 +125,7 @@ module.exports = function(controller) {
 
         controller.server.call("SELECT FROM 'DOSSIERKRONOOS'.'CAPTURE'", {
             dataType: "json",
-            success: (data) => {
+            success: data => {
                 dossiers = {};
                 data.map(data => {
                     dossiers[data.documento] = parseDossier(data);
@@ -133,7 +133,7 @@ module.exports = function(controller) {
             }
         });
 
-        report.button("Adicionar Acompanhamento", () => controller.call("kronoos::async::new"));
+        report.button("Adicionar Monitoramento", () => controller.call("kronoos::async::new"));
 
         report.newAction("fa-play-circle", () =>
             controller.interface.helpers.activeWindow(".kronoos-application"),
@@ -142,12 +142,6 @@ module.exports = function(controller) {
         if (!controller.confs.kronoos.isKronoos) {
             report.newAction("fa-info-circle", () => window.open("https://www.kronoos.com"), "Sobre o Kronoos");
         }
-
-
-        // report.newAction("fa-filter", () => {
-        //
-        // }, "Filtrar Dossiês");
-
 
         report.gamification("kronoos");
         $(".app-content").append(report.element());

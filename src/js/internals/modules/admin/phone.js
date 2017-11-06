@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("admin::phone", (username, section) => {
         var modal = controller.call("modal");
         modal.title("Adicionar Telefone");
@@ -11,7 +11,7 @@ module.exports = (controller) => {
             contact = form.addInput("contato", "text", "Nome Contato"),
             phoneType = form.addSelect("phoneType", "Tipo do phone", controller.call("admin::contactTypes"));
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
 
             var match;
@@ -30,7 +30,7 @@ module.exports = (controller) => {
                     contact: contact.val(),
                     type: phoneType.val()
                 },
-                success: (response) => {
+                success: response => {
                     controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     modal.close();
                 }

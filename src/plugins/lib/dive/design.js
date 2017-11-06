@@ -24,17 +24,12 @@ module.exports = function (controller) {
     resize();
 
     /* única forma segura de sair do sistema e voltar a home */
-    $("body > .dive-site .action-login").click(function () {
-        controller.interface.helpers.activeWindow(".login");
-    });
+    $("body > .dive-site .action-login").click(() => controller.interface.helpers.activeWindow(".login"));
 
-    controller.registerCall("default::page", function () {
-        controller.interface.helpers.activeWindow(controller.confs.isPhone ?
-            ".login" : ".dive-site");
-    });
+    controller.registerCall("default::page", () => controller.interface.helpers.activeWindow(controller.confs.isPhone ? ".login" : ".dive-site"));
 
     var emailInput = $("body > .dive-site .email");
-    $("body > .dive-site .form-createAccount").submit(function (e) {
+    $("body > .dive-site .form-createAccount").submit(e => {
         e.preventDefault();
         if (!emailRegex().test(emailInput.val())) {
             emailInput.addClass("error");
@@ -44,7 +39,7 @@ module.exports = function (controller) {
         controller.call("bipbop::createAccount", emailInput.val());
     });
 
-    $(".dive-site .action-buy").click(function (e) {
+    $(".dive-site .action-buy").click(e => {
         e.preventDefault();
         controller.call("bipbop::createAccount");
     });

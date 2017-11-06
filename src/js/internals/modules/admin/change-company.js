@@ -3,15 +3,15 @@ var _ = require("underscore"),
     CPF = require("cpf_cnpj").CPF,
     CNPJ = require("cpf_cnpj").CNPJ;
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::changeCompany", (companyNode, username, section) => {
-        var form = controller.call("form", (opts) => {
+        var form = controller.call("form", opts => {
             opts.username = username;
             controller.serverCommunication.call("UPDATE 'BIPBOPCOMPANYS'.'COMPANY'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
                     data: opts,
-                    success: (response) => {
+                    success: response => {
                         
                         controller.call("admin::viewCompany", $(response).find("BPQL > body > company"), section, "replaceWith");
                     }

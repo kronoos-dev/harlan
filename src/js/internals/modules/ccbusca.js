@@ -44,7 +44,7 @@ module.exports = function (controller) {
 
         let subtitle = $(".results-display", sectionDocumentGroup[0]);
         let messages = [subtitle.text()];
-        let appendMessage = (message) => {
+        let appendMessage = message => {
             messages.push(message);
             subtitle.text(messages.join(", "));
         };
@@ -55,7 +55,7 @@ module.exports = function (controller) {
             callback(sectionDocumentGroup[0]);
         }
 
-        controller.call("tooltip", sectionDocumentGroup[2], "Imprimir").append($("<i />").addClass("fa fa-print")).click((e) => {
+        controller.call("tooltip", sectionDocumentGroup[2], "Imprimir").append($("<i />").addClass("fa fa-print")).click(e => {
             e.preventDefault();
             var html = sectionDocumentGroup[0].html(),
                 printWindow = window.open("about:blank", "", "_blank");
@@ -105,7 +105,7 @@ module.exports = function (controller) {
             }
             let totalProtestos = $("protestos", ret)
                 .get()
-                .map((p) => parseInt($(p).text()))
+                .map(p => parseInt($(p).text()))
                 .reduce((a, b) => a + b, 0);
             appendMessage(`total de protestos: ${totalProtestos}`);
             sectionDocumentGroup[1].append(controller.call("xmlDocument", ret, "IEPTB", "WS"));

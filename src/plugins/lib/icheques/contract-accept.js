@@ -23,7 +23,7 @@ module.exports = function(controller) {
                 'q[0]': "SELECT FROM 'ICHEQUESAUTHENTICATION'.'ANNOTATIONS'",
                 'q[1]': "SELECT FROM 'ICHEQUESFIDC'.'STATUS'"
             },
-            success: (ret) => {
+            success: ret => {
                 if ($("BPQL > body > fidc > _id", ret).length ||
                     ["credit-anticipator", "fidc"].indexOf($("BPQL > body > annotation > type", ret).text()) != -1) {
                     path = CONTRATO_ANTECIPADOR;

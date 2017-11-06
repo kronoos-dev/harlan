@@ -17,7 +17,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall("accuracy::authentication::data", (cb) => {
+    controller.registerCall("accuracy::authentication::data", cb => {
         if (_authData) cb(_authData);
         else localForage.getItem('accuracyAuth', (err, value) => {
             if (err) console.error(err);
@@ -26,7 +26,7 @@ module.exports = function (controller) {
     });
 
     /* Sai da conta do usuário */
-    controller.registerCall("accuracy::logout", (callback) => {
+    controller.registerCall("accuracy::logout", callback => {
         localForage.removeItem('accuracyAuth', err => {
             console.error(err);
         });
@@ -43,7 +43,7 @@ module.exports = function (controller) {
                     errorCallback(authData[0].message || "Não foi possível acessar o sistema");
                     return;
                 }
-                localForage.setItem('accuracyAuth', authData, (err) => {
+                localForage.setItem('accuracyAuth', authData, err => {
                     if (err) console.log(err);
                 });
                 _authData = authData;

@@ -1,6 +1,6 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("outdatedbrowser", (callback) => {
+    controller.registerBootstrap("outdatedbrowser", callback => {
         callback();
         outdatedBrowser({
             bgColor: '#f25648',

@@ -6,7 +6,7 @@ PHONE_REGEX = /^[\(]?\d{2}[\)]?\s*\d{4}[\-]?\d{4,5}$/;
 module.exports = function (controller) {
 
     controller.registerCall("accuracy::createStore", () => {
-        var form = controller.call("form", (opts) => {
+        var form = controller.call("form", opts => {
             let formdata = new FormData();
             for (let key in opts) formdata.append(key, opts[key]);
             controller.accuracyServer.call("saveStore", {}, {
@@ -15,7 +15,7 @@ module.exports = function (controller) {
                 cache: false,
                 contentType: false,
                 processData: false,
-                success: (ret) => toastr.success("Loja criada com sucesso", "Já está disponível a loja no dashboard de usuário para começar a realizar os check-ins."),
+                success: ret => toastr.success("Loja criada com sucesso", "Já está disponível a loja no dashboard de usuário para começar a realizar os check-ins."),
                 error: () => toastr.error("Não foi possível criar a loja", "Verifique sua conexão com a internet e tente novamente mais tarde.")
             });
         });
@@ -114,7 +114,7 @@ module.exports = function (controller) {
                         "optional": true,
                         "type": "text",
                         "placeholder": "E-mail",
-                        "validate": (item) => {
+                        "validate": item => {
                             return emailRegex().test(item.element.val());
                         }
                     } ,{
@@ -123,7 +123,7 @@ module.exports = function (controller) {
                         "type": "text",
                         "mask": "(00) 0000-00009",
                         "placeholder": "Telefone de Contato",
-                        "validate": (item) => {
+                        "validate": item => {
                             return PHONE_REGEX.test(item.element.val());
                         }
                     },{
@@ -132,7 +132,7 @@ module.exports = function (controller) {
                         "type": "text",
                         "mask": "(00) 0000-00009",
                         "placeholder": "Celular de Contato",
-                        "validate": (item) => {
+                        "validate": item => {
                             return PHONE_REGEX.test(item.element.val());
                         }
                     },

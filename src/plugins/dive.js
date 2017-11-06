@@ -1,4 +1,4 @@
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
     require("./lib/dive/loader")(controller);
     require("./lib/dive/design")(controller);
     require("./lib/dive/smart-report")(controller);

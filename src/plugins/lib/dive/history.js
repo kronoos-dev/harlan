@@ -2,9 +2,9 @@ const LIMIT = 5;
 
 import truncate from "truncate";
 
-module.exports = (controller) => {
+module.exports = controller => {
 
-    controller.registerCall("dive::history", (entity) => {
+    controller.registerCall("dive::history", entity => {
         let skip = 0,
             modal = controller.call("modal");
         modal.gamification();
@@ -16,8 +16,8 @@ module.exports = (controller) => {
         actions.add("Novo Contato").click(controller.click("dive::history::new", entity, () => more(null, 0, e)));
         let more,
             observation = actions.observation("Carregando"),
-            backButton = actions.add("Voltar Página").click((e) => more(e, -1)),
-            nextButton = actions.add("Próxima Página").click((e) => more(e));
+            backButton = actions.add("Voltar Página").click(e => more(e, -1)),
+            nextButton = actions.add("Próxima Página").click(e => more(e));
 
         more = (e, direction = 1, newEntity = null) => {
             if (newEntity) entity = newEntity;
@@ -37,6 +37,14 @@ module.exports = (controller) => {
             backButton[page == 1 ? 'hide' : 'show']();
             observation.text(`Página ${page} de ${pages}`);
 
+            let open = (when, contact) => e => {
+                e.preventDefault();
+                let modal = controller.call("modal");
+                modal.title("Atualização da Cobrança");
+                modal.subtitle(`Histórico do Contato ${when.format('LLLL')}`);
+                modal.paragraph(contact.observation);
+            };
+
             for (let contact of entity.history.slice(skip, skip + LIMIT)) {
                 let when = moment.unix(contact.when),
                     next = moment.unix(contact.next);
@@ -44,14 +52,7 @@ module.exports = (controller) => {
                 list.item("fa-archive", [
                     truncate(contact.observation, 40),
                     when.fromNow()
-                ]).click((e) => {
-                    e.preventDefault();
-                    let modal = controller.call("modal");
-                    modal.title("Atualização da Cobrança");
-                    modal.subtitle(`Histórico do Contato ${when.format('LLLL')}`);
-                    modal.paragraph(contact.observation);
-                    modal.createActions().cancel();
-                });
+                ]).click(open(when, contact));
             }
         };
 
@@ -70,7 +71,7 @@ module.exports = (controller) => {
         let date = form.addInput("date", "text", "Data do Próximo Contato").mask("00/00/0000").pikaday(),
             observation = form.addTextarea("observation", "O que houve no contato?");
         form.addSubmit("submit", "Enviar");
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             let error = false,
                 when = moment(date.val(), "DD/MM/YYYY");
@@ -93,7 +94,7 @@ module.exports = (controller) => {
                     observation: observation.val(),
                     label: entity.label
                 },
-                success : (ret) => {
+                success : ret => {
                     entity.history = ret.history;
                     if (callback) callback(ret);
                     else toastr.success("Histórico de cobrança adicionado com sucesso.",

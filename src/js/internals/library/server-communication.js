@@ -44,7 +44,7 @@ module.exports = function (controller) {
     };
 
     /* BIPBOP WebSocket */
-    this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, (ws) => {
+    this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, ws => {
         controller.trigger("serverCommunication::websocket::open", ws);
     });
 

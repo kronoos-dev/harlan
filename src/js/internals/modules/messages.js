@@ -41,7 +41,7 @@ module.exports = function(controller) {
 
         controller.call("inbox::check");
 
-        $("#action-mailbox").click((e) => {
+        $("#action-mailbox").click(e => {
             e.preventDefault();
             controller.call("inbox");
         });
@@ -127,7 +127,7 @@ module.exports = function(controller) {
                 skip: skip,
                 limit: limit
             },
-            success: (data) => {
+            success: data => {
                 var queryResults = parseInt($("BPQL > body count", data).text()),
                 currentPage = Math.floor(skip / limit) + 1,
                 pages = Math.ceil(queryResults / limit);

@@ -25,14 +25,14 @@ var dictMessage = {
 
 module.exports = function(controller) {
 
-    controller.call("link::register", /^.*/, (href) => {
+    controller.call("link::register", /^.*/, href => {
         let query = url.parse(href, true).query;
         if (!query.cmc) return false;
         controller.call("icheques::cmc::show", query.cmc);
         return true;
     });
 
-    controller.registerCall("icheques::cmc::show", (cmc) => {
+    controller.registerCall("icheques::cmc::show", cmc => {
         let searchString = cmc.replace(/[^\d]/, '');
         let query = squel.select()
             .from("ICHEQUES_CHECKS")
@@ -58,7 +58,7 @@ module.exports = function(controller) {
         controller.call("icheques::cmc::show", controller.query.cmc);
     });
 
-    controller.registerCall("icheques::history", (check) => {
+    controller.registerCall("icheques::history", check => {
         const LIMIT = 5;
         var modal = controller.call("modal"),
             skipResults = 0;
@@ -88,7 +88,7 @@ module.exports = function(controller) {
             });
         };
 
-        let update = (data) => {
+        let update = data => {
             let pages = Math.ceil(data.count / LIMIT),
                 currentPage = (skipResults ? skipResults / LIMIT : 0) + 1;
             count.text(`Página ${currentPage} de ${pages}`);
@@ -127,7 +127,7 @@ module.exports = function(controller) {
                     limit: LIMIT
                 },
                 dataType: "json",
-                success: (data) => update(data),
+                success: data => update(data),
                 bipbopError: () => error()
             }, true)));
         };
@@ -135,7 +135,7 @@ module.exports = function(controller) {
         updateAjax(null, 0);
     });
 
-    controller.registerCall("icheques::debtCollector", (check) => {
+    controller.registerCall("icheques::debtCollector", check => {
         var inputExpire;
         let dispachEvent = (formData) => {
             check.expire = moment(inputExpire.val(), "DD/MM/YYYY").format("YYYYMMDD");
@@ -212,7 +212,7 @@ module.exports = function(controller) {
             modal.paragraph("Os valores podem mudar pelo pagamento de taxas e afins.").addClass("observation");
         };
 
-        let confirm = (err) => {
+        let confirm = err => {
             if (err) return;
             controller.confirm({
                 title: "Enviar seu cheque para cobrança?",
@@ -268,7 +268,7 @@ module.exports = function(controller) {
             hasResult = false,
             skip = 0;
 
-        async.doUntil((cb) => {
+        async.doUntil(cb => {
             controller.server.call("SELECT FROM 'ICHEQUES'.'CHECKS'", controller.call("error::ajax", {
                 method: 'GET',
                 data: {
@@ -316,13 +316,13 @@ module.exports = function(controller) {
         controller.call("tooltip", separatorData.menu, "Histórico do Cheque").append($("<i />").addClass("fa fa-history")).click(controller.click("icheques::history", check));
 
         if (controller.confs.ccf && moment().isAfter(moment(check.expire, "YYYYMMDD"))) {
-            controller.call("tooltip", separatorData.menu, "Histórico de Cobrança").append($("<i />").addClass("fa fa-bullseye")).click((e) => {
+            controller.call("tooltip", separatorData.menu, "Histórico de Cobrança").append($("<i />").addClass("fa fa-bullseye")).click(e => {
                 controller.server.call("SELECT FROM 'ICHEQUES'.'DebtCollectorHistory'", controller.call("error::ajax", controller.call("loader::ajax", {
                     dataType: "json",
                     data: {
                         cmc: check.cmc
                     },
-                    success: (entity) => {
+                    success: entity => {
                         let skip = 0,
                             modal = controller.call("modal");
                         modal.gamification();
@@ -334,8 +334,8 @@ module.exports = function(controller) {
                         // actions.add("Novo Contato").click(controller.click("dive::history::new", entity, () => more(null, 0)));
                         let more,
                             observation = actions.observation("Carregando"),
-                            backButton = actions.add("Voltar Página").click((e) => more(e, -1)),
-                            nextButton = actions.add("Próxima Página").click((e) => more(e));
+                            backButton = actions.add("Voltar Página").click(e => more(e, -1)),
+                            nextButton = actions.add("Próxima Página").click(e => more(e));
 
                         more = (e, direction = 1, newEntity = null) => {
                             if (newEntity) entity = newEntity;
@@ -366,7 +366,7 @@ module.exports = function(controller) {
                                 list.item("fa-archive", [
                                     truncate(contact.observation, 40),
                                     when.fromNow()
-                                ]).click((e) => {
+                                ]).click(e => {
                                     e.preventDefault();
                                     let modal = controller.call("modal");
                                     modal.title("Atualização da Cobrança");
@@ -384,7 +384,7 @@ module.exports = function(controller) {
             });
         }
         controller.call("tooltip", separatorData.menu, "Cobrar Cheque").append(
-            $("<i />").addClass("fa fa-life-buoy")).click((e) => {
+            $("<i />").addClass("fa fa-life-buoy")).click(e => {
             e.preventDefault();
             if (!check.debtCollector) {
                 controller.call("icheques::debtCollector", check);
@@ -411,13 +411,13 @@ module.exports = function(controller) {
             }
         });
 
-        controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click((e) => {
+        controller.call("tooltip", separatorData.menu, "+30 dias").append($("<i />").addClass("fa fa-hourglass-half")).click(e => {
             e.preventDefault();
             controller.call("icheques::item::add::time", check);
         });
 
         if (check.operation) {
-            controller.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click((e) => {
+            controller.call("tooltip", separatorData.menu, "Devolver").append($("<i />").addClass("fa fa-reply")).click(e => {
                 e.preventDefault();
                 controller.confirm({
                     title: "Você deseja realmente devolver o cheque?",
@@ -433,7 +433,7 @@ module.exports = function(controller) {
                 });
             });
         } else {
-            controller.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click((e) => {
+            controller.call("tooltip", separatorData.menu, "Remover Cheque").append($("<i />").addClass("fa fa-trash")).click(e => {
                 e.preventDefault();
                 controller.confirm({
                     title: "Remover Cheque da Carteira"
@@ -579,7 +579,7 @@ module.exports = function(controller) {
                 data: {
                     documento: task[0]
                 },
-                success: (ret) => {
+                success: ret => {
                     let totalRegistro = parseInt($(ret).find("BPQL > body > data > resposta > totalRegistro").text());
 
                     if (!totalRegistro) {
@@ -621,14 +621,14 @@ module.exports = function(controller) {
             data: {
                 documento: task[0]
             },
-            success: (ret) => {
+            success: ret => {
                 if ($(ret).find("BPQL > body > consulta > situacao").text() != "CONSTA") {
                     section[0].find("h3").text(mensagem += ` Não há protestos.`);
                     return;
                 }
                 let totalProtestos = $("protestos", ret)
                     .get()
-                    .map((p) => parseInt($(p).text()))
+                    .map(p => parseInt($(p).text()))
                     .reduce((a, b) => a + b, 0);
                 section[0].find("h3").text(mensagem += ` Total de Protestos: ${totalProtestos}.`);
                 section[0].addClass("warning");
@@ -641,25 +641,25 @@ module.exports = function(controller) {
                 data: Object.assign({
                     documento: task[0]
                 }, data),
-                success: (ret) => callback(null, ret),
+                success: ret => callback(null, ret),
                 error: () => callback("Can't use this query")
             });
 
         let queryList = [];
 
         if (CNPJ.isValid(task[0])) {
-            queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+            queryList.push(callback => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
                 'q[0]' : "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'",
                 'q[1]' : "SELECT FROM 'RFB'.'CERTIDAO'",
             }));
-            queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+            queryList.push(callback => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
                 'q[0]' : "SELECT FROM 'CCBUSCA'.'CONSULTA'",
                 'q[1]' : "SELECT FROM 'RFB'.'CERTIDAO'",
             }));
         }
 
-        queryList.push((callback) => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'"));
-        queryList.push((callback) => queryTry(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'"));
+        queryList.push(callback => queryTry(callback, "USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'"));
+        queryList.push(callback => queryTry(callback, "SELECT FROM 'CCBUSCA'.'CONSULTA'"));
 
         async.tryEach(queryList, (err, ret) => {
             section[0].removeClass("loading");
@@ -684,7 +684,7 @@ module.exports = function(controller) {
                 }
             });
 
-            icon.click((e) => {
+            icon.click(e => {
                 e.preventDefault();
                 if (!showing) {
                     xmlDocument = controller.call("xmlDocument", ret, "CCBUSCA", "CONSULTA");
@@ -742,7 +742,7 @@ module.exports = function(controller) {
         let scrollInterval = null;
         let scrolled = false;
 
-        moreResults.callback((cb) => {
+        moreResults.callback(cb => {
             let docs = _.map(documents.splice(0, documents.length > 5 ? 5 : documents.length), showDocument);
             if (docs.length && !scrollElement) scrollElement = docs[0];
 

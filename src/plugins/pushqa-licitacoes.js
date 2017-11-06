@@ -7,7 +7,7 @@ import qs from 'qs';
 
 const MAX_RESULTS = 5;
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
     let harmonizer = new harmony.Harmonizer(),
         colorMix = "neutral",
         colors = {
@@ -33,12 +33,12 @@ harlan.addPlugin((controller) => {
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) => {
+        return _.map(_.values(_.groupBy(data, item => {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), (value) => {
+        })), value => {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
@@ -52,9 +52,9 @@ harlan.addPlugin((controller) => {
 
     controller.serverCommunication.call("SELECT FROM 'PUSHLICITACOES'.'QA'", {
         dataType: "json",
-        success: (data) => {
+        success: data => {
             var filter = (hasSuccessMemory) => {
-                return _.filter(data, (element) => element._id.hasSuccessMemory === hasSuccessMemory);
+                return _.filter(data, element => element._id.hasSuccessMemory === hasSuccessMemory);
             };
 
             generateReport(filter(true), "Relatório de Push", "Consultas Realizadas com Sucesso",
@@ -76,7 +76,7 @@ harlan.addPlugin((controller) => {
             let ids = _.reduceRight(_.pluck(_.pluck(data, "value"), "ids"), (a, b) => a.concat(b)),
                 moreResults = controller.call("moreResults", MAX_RESULTS),
                 skip = 0;
-            moreResults.callback((cb) => {
+            moreResults.callback(cb => {
                 let items = [],
                     currentIds = ids.slice(skip, skip + MAX_RESULTS);
 
@@ -90,7 +90,7 @@ harlan.addPlugin((controller) => {
                         data: {
                             id: task
                         },
-                        success: (job) => {
+                        success: job => {
                             let result = controller.call("result"),
                                 push = $(job).find("body push");
                             result.addItem("Identificador", task);
@@ -129,8 +129,8 @@ harlan.addPlugin((controller) => {
             moreResults.show();
         });
 
-        let dataQuerys = _.groupBy(data, (a) => a._id.query),
-            colors = harmonizer.harmonize("#cdfd9f", [...Array(_.keys(dataQuerys).length).keys()].map((i) => i * 10)),
+        let dataQuerys = _.groupBy(data, a => a._id.query),
+            colors = harmonizer.harmonize("#cdfd9f", [...Array(_.keys(dataQuerys).length).keys()].map(i => i * 10)),
             iterator = 0;
         let dataset = _.sortBy(_.map(dataQuerys, (element, query) => {
             let color = new Color(colors[iterator++]),
@@ -166,7 +166,7 @@ harlan.addPlugin((controller) => {
     let generateReport = (data, title, subtitle, paragraph, filter = null) => {
 
         if (filter) {
-            data = _.filter(data, (item) => item._id.query == filter);
+            data = _.filter(data, item => item._id.query == filter);
         }
 
         let ids = _.pluck(data, "_id"),
@@ -184,7 +184,7 @@ harlan.addPlugin((controller) => {
             let form = modal.createForm(),
                 inputQueryType = form.addSelect("field", "Consulta a ser realizada", queryList);
 
-            form.element().submit((e) => {
+            form.element().submit(e => {
                 e.preventDefault();
                 generateReport(data, title, subtitle, paragraph, inputQueryType.val());
                 modal.close();
@@ -196,7 +196,7 @@ harlan.addPlugin((controller) => {
 
         report.newContent();
 
-        let dataTrys = _.groupBy(data, (a) => a._id.trys);
+        let dataTrys = _.groupBy(data, a => a._id.trys);
         let dataset = _.sortBy(_.map(dataTrys, (element, trys) => {
             let color = new Color(trys < 3 ? colors.success[trys] :
                     (trys < 6 ? colors.warning[trys - 3] : colors.error[trys - 6])),
@@ -221,7 +221,7 @@ harlan.addPlugin((controller) => {
                 'background-color': item.color,
                 'cursor': 'pointer',
                 'color': item.colorInstance.light() ? '#000' : '#fff',
-            }).click((e) => {
+            }).click(e => {
                 e.preventDefault();
                 generateDatabaseReport(item.element, title, subtitle, paragraph);
             });

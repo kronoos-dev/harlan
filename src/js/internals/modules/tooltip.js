@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("tooltip", (actions, content) => {
         var element = $("<li />"),

@@ -1,6 +1,6 @@
 var sprintf = require("sprintf");
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::autocompleteCreateCompany", function(autocomplete) {
         autocomplete.item("Criar novo Usuário",
@@ -27,7 +27,7 @@ module.exports = (controller) => {
                 sprintf("%s - %s", document, company.children("username").text()) :
                 company.children("username").text(), "Visualizar e editar cliente da API/Harlan")
             .addClass("admin-company")
-            .click((e) => {
+            .click(e => {
                 e.preventDefault();
                 autocomplete.empty();
                 controller.call("admin::viewCompany", company);

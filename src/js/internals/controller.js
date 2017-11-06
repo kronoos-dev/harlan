@@ -114,7 +114,7 @@ var Controller = function() {
         return this;
     };
 
-    this.listCalls = (regex) => {
+    this.listCalls = regex => {
         regex = regex || /.*/;
         for (let key in calls) {
             if (regex.test(key)) {
@@ -123,7 +123,7 @@ var Controller = function() {
         }
     };
 
-    this.reference = (name) => {
+    this.reference = name => {
         return (...parameters) => {
             this.call(name, ...parameters);
         };
@@ -162,13 +162,13 @@ var Controller = function() {
         });
     };
 
-    this.addPlugin = (callback) => {
+    this.addPlugin = callback => {
         plugins.push(callback);
         return this;
     };
 
     this.registerTrigger("bootstrap::end", "plugins", (opts, cb) => {
-        this.addPlugin = (callback) => {
+        this.addPlugin = callback => {
             callback(this);
             return this;
         };
@@ -178,7 +178,7 @@ var Controller = function() {
         cb();
     });
 
-    this.registerBootstrap("bootstrap::end", (cb) => {
+    this.registerBootstrap("bootstrap::end", cb => {
         cb();
         this.sync.register(this.confs.syncInterval); /* register sync */
     });

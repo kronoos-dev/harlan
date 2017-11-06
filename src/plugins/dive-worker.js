@@ -68,7 +68,7 @@ self.onmessage = function(message) {
 
     fileReaderStream(message.data.file)
         .pipe(csv.parse())
-        .pipe(csv.transform((record) => {
+        .pipe(csv.transform(record => {
             if (record[0].length < 11) {
                 record[0] = pad(11, record[0], '0');
             } else if (record[0].length < 15 && record[0].length > 11) {

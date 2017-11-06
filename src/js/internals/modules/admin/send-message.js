@@ -1,6 +1,6 @@
 import each from 'async/each';
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     controller.registerCall("admin::trigger", (apiKeys) => {
         if (!apiKeys.length) {
@@ -30,7 +30,7 @@ module.exports = (controller) => {
                     progress(++sended / apiKeys.length);
                     callback();
                 }
-            })), (err) => {
+            })), err => {
                 toastr.success("O evento foi registrado com sucesso, dentro o sistema realizará as chamadas.",
                 "Mensagem enviada com sucesso");
                 modal.close();
@@ -86,7 +86,7 @@ module.exports = (controller) => {
                     progress(++sended / apiKeys.length);
                     callback();
                 }
-            })), (err) => {
+            })), err => {
                 toastr.success("A mensagem foi enviada com sucesso, dentro de instantes você estará respostas.",
                 "Mensagem enviada com sucesso");
                 modal.close();
@@ -101,7 +101,7 @@ module.exports = (controller) => {
                 "nextButton": "Enviar",
                 "actions": [
                     ["Editor Markdown", () => window.open("http://dillinger.io/", '_blank').focus()],
-                    ["Trigger", (modal) => {
+                    ["Trigger", modal => {
                         controller.call("admin::trigger", apiKeys);
                         modal.close();
                     }]

@@ -117,7 +117,7 @@ module.exports = function (controller) {
 
     var setEmpregador = function (result, jdocument) {
         jdocument.find("rendaEmpregador rendaEmpregador").each((i, x) => {
-            let v = (k) => $(k, x).first().text();
+            let v = k => $(k, x).first().text();
             result.addSeparator(`Empregador ${v('empregador')}`, `${v('setorEmpregador')} - Documento ${CNPJ.format(v('documentoEmpregador'))}`, "Empregador registrado");
             result.addItem("Descrição", v('cboDescricao'));
             result.addItem("Faixa Salarial", v('faixaRenda'));
@@ -221,7 +221,7 @@ module.exports = function (controller) {
                     }
                     let totalProtestos = $("protestos", ret)
                                             .get()
-                                            .map((p) => parseInt($(p).text()))
+                                            .map(p => parseInt($(p).text()))
                                             .reduce((a, b) => a + b, 0);
                     items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${isNaN(totalProtestos) ? "1 ou mais" : totalProtestos}.`);
                 }});
@@ -279,7 +279,7 @@ module.exports = function (controller) {
                     }
                     let totalProtestos = $("protestos", ret)
                                             .get()
-                                            .map((p) => parseInt($(p).text()))
+                                            .map(p => parseInt($(p).text()))
                                             .reduce((a, b) => a + b, 0);
                     items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${isNaN(totalProtestos) ? "1 ou mais" : totalProtestos}.`);
                 }});

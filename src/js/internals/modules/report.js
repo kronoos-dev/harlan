@@ -2,7 +2,7 @@
 var gamificationIcons = require("./data/gamification-icons"),
     Form = require("./lib/form");
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var ReportModel = function(closeable) {
         var universalContainer = $("<div />"),
@@ -32,17 +32,17 @@ module.exports = (controller) => {
             return this;
         };
 
-        this.title = (title) => {
+        this.title = title => {
             elementContent.append($("<h2 />").text(title));
             return this;
         };
 
-        this.subtitle = (subtitle) => {
+        this.subtitle = subtitle => {
             elementContent.append($("<h3 />").text(subtitle));
             return this;
         };
 
-        this.label = (content) => {
+        this.label = content => {
             var span = $("<span />").addClass("label").text(content);
             elementContent.append(span);
             return span;
@@ -71,7 +71,7 @@ module.exports = (controller) => {
             };
         };
 
-        this.gamification = (type) => {
+        this.gamification = type => {
             this.newContent();
             var icon = $("<i />")
                 .addClass(gamificationIcons[type] || type)
@@ -80,7 +80,7 @@ module.exports = (controller) => {
             return icon;
         };
 
-        this.paragraph = (text) => {
+        this.paragraph = text => {
             var p = $("<p />").html(text);
             elementContent.append(p);
             return p;
@@ -92,7 +92,7 @@ module.exports = (controller) => {
             return timeline;
         };
 
-        this.form = (controller) => {
+        this.form = controller => {
             return new Form({
                 element: this.content,
                 close: this.close
@@ -100,7 +100,7 @@ module.exports = (controller) => {
         };
 
         this.button = (name, action) => {
-            var button = $("<button />").text(name).click((e) => {
+            var button = $("<button />").text(name).click(e => {
                 e.preventDefault();
                 action();
             }).addClass("button");
@@ -117,7 +117,7 @@ module.exports = (controller) => {
         };
 
         this.newAction = (icon, action, title = null) => {
-            elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click((e) => {
+            elementActions.prepend($("<li />").append($("<i />").addClass("fa " + icon)).click(e => {
                 e.preventDefault();
                 action();
             }).attr({title : title}));

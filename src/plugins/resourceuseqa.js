@@ -8,7 +8,7 @@ import randomMC from 'random-material-color';
 
 const MAX_RESULTS = 5;
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
     let harmonizer = new harmony.Harmonizer(),
         colorMix = "neutral",
         colors = {
@@ -35,13 +35,13 @@ harlan.addPlugin((controller) => {
         var idx = 1,
             qtd = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) => {
+        return _.map(_.values(_.groupBy(data, item => {
             if (item.value < sum * reduceDatasetPerc) {
                 qtd++;
                 return 0;
             }
             return idx++;
-        })), (value) => {
+        })), value => {
             return _.reduce(value, (a, b) => {
                 if (method == 'sum') {
                     a.value += b.value;
@@ -95,7 +95,7 @@ harlan.addPlugin((controller) => {
 
     controller.serverCommunication.call("SELECT FROM 'PUSH'.'RESOURCEUSEQA'", {
         dataType: "json",
-        success: (data) => {
+        success: data => {
             generateReport(data, "Consumo da Última Execução", "Uso de Recursos Especiais",
                 "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
                 "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +

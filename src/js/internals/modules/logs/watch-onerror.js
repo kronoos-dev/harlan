@@ -2,7 +2,7 @@ import html2canvas from 'html2canvas';
 
 module.exports = function(controller) {
 
-    controller.registerBootstrap("watch::onerror", (cb) => {
+    controller.registerBootstrap("watch::onerror", cb => {
         cb();
         window.onerror = function() {
             controller.trigger("logs::onerror", Array.from(arguments));

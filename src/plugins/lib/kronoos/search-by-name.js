@@ -62,7 +62,7 @@ module.exports = function(controller) {
         })), true);
     });
 
-    controller.registerCall("kronoos::searchByName::response", (data) => {
+    controller.registerCall("kronoos::searchByName::response", data => {
         if (!data.length) {
             controller.alert({
                 title: "Incapaz de inferir documentos.",
@@ -100,7 +100,7 @@ module.exports = function(controller) {
                     dataType: 'json',
                     contentType: "application/json",
                     data: JSON.stringify(_.mapObject(_.pick(inputQuery, x => !!x), y => y.toUpperCase())),
-                    success: (data) => controller.call("kronoos::searchByName::response", data)
+                    success: data => controller.call("kronoos::searchByName::response", data)
                 })));
 
         });

@@ -38,7 +38,7 @@ module.exports = function(controller) {
 
         autocompleter.item("Pesquise por uma TAG de Empresa", "Pesquisa de usuários por TAG configurada no cadastro.")
             .addClass("admin-company admin-new-company")
-            .click((e) => {
+            .click(e => {
                 e.preventDefault();
                 let modal = controller.call("modal");
                 modal.title("Pesquisa por TAG");
@@ -48,7 +48,7 @@ module.exports = function(controller) {
                 let form = modal.createForm();
                 let input = form.addInput("tag", "text", "TAG da Empresa").magicLabel();
 
-                form.element().submit((e) => {
+                form.element().submit(e => {
                     e.preventDefault();
                     modal.close();
                     controller.serverCommunication.call("SELECT FROM 'BIPBOPCOMPANYS'.'LIST'", {

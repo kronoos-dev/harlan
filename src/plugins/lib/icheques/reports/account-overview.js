@@ -42,7 +42,7 @@ var parseDate = (val, format) => {
     return d.isValid() ? d.format(format) : null;
 };
 
-var parseValue = (val) => {
+var parseValue = val => {
     return /^\s*$/.test(val) ? null : numeral(val)._value;
 };
 
@@ -109,18 +109,18 @@ var AccountOverview = function(closeable) {
                 reverse: true
             });
 
-        _.each([initCreation, endCreation, initExpiration, endExpiration], (e) => {
+        _.each([initCreation, endCreation, initExpiration, endExpiration], e => {
             e.pikaday();
         });
 
 
         var situations = _.pluck(generateDataset(squel.expr()), "situation");
 
-        situations = _.filter(situations, (situation) => {
+        situations = _.filter(situations, situation => {
             return !AVOID_FILTER.test(situation);
         });
 
-        var keys = _.map(situations, (obj) => {
+        var keys = _.map(situations, obj => {
             if (/Cheque enviado/i.test(obj))
                 return "Talão bloqueado";
             else if (/outras ocorrências/i.test(obj))
@@ -147,7 +147,7 @@ var AccountOverview = function(closeable) {
             debtCollectorInput[0].hide();
         }
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             reportFilter({
                 initExpiration: parseDate(initExpiration.val(), "YYYYMMDD"),
@@ -168,7 +168,7 @@ var AccountOverview = function(closeable) {
 
         form.addSubmit("filter", "Filtrar");
 
-        modal.createActions().add("Cancelar").click((e) => {
+        modal.createActions().add("Cancelar").click(e => {
             e.preventDefault();
             modal.close();
         });
@@ -270,7 +270,7 @@ var AccountOverview = function(closeable) {
     };
 
 
-    this.filter = (f) => {
+    this.filter = f => {
         lastExpression = expression;
         expression = squel.expr();
 
@@ -348,8 +348,8 @@ var AccountOverview = function(closeable) {
         }
     };
 
-    var reportFilter = (f) => {
-        _.each(filterLabels, (e) => {
+    var reportFilter = f => {
+        _.each(filterLabels, e => {
             e.remove();
         });
 
@@ -365,7 +365,7 @@ var AccountOverview = function(closeable) {
 
         generateSum();
 
-        _.each(filterLabels, (e) => {
+        _.each(filterLabels, e => {
             e.insertAfter(mainLabel);
         });
 
@@ -410,7 +410,7 @@ var AccountOverview = function(closeable) {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = (data) => {
+    var reduceDataset = data => {
 
         var sum = _.reduce(data, (a, b) => {
             return {
@@ -422,12 +422,12 @@ var AccountOverview = function(closeable) {
 
         var idx = 1;
 
-        return _.map(_.values(_.groupBy(data, (item) => {
+        return _.map(_.values(_.groupBy(data, item => {
             if (item.value < sum * 0.05) {
                 return 0;
             }
             return idx++;
-        })), (value) => {
+        })), value => {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
                 a.color = "#93A7D8";
@@ -444,7 +444,7 @@ var AccountOverview = function(closeable) {
      * Generate Dataset
      * @returns {Array|AccountOverview.generateDataset.data}
      */
-    var generateDataset = (expr) => {
+    var generateDataset = expr => {
 
         var query = squel
             .select()
@@ -500,9 +500,9 @@ var AccountOverview = function(closeable) {
 
     var manipulationItens = [];
 
-    var manipulateDataset = (dataset) => {
+    var manipulateDataset = dataset => {
 
-        _.each(manipulationItens, (e) => {
+        _.each(manipulationItens, e => {
             e.remove(); /* remove elements */
         });
 
@@ -528,7 +528,7 @@ var AccountOverview = function(closeable) {
         }
     };
 
-    var drawDoughnut = (dataset) => {
+    var drawDoughnut = dataset => {
 
         if (doughnut) {
             doughnut.clear();
@@ -538,17 +538,17 @@ var AccountOverview = function(closeable) {
             canvas = newCanvas;
         }
 
-        _.each(labels, (i) => {
+        _.each(labels, i => {
             i.remove();
         });
 
-        labels = _.map(dataset, (element) => {
+        labels = _.map(dataset, element => {
             var color = new Color(element.color);
             return report.label(sprintf("%s: %d", element.situation, element.value)).css({
                 "background-color": color.hsl().string(),
                 "color": color.light() ? "#000" : "#fff",
                 "cursor": "pointer"
-            }).click((e) => {
+            }).click(e => {
                 e.preventDefault();
                 openDocuments(element.situation != "Em processamento" ? element.situation : null);
             });
@@ -630,7 +630,7 @@ AccountOverview.prototype.about = {
     description: "Verifique os principais motivos dos cheques estarem ruins na sua carteira, sejam por sustação, cadastro incorreto e demais."
 };
 
-module.exports = (c) => {
+module.exports = c => {
     controller = c;
 
     controller.registerTrigger("icheques::deleted", "draw::accountOverview", (obj, cb) => {

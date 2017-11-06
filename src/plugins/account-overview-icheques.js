@@ -4,7 +4,7 @@ var _ = require("underscore"),
     ChartJS = require("chart.js"),
     buildURL = require("build-url");
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     controller.endpoint.myIChequesAccountOverview = "SELECT FROM 'ICHEQUESREPORT'.'REPORT'";
 
@@ -17,7 +17,7 @@ harlan.addPlugin((controller) => {
 
     controller.registerCall("myIChequesAccountOverview::dataset", function(responses) {
         var datasets = {};
-        var labels = _.map(responses, (item) => {
+        var labels = _.map(responses, item => {
             $(item).children("report").each((idx, value) => {
                 var reader = $(value),
                     id = reader.children("id").text();
@@ -68,7 +68,7 @@ harlan.addPlugin((controller) => {
                 "P1M": "Mensal"
             }, null, "Intervalo");
 
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
             controller.call("myIChequesAccountOverview", callback, report.element(),
@@ -83,8 +83,8 @@ harlan.addPlugin((controller) => {
 
     controller.registerCall("myIChequesAccountOverview::download", function(ajaxQuery, labels) {
 
-        let download = (report) => {
-                return (e) => {
+        let download = report => {
+                return e => {
                     e.preventDefault();
                     window.location.assign(buildURL(bipbop.webserviceAddress, {
                         queryParams: $.extend({}, ajaxQuery, {
@@ -161,7 +161,7 @@ harlan.addPlugin((controller) => {
             })));
     });
 
-    controller.call("myIChequesAccountOverview", (graph) => {
+    controller.call("myIChequesAccountOverview", graph => {
         graph.gamification("levelUp");
     });
 

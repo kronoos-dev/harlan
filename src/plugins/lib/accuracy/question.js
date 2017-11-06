@@ -27,7 +27,7 @@ module.exports = function (controller) {
                     let form = modal.createForm();
                     let textarea = form.addTextarea("description", "Descrição da resposta");
                     form.addSubmit("continuar", "Continuar");
-                    form.element().submit((e) => {
+                    form.element().submit(e => {
                         e.preventDefault();
                         let value = textarea.val();
                         if (/^\s*$/.test(value)) {
@@ -62,7 +62,7 @@ module.exports = function (controller) {
 
     controller.registerCall("accuracy::question", (questions, callback, onCancel, opts = {}) => {
         var reasons = {};
-        let form = controller.call("form", (ret) => {
+        let form = controller.call("form", ret => {
             let questionResponse = [];
             for (let key in ret) {
                 let questionId = parseInt(key.replace(/^id\_/, ''));

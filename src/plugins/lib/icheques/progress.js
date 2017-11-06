@@ -22,7 +22,7 @@ module.exports = function(controller) {
         let progress = (lastEmptyCheckCounter - checkCounter) / lastEmptyCheckCounter;
         if (!graphicalProgress) {
             graphicalProgress = controller.call("progress::ui::noblock");
-            graphicalProgress.element().dblclick((e) => {
+            graphicalProgress.element().dblclick(e => {
                 e.preventDefault();
                 graphicalProgress.element().remove();
                 graphicalProgress = null;

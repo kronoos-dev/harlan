@@ -1,6 +1,6 @@
 var owasp = require("owasp-password-strength-test");
 
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("admin::changePassword", function(username) {
         var modal = controller.call("modal");
         modal.title("Nova Senha Usuário");

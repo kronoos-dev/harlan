@@ -12,13 +12,13 @@ import fdicPrint from './print/fidc.js';
 const FIDC = /(^|\s)antec?i?p?a?d?o?r?a?(\s|$)/i;
 const TEST_ITIT_EXTENSION = /\.itit/i;
 
-module.exports = (controller) => {
+module.exports = controller => {
 
     var globalReport = null;
 
     var companyData = (paragraph, company) => {
         var phones = $("<ul />").addClass("phones");
-        _.each(company.telefone, (phone) => {
+        _.each(company.telefone, phone => {
             if (!phone[0])
                 return;
             var phoneNumber = `Telefone: (${phone[0]}) ${phone[1]}${phone[2].length ? "#" + phone[2] : ""} - ${titleCase(phone[4])}`;
@@ -26,7 +26,7 @@ module.exports = (controller) => {
         });
 
         var emails = $("<ul />").addClass("emails");
-        _.each(company.email, (node) => {
+        _.each(company.email, node => {
             if (!node[0])
                 return;
             var emailAddress = `E-mail: ${node[0]} - ${titleCase(node[1])}`;
@@ -53,7 +53,7 @@ module.exports = (controller) => {
         callback();
         controller.server.call("SELECT FROM 'ICHEQUES'.'MyFatherFIDC'", {
             dataType: "json",
-            success: (ret) => {
+            success: ret => {
                 controller.confs.ccf = !!ret;
             },
             error: () => {
@@ -66,7 +66,7 @@ module.exports = (controller) => {
     controller.registerTrigger("call::authentication::loggedin", "icheques::fidc", function(args, callback) {
         callback();
         controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'STATUS'", {
-            success: (ret) => {
+            success: ret => {
                 var id = $("BPQL > body > fidc > _id", ret);
                 if (!id.length) {
                     if (globalReport) globalReport.element().remove();
@@ -91,7 +91,7 @@ module.exports = (controller) => {
         });
     });
 
-    controller.registerCall("icheques::fidc::status", (dict) => {
+    controller.registerCall("icheques::fidc::status", dict => {
         var report = controller.call("report");
         if (dict.approved && dict.expired) {
             report.title("Seu cadastro de antecipador está expirado.");
@@ -122,7 +122,7 @@ module.exports = (controller) => {
 
             var showing = {};
 
-            var show = (value) => {
+            var show = value => {
                 if (showing[value.company.username]) {
                     showing[value.company.username].remove();
                 }
@@ -131,7 +131,7 @@ module.exports = (controller) => {
                     return;
                 }
 
-                var emails = _.filter(value.company.email, (element) => {
+                var emails = _.filter(value.company.email, element => {
                     return element[1] == "financeiro";
                 });
                 let companyElement = $.extend({
@@ -185,7 +185,7 @@ module.exports = (controller) => {
                             let form = modal.createForm(),
                                 reason = form.addTextarea("reason", "Por qual motivo o cadastro está sendo recusado?");
                             form.addSubmit("send", "Recusar");
-                            form.element().submit((e) => {
+                            form.element().submit(e => {
                                 e.preventDefault();
                                 if (!reason.val().length) {
                                     return /* void */;
@@ -223,8 +223,8 @@ module.exports = (controller) => {
 
             controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'ALLOWEDCOMPANYS'", {
                 dataType: "json",
-                success: (ret) => {
-                    _.each(ret, (value) => {
+                success: ret => {
+                    _.each(ret, value => {
                         show(value);
                     });
                 }
@@ -236,7 +236,7 @@ module.exports = (controller) => {
 
             controller.server.call("SELECT FROM 'ICHEQUESFIDC'.'OPERATIONS'",
                 controller.call("error::ajax", controller.call("loader::ajax", {
-                    success: (ret) => {
+                    success: ret => {
                         $("BPQL > body > antecipate", ret).each((idx, node) => {
                             var args = {
                                 _id: $(node).children("_id").text(),
@@ -342,7 +342,7 @@ module.exports = (controller) => {
         autocomplete.item("Antecipadora",
                 "Configurar Antecipadora",
                 "Habilite seu fundo a receber títulos do iCheques")
-            .addClass("icheque").click((e) => {
+            .addClass("icheque").click(e => {
                 e.preventDefault();
                 controller.call("fidc::configure");
             });
@@ -378,7 +378,7 @@ module.exports = (controller) => {
                     toastr.warning(`O arquivo ${file.name} não é uma imagem.`, `A extensão enviada é ${file.type}.`);
                     return;
                 }
-                browserImageSize(file).then((size) => {
+                browserImageSize(file).then(size => {
                     var scale = 150 / size[size.height > size.width ? "height" : "width"],
                         fileReader = new FileReader();
 
@@ -405,7 +405,7 @@ module.exports = (controller) => {
             });
 
             form.addSubmit("send", "Continuar");
-            form.element().submit((e) => {
+            form.element().submit(e => {
                 e.preventDefault();
 
                 var fromValueInput = numeral(fromValue.val()).value(),
@@ -452,7 +452,7 @@ module.exports = (controller) => {
                 });
             });
             modal.createActions().cancel();
-        }, (ret) => {
+        }, ret => {
             if (!$("BPQL > body > company > cnpj", ret).text().length) {
                 toastr.warning("É necessário um CNPJ de faturamento para poder continuar.",
                     "Você não possui um CNPJ no cadastro.");
@@ -469,12 +469,12 @@ module.exports = (controller) => {
             data: {
                 approved: "false"
             },
-            success: (ret) => {
+            success: ret => {
                 controller.call("icheques::fidc::enable::xml", ret);
             }
         });
 
-        controller.registerCall("icheques::fidc::enable::xml", (ret) => {
+        controller.registerCall("icheques::fidc::enable::xml", ret => {
             var elements = [];
 
             $("fidc", ret).each((idx, node) => {
@@ -491,7 +491,7 @@ module.exports = (controller) => {
             return elements;
         });
 
-        controller.registerCall("icheques::fidc::enable", (dict) => {
+        controller.registerCall("icheques::fidc::enable", dict => {
             var report = controller.call("report",
                 `Deseja habilitar a empresa?`,
                 `Ao habilitar a empresa você permite que todos os clientes iCheques possam enviar suas operações.`,
@@ -504,7 +504,7 @@ module.exports = (controller) => {
                             data: {
                                 fidc: dict._id
                             },
-                            success: (ret) => {
+                            success: ret => {
                                 controller.call("alert", {
                                     icon: "pass",
                                     title: "Antecipadora aprovada com sucesso.",
@@ -630,7 +630,7 @@ module.exports = (controller) => {
     };
 
 
-    controller.registerCall("icheques::fidc::operation::decision", (args) => {
+    controller.registerCall("icheques::fidc::operation::decision", args => {
         var report = controller.call("report");
         report.title("Carteira de Antecipação");
         report.subtitle("Visualização da Carteira Recebida");
@@ -731,10 +731,10 @@ module.exports = (controller) => {
             });
         };
 
-        let accept = (accept) => {
+        let accept = accept => {
             return () => {
                 if (accept) {
-                    askReceipt(args, (obj) => {
+                    askReceipt(args, obj => {
                         sendAccept(true, obj);
                     });
                     return;
@@ -746,7 +746,7 @@ module.exports = (controller) => {
                 let form = modal.createForm(),
                     reason = form.addTextarea("textarea", "Qual motivo da recusa?");
                 form.addSubmit("continue", "Recusar");
-                form.element().submit((e) => {
+                form.element().submit(e => {
                     e.preventDefault();
                     modal.close();
                     sendAccept(false, {

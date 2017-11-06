@@ -20,7 +20,7 @@ module.exports = function(controller) {
     $("#demonstration").parent().hide();
 
     /* Cadastrar no Login */
-    $(".login .actions").append($("<li />").append($("<a />").text("Cadastrar").click((e) => {
+    $(".login .actions").append($("<li />").append($("<a />").text("Cadastrar").click(e => {
         e.preventDefault();
         controller.call("icheques::createAccount", function(data) {
             var modal = controller.call("modal");
@@ -180,7 +180,7 @@ module.exports = function(controller) {
         let appSearch = $(".app-search");
         let appHeader = $(".app-header .main");
 
-        $("#application-search").click((e) => {
+        $("#application-search").click(e => {
             e.preventDefault();
             if (appSearch.is(":visible")) {
                 appSearch.hide();

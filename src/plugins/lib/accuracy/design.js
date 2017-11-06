@@ -41,7 +41,7 @@ module.exports = function (controller) {
     });
 
     /* Manipula o Formulário de authentication */
-    $("#form-login-accuracy").submit((e) => {
+    $("#form-login-accuracy").submit(e => {
         e.preventDefault();
         let cpfDocument = inputDocument.val();
         if (!CPF.isValid(cpfDocument)) {
@@ -61,7 +61,7 @@ module.exports = function (controller) {
         });
     });
 
-    $(".clear-login-accuracy").click((e) => {
+    $(".clear-login-accuracy").click(e => {
         e.preventDefault();
         inputDocument.val(""); /* clear all inputs */
     });

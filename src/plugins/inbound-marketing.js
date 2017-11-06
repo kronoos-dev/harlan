@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     const selectInbound = "SELECT FROM 'TRIGGERS'.'INBOUND'";
     const createInbound = "INSERT INTO 'TRIGGERS'.'INBOUND'";
@@ -68,7 +68,7 @@ harlan.addPlugin((controller) => {
         screens: [{
             fields: descriptionInbound(),
             actions: {
-                delete: ["Remover", (modal) => {
+                delete: ["Remover", modal => {
                     modal.close();
                     controller.server.call(deleteInbound, {
                         dataType: "json",
@@ -98,7 +98,7 @@ harlan.addPlugin((controller) => {
     });
 
 
-    controller.registerCall("inboundMarketing::create", (list) => controller.call("form", data => {
+    controller.registerCall("inboundMarketing::create", list => controller.call("form", data => {
         controller.server.call(createInbound, controller.call("error::ajax", {
             dataType: 'json',
             data: data,

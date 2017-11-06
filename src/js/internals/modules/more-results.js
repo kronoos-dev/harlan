@@ -15,7 +15,7 @@ var MoreResults = function (maxItems) {
         footer.remove();
     };
 
-    footer.click((e) => {
+    footer.click(e => {
         e.preventDefault();
         this.show();
     });
@@ -70,17 +70,17 @@ var MoreResults = function (maxItems) {
         return this;
     };
 
-    this.callback = (callback) =>  {
+    this.callback = callback =>  {
         callit = callback;
         return this;
     };
 
-    this.append = (element) =>  {
+    this.append = element =>  {
         items.push(element);
         return this;
     };
 
-    this.appendTo = (element) =>  {
+    this.appendTo = element =>  {
         footer.appendTo(element);
         return this;
     };
@@ -92,7 +92,7 @@ var MoreResults = function (maxItems) {
     return this;
 };
 
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("moreResults", (maxItems) =>  {
         return new MoreResults(maxItems);
     });

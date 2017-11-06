@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     const searchBar = $(".kronoos-application .search-bar");
     const searchBarContainer = $(".kronoos-application .search-bar .container");
@@ -31,7 +31,7 @@ module.exports = (controller) => {
             content = $("<div />").addClass("content"),
             iconElement = $("<i />").addClass(`fa ${icon}`);
 
-        iconElement.click((e) => {
+        iconElement.click(e => {
             e.preventDefault();
             if (searchBar.hasClass("showAll")) {
                 searchBar.removeClass("showAll");

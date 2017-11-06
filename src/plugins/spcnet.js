@@ -12,7 +12,7 @@ var reduce = function (array) {
     return i;
 };
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     controller.registerCall("spcnet::proshield::generate", function (state, scpcNode) {
         var value = state.result.addSeparator("Consulta de Protestos",

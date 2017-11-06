@@ -1,7 +1,7 @@
 /* global controller. numeral */
 import _ from 'underscore';
 
-harlan.addPlugin((controller) => {
+harlan.addPlugin(controller => {
 
     var moreInformation = function(node, result) {
         return function(e) {
@@ -33,7 +33,7 @@ harlan.addPlugin((controller) => {
                 perc: Math.round((numSuccess / total) * 10000) / 100,
                 node: node
             };
-        }), 'name'), 'perc'), (a) => {
+        }), 'name'), 'perc'), a => {
 
             var item = result.addItem(a.name, ""),
                 radial = controller.interface.widgets.radialProject(item.addClass("center").find(".value"), a.perc);

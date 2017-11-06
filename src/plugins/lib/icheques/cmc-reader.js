@@ -7,7 +7,7 @@ module.exports = function (controller) {
     let onTerminator = false;
     let timeout;
 
-    $(window).keypress((e) => {
+    $(window).keypress(e => {
         if (document.activeElement && document.activeElement.tagName.toLowerCase() !== "body") {
             return;
         }

@@ -114,10 +114,10 @@ export class BANFactory {
 
         var tasks = async.queue((check, callback) => {
             let name = "";
-            async.parallel([(callback) => {
+            async.parallel([callback => {
                 this.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
                     data : {documento : check.cpf || check.cnpj },
-                    success : (ret) => {
+                    success : ret => {
                         name = $("BPQL > body > nome", ret).text();
                         if (!name) {
                             name = "NOME DO TITULAR NAO RASTREAVEL";
@@ -127,12 +127,12 @@ export class BANFactory {
                     },
                     complete: () => { callback(); }
                 });
-            }, (callback) => {
+            }, callback => {
                 let doc = CPF.strip(check.cpf) || CNPJ.strip(check.cnpj),
                     soma = 0;
                 this.call("SELECT FROM 'CCF'.'CONSULTA'", {
                     data: {doc: doc},
-                    success: (ret) => {
+                    success: ret => {
                         $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
                             let $el = $(el),
                                 tag = $el.prop("tagName");
@@ -146,10 +146,10 @@ export class BANFactory {
                     },
                     complete: () => callback()
                 });
-            }, (callback) => {
+            }, callback => {
                 this.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
                     data : {documento : check.cpf || check.cnpj },
-                    success : (ret) => {
+                    success : ret => {
                         // telefone. de 128 até 139. 12.
                         this.buffer.setString(this._goToPosition(check.row, 127), this._getFirstPhone(ret).trim().substring(0, 12));
                         // celular. de 486 até 497. 12.

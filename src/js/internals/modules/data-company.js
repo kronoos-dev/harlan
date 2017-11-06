@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
     controller.registerCall("data::company", ($company) => {
         // console.log("\n>>> data::company\n\n");
         // console.log($company.find("nome").text());

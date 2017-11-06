@@ -7,11 +7,11 @@ const applicationElement = $(".accuracy-app");
 
 module.exports = function (controller) {
 
-    let cameraErrorCallback = (message) => {
+    let cameraErrorCallback = message => {
         return fatalError("Não foi possível abrir a câmera do dispositivo.", message);
     };
 
-    let geolocationErrorCallback = (e) => {
+    let geolocationErrorCallback = e => {
         return fatalError("Não foi possível capturar a sua localização.", `${e.code} - ${e.message}`);
     };
 
@@ -31,15 +31,15 @@ module.exports = function (controller) {
     };
 
     let checkout = () => {
-        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, (obj) => {
+        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, obj => {
             controller.confirm({
                 title: `Realizar checkout em ${as.applicationState.campaign.name}`,
                 subtitle: `Prosseguir com checkout do local ${as.applicationState.store.name}.`,
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o checkout. ${distantMessage(obj)}`
             }, () => {
                 controller.call("accuracy::checkin::picture", obj, () => {
-                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => q.is_checkin != "Y"),
-                    (response) => {
+                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, q => q.is_checkin != "Y"),
+                    response => {
                         obj[0].token = as.applicationState.checkin[0].token;
                         obj[0].questions = response;
                         objectConfirm(obj, () => {
@@ -58,22 +58,22 @@ module.exports = function (controller) {
         }, geolocationErrorCallback, "checkout");
     };
 
-    let distantMessage = (obj) => {
+    let distantMessage = obj => {
         return obj[0].approved === "Y" ? "" :
             "<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>";
     };
 
     let checkin = () => {
-        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, (obj) => {
+        controller.call("accuracy::checkin::object", as.applicationState.campaign, as.applicationState.store, obj => {
             controller.confirm({
                 title: `Realizar check-in em ${as.applicationState.campaign.name}`,
                 subtitle: `Prosseguir com local ${as.applicationState.store.name}.`,
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o check-in. ${distantMessage(obj)}`
             }, () => {
                 controller.call("accuracy::checkin::picture", obj, () => {
-                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, (q) => {
+                    controller.call("accuracy::question", _.filter(as.applicationState.campaign.question, q => {
                         return q.is_checkin == "Y";
-                    }), (response) => {
+                    }), response => {
                         obj[0].questions = response;
                         objectConfirm(obj, () => {
                             render({
@@ -88,7 +88,7 @@ module.exports = function (controller) {
     };
 
     let campaign = () => {
-        controller.call("accuracy::campaigns", (campaigns) => {
+        controller.call("accuracy::campaigns", campaigns => {
             if (campaignContainer) campaignContainer.remove();
 
             campaignContainer = $("<div />").addClass("container accuracy-campaigns");
@@ -109,7 +109,7 @@ module.exports = function (controller) {
                 if (!(registration === "Y" || registration === true)) return;
                 contentMenu.prepend($("<li />").append($("<a />").attr({
                     href: "#"
-                }).text("Cadastrar Loja").click((e) => {
+                }).text("Cadastrar Loja").click(e => {
                     e.preventDefault();
                     controller.call("accuracy::createStore");
                 })));
@@ -117,7 +117,7 @@ module.exports = function (controller) {
 
             contentMenu.append($("<li />").append($("<a />").attr({
                 href: "#"
-            }).text("Atualizar").click((e) => {
+            }).text("Atualizar").click(e => {
                 e.preventDefault();
                 render();
             })));
@@ -125,15 +125,15 @@ module.exports = function (controller) {
 
             contentMenu.append($("<li />").append($("<a />").attr({
                 href: "#"
-            }).text("Sair").click((e) => {
+            }).text("Sair").click(e => {
                 e.preventDefault();
                 controller.call("accuracy::logout");
                 controller.interface.helpers.activeWindow(".login");
             })));
 
 
-            _.each(campaigns, (campaign) => {
-                let campaignElement = $("<li />").addClass("accuracy-campaign").click((e) => {
+            _.each(campaigns, campaign => {
+                let campaignElement = $("<li />").addClass("accuracy-campaign").click(e => {
                     e.preventDefault();
                     campaignStores(campaign);
                 });
@@ -156,16 +156,16 @@ module.exports = function (controller) {
         "É necessária ao menos uma campanha para continuar."));
     };
 
-    let campaignStores = (campaign) => {
+    let campaignStores = campaign => {
         let modal = controller.call("modal");
         modal.title("Loja da Campanha");
         modal.subtitle("Escolha a loja em que será realizada a ação.");
         modal.paragraph("Selecione abaixo a loja em que será realizada a ação.");
         let form = modal.createForm(),
-        storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, (s) => s.name));
+        storeSelector = form.addSelect("select", "Loja para Checkin", _.map(campaign.store, s => s.name));
         form.addSubmit("submit", "Selecionar Loja");
         modal.createActions().cancel();
-        form.element().submit((e) => {
+        form.element().submit(e => {
             e.preventDefault();
             /* quando a pessoa seleciona já podemos configurar o local para
             realizar o checkin */

@@ -5,7 +5,7 @@ import basename from 'basename';
 module.exports = function (controller) {
 
     controller.registerCall("accuracy::checkin::init", (campaign, store, callback, geolocationErrorCallback, type='checkin') =>
-        controller.call("accuracy::checkin::object", campaign, store, (obj) =>
+        controller.call("accuracy::checkin::object", campaign, store, obj =>
             controller.call("accuracy::checkin::picture", obj, callback, cameraErrorCallback), geolocationErrorCallback, type));
 
     let cameraResume = null;
@@ -88,7 +88,7 @@ module.exports = function (controller) {
 
 
         controller.call("accuracy::authentication::data", authData =>
-        navigator.geolocation.getCurrentPosition((position) => {
+        navigator.geolocation.getCurrentPosition(position => {
             clearTimeout(timeout);
             blockui.mainContainer.remove();
             let distance = DistanceMeter(store.coordinates, position.coords);

@@ -1,4 +1,4 @@
-module.exports = (controller) => {
+module.exports = controller => {
 
     var link = null;
 
