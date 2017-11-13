@@ -1409,7 +1409,7 @@ export class KronoosParse {
 
     searchCertidao(nascimento = null, cpf_cnpj = null) {
         cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
-        this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJ'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
+        this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
             this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a Receita Federal.`, {
                 data: {
                     documento: cpf_cnpj,
@@ -1438,11 +1438,11 @@ export class KronoosParse {
                         kelement.table("Atividade Econômica", "E-mail", "Telefone")
                             (`${$("atividade-economica", data).attr("codigo") || ""} ${x("atividade-economica")}`,
                                 x("email"), x("telefones"));
-                        kelement.table("Cartão do CNPJ")
-                            ($("<a />").text("Comprovante de Consulta").attr("href", "#").click(e => {
-                                e.preventDefault();
-                                this.openReceipts(data);
-                            }));
+                        // kelement.table("Cartão do CNPJ")
+                        //     ($("<a />").text("Comprovante de Consulta").attr("href", "#").click(e => {
+                        //         e.preventDefault();
+                        //         this.openReceipts(data);
+                        //     }));
 
                         let v = n => $(`endereco ${n}`, data).text();
                         kelement.list("Endereço")
