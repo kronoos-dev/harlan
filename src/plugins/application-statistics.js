@@ -70,7 +70,4 @@ harlan.addPlugin(controller => {
     };
 
     controller.importXMLDocument.register("STATISTICS", "APPLICATION", parserConsultas);
-
-    applicationStatistics();
-
 });

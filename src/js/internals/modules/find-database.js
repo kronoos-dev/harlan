@@ -1,3 +1,5 @@
+import async from 'async';
+
 /**
  * Módulo responsável por listar as consultas do INFO.INFO na UX
  */
@@ -151,38 +153,13 @@ module.exports = function(controller) {
     };
 
     var loadExternalJavascript = function(domTable, jElement) {
-        var jsonps = jElement.find("harlanJSONP");
-        if (!jsonps.length)
+        var scripts = jElement.find("harlanJSONP");
+        if (!scripts.length)
             return false;
 
-        var requestsMissing = jsonps.length;
-
-        jsonps.each(function(i, element) {
-            var completedRequest = function(idx) {
-                return function() {
-                    controller.store.unset(idx);
-                    if (!--requestsMissing) {
-                        $(".app-content").append(domTable);
-                    }
-                };
-            };
-
-            var jElement = $(element);
-
-            controller.store.set(jElement.attr("callback"), [domTable, jElement]);
-            $.ajax({
-                dataType: "jsonp",
-                url: jElement.text(),
-                cache: true,
-                jsonpCallback: jElement.attr("callback"),
-                success: completedRequest(jElement.attr("callback")),
-                error: function() {
-                    console.log("Ocorreu um erro no callback " + jElement.text());
-                    controller.store.unset(jElement.attr("callback"));
-                },
-                timeout: 10 * 1000
-            });
-        });
+        async.each(scripts.toArray(),
+            (element, callback) => $.getScript($(element).text(), () => callback()),
+            () => $(".app-content").prepend(domTable));
 
         return true;
     };
@@ -226,8 +203,9 @@ module.exports = function(controller) {
                             dom: domTable,
                             about: tableJNode
                         });
-                    if (!loadExternalJavascript(domTable, tableJNode))
-                        $(".app-content").append(domTable);
+                    if (!loadExternalJavascript(domTable, tableJNode)) {
+                        $(".app-content").prepend(domTable);
+                    }
                 }));
         });
     };
