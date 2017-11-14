@@ -378,7 +378,18 @@ export class KronoosParse {
                     documento: this.cpf_cnpj,
                     nome: this.name
                 },
-                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`),
+                bipbopError: (type, message, code, push, xml) => {
+                    if (!push) {
+                        this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`);
+                        return;
+                    }
+                    let kelement = this.kronoosElement(`Certidão do ${database}`,
+                        `Certidão do ${database}`,
+                        message);
+                    kelement.behaviourAccurate(true);
+                    this.append(kelement.element());
+
+                },
                 success: data => {
                     let kelement = this.kronoosElement(`Certidão do ${database}`,
                         `Certidão do ${database}`,
