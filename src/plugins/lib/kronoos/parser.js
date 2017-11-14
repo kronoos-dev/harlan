@@ -1,3 +1,4 @@
+
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
@@ -271,7 +272,7 @@ export class KronoosParse {
         let success = conf.success;
         let error = conf.bipbopError;
 
-        conf.timeout = conf.timeout || 60000; /* 1 minute */
+        conf.timeout = conf.timeout || 180000; /* 1 minute */
 
         let resourceUseAnalytics = (xml, hasError) => {
 
@@ -360,20 +361,22 @@ export class KronoosParse {
                  }
                }
            }
-       })
-   }
+       });
+    }
 
     searchCertidaoTRFPDF() {
         _.each([
-            ["SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
-            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
-            ["SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
-            ["SELECT FROM 'CERTIDOES'.'TRT15'", 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => {
+            ["pgesp", "SELECT FROM 'CERTIDOES'.'PGESP'", 'PGESP', 'Procuradoria Geral do Estado - Dívida Ativa', null],
+            ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
+            ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
+            ["trf3-ms", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
+            ["trf3-sp", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
+            ["trt15", "SELECT FROM 'CERTIDOES'.'TRT15'", 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => {
                 return !/não\s+existe\s+ação/i.test(str);
             }],
-            ["SELECT FROM 'CERTIDOES'.'TRT02'", 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', str => !/NÃO CONSTA/i.test(str)]
+            ["trt02", "SELECT FROM 'CERTIDOES'.'TRT02'", 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', str => !/NÃO CONSTA/i.test(str)]
         ], data => {
-            let [query, name, database, test] = data;
+            let [fname, query, name, database, test] = data;
             if (!test) {
                 test = str => /,\s*CONSTA,/i.test(str);
             }
@@ -382,24 +385,37 @@ export class KronoosParse {
                     documento: this.cpf_cnpj,
                     nome: this.name
                 },
-                bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`),
+                bipbopError: (type, message, code, push, xml) => {
+                    if (!push) {
+                        this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`);
+                        return;
+                    }
+                    let kelement = this.kronoosElement(`Certidão do ${database}`,
+                        `Certidão do ${database}`,
+                        message);
+                    kelement.behaviourAccurate(true);
+                    this.append(kelement.element());
+
+                },
                 success: data => {
+                    let kelement = this.kronoosElement(`Certidão do ${database}`,
+                        `Certidão do ${database}`,
+                        `Visualização da Certidão no ${database}`);
+
+                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
+                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
+                        target: '_blank',
+                        download: `certidao-${fname}-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
+                    }).append($("<img />").addClass("certidao")
+                        .attr({
+                            src: `data:image/png;base64,${$("body > png", data).text()}`
+                        })));
+
                     if (!test($("body > text", data).text())) {
                         this.notFound(`Não consta apontamento na certidão - ${database}`);
                         return;
                     }
 
-                    let kelement = this.kronoosElement(`Certidão do ${database}`,
-                        `Certidão do ${database}`,
-                        `Visualização da Certidão no ${database}`);
-                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
-                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
-                        target: '_blank',
-                        download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
-                    }).append($("<img />").addClass("certidao")
-                        .attr({
-                            src: `data:image/png;base64,${$("body > png", data).text()}`
-                        })));
                     kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
@@ -418,12 +434,12 @@ export class KronoosParse {
                     },
                     bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Tribunal Regional Federal - ${n[1]}`),
                     success: data => {
-                        if ($("confirmacao:contains('N A D A C O N S T A')", data).length) return;
                         if (!$("confirmacao", data).length) return;
                         let kelement = this.kronoosElement(`Certidão do TRF1 - ${n[1]}`,
                             `Consta apontamento na certidão do TRF1, cível e criminal - ${n[1]}.`,
                             "Você pode <a target='_blank' href='http://www.trf1.jus.br/Servicos/Certidao/'>clicar aqui</a> para obter maiores informações.");
                         kelement.behaviourAccurate(true);
+                        if ($("confirmacao:contains('N A D A C O N S T A')", data).length) return;
                         this.append(kelement.element());
                     },
                     complete: () => callback()
@@ -632,7 +648,7 @@ export class KronoosParse {
                     kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                         target: '_blank',
                         href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
-                        download: `certidao-tjsp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
+                        download: `certidao-tjsp-${tipo}-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
                     }).append($("<img />").addClass("certidao")
                         .attr({
                             src: `data:image/png;base64,${$("body > png", data).text()}`
@@ -1389,7 +1405,7 @@ export class KronoosParse {
                 kelement.element().find(".kronoos-side-content").append($("<a />").attr({
                     href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
                     target: '_blank',
-                    download: `certidao-jucesp-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
+                    download: `certidao-jucesp-${nire}-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
                 }).append($("<img />").addClass("certidao")
                     .attr({
                         src: `data:image/png;base64,${$("body > png", data).text()}`
@@ -1415,7 +1431,7 @@ export class KronoosParse {
 
     searchCertidao(nascimento = null, cpf_cnpj = null) {
         cpf_cnpj = cpf_cnpj || this.cpf_cnpj;
-        this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJ'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
+        this.serverCall(CNPJ.isValid(cpf_cnpj) ? "SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'" : "SELECT FROM 'RFB'.'CERTIDAO'",
             this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a Receita Federal.`, {
                 data: {
                     documento: cpf_cnpj,
@@ -1444,11 +1460,11 @@ export class KronoosParse {
                         kelement.table("Atividade Econômica", "E-mail", "Telefone")
                             (`${$("atividade-economica", data).attr("codigo") || ""} ${x("atividade-economica")}`,
                                 x("email"), x("telefones"));
-                        kelement.table("Cartão do CNPJ")
-                            ($("<a />").text("Comprovante de Consulta").attr("href", "#").click(e => {
-                                e.preventDefault();
-                                this.openReceipts(data);
-                            }));
+                        // kelement.table("Cartão do CNPJ")
+                        //     ($("<a />").text("Comprovante de Consulta").attr("href", "#").click(e => {
+                        //         e.preventDefault();
+                        //         this.openReceipts(data);
+                        //     }));
 
                         let v = n => $(`endereco ${n}`, data).text();
                         kelement.list("Endereço")
