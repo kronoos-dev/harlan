@@ -1,3 +1,4 @@
+
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
@@ -354,7 +355,7 @@ export class KronoosParse {
                     /* interpretar o JSON do SEARCH */
                 }
             }
-        })
+        });
     }
 
     searchCertidaoTRFPDF() {
