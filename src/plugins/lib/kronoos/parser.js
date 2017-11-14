@@ -271,7 +271,7 @@ export class KronoosParse {
         let success = conf.success;
         let error = conf.bipbopError;
 
-        conf.timeout = conf.timeout || 60000; /* 1 minute */
+        conf.timeout = conf.timeout || 180000; /* 1 minute */
 
         let resourceUseAnalytics = (xml, hasError) => {
 
@@ -359,6 +359,8 @@ export class KronoosParse {
 
     searchCertidaoTRFPDF() {
         _.each([
+            ["pgesp", "SELECT FROM 'CERTIDOES'.'PGESP'", 'PGESP', 'Procuradoria Geral do Estado - Dívida Ativa', null],
+            ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3-ms", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
             ["trf3-sp", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
