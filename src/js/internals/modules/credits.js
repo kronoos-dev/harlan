@@ -42,11 +42,11 @@ module.exports = controller =>  {
             return;
         }
         controller.call("authentication::need", () => {
-            var modal = controller.call("modal"),
-                missing = companyCredits - needed,
-                form, actions;
+            var missing = companyCredits - needed,
+                modal, form, actions;
 
             if (missing < 0) {
+                modal = controller.call("modal");
                 modal.title("Você precisa de créditos!");
                 modal.subtitle("Para continuar essa operação você precisa adquirir créditos.");
                 modal.addParagraph(sprintf("Estão faltando %s para você poder continuar, adquira créditos.", numeral(Math.abs(missing) / 100).format("$0,0.00")));
@@ -62,10 +62,11 @@ module.exports = controller =>  {
                 actions = modal.createActions();
                 actions.cancel();
             } else {
-                if (askFor) return;
+                if (!askFor) return;
                 var credits = numeral(needed / 100.0).format("$0,0.00");
+                modal = controller.call("modal");
                 modal.gamification('moneyBag');
-                modal.title("Vamos debitar de seus créditos");
+                modal.title("Vamos debitar de seus créditos.");
                 modal.subtitle(sprintf("O valor para esta operação ficou em %s.", credits));
                 modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.0).format("$0,0.00")));
                 form = modal.createForm();
