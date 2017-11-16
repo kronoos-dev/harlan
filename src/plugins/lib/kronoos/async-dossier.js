@@ -136,6 +136,20 @@ module.exports = function(controller) {
         report.button("Consulta Avulsa", () => controller.interface.helpers.activeWindow(".kronoos-application")).addClass("gray-button");
         report.button("Adicionar Monitoramento", () => controller.call("kronoos::async::new"));
 
+        report.newAction("fa fa-phone", () => {
+          var modal = controller.call("modal");
+          modal.title("Dúvidas ou dificuldades na utilização do nosso módulo? ");
+          modal.subtitle("Nosso suporte está sempre disponível para auxiliá-lo!");
+          modal.paragraph("Entre em contato conosco por meio do telefone: <b>(11) 3495-2120</b> ou, se preferir, envie um email para: <b>suporte@kronoos.com</b>.");
+          var form = modal.createForm();
+
+          form.addSubmit(null, "Fechar").click((e) => {
+            e.preventDefault();
+            modal.close();
+          });
+
+        } , "Contato Kronoos");
+
         report.newAction("fa-play-circle", () =>
             controller.interface.helpers.activeWindow(".kronoos-application"),
             "Pesquisa Kronoos");
@@ -170,4 +184,4 @@ module.exports = function(controller) {
         }
     });
 
-};
+}

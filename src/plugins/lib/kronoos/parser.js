@@ -1,3 +1,4 @@
+
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
@@ -346,15 +347,21 @@ export class KronoosParse {
     }
 
     searchDtec() {
-        this.serverCall("SELECT FROM 'DTEC'.'SEARCH'", {
-            dataType: "json",
-            data: {document: this.cpf_cnpj},
-            success: data => {
-                for (let appointMent of data) {
-                    /* interpretar o JSON do SEARCH */
-                }
-            }
-        })
+       this.serverCall("SELECT FROM 'DTEC'.'SEARCH'", {
+           dataType: "json",
+           data: {documento: this.cpf_cnpj},
+           success: data => {
+               if (data.length !== 0) {
+                 for (let appointMent of data.result) {
+                   let kelement = this.kronoosElement("Presença do target nas mídias", null, appointMent.titulo);
+                   kelement.table("Data da Notícia", "Fonte da Notícia", "Link da Notícia")(appointMent.dataNoticia || 'Não há', appointMent.fonteNoticia || 'Não há', $("<a />").text("Clique para acessar a fonte").attr({target: '_blank', href: appointMent.linkNoticia}) || 'Não há');
+                   kelement.paragraph(appointMent.citacao);
+                   kelement.behaviourAccurate(true);
+                   this.append(kelement.element());
+                 }
+               }
+           }
+       });
     }
 
     searchCertidaoTRFPDF() {
