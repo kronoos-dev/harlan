@@ -861,36 +861,39 @@ export class KronoosParse {
     }
 
     searchAll() {
-        this.searchPepCoaf();
-        this.searchSerasa();
-        this.searchCrawler();
-        this.jusSearch();
+        // this.searchPepCoaf();
+        // this.searchSerasa();
+        // this.searchCrawler();
+        // this.jusSearch();
         // this.searchTRF1();
-        this.searchComprot();
-        this.searchTjsp();
-        this.searchTjspDocument();
-        this.searchCARFDocumento();
-        this.searchCertidaoTRFPDF();
-        this.searchMPT();
-        this.searchTribunais();
-        this.searchMandados();
-        this.searchCNDT();
-        this.searchMTE();
-        this.searchIbama();
-        this.searchDAU();
-        this.searchDtec();
-        this.searchBovespa();
-        if (this.cnpj) this.searchCertidao();
+        // this.searchComprot();
+        // this.searchTjsp();
+        // this.searchTjspDocument();
+        // this.searchCARFDocumento();
+        // this.searchCertidaoTRFPDF();
+        // this.searchMPT();
+        // this.searchTribunais();
+        // this.searchMandados();
+        // this.searchCNDT();
+        // this.searchMTE();
+        // this.searchIbama();
+        // this.searchDAU();
+        // this.searchDtec();
+        // this.searchBovespa();
+        // if (this.cnpj) this.searchCertidao();
         // if (this.cnpj) this.searchTJSPCertidao();
-        this.searchReporterBrasil();
-        this.searchCRF();
-        this.searchCepim();
-        this.searchExpulsoes();
-        this.searchCnep();
-        this.searchCeis();
-        this.searchCCF();
-        this.searchProtestos();
-        this.searchCNJImprobidade();
+        // this.searchReporterBrasil();
+        // this.searchCRF();
+        // this.searchCepim();
+        // this.searchExpulsoes();
+        // this.searchCnep();
+        // this.searchCeis();
+        // this.searchCCF();
+        // this.searchProtestos();
+        // this.searchCNJImprobidade();
+
+        this.buy("Pesquisar informações jurídicas dos Tribunais de Justiça.", 700, () => this.searchJuridic());
+        this.buy("Abrir informações de crédito - Cheques sem Fundo, protestos e Serasa.", 700, () => this.searchBureau());
 
         if (!this.ccbuscaData) {
             this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'",
@@ -908,6 +911,28 @@ export class KronoosParse {
         this.generateRelations.appendDocument(this.ccbuscaData, this.cpf_cnpj);
         this.cpf_cnpjs[this.cpf_cnpj] = true;
         this.graphTrack();
+
+    }
+
+    /* @TODO Carol, definir com o Alexandre como será realizada a cobrança. */
+    searchJuridic() {}
+    searchBureu() {}
+
+    buy(title, ammount, action) {
+        if (this.controller.query.buyAll) {
+            action();
+            return;
+        }
+
+        if (!this.adicionalInformation) {
+            this.adicionalInformation = this.firstElement().captionTable("Informações Adicionais");
+            this.adicionalInformation.element.addClass("kronoos-buy");
+        }
+
+        this.adicionalInformation(title, $("<button />").addClass("kronoos-buy-button").text("Abrir").click(e => {
+            e.preventDefault();
+            this.call("credits::has", ammount, action);
+        }));
     }
 
     cbuscaMae() {
@@ -1006,6 +1031,9 @@ export class KronoosParse {
 
     end() {
         this.cognitiveParser();
+    }
+
+    juristekInfoNotFound() {
         this.juristekInfo(info => {
             let filter = _.uniq(_.filter(_.keys(this.procElements).map(cnj => {
                 let jtr = cnj.substr(-9).substr(0, 4); /* justiça e tribunal */
@@ -1082,7 +1110,7 @@ export class KronoosParse {
         this.cbuscaTelefone();
         this.cbuscaEnderecos();
         this.cbuscaEmpregos();
-        this.searchPep();
+        // this.searchPep();
     }
 
     searchBovespa() {}
@@ -1752,6 +1780,8 @@ export class KronoosParse {
                     while ((n = walk.nextNode())) {
                         n.textContent = n.textContent.replace(/[\n\r\t]/g, ' ');
                     }
+
+                    element.find("kronoos-buy").remove();
 
                     element.find(".result-network canvas").each((x, e) => $(e).replaceWith($("<img />").attr({
                         src: originalContext.element().find(".result-network canvas").get(0).toDataURL("image/png", 1)

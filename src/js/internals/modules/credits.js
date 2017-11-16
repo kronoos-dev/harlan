@@ -36,7 +36,7 @@ module.exports = controller =>  {
         }
     };
 
-    controller.registerCall("credits::has", (needed, callback) => {
+    controller.registerCall("credits::has", (needed, callback, askFor = true) => {
         if (!needed || controller.confs.user.postPaid) {
             callback();
             return;
@@ -62,7 +62,9 @@ module.exports = controller =>  {
                 actions = modal.createActions();
                 actions.cancel();
             } else {
+                if (askFor) return;
                 var credits = numeral(needed / 100.0).format("$0,0.00");
+                modal.gamification('moneyBag');
                 modal.title("Vamos debitar de seus créditos");
                 modal.subtitle(sprintf("O valor para esta operação ficou em %s.", credits));
                 modal.addParagraph(sprintf("Serão debitados %s de sua conta, para aceitar clique em prosseguir.", numeral(needed / 100.0).format("$0,0.00")));

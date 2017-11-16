@@ -1,3 +1,4 @@
+
 .kronoos-result {
     .record {
         &.minimized .kronoos-element {
@@ -213,6 +214,26 @@
                 border-bottom: 1px solid rgb(207, 207, 207);
             }
         }
+
+        &.kronoos-buy {
+            table-layout: auto;
+            button {
+                min-width: 100px;
+                background-color: #ffba3b;
+                border-bottom: 1px solid #f7d699;
+                cursor: pointer;
+                padding: 11px 6px;
+                transition: background-color 300ms linear;
+                &:hover {
+                    background-color: lighten(#ffba3b, 7%);
+                }
+            }
+
+            td:last-child {
+                text-align: right;
+            }
+        }
+
     }
 
     .certidao {
