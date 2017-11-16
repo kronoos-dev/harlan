@@ -784,6 +784,20 @@ export class KronoosParse {
             }, true));
     }
 
+    searchCRF() {
+        if (!this.cnpj) return;
+        this.serverCall("SELECT FROM 'CRF'.'CONSULTA'",
+            this.loader("fa-eye", `Verificando CNPJ para pagamentos do FGTS - ${this.cnpj}.`, {
+                data: {documento: this.cnpj},
+                success: data => {
+                    this.firstElement().table("Situação do FGTS")($("<a />").text("Comprovante de Consulta").attr("href", "#").click(e => {
+                        e.preventDefault();
+                        this.openReceipts(data);
+                    }));
+                }
+            }));
+    }
+
     searchReporterBrasil() {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'KRONOOSMODA'.'LISTA'",
@@ -862,6 +876,7 @@ export class KronoosParse {
         if (this.cnpj) this.searchCertidao();
         // if (this.cnpj) this.searchTJSPCertidao();
         this.searchReporterBrasil();
+        this.searchCRF();
         this.searchCepim();
         this.searchExpulsoes();
         this.searchCnep();
