@@ -364,9 +364,8 @@ export class KronoosParse {
        });
     }
 
-    searchCertidaoTRFPDF() {
-        _.each([
-            ["pgesp", "SELECT FROM 'CERTIDOES'.'PGESP'", 'PGESP', 'Procuradoria Geral do Estado - Dívida Ativa', null],
+    searchCertidaoPDF(arr) {
+        _.each(arr || [
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3-ms", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
@@ -424,28 +423,28 @@ export class KronoosParse {
         });
     }
 
-    searchTRF1() {
-        this.trf1Sync = async.eachLimit(_.pairs(trf1List), 5, (n, callback) => {
-            this.serverCall("SELECT FROM 'CERTIDOES'.'CONSULTATRF1'",
-                this.loader('fa-legal', `Capturando certidão do Tribunal Regional Federal - ${n[1]}, para o documento ${this.cpf_cnpj}.`, {
-                    data: {
-                        documento: this.cpf_cnpj.replace(/[^0-9]/, ''),
-                        secao: n[0]
-                    },
-                    bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Tribunal Regional Federal - ${n[1]}`),
-                    success: data => {
-                        if (!$("confirmacao", data).length) return;
-                        let kelement = this.kronoosElement(`Certidão do TRF1 - ${n[1]}`,
-                            `Consta apontamento na certidão do TRF1, cível e criminal - ${n[1]}.`,
-                            "Você pode <a target='_blank' href='http://www.trf1.jus.br/Servicos/Certidao/'>clicar aqui</a> para obter maiores informações.");
-                        kelement.behaviourAccurate(true);
-                        if ($("confirmacao:contains('N A D A C O N S T A')", data).length) return;
-                        this.append(kelement.element());
-                    },
-                    complete: () => callback()
-                }));
-        }, () => {});
-    }
+    // searchTRF1() {
+    //     this.trf1Sync = async.eachLimit(_.pairs(trf1List), 5, (n, callback) => {
+    //         this.serverCall("SELECT FROM 'CERTIDOES'.'CONSULTATRF1'",
+    //             this.loader('fa-legal', `Capturando certidão do Tribunal Regional Federal - ${n[1]}, para o documento ${this.cpf_cnpj}.`, {
+    //                 data: {
+    //                     documento: this.cpf_cnpj.replace(/[^0-9]/, ''),
+    //                     secao: n[0]
+    //                 },
+    //                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Tribunal Regional Federal - ${n[1]}`),
+    //                 success: data => {
+    //                     if (!$("confirmacao", data).length) return;
+    //                     let kelement = this.kronoosElement(`Certidão do TRF1 - ${n[1]}`,
+    //                         `Consta apontamento na certidão do TRF1, cível e criminal - ${n[1]}.`,
+    //                         "Você pode <a target='_blank' href='http://www.trf1.jus.br/Servicos/Certidao/'>clicar aqui</a> para obter maiores informações.");
+    //                     kelement.behaviourAccurate(true);
+    //                     if ($("confirmacao:contains('N A D A C O N S T A')", data).length) return;
+    //                     this.append(kelement.element());
+    //                 },
+    //                 complete: () => callback()
+    //             }));
+    //     }, () => {});
+    // }
 
     searchMPT() {
         let found = false;
@@ -861,36 +860,16 @@ export class KronoosParse {
     }
 
     searchAll() {
-        // this.searchPepCoaf();
-        // this.searchSerasa();
-        // this.searchCrawler();
-        // this.jusSearch();
-        // this.searchTRF1();
-        // this.searchComprot();
-        // this.searchTjsp();
-        // this.searchTjspDocument();
-        // this.searchCARFDocumento();
-        // this.searchCertidaoTRFPDF();
-        // this.searchMPT();
-        // this.searchTribunais();
-        // this.searchMandados();
-        // this.searchCNDT();
-        // this.searchMTE();
-        // this.searchIbama();
-        // this.searchDAU();
-        // this.searchDtec();
-        // this.searchBovespa();
-        // if (this.cnpj) this.searchCertidao();
-        // if (this.cnpj) this.searchTJSPCertidao();
-        // this.searchReporterBrasil();
-        // this.searchCRF();
-        // this.searchCepim();
-        // this.searchExpulsoes();
-        // this.searchCnep();
-        // this.searchCeis();
-        // this.searchCCF();
-        // this.searchProtestos();
-        // this.searchCNJImprobidade();
+        this.searchPepCoaf();
+        this.searchCrawler();
+        if (this.cnpj) this.searchCertidao();
+        this.searchReporterBrasil();
+        this.searchCepim();
+        this.searchExpulsoes();
+        this.searchCnep();
+        this.searchCeis();
+        this.searchBovespa();
+        this.searchDtec();
 
         this.buy("Pesquisar informações jurídicas dos Tribunais de Justiça.", 700, () => this.searchJuridic());
         this.buy("Abrir informações de crédito - Cheques sem Fundo, protestos e Serasa.", 700, () => this.searchBureau());
@@ -914,9 +893,34 @@ export class KronoosParse {
 
     }
 
-    /* @TODO Carol, definir com o Alexandre como será realizada a cobrança. */
-    searchJuridic() {}
-    searchBureu() {}
+    /* @TODO Carol, definir com o Alexandre como será realizada a cobrança e qual fonte pesquisa ou não. */
+    searchJuridic() {
+        this.jusSearch();
+        // this.searchTRF1();
+        this.searchTjsp();
+        this.searchTjspDocument();
+        this.searchCARFDocumento();
+        this.searchCertidaoPDF();
+        this.searchCRF();
+        this.searchMPT();
+        this.searchTribunais();
+        this.searchMandados();
+        this.searchCNDT();
+        this.searchMTE();
+        this.searchIbama();
+        if (this.cnpj) this.searchTJSPCertidao();
+        this.searchCNJImprobidade();
+    }
+
+    searchBureau() {
+        this.searchCCF();
+        this.searchProtestos();
+        this.searchSerasa();
+        this.searchComprot();
+        this.searchDAU();
+        this.searchCertidaoPDF([["pgesp", "SELECT FROM 'CERTIDOES'.'PGESP'",
+            'PGESP', 'Procuradoria Geral do Estado - Dívida Ativa', null]]);
+    }
 
     buy(title, ammount, action) {
         if (this.controller.query.buyAll) {
@@ -929,9 +933,12 @@ export class KronoosParse {
             this.adicionalInformation.element.addClass("kronoos-buy");
         }
 
-        this.adicionalInformation(title, $("<button />").addClass("kronoos-buy-button").text("Abrir").click(e => {
+        let row = this.adicionalInformation(title, $("<button />").addClass("kronoos-buy-button").text("Abrir").click(e => {
             e.preventDefault();
-            this.call("credits::has", ammount, action);
+            this.call("credits::has", ammount, () => {
+                row.element.remove();
+                action();
+            });
         }));
     }
 
@@ -1110,7 +1117,7 @@ export class KronoosParse {
         this.cbuscaTelefone();
         this.cbuscaEnderecos();
         this.cbuscaEmpregos();
-        // this.searchPep();
+        this.searchPep();
     }
 
     searchBovespa() {}
