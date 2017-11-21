@@ -871,8 +871,8 @@ export class KronoosParse {
         this.searchBovespa();
         this.searchDtec();
 
-        this.buy("Capturar informações jurídicas dos Tribunais de Justiça.", 700, () => this.searchJuridic());
-        this.buy("Abrir informações de crédito - Cheques sem Fundo, protestos e Serasa.", 700, () => this.searchBureau());
+        this.buy("Capturar informações jurídicas dos Tribunais de Justiça.", 0, () => this.searchJuridic());
+        this.buy("Abrir informações de crédito - Cheques sem Fundo, protestos e Serasa.", 0, () => this.searchBureau());
 
         if (!this.ccbuscaData) {
             this.serverCall("SELECT FROM 'CCBUSCA'.'CONSULTA'",
