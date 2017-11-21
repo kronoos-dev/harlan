@@ -84,18 +84,17 @@ self.onmessage = function(message) {
                 "YY-MM-DD",
                 "DD/MM/YY"
             ]);
-            
-            if (!(birthday.isValid())) {
-                return;
-            }
 
-            if (moment().diff(birthday, 'years') < 16) {
-                /* menores de 16 anos não */
-                return;
-            }
+
+            // if (moment().diff(birthday, 'years') < 16) {
+            //     /* menores de 16 anos não */
+            //     return;
+            // }
 
             parsed++;
-            record[1] = birthday.format("DD/MM/YYYY");
+            if ((birthday.isValid())) {
+                record[1] = birthday.format("DD/MM/YYYY");
+            }
             queue.push({
                 record: record
             });
