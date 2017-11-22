@@ -3,7 +3,7 @@
 module.exports = function (controller) {
 
     controller.registerCall("authentication::logout", function () {
-        delete localStorage.sessionId;
+        delete sessionStorage.apiKey;
 
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage(null);

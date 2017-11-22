@@ -83,7 +83,7 @@ module.exports = function(controller) {
         modal.title("Você está saindo da conta.");
         modal.subtitle("Aguarde enquanto a página é recarregada para sua segurança.");
         modal.addParagraph("Esperamos que sua visita tenha sido proveitosa e sua experiência incrível.");
-
+        delete sessionStorage.apiKey;
         var loggedout = false,
             logout = function() {
                 loggedout = true;
