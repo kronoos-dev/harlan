@@ -923,7 +923,8 @@ export class KronoosParse {
     }
 
     buy(title, ammount, action) {
-        if (this.controller.query.buyAll) {
+        if (this.controller.query.buyAll ||
+                (Array.isArray(controller.confs.user.tags) && controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) {
             action();
             return;
         }
