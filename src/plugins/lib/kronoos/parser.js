@@ -123,6 +123,7 @@ export class KronoosParse {
         this.geocodes = [];
         this.resourceUse = 0;
         this.responses = [];
+        this.runOnEnd = [];
 
         this.confirmQueue = async.queue(function(task, callback) {
             task(callback);
@@ -910,6 +911,7 @@ export class KronoosParse {
         this.searchIbama();
         if (this.cnpj) this.searchTJSPCertidao();
         this.searchCNJImprobidade();
+        this.runOnEnd.push(() => this.juristekInfoNotFound());
     }
 
     searchBureau() {
@@ -920,12 +922,11 @@ export class KronoosParse {
         this.searchDAU();
         this.searchCertidaoPDF([["pgesp", "SELECT FROM 'CERTIDOES'.'PGESP'",
             'PGESP', 'Procuradoria Geral do Estado - Dívida Ativa', null]]);
+        this.runOnEnd.push(() => this.cognitiveParser());
     }
 
     buy(title, ammount, action) {
-        if (this.controller.query.buyAll ||
-                (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) {
-            action();
+        if (this.controller.query.buyAll || (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) {
             return;
         }
 
@@ -1038,7 +1039,13 @@ export class KronoosParse {
     }
 
     end() {
-        this.cognitiveParser();
+        /* troco a referência para zerar a fila */
+        let runOnEnd = this.runOnEnd;
+        this.runOnEnd = [];
+        /* aqui nós executamos todos os processos pendentes */
+        for (let endFunction of runOnEnd) {
+            endFunction();
+        }
     }
 
     juristekInfoNotFound() {
