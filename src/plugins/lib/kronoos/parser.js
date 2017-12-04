@@ -926,7 +926,8 @@ export class KronoosParse {
     }
 
     buy(title, ammount, action) {
-        if (this.controller.query.buyAll || (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) {
+        if ((this.controller.query.buyAll || (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) && !ammount) {
+            action();
             return;
         }
 
@@ -1126,6 +1127,19 @@ export class KronoosParse {
         this.cbuscaEnderecos();
         this.cbuscaEmpregos();
         this.searchPep();
+        this.searchCNPJSocio();
+    }
+
+    searchCNPJSocio() {
+        if (!this.ccbuscaData || !this.cpf) return;
+        let total = 0;
+        async.each($("parsocietaria empresa cnpj", this.ccbuscaData).map((i, e) => $(e).text()).toArray(), (cnpj, callback) => this.serverCall("SELECT FROM 'RFBCNPJANDROID'.'CERTIDAO'",
+            this.loader("fa-archive", `Verificando a situação do documento ${this.cpf_cnpj} junto a Receita Federal.`, {
+                data: {documento: cnpj},
+                success: data => total += parseInt($())
+            })), () => {
+            /* adiciona element*/
+        });
     }
 
     searchBovespa() {}
