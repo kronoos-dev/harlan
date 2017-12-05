@@ -2536,6 +2536,12 @@ export class KronoosParse {
             cnjs[cnj] = true;
             if (this.procElements[cnj]) return;
 
+            if (this.cnpj) {
+                if (!this.parseProc(cnj, articleText, match[0])) return;
+                this.normalizeJuristek(cnj);
+                return;
+            }
+
             let articleData = articleText.substr(articleText.indexOf(match[0]) + 1);
             let end = articleData.slice(match[0].length - 1).search(/(\,|\.|\!|\-|\n)/);
             let articleShow = articleData.substr(0, match[0].length + end);
