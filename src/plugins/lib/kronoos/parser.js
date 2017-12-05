@@ -1,4 +1,4 @@
-
+import execall from 'execall';
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import iconv from 'iconv-lite';
@@ -410,11 +410,22 @@ export class KronoosParse {
                         .attr({
                             src: `data:image/png;base64,${$("body > png", data).text()}`
                         })));
-
-                    if (!test($("body > text", data).text())) {
+                    var str = $("body > text", data).text();
+                    if (!test(str)) {
                         this.notFound(`Não consta apontamento na certidão - ${database}`);
                         return;
                     }
+
+                    execall(/\d{7}(\-)?\d{2}(\.)?\d{4}(\.)?\d(\.)?\d{2}(\.)?\d{4}/g, str).map(r => {
+                        let proc = r.match;
+                        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'", this.loader("fa-balance-scale", `Verificando processo ${r.match} para documento ${this.cpf_cnpj}`, {
+                            data: {
+                                data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${r.match}'`
+                            },
+                            success: data => this.juristekCNJ(data, null, true, false, false),
+                            error: data => this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - ${database} - processo ${r.match}.`)
+                        }));
+                    });
 
                     kelement.behaviourAccurate(true);
                     this.append(kelement.element());
