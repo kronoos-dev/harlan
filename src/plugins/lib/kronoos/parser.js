@@ -366,7 +366,8 @@ export class KronoosParse {
     }
 
     searchCertidaoPDF(arr) {
-        _.each(arr || [
+
+        let defaultList = [
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3-ms", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
@@ -375,7 +376,13 @@ export class KronoosParse {
                 return !/não\s+existe\s+ação/i.test(str);
             }],
             ["trt02", "SELECT FROM 'CERTIDOES'.'TRT02'", 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', str => !/NÃO CONSTA/i.test(str)]
-        ], data => {
+        ];
+
+        if (this.cnpj) {
+            defaultList.push(["trt03", "SELECT FROM 'CERTIDOES'.'CONSULTATRT03'", 'TRT03', 'Tribunal Regional do Trabalho da 3º Região', str => !/CERTID[ãÃA]O\s+NEGATIVA/i.test(str)]);
+        }
+
+        _.each(arr || defaultList, data => {
             let [fname, query, name, database, test] = data;
             if (!test) {
                 test = str => /,\s*CONSTA,/i.test(str);
