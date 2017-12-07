@@ -879,15 +879,15 @@ export class KronoosParse {
     }
 
     searchAll() {
-        // this.searchPepCoaf();
-        // this.searchCrawler();
-        // if (this.cnpj) this.searchCertidao();
-        // this.searchReporterBrasil();
-        // this.searchCepim();
-        // this.searchExpulsoes();
-        // this.searchCnep();
-        // this.searchCeis();
-        // this.searchBovespa();
+        this.searchPepCoaf();
+        this.searchCrawler();
+        if (this.cnpj) this.searchCertidao();
+        this.searchReporterBrasil();
+        this.searchCepim();
+        this.searchExpulsoes();
+        this.searchCnep();
+        this.searchCeis();
+        this.searchBovespa();
         this.searchDtec();
 
         this.buy("Capturar informações jurídicas dos Tribunais de Justiça.", 0, () => this.searchJuridic());
