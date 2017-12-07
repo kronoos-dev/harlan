@@ -354,7 +354,7 @@ export class KronoosParse {
            success: data => {
                if (data.length !== 0) {
                  for (let appointMent of data.result) {
-                   let kelement = this.kronoosElement("Presença do target nas mídias", null, appointMent.titulo);
+                   let kelement = this.kronoosElement("Presença do target nas mídias", `Notícias que contém o nome ${this.name}`, appointMent.titulo);
                    kelement.table("Data da Notícia", "Fonte da Notícia", "Link da Notícia")(appointMent.dataNoticia || 'Não há', appointMent.fonteNoticia || 'Não há', $("<a />").text("Clique para acessar a fonte").attr({target: '_blank', href: appointMent.linkNoticia}) || 'Não há');
                    kelement.paragraph(appointMent.citacao);
                    kelement.behaviourAccurate(true);
@@ -879,15 +879,15 @@ export class KronoosParse {
     }
 
     searchAll() {
-        this.searchPepCoaf();
-        this.searchCrawler();
-        if (this.cnpj) this.searchCertidao();
-        this.searchReporterBrasil();
-        this.searchCepim();
-        this.searchExpulsoes();
-        this.searchCnep();
-        this.searchCeis();
-        this.searchBovespa();
+        // this.searchPepCoaf();
+        // this.searchCrawler();
+        // if (this.cnpj) this.searchCertidao();
+        // this.searchReporterBrasil();
+        // this.searchCepim();
+        // this.searchExpulsoes();
+        // this.searchCnep();
+        // this.searchCeis();
+        // this.searchBovespa();
         this.searchDtec();
 
         this.buy("Capturar informações jurídicas dos Tribunais de Justiça.", 0, () => this.searchJuridic());
