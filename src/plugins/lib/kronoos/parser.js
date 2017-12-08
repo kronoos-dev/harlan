@@ -2489,7 +2489,7 @@ export class KronoosParse {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 success: jusSearch => {
-                    this.juristekCNJ(jusSearch, null, true, false);
+                    this.juristekCNJ(jusSearch, null, true, false, false);
                 }
             }), lowPriority);
     }
@@ -2501,7 +2501,7 @@ export class KronoosParse {
                     'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
                 },
                 success: jusSearch => {
-                    this.juristekCNJ(jusSearch, null, true, true);
+                    this.juristekCNJ(jusSearch, null, true, true, this.cnpj ? false : true);
                 }
             }), lowPriority);
     }
