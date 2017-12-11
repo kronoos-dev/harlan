@@ -369,7 +369,6 @@ export class KronoosParse {
 
         let defaultList = [
             ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
-            ["trf3", "SELECT FROM 'CERTIDOES'.'TRF03'", 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ["trf3-ms", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '3'", 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
             ["trf3-sp", "SELECT FROM 'CERTIDOES'.'TRF03' WHERE 'ABRANGENCIA' = '2'", 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
             ["trt15", "SELECT FROM 'CERTIDOES'.'TRT15'", 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => {
@@ -381,8 +380,8 @@ export class KronoosParse {
         if (this.cnpj) {
             defaultList.push(["trt03", "SELECT FROM 'CERTIDOES'.'CONSULTATRT03'", 'TRT03', 'Tribunal Regional do Trabalho da 3º Região', str => !/CERTID[ãÃA]O\s+NEGATIVA/i.test(str)]);
         }
-
-        _.each(arr || defaultList, data => {
+        let notFoundDatabase = [];
+        async.each(arr || defaultList, (data, cb) => {
             let [fname, query, name, database, test] = data;
             if (!test) {
                 test = str => /,\s*CONSTA,/i.test(str);
@@ -397,29 +396,14 @@ export class KronoosParse {
                         this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`);
                         return;
                     }
-                    let kelement = this.kronoosElement(`Certidão do ${database}`,
-                        `Certidão do ${database}`,
-                        message);
-                    kelement.behaviourAccurate(true);
-                    this.append(kelement.element());
-
+                    
                 },
+                complete: () => cb(),
                 success: data => {
-                    let kelement = this.kronoosElement(`Certidão do ${database}`,
-                        `Certidão do ${database}`,
-                        `Visualização da Certidão no ${database}`);
-
-                    kelement.element().find(".kronoos-side-content").append($("<a />").attr({
-                        href: `data:application/octet-stream;base64,${$("body > pdf", data).text()}`,
-                        target: '_blank',
-                        download: `certidao-${fname}-${this.cpf_cnpj.replace(NON_NUMBER, '')}.pdf`
-                    }).append($("<img />").addClass("certidao")
-                        .attr({
-                            src: `data:image/png;base64,${$("body > png", data).text()}`
-                        })));
+                    
                     var str = $("body > text", data).text();
                     if (!test(str)) {
-                        this.notFound(`Não consta apontamento na certidão - ${database}`);
+                        notFoundDatabase.push(database);
                         return;
                     }
 
@@ -439,6 +423,9 @@ export class KronoosParse {
                 }
             }));
 
+        }, () => {
+            if(!notFoundDatabase.length) return;
+             this.notFound(`Não foram encontrados apontamentos nas certidões - ${notFoundDatabase.join(', ')}`);
         });
     }
 
@@ -562,7 +549,7 @@ export class KronoosParse {
             complete: () => callback(),
             bipbopError: (type, message, code, push, xml) => {
                 if (push) {
-                    if (notFound) this.notFound(notFound);
+                    // if (notFound) this.notFound(notFound);
                     return;
                 }
                 if (name) {
@@ -577,7 +564,8 @@ export class KronoosParse {
 
                 let procs = $("processo", data);
                 if (!procs.length) {
-                    if (notFound) this.notFound(notFound);
+                    // if (notFound) this.notFound(notFound);
+                    /*PROCESSOS TODO */
                     return;
                 }
 
@@ -596,14 +584,14 @@ export class KronoosParse {
     }
 
     searchTribunais() {
-        let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Tribunal Federal 1º Região - ${x[1]}`]);
+        let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Tribunal Federal 1º Região - ${x[1]}`]);
 
         this.tribunaisSync = async.eachLimit([
             [`SELECT FROM 'TJRJ'.'NOME' WHERE 'NOME_PARTE' = '${this.name}' AND 'ORIGEM' = '1'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio de Janeiro, em todas as comarcas`, null, `Tribunal de Justiça do Rio de Janeiro, todas as comarcas`],
-            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, 'Tribunal Federal 4º Região (Paraná)'],
-            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, 'Tribunal Federal 4º Região (Rio Grande do Sul)'],
-            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, 'Tribunal Federal 4º Região (Santa Catarina)'],
-            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processo pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
+            [`SELECT FROM 'JFPR'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Paraná)`, 'Tribunal Federal 4º Região (Paraná)'],
+            [`SELECT FROM 'JFRS'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Rio Grande do Sul)`, 'Tribunal Federal 4º Região (Rio Grande do Sul)'],
+            [`SELECT FROM 'JFSC'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 4º Região (Santa Catarina)`, 'Tribunal Federal 4º Região (Santa Catarina)'],
+            [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`, 'Tribunal do Rio Grande do Sul'],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`, 'Superior Tribunal de Justiça'],
         ].concat(trf1Search), 10, (...args) => this.tribunalSearch(...args), err => {
@@ -912,7 +900,6 @@ export class KronoosParse {
 
     }
 
-    /* @TODO Carol, definir com o Alexandre como será realizada a cobrança e qual fonte pesquisa ou não. */
     searchJuridic() {
         this.jusSearch();
         // this.searchTRF1();
@@ -1089,10 +1076,9 @@ export class KronoosParse {
                 if (!database.length) return null;
                 return database.attr('name');
             })));
-
             let list = _.difference($('body > database', info).map((i, e) => $(e).attr('name')).toArray(), filter);
             if (!list.length) return;
-            this.notFound(`Não foi possível localizar processos - ${list.join(', ')} <small>não é válido como certidão</small>.`);
+             this.notFound(`Não foi possível localizar processos - ${list.join(', ')} <small>não têm validade de certidão</small>.`);
         });
     }
 
@@ -1354,7 +1340,7 @@ export class KronoosParse {
                 success: data => {
                     let iterateOver = $("data resposta list > *", data);
                     if (!iterateOver.length) {
-                        this.notFound("Cheques sem Fundo em Instituição Bancária <small>Não foram localizados cheques sem fundo em uma instituição bancária.</small>");
+                        this.notFound("Cheques sem Fundo em Instituição Bancária <small>Não foram localizados cheques sem fundo em instituições bancarias.</small>");
                         return;
                     }
                     _.each(iterateOver, element => {
@@ -1426,15 +1412,15 @@ export class KronoosParse {
     searchExpulsoes() {
         if (!this.cpf) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'EXPULSOES'",
-            this.loader("fa-archive", `Verificando sanções e expulsões na controladoria geral da união com o CPF ${this.cpf}.`, {
+            this.loader("fa-archive", `Verificando sanções e expulsões na Controladoria Geral da União com o CPF ${this.cpf}.`, {
                 data: {
                     documento: this.cpf
                 },
-                error: () => this.notFound("Sanções e expulsões na controladoria geral da união <small>Não existem de apontamentos cadastrais.</small>"),
+                error: () => this.notFound("Sanções e expulsões na Controladoria Geral da União <small>Não existem apontamentos cadastrais.</small>"),
                 success: data => {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Sanções e Expulsões na Controladoria Geral da União',
-                        "Existência de apontamentos cadastrais.", 'Sanções e expulsões na controladoria geral da união.');
+                        "Existência de apontamentos cadastrais.", 'Sanções e expulsões na Controladoria Geral da União.');
 
                     kelement.behaviourAccurate(true);
 
@@ -1531,7 +1517,7 @@ export class KronoosParse {
                 success: data => {
                     let x = n => $(n, data).first().text();
                     let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? "CPF" : "CNPJ"} pela Receita Federal`,
-                        "Consulta do documento a Receita Federal.", 'Certidão remetida pela Receita Federal.');
+                        "Consulta do documento na Receita Federal.", 'Certidão remetida pela Receita Federal.');
 
 
                     if (CPF.isValid(cpf_cnpj)) {
