@@ -1512,9 +1512,14 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP`),
             success: data => {
-                $("nire", data).each((i, e) => {
-                    this.searchJucespNire($(e).text());
+                let nome = $('BPQL > body > jucesp > node > node > name', data)[0].textContent;
+                let nire = $('BPQL > body > jucesp > node > node > nire', data)[0].textContent;
+                $("name", data).each((i, e) => {
+                    if (e.textContent === nome) {
+                        this.searchJucespNire(nire);
+                    }
                 });
+                
             }
         }));
     }
