@@ -339,12 +339,74 @@ export class KronoosParse {
     }
 
     notFound(...args) {
+
+        if ((args[0].indexOf('Pesquisa') !== -1) || (args[0].indexOf('Consulta Realizada') !== -1)) return;
+
         if (!this._notFoundList) {
             this._notFoundObject = {};
             this._notFoundList = this.firstElement().list("Não Constam Apontamentos", this._notFoundObject, null, 10);
             this._notFoundObject.container.addClass("kronoos-not-found");
         }
         return this._notFoundList(...args);
+    }
+    notFoundAdm(...args) {
+        let anterior = this._notFoundObject.container[0].textContent;
+        if (!this._notFoundListAdm) {
+            this._notFoundObjectAdm = {};
+            this._notFoundListAdm = this.firstElement().list(null, this._notFoundObjectAdm, null, 10);
+            $('.kronoos-not-found > ul').remove();
+        }
+        if(this._notFoundObjectAdm.container && (args[0].indexOf('function') === -1)) {
+            this._notFoundObjectAdm.container[0].textContent += args[0] + ", ";
+            $('.kronoos-not-found > ul').remove();
+        }
+        
+        this._notFoundObject.container.append(this._notFoundObjectAdm.container);
+        return this._notFoundListAdm(...args);
+    }
+    notFoundCredito(...args) {
+        let anterior = this._notFoundObject.container[0].textContent;
+        if (!this._notFoundListCredito) {
+            this._notFoundObjectCredito = {};
+            this._notFoundListCredito = this.firstElement().list(null, this._notFoundObjectCredito, null, 10);
+            $('.kronoos-not-found > ul').remove();
+        }
+        if(this._notFoundObjectCredito.container && (args[0].indexOf('function') === -1)) {
+            this._notFoundObjectCredito.container[0].textContent += args[0] + ", ";
+            $('.kronoos-not-found > ul').remove();
+        }
+        this._notFoundObject.container.append(this._notFoundObjectCredito.container);
+        return this._notFoundListCredito(...args);
+    }
+    notFoundJuridic(...args) {
+        let anterior = this._notFoundObject.container[0].textContent;
+        if (!this._notFoundListJuridic) {
+            this._notFoundObjectJuridic = {};
+            this._notFoundListJuridic = this.firstElement().list(null, this._notFoundObjectJuridic, null, 10);
+            $('.kronoos-not-found > ul').remove();
+        }
+        if(this._notFoundObjectJuridic.container && (args[0].indexOf('function') === -1)) {
+            this._notFoundObjectJuridic.container[0].textContent += args[0] + ", ";
+            $('.kronoos-not-found > ul').remove();
+        }
+        this._notFoundObject.container.append(this._notFoundObjectJuridic.container);
+        return this._notFoundListJuridic(...args);
+    }
+    notFoundOthers(...args) {
+        this.notFound(...args);
+        let anterior = this._notFoundObject.container[0].textContent;
+        
+        if (!this._notFoundListOthers) {
+            this._notFoundObjectOthers = {};
+            this._notFoundListOthers = this.firstElement().list(null, this._notFoundObjectOthers, null, 10);
+            $('.kronoos-not-found > ul').remove();
+        }
+        if(this._notFoundObjectOthers.container && (args[0].indexOf('function') === -1)) {
+            this._notFoundObjectOthers.container[0].textContent += args[0] + ", ";
+            $('.kronoos-not-found > ul').remove();
+        }
+        this._notFoundObject.container.append(this._notFoundObjectOthers.container);
+        return this._notFoundListOthers(...args);
     }
 
     searchDtec() {
@@ -425,7 +487,7 @@ export class KronoosParse {
 
         }, () => {
             if(!notFoundDatabase.length) return;
-             this.notFound(`Não foram encontrados apontamentos nas certidões - ${notFoundDatabase.join(', ')}`);
+                this.notFoundJuridic(`${notFoundDatabase.join(', ')}`);
         });
     }
 
@@ -487,7 +549,7 @@ export class KronoosParse {
                 complete: () => callback()
             }), err => {
                 if (!found)
-                    this.notFound("Não constam registros do nome no Ministério Público do Trabalho.");
+                    this.notFoundOthers("Não constam registros do nome no Ministério Público do Trabalho.");
             });
         });
     }
@@ -515,7 +577,7 @@ export class KronoosParse {
                     kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
-
+                
                 if (data.consultaRealizada.length) {
                     let kelement = this.kronoosElement("Consulta Realizada por Associado do SPC/Serasa",
                         "Consulta Realizada por Associado do SPC/Serasa",
@@ -533,7 +595,7 @@ export class KronoosParse {
 
 
                 if (!data.spc.length) {
-                    this.notFound("Não foram localizados protestos na consulta ao SPC/Serasa");
+                    this.notFoundCredito("Não foram localizados protestos na consulta ao SPC/Serasa");
                 }
 
             }
@@ -565,7 +627,6 @@ export class KronoosParse {
                 let procs = $("processo", data);
                 if (!procs.length) {
                     // if (notFound) this.notFound(notFound);
-                    /*PROCESSOS TODO */
                     return;
                 }
 
@@ -610,7 +671,7 @@ export class KronoosParse {
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Ministério da Fazenda (Processos Administrativos).`),
             success: data => {
                 if (!data.totalDeProcessosEncontrados) {
-                    this.notFound();
+                    this.notFoundAdm();
                     return;
                 }
                 let kelement = this.kronoosElement("Ministério da Fazenda - COMPROT",
@@ -730,7 +791,7 @@ export class KronoosParse {
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Pessoas Políticamente Expostas (COAF).`),
                 success: data => {
                     if (!data) {
-                        this.notFound("Pessoa Políticamente Exposta <small>Não consta na base de dados do COAF.</small>");
+                        this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do COAF)");
                         return;
                     }
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
@@ -745,6 +806,9 @@ export class KronoosParse {
                         (data.dtInicioExercicio, data.dtFimExercicio,
                             data.dtFinalCarencia);
                     this.append(kelement.element());
+                },
+                error: err => {
+                    this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do COAF)");
                 }
             }, true));
     }
@@ -781,7 +845,7 @@ export class KronoosParse {
                         return politic.CPF_CANDIDATO == cpfValue;
                     });
                     if (!data.length) {
-                        this.notFound("Pessoa Políticamente Exposta <small>Não consta na base de dados do TSE.</small>");
+                        this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do TSE)");
                         return;
                     }
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
@@ -820,7 +884,7 @@ export class KronoosParse {
                 success: data => {
                     let results = _.filter(data, reg => reg.status_cor != 'verde' && new RegExp(`( |^)${reg.nome_marca}( |$)`, 'i').test(this.name));
                     if (!results.length) {
-                        this.notFound("Não há registro de trabalho escravo na base Moda Livre (aplicativo) <small>Empresas que usam trabalho análogo ao da escravidão.</small>");
+                        this.notFoundAdm("Não há registro de trabalho escravo");
                         return;
                     }
                     let result = results[0];
@@ -1076,9 +1140,16 @@ export class KronoosParse {
                 if (!database.length) return null;
                 return database.attr('name');
             })));
-            let list = _.difference($('body > database', info).map((i, e) => $(e).attr('name')).toArray(), filter);
+            let achouTrt03 = false;
+            let list = _.difference($('body > database', info).map((i, e) => {
+                if (($(e).attr('name') === "TRF03") && !achouTrt03) {
+                    achouTrt03 = true;
+                    return $(e).attr('name') + ' - eletrônico';
+                }
+                return $(e).attr('name');
+            }).toArray(), filter);
             if (!list.length) return;
-             this.notFound(`Não foi possível localizar processos - ${list.join(', ')} <small>não têm validade de certidão</small>.`);
+             this.notFoundJuridic(list.join(', '));
         });
     }
 
@@ -1252,7 +1323,7 @@ export class KronoosParse {
                 },
                 success: data => {
                     if (!data.length) {
-                        this.notFound("Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade");
+                        this.notFoundAdm("Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade");
                         return;
                     }
                     let kelement = this.kronoosElement("Conselho Nacional de Justiça - CNJ",
@@ -1310,7 +1381,7 @@ export class KronoosParse {
                     let iterateOver = $("BPQL > body > consulta > conteudo > cartorio", data);
 
                     if (!iterateOver.length) {
-                        this.notFound("Protestos em Cartórios <small>Não foram localizados protestos registrados em cartório</small>");
+                        this.notFoundCredito("Protestos em Cartórios");
                         return;
                     }
 
@@ -1340,7 +1411,7 @@ export class KronoosParse {
                 success: data => {
                     let iterateOver = $("data resposta list > *", data);
                     if (!iterateOver.length) {
-                        this.notFound("Cheques sem Fundo em Instituição Bancária <small>Não foram localizados cheques sem fundo em instituições bancarias.</small>");
+                        this.notFoundCredito("Cheques sem Fundo em Instituição Bancária");
                         return;
                     }
                     _.each(iterateOver, element => {
@@ -1387,7 +1458,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cnpj
                 },
-                error: () => this.notFound("Cadastro Nacional de Empresas Punidas <small>Não existem de apontamentos cadastrais</small>"),
+                error: () => this.notFoundAdm("Cadastro Nacional de Empresas Punidas"),
                 success: data => {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Cadastro Nacional de Empresas Punidas',
@@ -1416,7 +1487,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf
                 },
-                error: () => this.notFound("Sanções e expulsões na Controladoria Geral da União <small>Não existem apontamentos cadastrais.</small>"),
+                error: () => this.notFoundAdm("Sanções e expulsões na Controladoria Geral da União"),
                 success: data => {
                     let x = n => $(n, data).text();
                     let kelement = this.kronoosElement('Sanções e Expulsões na Controladoria Geral da União',
@@ -1444,7 +1515,7 @@ export class KronoosParse {
         if (!this.cnpj) return;
         this.serverCall("SELECT FROM 'PORTALTRANSPARENCIA'.'CEPIM'",
             this.loader("fa-archive", `Verificando entidades privadas sem fins lucrativas impedidas com o CNPJ ${this.cnpj}.`, {
-                error: () => this.notFound("Entidades privadas sem fins lucrativas impedidas na controladoria geral da união <small>Não existem de apontamentos cadastrais.</small>"),
+                error: () => this.notFoundAdm("Entidades privadas sem fins lucrativas impedidas na controladoria geral da união"),
                 data: {
                     documento: this.cnpj
                 },
@@ -1475,6 +1546,7 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP ${nire}`),
             success: data => {
+                debugger;
                 let kelement = this.kronoosElement(`Ficha Cadastral da Empresa na Jucesp`,
                     `Ficha cadastral completa da empresa registrada na Jucesp desde 1992.`,
                     `Consulta da ficha cadastral completa na Junta Comercial do Estado de São Paulo.`);
@@ -1498,6 +1570,7 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP`),
             success: data => {
+                debugger;
                 $("nire", data).each((i, e) => {
                     this.searchJucespNire($(e).text());
                 });
@@ -1702,7 +1775,7 @@ export class KronoosParse {
                 data: {
                     documento: this.cpf_cnpj
                 },
-                error: () => this.notFound("CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas <small>Não existem apontamentos cadastrais.</small>"),
+                error: () => this.notFoundAdm("CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas"),
                 success: data => {
                     let x = n => $(n, data).text();
 
@@ -2460,7 +2533,7 @@ export class KronoosParse {
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - Conselho Administrativo de Recursos Fiscais`),
                 success: jusSearch => {
                     if (!$("processo", jusSearch).length) {
-                        this.notFound("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
+                        this.notFoundOthers("Não foram localizados apontamentos no Conselho Administrativo de Recursos Fiscais.");
                     } else {
                         this.juristekCNJ(jusSearch, null, true, false);
                     }
