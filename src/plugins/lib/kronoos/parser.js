@@ -486,8 +486,8 @@ export class KronoosParse {
             }));
 
         }, () => {
-            if(!notFoundDatabase.length) return;
-                this.notFoundJuridic(`${notFoundDatabase.join(', ')}`);
+            // if(!notFoundDatabase.length) return;
+            //     this.notFoundJuridic(`${notFoundDatabase.join(', ')}`);
         });
     }
 
@@ -791,7 +791,7 @@ export class KronoosParse {
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Pessoas Políticamente Expostas (COAF).`),
                 success: data => {
                     if (!data) {
-                        this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do COAF)");
+                        this.notFoundOthers("COAF (PEP)");
                         return;
                     }
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
@@ -808,7 +808,7 @@ export class KronoosParse {
                     this.append(kelement.element());
                 },
                 error: err => {
-                    this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do COAF)");
+                    this.notFoundOthers("COAF (PEP)");
                 }
             }, true));
     }
@@ -845,7 +845,7 @@ export class KronoosParse {
                         return politic.CPF_CANDIDATO == cpfValue;
                     });
                     if (!data.length) {
-                        this.notFoundOthers("Pessoa Políticamente Exposta (Não consta na base de dados do TSE)");
+                        this.notFoundOthers("TSE (PEP)");
                         return;
                     }
                     let kelement = this.kronoosElement("Pessoa Políticamente Exposta",
