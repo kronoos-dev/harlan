@@ -514,7 +514,7 @@ export class KronoosParse {
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Serasa (REFIN/PEFIN)`),
             success: data => {
                 if (!data.spc) {
-                    toastr.warning("A consulta ao Serasa/SPC não está habilitada.", "Entre em contato e tente novamente.");
+                    toastr.warning("A consulta ao Serasa/SPC não está habilitada.", "Entre em contato ou tente novamente mais tarde.");
                     return;
                 }
                 for (let spc of data.spc) {
@@ -2646,7 +2646,7 @@ export class KronoosParse {
     }
 
     normalizeName(name) {
-        return removeDiacritics(name).toUpperCase().replace(/\s+/, ' ').replace(/[^A-Z0-9\s]/, '').replace(/(\s|^)(SA|LTDA|ME)(\s|$)/, '');
+        return removeDiacritics(name).toUpperCase().replace(/\s+/g, ' ').replace(/[^A-Z0-9\s]/g, '').replace(/(\s|^)(SA|LTDA|ME|eireli)(\s|$)/ig, '');
     }
 
     juristekInfo(callback) {
