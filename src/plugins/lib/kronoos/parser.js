@@ -918,6 +918,8 @@ export class KronoosParse {
         // this.searchTRF1();
         this.searchTjsp();
         this.searchTjspDocument();
+        this.searchTjce();
+        this.searchTjceDocument();
         this.searchCARFDocumento();
         this.searchCertidaoPDF();
         this.searchCRF();
@@ -2482,6 +2484,31 @@ export class KronoosParse {
             }), lowPriority);
     }
 
+    searchTjceDocument() {
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJCE para ${this.name}, documento ${this.cpf_cnpj}.`, {
+                data: {
+                    'data': `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                },
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch, null, true, false, false);
+                }
+            }), lowPriority);
+    }
+
+    searchTjce() {
+        this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
+            this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJCE para ${this.name}.`, {
+                data: {
+                    'data': `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace("'", "")}'`,
+                },
+                success: jusSearch => {
+                    this.juristekCNJ(jusSearch, null, true, true, this.cnpj ? false : true);
+                }
+            }), lowPriority);
+    }
+
+
     searchTjspDocument() {
         this.serverCall("SELECT FROM 'KRONOOSJURISTEK'.'DATA'",
             this.loader("fa-balance-scale", `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
@@ -2840,17 +2867,23 @@ export class KronoosParse {
             return;
         }
 
-        for (let i = 0; i < keys.length; i += 2) {
-            cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
-        }
+        this.controller.trigger("kronoos::juristek", [numproc, proc, pieces, cnjInstance, partes], () => {
 
-        if (partes.length) {
-            let kparts = cnjInstance.list("Partes");
-            partes.each(idx => {
-                let node = partes.eq(idx);
-                kparts(`${node.attr("tipo")} - ${node.text()}`);
-            });
-        }
+            for (let i = 0; i < keys.length; i += 2) {
+                cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
+            }
+
+            let assunto = getNode("assunto");
+            if (assunto) cnjInstance.paragraph(assunto);
+
+            if (partes.length) {
+                let kparts = cnjInstance.list("Partes");
+                partes.each(idx => {
+                    let node = partes.eq(idx);
+                    kparts(`${node.attr("tipo")} - ${node.text()}`);
+                });
+            }
+        });
     }
 
     cartesian() {
