@@ -595,7 +595,7 @@ export class KronoosParse {
 
 
                 if (!data.spc.length) {
-                    this.notFoundCredito("Não foram localizados protestos na consulta ao SPC/Serasa");
+                    this.notFoundCredito("SPC/Serasa");
                 }
 
             }
@@ -1546,7 +1546,6 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP ${nire}`),
             success: data => {
-                debugger;
                 let kelement = this.kronoosElement(`Ficha Cadastral da Empresa na Jucesp`,
                     `Ficha cadastral completa da empresa registrada na Jucesp desde 1992.`,
                     `Consulta da ficha cadastral completa na Junta Comercial do Estado de São Paulo.`);
