@@ -175,7 +175,7 @@ export class KronoosParse {
     }
 
     openReceipt(htmlNode) {
-        let printWindow = window.open("about:blank", "", "_blank");
+        let printWindow = window.open("about:blank", "_blank");
         if (!printWindow) return;
         printWindow.document.write($(htmlNode).text());
         printWindow.focus();
@@ -2847,22 +2847,20 @@ export class KronoosParse {
             cnjInstance.behaviourHomonym(true);
         }
 
-
-        let validPieces = _.filter(pieces, t => {
-            if (!t[1]) return false;
-            return !/^\s*$/.test(t[1]);
-        });
-
-        let [keys, values] = _.unzip(validPieces);
-
-        if (!keys) {
-            cnjInstance.remove();
-            delete this.kelements[this.kelements.indexOf(cnjInstance)];
-            delete this.procElements[numproc];
-            return;
-        }
-
         this.controller.trigger("kronoos::juristek", [numproc, proc, pieces, cnjInstance, partes], () => {
+            let validPieces = _.filter(pieces, t => {
+                if (!t[1]) return false;
+                return !/^\s*$/.test(t[1]);
+            });
+
+            let [keys, values] = _.unzip(validPieces);
+
+            if (!keys) {
+                cnjInstance.remove();
+                delete this.kelements[this.kelements.indexOf(cnjInstance)];
+                delete this.procElements[numproc];
+                return;
+            }
 
             for (let i = 0; i < keys.length; i += 2) {
                 cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
