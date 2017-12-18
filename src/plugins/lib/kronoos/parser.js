@@ -2284,9 +2284,9 @@ export class KronoosParse {
     }
 
     graphTrack() {
-        let dontAskAgainInput = false,
-            dontAskAgain = {},
-            defaultActionSearch = {};
+        // let dontAskAgainInput = false,
+        //     dontAskAgain = {},
+        //     defaultActionSearch = {};
 
         this.taskGraphTrack = async.timesSeries(this.depth, (i, callback) => this.generateRelations.track(data => {
             let elements = [];
@@ -2375,27 +2375,26 @@ export class KronoosParse {
                         let edge = _.find(data.edges, edge => edge.from == node.id || edge.to == node.id);
                         let connection = _.find(data.nodes, c => c.id == (edge.from == node.id ? edge.to : edge.from));
 
-                        if (dontAskAgain[edge.relationType]) {
-                            if (defaultActionSearch[edge.relationType]) searchTarget(cb);
-                            else cb();
-                            return;
-                        }
-
+                        // if (dontAskAgain[edge.relationType]) {
+                        //     if (defaultActionSearch[edge.relationType]) searchTarget(cb);
+                        //     else cb();
+                        //     return;
+                        // }
 
                         this.call("confirm", {
                             title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
                             subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`,
                             paragraph: `A conexão é para ${connection.label} <small>(${f(connection.id)})</small> do tipo ${edge.relationType}.`
                         }, () => {
-                            dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
-                            defaultActionSearch[edge.relationType] = true;
+                            // dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
+                            // defaultActionSearch[edge.relationType] = true;
                             searchTarget(cb);
                         }, () => {
-                            dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
-                            defaultActionSearch[edge.relationType] = false;
+                            // dontAskAgain[edge.relationType] = dontAskAgainInput[1].is(":checked");
+                            // defaultActionSearch[edge.relationType] = false;
                             cb();
                         }, (modal, form, actions) => {
-                            dontAskAgainInput = form.addCheckbox("confirm", `Aplicar ação para todos os targets relacionados (${edge.relationType}).`);
+                            // dontAskAgainInput = form.addCheckbox("confirm", `Aplicar ação para todos os targets relacionados (${edge.relationType}).`);
                         });
                     }, () => callback()));
                 }
@@ -2425,6 +2424,7 @@ export class KronoosParse {
                         groups: data.groups
                     }));
                     network.on("click", params => {
+                        debugger;
                         if (!params.nodes[0]) {
                             return;
                         }
@@ -2438,6 +2438,17 @@ export class KronoosParse {
                             });
                             return;
                         }
+                        let formatted_document = f(doc);
+
+                        this.call("confirm", {
+                            title: `Você deseja consultar também o dossiê de ${node.label} que é relacionado em ${i+1}º grau com o target?`,
+                            subtitle: `${node.label}, documento ${cpf_cnpj} é relacionado com ${this.name}.`,
+                            paragraph: `A conexão é para ${connection.label} <small>(${f(connection.id)})</small> do tipo ${edge.relationType}.`
+                        }, () => {
+                            this.call("kronoos::parse", node.label, formatted_document, null, "minimized", {
+                                observation: `relacionado ao ${formatted_document ? "CPF" : "CNPJ"} ${doc} - ${this.name}.`
+                            });
+                        });
 
                         var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
                         if (win) win.focus();
