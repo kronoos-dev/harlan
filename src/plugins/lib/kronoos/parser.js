@@ -1569,7 +1569,6 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP`),
             success: data => {
-                debugger;
                 $("nire", data).each((i, e) => {
                     this.searchJucespNire($(e).text());
                 });
