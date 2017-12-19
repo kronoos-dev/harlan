@@ -2424,7 +2424,6 @@ export class KronoosParse {
                         groups: data.groups
                     }));
                     network.on("click", params => {
-                        debugger;
                         if (!params.nodes[0]) {
                             return;
                         }
