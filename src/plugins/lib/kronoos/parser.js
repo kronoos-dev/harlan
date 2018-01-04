@@ -317,9 +317,10 @@ export class KronoosParse {
         }
 
         if (this._notFoundRows[group]) this._notFoundRows[group].remove();
-        this._notFoundItems.push(element);
+        this._notFoundItems[group] = this._notFoundItems[group] || []
+        this._notFoundItems[group].push(element);
         let data = args[0] || {};
-        let ret = this._notFoundList(arrayToSentence(this._notFoundItems, {lastSeparator: ' e '}), data, ...args);
+        let ret = this._notFoundList(arrayToSentence(this._notFoundItems[group], {lastSeparator: ' e '}), data, ...args);
         this._notFoundRows[group] = data.element;
         return ret;
     }
