@@ -307,7 +307,7 @@ export class KronoosParse {
         return this._errorHappendList(...args);
     }
 
-    notFound(element, group = null, ...args) {
+    notFound(element, group, ...args) {
         if (!this._notFoundList) {
             this._notFoundObject = {};
             this._notFoundList = this.firstElement().list('Não Constam Apontamentos', this._notFoundObject, null, 10);

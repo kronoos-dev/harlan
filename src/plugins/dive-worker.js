@@ -1,4 +1,4 @@
-/* global self, moment, csv, file, require, queue */
+/* global self, file, require, queue */
 
 var moment = require('moment'),
     fileReaderStream = require('filereader-stream'),
