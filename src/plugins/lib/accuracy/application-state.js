@@ -1,4 +1,4 @@
-import localForage from "localforage";
+import localForage from 'localforage';
 
 const defaultState = {
 

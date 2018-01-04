@@ -1,7 +1,7 @@
 module.exports = function(controller) {
 
     /** ugly facebook code */
-    controller.registerBootstrap("facebook::track", callback => {
+    controller.registerBootstrap('facebook::track', callback => {
 
         !function(f, b, e, v, n, t, s) {
             if (f.fbq)
@@ -25,7 +25,7 @@ module.exports = function(controller) {
         fbq('init', controller.confs.facebookCode);
         fbq('track', 'PageView');
 
-        $("body").append($("<noscript />").append($("<img />").attr({
+        $('body').append($('<noscript />').append($('<img />').attr({
             height: 1,
             width: 1,
             src: `https://www.facebook.com/tr?id=${controller.confs.facebookCode}&ev=PageView&noscript=1`

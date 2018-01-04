@@ -1,10 +1,10 @@
 /* global module */
-var _ = require("underscore");
+var _ = require('underscore');
 
 module.exports = function(element) {
 
-    var list = $("<ul />").addClass("list");
-    var container = $("<div />").addClass("list-container").append(list);
+    var list = $('<ul />').addClass('list');
+    var container = $('<div />').addClass('list-container').append(list);
     element.append(container);
 
     var elementCellCounter = element => {
@@ -12,15 +12,15 @@ module.exports = function(element) {
     };
 
     var cellCounter = () => {
-        return _.max(_.map(list.children("li"), elementCellCounter));
+        return _.max(_.map(list.children('li'), elementCellCounter));
     };
 
     var tableAjustment = () => {
         var numChilds = cellCounter();
-        list.children("li").each((i, element) => {
+        list.children('li').each((i, element) => {
             element = $(element);
             for (let it = 0; it < numChilds - elementCellCounter(element); it++) {
-                element.append("<div />");
+                element.append('<div />');
             }
         });
     };
@@ -31,21 +31,21 @@ module.exports = function(element) {
     };
 
     this.item = (icon, text) => {
-        var item = $("<li />");
+        var item = $('<li />');
         list.append(item);
         if (icon instanceof Array) {
             for (let idx in icon) {
-                item.append($("<i />").addClass("fa " + icon[idx]));
+                item.append($('<i />').addClass('fa ' + icon[idx]));
             }
         } else {
-            item.append($("<i />").addClass("fa " + icon));
+            item.append($('<i />').addClass('fa ' + icon));
         }
         if (text instanceof Array) {
             for (let idx in text) {
-                item.append($("<div />").text(text[idx]));
+                item.append($('<div />').text(text[idx]));
             }
         } else {
-            item.append($("<div />").text(text));
+            item.append($('<div />').text(text));
         }
 
         tableAjustment();

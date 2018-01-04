@@ -1,33 +1,33 @@
-import assert from "assert";
-import _ from "underscore";
-import vis from "vis";
+import assert from 'assert';
+import _ from 'underscore';
+import vis from 'vis';
 
 const IS_EMPTY = /^\s*$/;
 
 module.exports = controller =>  {
 
     var Result = function (inputContainer, inputContent, inputResult)  {
-        var container = inputContainer || $("<div />").addClass("container");
-        var content = inputContent || $("<div />").addClass("content");
-        var result = inputResult || $("<div />").addClass("result");
+        var container = inputContainer || $('<div />').addClass('container');
+        var content = inputContent || $('<div />').addClass('content');
+        var result = inputResult || $('<div />').addClass('result');
 
         if (!inputResult)
             result.append(container.append(content));
 
         this.addSeparator = (title, subtitle, description, items) =>  {
             items = items || {};
-            items.container = $("<div />").addClass("container");
+            items.container = $('<div />').addClass('container');
             items.result = {
                 oldContainer: container,
                 oldContent: content
             };
-            items.content = $("<div />").addClass("content");
-            items.headerContainer = $("<div />").addClass("container");
-            items.headerContent = $("<div />").addClass("content");
-            items.headerTitle = $("<h4 />").text(title);
-            items.headerSubtitle = $("<h5 />").text(subtitle);
-            items.menu = $("<ul >").addClass("actions");
-            items.resultsDisplay = $("<div />").addClass("results-display").text(description);
+            items.content = $('<div />').addClass('content');
+            items.headerContainer = $('<div />').addClass('container');
+            items.headerContent = $('<div />').addClass('content');
+            items.headerTitle = $('<h4 />').text(title);
+            items.headerSubtitle = $('<h5 />').text(subtitle);
+            items.menu = $('<ul >').addClass('actions');
+            items.resultsDisplay = $('<div />').addClass('results-display').text(description);
 
             items.headerContainer.append(items.headerContent);
             items.headerContent.append(items.menu);
@@ -36,39 +36,39 @@ module.exports = controller =>  {
             items.headerContent.append(items.resultsDisplay);
 
             items.addItem = icon =>  {
-                var item = $('<li />').addClass("action-resize").extend($("<i />").addClass("fa fa-" + icon));
+                var item = $('<li />').addClass('action-resize').extend($('<i />').addClass('fa fa-' + icon));
                 items.menu.append(item);
                 return item;
             };
 
 
-            var header = $("<header />")
-                    .addClass("separator")
-                    .append(items.headerContainer);
+            var header = $('<header />')
+                .addClass('separator')
+                .append(items.headerContainer);
 
             result.append(header);
 
-            container = $("<div />").addClass("container");
-            content = $("<div />").addClass("content");
+            container = $('<div />').addClass('container');
+            content = $('<div />').addClass('content');
             result.append(container.append(content));
 
             return header;
         };
 
         this.block = () =>  {
-            var ret = $("<div />");
+            var ret = $('<div />');
             content.append(ret);
             return ret;
         };
 
         var generateAlert = (radial, percent, context) =>  {
             context = context || {
-                60: "attention",
-                80: "warning"
+                60: 'attention',
+                80: 'warning'
             };
             var styleDefinition = null;
 
-            radial.element.removeClass(_.toArray(context).join(" "));
+            radial.element.removeClass(_.toArray(context).join(' '));
 
             for (var minPerc in context) {
                 if (percent < parseInt(minPerc)) {
@@ -85,8 +85,8 @@ module.exports = controller =>  {
         };
 
         this.generateRadial = (name, percent, context) =>  {
-            var item = this.addItem(name, "").addClass("center"),
-                    itemValue = item.find(".value");
+            var item = this.addItem(name, '').addClass('center'),
+                itemValue = item.find('.value');
 
             var widget = controller.interface.widgets.radialProject(itemValue, percent);
 
@@ -116,33 +116,33 @@ module.exports = controller =>  {
         };
 
         this.addIcon = (name, icon, action) => {
-            var node = $("<div />").addClass("field icon");
+            var node = $('<div />').addClass('field icon');
 
-            node.append($("<div />").addClass("value")
-                .append($("<i />").addClass(`fa ${icon}`))).click(e => {
-                    e.preventDefault();
-                    if (action) action();
+            node.append($('<div />').addClass('value')
+                .append($('<i />').addClass(`fa ${icon}`))).click(e => {
+                e.preventDefault();
+                if (action) action();
             });
 
-            node.append($("<div />").addClass("name").text(name));
+            node.append($('<div />').addClass('name').text(name));
             content.append(node);
 
             return node;
         };
 
         this.addItem = (name, value, tagname) =>  {
-            var node = $("<div />").addClass("field");
+            var node = $('<div />').addClass('field');
 
             if (typeof tagname !== typeof undefined) {
-                node.attr("data-tagname", tagname);
+                node.attr('data-tagname', tagname);
             }
 
             if (typeof value !== typeof undefined) {
-                node.append($("<div />").addClass("value").html(value));
+                node.append($('<div />').addClass('value').html(value));
             }
 
             if (typeof name !== typeof undefined) {
-                node.append($("<div />").addClass("name").text(name));
+                node.append($('<div />').addClass('name').text(name));
             }
 
             content.append(node);
@@ -151,7 +151,7 @@ module.exports = controller =>  {
         };
 
         this.addNetwork = (nodesArray, edgesArray, options = {})=> {
-            let elem = $("<div />").addClass("result-network"),
+            let elem = $('<div />').addClass('result-network'),
                 network = new vis.Network(elem.get(0), {
                     nodes: nodesArray,
                     edges: edgesArray
@@ -171,17 +171,17 @@ module.exports = controller =>  {
         return this;
     };
 
-    controller.registerCall("result", () =>  {
+    controller.registerCall('result', () =>  {
         return new Result();
     });
 
-    controller.registerCall("result::import", result =>  {
-        assert.ok(result.hasClass("result"));
+    controller.registerCall('result::import', result =>  {
+        assert.ok(result.hasClass('result'));
 
-        var container = result.find(".container").first();
+        var container = result.find('.container').first();
         assert.ok(container.length > 0);
 
-        var content = container.find(".content");
+        var content = container.find('.content');
         assert.ok(content.length > 0);
 
         return new Result(container, content, result);

@@ -5,7 +5,7 @@ import 'dom4';
 import I18n from './internals/library/i18n';
 
 (function(d) {
-    let Harlan = require("./internals/controller");
+    let Harlan = require('./internals/controller');
     let harlan = new Harlan();
     d.harlan = harlan; /* global */
 
@@ -15,7 +15,7 @@ import I18n from './internals/library/i18n';
 
     harlan.interface = {
         helpers : {
-            activeWindow : require("./internals/interface/active-window")
+            activeWindow : require('./internals/interface/active-window')
         }
     };
 

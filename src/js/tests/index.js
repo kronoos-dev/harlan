@@ -2,11 +2,11 @@
  *  size delivered to the customer. */
 
 mocha.setup('bdd');
-window.harlan = require("../internals/controller")();
+window.harlan = require('../internals/controller')();
 
 require('domready')(function () {
-    require("./controller")();
-    require("./config")();
+    require('./controller')();
+    require('./config')();
 
     if (window.mochaPhantomJS) {
         mochaPhantomJS.run();

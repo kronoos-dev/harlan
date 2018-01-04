@@ -28,17 +28,17 @@ const DATABASE_KEYS = [
     'image'
 ];
 
-var squel = require("squel"),
+var squel = require('squel'),
     changeCase = require('change-case'),
-    async = require("async"),
-    _ = require("underscore"),
-    validCheck = require("./data/valid-check");
+    async = require('async'),
+    _ = require('underscore'),
+    validCheck = require('./data/valid-check');
 
 module.exports = function(controller) {
 
     var databaseObject = (obj, type) => {
 
-        type = type || "constantCase";
+        type = type || 'constantCase';
         var n = {};
         for (var i in obj) {
             if (DATABASE_KEYS.indexOf(changeCase.camelCase(i)) < 0) {
@@ -49,7 +49,7 @@ module.exports = function(controller) {
         return n;
     };
 
-    controller.registerCall("icheques::databaseObject", databaseObject);
+    controller.registerCall('icheques::databaseObject', databaseObject);
 
     var insertDatabase = function(check) {
         if (Array.isArray(check)) {
@@ -62,32 +62,32 @@ module.exports = function(controller) {
         }
 
         if (!validCheck(check.cmc)) {
-            check.situation = "Instituição bancária não monitorada";
-            check.display = "Instituição bancária não monitorada";
-            check.queryStatus = "Instituição bancária não monitorada";
+            check.situation = 'Instituição bancária não monitorada';
+            check.display = 'Instituição bancária não monitorada';
+            check.queryStatus = 'Instituição bancária não monitorada';
             check.ocurrenceCode = 99999;
-            check.ocurrence = "Instituição bancária não monitorada";
+            check.ocurrence = 'Instituição bancária não monitorada';
             check.pushId = null;
         }
         try {
-            controller.database.exec(squel.insert().into("ICHEQUES_CHECKS").setFields(databaseObject(check)).toString());
+            controller.database.exec(squel.insert().into('ICHEQUES_CHECKS').setFields(databaseObject(check)).toString());
         } catch (e) {
             console.error(e);
         }
     };
 
-    controller.registerCall("icheques::insertDatabase", insertDatabase);
+    controller.registerCall('icheques::insertDatabase', insertDatabase);
 
     var calculateCheck = function(check) {
         if (!validCheck(check.cmc)) {
             return 0;
         }
 
-        if (controller.call("icheques::check::alreadyExists", check)) {
+        if (controller.call('icheques::check::alreadyExists', check)) {
             return 0;
         }
 
-        let checkDiff = moment(check.expire, "YYYYMMDD").diff(moment(), "month");
+        let checkDiff = moment(check.expire, 'YYYYMMDD').diff(moment(), 'month');
         if (checkDiff <= 0) {
             return controller.confs.icheques.price;
         }
@@ -100,14 +100,14 @@ module.exports = function(controller) {
     };
 
     var newCheck = function(check, callback) {
-        controller.serverCommunication.call("SELECT FROM 'ICHEQUES'.'CHECK'",
-            controller.call("error::ajax", {
+        controller.serverCommunication.call('SELECT FROM \'ICHEQUES\'.\'CHECK\'',
+            controller.call('error::ajax', {
                 data: check,
                 success: function(ret) {
-                    if (!$("new", ret).length) {
-                        toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, "Efetue uma busca no sistema e tente novamente.");
+                    if (!$('new', ret).length) {
+                        toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, 'Efetue uma busca no sistema e tente novamente.');
                     }
-                    $.extend(check, controller.call("icheques::parse::element", $(ret).find("check").get(0)));
+                    $.extend(check, controller.call('icheques::parse::element', $(ret).find('check').get(0)));
                     insertDatabase(check);
                 },
                 complete: function() {
@@ -117,20 +117,20 @@ module.exports = function(controller) {
         return true;
     };
 
-    controller.registerCall("icheques::newCheck", newCheck);
-    controller.registerCall("icheques::calculateCheckValue", calculateCheck);
+    controller.registerCall('icheques::newCheck', newCheck);
+    controller.registerCall('icheques::calculateCheckValue', calculateCheck);
 
-    controller.registerCall("icheques::checkout", function(storage) {
+    controller.registerCall('icheques::checkout', function(storage) {
         if (!storage.length) {
             return;
         }
 
-        controller.call("icheques::calculateBill", storage, function() {
+        controller.call('icheques::calculateBill', storage, function() {
             var q = async.queue(newCheck);
             var loaderUnregister = $.bipbopLoader.register();
             q.drain = function() {
                 loaderUnregister();
-                controller.call("icheques::show", storage);
+                controller.call('icheques::show', storage);
             };
 
             for (var i in storage) {
@@ -139,12 +139,12 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall("icheques::calculateBill", function(checks, callback) {
-        controller.server.call("SELECT FROM 'ICHEQUES'.'IPAYTHEBILL'", controller.call("loader::ajax", {
-            dataType: "json",
+    controller.registerCall('icheques::calculateBill', function(checks, callback) {
+        controller.server.call('SELECT FROM \'ICHEQUES\'.\'IPAYTHEBILL\'', controller.call('loader::ajax', {
+            dataType: 'json',
             success: data => {
                 if (data) {
-                    controller.call("icheques::calculateBill::pay", checks, callback);
+                    controller.call('icheques::calculateBill::pay', checks, callback);
                 } else {
                     callback();
                 }
@@ -152,13 +152,13 @@ module.exports = function(controller) {
         }));
     });
 
-    controller.registerCall("icheques::calculateBill::pay", function(checks, callback) {
+    controller.registerCall('icheques::calculateBill::pay', function(checks, callback) {
         var total = 0;
         for (var i in checks) {
             total += calculateCheck(checks[i]);
         }
 
-        controller.call("credits::has", total, callback);
+        controller.call('credits::has', total, callback);
     });
 
 };

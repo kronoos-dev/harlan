@@ -19,32 +19,32 @@ module.exports = function (controller) {
         return [e.pageX - $(targ).offset().left, e.pageY - $(targ).offset().top];
     };
 
-    controller.registerBootstrap("antiphishing::implement", function (callback) {
+    controller.registerBootstrap('antiphishing::implement', function (callback) {
         callback();
 
-        var canvas = $(".antiphishing:first");
+        var canvas = $('.antiphishing:first');
         if (!canvas.length) return;
 
-        var context = canvas.get(0).getContext("2d");
+        var context = canvas.get(0).getContext('2d');
 
-        if (localStorage.getItem("antiphishing")) {
+        if (localStorage.getItem('antiphishing')) {
             var imageObj = new Image();
             imageObj.onload = function () {
                 context.drawImage(this, 0, 0);
             };
 
-            imageObj.src = localStorage.getItem("antiphishing");
+            imageObj.src = localStorage.getItem('antiphishing');
         }
 
         var mouseMove = null;
 
         var onMouseMove = function (e) {
-            context.fillStyle = "black";
+            context.fillStyle = 'black';
             var ps = position(e);
             context.fillRect(ps[0], ps[1], 1, 1);
             setTimeout(mouseMove);
             mouseMove = setTimeout(function () {
-                localStorage.setItem("antiphishing", canvas.get(0).toDataURL());
+                localStorage.setItem('antiphishing', canvas.get(0).toDataURL());
             }, 300);
         };
 
@@ -53,16 +53,16 @@ module.exports = function (controller) {
         canvas.click(function (e) {
             e.preventDefault();
             if (enabled) {
-                canvas.off("mousemove", onMouseMove);
+                canvas.off('mousemove', onMouseMove);
             } else {
-                canvas.on("mousemove", onMouseMove);
+                canvas.on('mousemove', onMouseMove);
             }
             enabled = !enabled;
         });
 
         canvas.dblclick(function (e) {
             context.clearRect(0, 0, canvas.width(), canvas.height());
-            localStorage.setItem("antiphishing", canvas.get(0).toDataURL());
+            localStorage.setItem('antiphishing', canvas.get(0).toDataURL());
         });
 
     });

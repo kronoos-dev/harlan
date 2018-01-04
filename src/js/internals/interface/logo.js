@@ -1,1 +1,1 @@
-module.exports = $(".logo");
+module.exports = $('.logo');

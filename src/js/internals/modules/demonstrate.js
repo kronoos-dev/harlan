@@ -1,8 +1,8 @@
 module.exports = function (controller) {
-    controller.registerBootstrap("demonstrate", function (callback) {
+    controller.registerBootstrap('demonstrate', function (callback) {
         callback();
-        $("#demonstration").click(function () {
-            controller.call("authentication::force", BIPBOP_FREE);
+        $('#demonstration').click(function () {
+            controller.call('authentication::force', BIPBOP_FREE);
         });
     });
 };

@@ -1,10 +1,10 @@
 module.exports = function (controller) {
-    controller.registerBootstrap("mainSearch", function (callback) {
+    controller.registerBootstrap('mainSearch', function (callback) {
         callback();
-        $(".main-search").each((i, v) => {
+        $('.main-search').each((i, v) => {
             $(v).submit(function (e) {
                 e.preventDefault();
-                controller.trigger("mainSearch::submit", $(this).find(".input-q").val());
+                controller.trigger('mainSearch::submit', $(this).find('.input-q').val());
             });
         });
     });

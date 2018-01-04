@@ -2,12 +2,12 @@
 
 const EMPTY_REGEX = /^\s*$/;
 
-import assert from "assert";
-import _ from "underscore";
+import assert from 'assert';
+import _ from 'underscore';
 import {
     camelCase
 } from 'change-case';
-import async from "async";
+import async from 'async';
 
 module.exports = controller => {
 
@@ -18,22 +18,22 @@ module.exports = controller => {
         let modal = null;
 
         let next = () => {
-            assert(configuration !== null, "configuration required");
+            assert(configuration !== null, 'configuration required');
             ++currentScreen;
             this.display();
             return this;
         };
 
         let back = () => {
-            assert(configuration !== null, "configuration required");
-            assert(currentScreen > 0, "no turning back tarãrãrã");
+            assert(configuration !== null, 'configuration required');
+            assert(currentScreen > 0, 'no turning back tarãrãrã');
             --currentScreen;
             this.display();
             return this;
         };
 
         this.configure = c => {
-            assert(typeof c === "object");
+            assert(typeof c === 'object');
             assert(Array.isArray(c.screens));
             assert(c.screens.length > 0);
             configuration = c;
@@ -60,14 +60,14 @@ module.exports = controller => {
             _.each(configuration.screens, v => {
                 _.each(_.flatten(v.fields), field => {
                     if (camelCase(field.name) === name) {
-                        if (field.type == "file") {
+                        if (field.type == 'file') {
                             /* can't set */
                             return;
                         }
-                        if (field.type == "checkbox") {
+                        if (field.type == 'checkbox') {
                             field.checked = value;
                             if (field.element) {
-                                field.element.attr("checked", value);
+                                field.element.attr('checked', value);
                             }
                             return;
                         }
@@ -85,14 +85,14 @@ module.exports = controller => {
         };
 
         let createField = (item, form, screen) => {
-            if (item.type === "checkbox") {
+            if (item.type === 'checkbox') {
                 let checkbox = form.addCheckbox(item.name, item.labelText, item.checked, item.value, item);
                 item.element = checkbox[1];
                 item.container = checkbox[0];
-                item.elementLabel = checkbox[2].addClass("checkbox");
-            } else if (item.type === "select") {
+                item.elementLabel = checkbox[2].addClass('checkbox');
+            } else if (item.type === 'select') {
                 item.element = form.addSelect(item.name, item.name, item.list, item, item.labelText, item.value);
-            } else if (item.type === "textarea") {
+            } else if (item.type === 'textarea') {
                 item.element = form.addTextarea(item.name, item.placeholder, item, item.labelText);
                 if ((configuration.magicLabel || screen.magicLabel || item.magicLabel) && !item.hoverHelp) {
                     item.element.magicLabel(item.label);
@@ -125,23 +125,23 @@ module.exports = controller => {
                 if (item.validateAsync)
                     item.validateAsync((isValid) => {
                         if (!isValid) {
-                            item.element.addClass("error");
+                            item.element.addClass('error');
                         }
                     }, item, screen, configuration, this);
 
                 if (item.validate && !item.validate(item, screen, configuration)) {
-                    item.element.addClass("error");
+                    item.element.addClass('error');
                 }
 
                 if (!item.optional && /^\s*$/.test(item.element.val())) {
-                    item.element.val("");
-                    item.element.addClass("error");
+                    item.element.val('');
+                    item.element.addClass('error');
                 }
 
             });
 
             if (item.disabled || screen.disabled || configuration.disabled) {
-                item.element.attr("disabled", "disabled").addClass("uinput-disabled");
+                item.element.attr('disabled', 'disabled').addClass('uinput-disabled');
             }
 
             if (item.builder) {
@@ -161,7 +161,7 @@ module.exports = controller => {
                 return input.getValue(input, c);
             }
 
-            if (input.element.attr("type") === "file") {
+            if (input.element.attr('type') === 'file') {
                 if (!input.element.get(0).files[0]) {
                     return null;
                 }
@@ -193,11 +193,11 @@ module.exports = controller => {
                 };
             }
 
-            if (input.element.attr("type") === "checkbox") {
+            if (input.element.attr('type') === 'checkbox') {
                 return input.element.get(0).checked;
             }
 
-            if (input.element.attr("type") === "text") {
+            if (input.element.attr('type') === 'text') {
                 if (input.numeral) {
                     return numeral(input.element.val()).value();
                 }
@@ -206,7 +206,7 @@ module.exports = controller => {
                     if (!m.isValid) {
                         return null;
                     }
-                    return m.format("YYYY-MM-DD");
+                    return m.format('YYYY-MM-DD');
                 }
             }
 
@@ -248,7 +248,7 @@ module.exports = controller => {
         };
 
         this.display = (setScreen) => {
-            if (typeof setScreen !== "undefined") {
+            if (typeof setScreen !== 'undefined') {
                 currentScreen = setScreen;
             }
 
@@ -257,7 +257,7 @@ module.exports = controller => {
                 modal = null;
             }
 
-            modal = controller.call("modal");
+            modal = controller.call('modal');
             let screen = configuration.screens[currentScreen];
 
             let gamification = screen.gamification || configuration.gamification;
@@ -301,13 +301,13 @@ module.exports = controller => {
                     let multifield = form.multiField();
                     for (let n in field) {
                         field[n].append = multifield;
-                        field[n].labelPosition = "before";
+                        field[n].labelPosition = 'before';
                         createField(field[n], form, screen);
                     }
                 } else createField(field, form, screen);
             }
 
-            form.addSubmit("next", screen.nextButton || (currentScreen + 1 < configuration.screens.length ?
+            form.addSubmit('next', screen.nextButton || (currentScreen + 1 < configuration.screens.length ?
                 controller.i18n.system.next() : controller.i18n.system.finish()));
 
             let actions = modal.createActions();
@@ -367,22 +367,22 @@ module.exports = controller => {
                 }
 
                 if (item.validate && !item.validate(item, screen, configuration)) {
-                    item.element.addClass("error");
+                    item.element.addClass('error');
                     ret = false;
                     callback();
                     return;
                 }
 
                 if (!item.optional && !configuration.readOnly) {
-                    if (item.element.attr("type") === "checkbox") {
-                        if (!item.element.is(":checked")) {
-                            $("label[for='" + item.element.attr("id") + "']").addClass("error");
+                    if (item.element.attr('type') === 'checkbox') {
+                        if (!item.element.is(':checked')) {
+                            $('label[for=\'' + item.element.attr('id') + '\']').addClass('error');
                             ret = false;
                             callback();
                             return;
                         }
                     } else if (/^\s*$/.test(item.element.val())) {
-                        item.element.addClass("error");
+                        item.element.addClass('error');
                         ret = false;
                         callback();
                         return;
@@ -397,7 +397,7 @@ module.exports = controller => {
     };
 
 
-    controller.registerCall("form", (...parameters) => {
+    controller.registerCall('form', (...parameters) => {
         return new GenerateForm(...parameters);
     });
 

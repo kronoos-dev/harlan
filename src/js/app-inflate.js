@@ -1,5 +1,5 @@
 (function () {
-    var pako = require("pako"),
+    var pako = require('pako'),
         inflate = new pako.Inflate();
 
     inflate.onData = function (chunk) {

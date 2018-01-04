@@ -2,9 +2,9 @@ import jDataView from 'jdataview';
 import { sprintf } from 'sprintf';
 import { CMC7Parser } from './cmc7-parser';
 import async from 'async';
-import { CPF } from "cpf_cnpj";
-import { CNPJ } from "cpf_cnpj";
-import slug from "slug";
+import { CPF } from 'cpf_cnpj';
+import { CNPJ } from 'cpf_cnpj';
+import slug from 'slug';
 
 slug.defaults.modes.pretty = {
     replacement: ' ',      // replace spaces with replacement
@@ -17,11 +17,11 @@ slug.defaults.modes.pretty = {
 slug.defaults.mode ='pretty';
 
 const NON_NUMERIC = /[\D]/g,
-      NON_WORD = /[\W]/g,
-      ROW_SIZE = 502,
-      BAN_VERSION = '02.7',
-      MAX_THREADS = 2,
-      CRLF = '\r\n';
+    NON_WORD = /[\W]/g,
+    ROW_SIZE = 502,
+    BAN_VERSION = '02.7',
+    MAX_THREADS = 2,
+    CRLF = '\r\n';
 
 export class BANFactory {
     constructor(call, results, company) {
@@ -45,28 +45,28 @@ export class BANFactory {
     }
 
     _getFirstCellPhone(doc) {
-        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone"),
-            ret = "";
+        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone'),
+            ret = '';
         $phoneNode.each((i, el) => {
-            let ddd = $(el).find("ddd").text(),
-                phoneNumber = $(el).find("numero").text();
+            let ddd = $(el).find('ddd').text(),
+                phoneNumber = $(el).find('numero').text();
             if (this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
         });
         return ret;
     }
 
     _getFirstEmail(doc) {
-        let $emailNode = $(doc).find("BPQL > body > xml > emails > email").first(),
-            email = $emailNode.find("email").text();
+        let $emailNode = $(doc).find('BPQL > body > xml > emails > email').first(),
+            email = $emailNode.find('email').text();
         return email;
     }
 
     _getFirstPhone(doc) {
-        let $phoneNode = $(doc).find("BPQL > body > xml > telefones > telefone"),
-            ret = "";
+        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone'),
+            ret = '';
         $phoneNode.each((i, el) => {
-            let ddd = $(el).find("ddd").text(),
-                phoneNumber = $(el).find("numero").text();
+            let ddd = $(el).find('ddd').text(),
+                phoneNumber = $(el).find('numero').text();
             if (!this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
         });
         return ret;
@@ -113,14 +113,14 @@ export class BANFactory {
         this.generateFooter();
 
         var tasks = async.queue((check, callback) => {
-            let name = "";
+            let name = '';
             async.parallel([callback => {
-                this.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
+                this.call('SELECT FROM \'BIPBOPJS\'.\'CPFCNPJ\'', {
                     data : {documento : check.cpf || check.cnpj },
                     success : ret => {
-                        name = $("BPQL > body > nome", ret).text();
+                        name = $('BPQL > body > nome', ret).text();
                         if (!name) {
-                            name = "NOME DO TITULAR NAO RASTREAVEL";
+                            name = 'NOME DO TITULAR NAO RASTREAVEL';
                         }
                         this.buffer.setString(this._goToPosition(check.row, 32),
                             slug(name).substring(0, 40));
@@ -130,13 +130,13 @@ export class BANFactory {
             }, callback => {
                 let doc = CPF.strip(check.cpf) || CNPJ.strip(check.cnpj),
                     soma = 0;
-                this.call("SELECT FROM 'CCF'.'CONSULTA'", {
+                this.call('SELECT FROM \'CCF\'.\'CONSULTA\'', {
                     data: {doc: doc},
                     success: ret => {
-                        $(ret).find("BPQL > body > xml > ccfs > ccf").children().each((i, el) => {
+                        $(ret).find('BPQL > body > xml > ccfs > ccf').children().each((i, el) => {
                             let $el = $(el),
-                                tag = $el.prop("tagName");
-                            if (!tag.includes("aline")) return;
+                                tag = $el.prop('tagName');
+                            if (!tag.includes('aline')) return;
                             soma += parseInt($el.text(), 10);
                         });
                         // Contato. de 220 até 249. 30.
@@ -147,7 +147,7 @@ export class BANFactory {
                     complete: () => callback()
                 });
             }, callback => {
-                this.call("USING 'CCBUSCA' SELECT FROM 'FINDER'.'CONSULTA'", {
+                this.call('USING \'CCBUSCA\' SELECT FROM \'FINDER\'.\'CONSULTA\'', {
                     data : {documento : check.cpf || check.cnpj },
                     success : ret => {
                         // telefone. de 128 até 139. 12.
@@ -157,36 +157,36 @@ export class BANFactory {
                         // email. de 180 até 219. 40.
                         this.buffer.setString(this._goToPosition(check.row, 179), this._getFirstEmail(ret).trim().substring(0, 40));
                         // partes do endereço
-                        $("BPQL > body > xml > enderecos > endereco", ret).first().children().each((i, el) => {
+                        $('BPQL > body > xml > enderecos > endereco', ret).first().children().each((i, el) => {
                             var val = $(el).text();
                             switch (i) {
-                                case 1:
-                                    // endereco. de 391 até 430. 40.
-                                    this.buffer.setString(this._goToPosition(check.row, 390), slug(val).trim().substring(0, 40));
-                                    break;
-                                case 2:
-                                    // numero. de 431 até 435. 5.
-                                    this.buffer.setString(this._goToPosition(check.row, 430), val.trim().replace(/^0+/, "").substring(0, 5));
-                                    break;
-                                case 3:
-                                    // cep. de 172 até 179. 8.
-                                    this.buffer.setString(this._goToPosition(check.row, 171), val.trim().substring(0, 8));
-                                    break;
-                                case 4:
-                                    // bairro. de 113 até 127. 15.
-                                    this.buffer.setString(this._goToPosition(check.row, 112), slug(val).trim().substring(0, 15));
-                                    break;
-                                case 5:
-                                    // cidade. de 152 até 169. 18.
-                                    this.buffer.setString(this._goToPosition(check.row, 151), slug(val).trim().substring(0, 18));
-                                    break;
-                                case 6:
-                                    // estado. de 170 até 171. 2.
-                                    this.buffer.setString(this._goToPosition(check.row, 169), slug(val).trim().substring(0, 2));
-                                    break;
-                                case 7:
-                                    // complemento. de 436 até 465. 30.
-                                    this.buffer.setString(this._goToPosition(check.row, 435), slug(val).trim().substring(0, 30));
+                            case 1:
+                                // endereco. de 391 até 430. 40.
+                                this.buffer.setString(this._goToPosition(check.row, 390), slug(val).trim().substring(0, 40));
+                                break;
+                            case 2:
+                                // numero. de 431 até 435. 5.
+                                this.buffer.setString(this._goToPosition(check.row, 430), val.trim().replace(/^0+/, '').substring(0, 5));
+                                break;
+                            case 3:
+                                // cep. de 172 até 179. 8.
+                                this.buffer.setString(this._goToPosition(check.row, 171), val.trim().substring(0, 8));
+                                break;
+                            case 4:
+                                // bairro. de 113 até 127. 15.
+                                this.buffer.setString(this._goToPosition(check.row, 112), slug(val).trim().substring(0, 15));
+                                break;
+                            case 5:
+                                // cidade. de 152 até 169. 18.
+                                this.buffer.setString(this._goToPosition(check.row, 151), slug(val).trim().substring(0, 18));
+                                break;
+                            case 6:
+                                // estado. de 170 até 171. 2.
+                                this.buffer.setString(this._goToPosition(check.row, 169), slug(val).trim().substring(0, 2));
+                                break;
+                            case 7:
+                                // complemento. de 436 até 465. 30.
+                                this.buffer.setString(this._goToPosition(check.row, 435), slug(val).trim().substring(0, 30));
                             }
                         });
                     },

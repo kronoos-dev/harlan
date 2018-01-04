@@ -9,11 +9,11 @@ const MAX_RESULTS = 5;
 
 harlan.addPlugin(controller => {
     let harmonizer = new harmony.Harmonizer(),
-        colorMix = "neutral",
+        colorMix = 'neutral',
         colors = {
-            error: harmonizer.harmonize("#ff1a53", colorMix),
-            warning: harmonizer.harmonize("#ffe500", colorMix),
-            success: harmonizer.harmonize("#00ff6b", colorMix)
+            error: harmonizer.harmonize('#ff1a53', colorMix),
+            warning: harmonizer.harmonize('#ffe500', colorMix),
+            success: harmonizer.harmonize('#00ff6b', colorMix)
         };
 
     /**
@@ -41,40 +41,40 @@ harlan.addPlugin(controller => {
         })), value => {
             return _.reduce(value, (a, b) => {
                 a.value += b.value;
-                a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
-                a.label = "Outros";
+                a.color = '#93A7D8';
+                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+                a.label = 'Outros';
                 return a;
             });
         });
 
     };
 
-    controller.serverCommunication.call("SELECT FROM 'PUSH'.'QA'", {
-        dataType: "json",
+    controller.serverCommunication.call('SELECT FROM \'PUSH\'.\'QA\'', {
+        dataType: 'json',
         success: data => {
             var filter = (hasSuccessMemory) => {
                 return _.filter(data, element => element._id.hasSuccessMemory === hasSuccessMemory);
             };
 
-            generateReport(filter(true), "Relatório de Push", "Consultas Realizadas com Sucesso",
-                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
-                "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
-                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
+            generateReport(filter(true), 'Relatório de Push', 'Consultas Realizadas com Sucesso',
+                'O relatório de Push fornece uma estatística de qualidade e detalhada para que as ' +
+                'manutenções possam ser orientadas com maior precisão em relação aos problemas. Para ' +
+                'obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.');
 
-            generateReport(filter(false), "Relatório de Push", "Consultas Relizadas sem Sucesso",
-                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
-                "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
-                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.");
+            generateReport(filter(false), 'Relatório de Push', 'Consultas Relizadas sem Sucesso',
+                'O relatório de Push fornece uma estatística de qualidade e detalhada para que as ' +
+                'manutenções possam ser orientadas com maior precisão em relação aos problemas. Para ' +
+                'obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.');
         }
     });
 
     let generateDatabaseReport = (data, title, subtitle, paragraph) => {
-        let report = controller.call("report", title, subtitle, paragraph);
+        let report = controller.call('report', title, subtitle, paragraph);
 
-        report.button("Abrir Consultas", () => {
-            let ids = _.reduceRight(_.pluck(_.pluck(data, "value"), "ids"), (a, b) => a.concat(b)),
-                moreResults = controller.call("moreResults", MAX_RESULTS),
+        report.button('Abrir Consultas', () => {
+            let ids = _.reduceRight(_.pluck(_.pluck(data, 'value'), 'ids'), (a, b) => a.concat(b)),
+                moreResults = controller.call('moreResults', MAX_RESULTS),
                 skip = 0;
             moreResults.callback(cb => {
                 let items = [],
@@ -86,32 +86,32 @@ harlan.addPlugin(controller => {
                 }
 
                 let q = queue(function(task, callback) {
-                    controller.server.call("SELECT FROM 'PUSH'.'REPORT'", {
+                    controller.server.call('SELECT FROM \'PUSH\'.\'REPORT\'', {
                         data: {
                             id: task
                         },
                         success: job => {
-                            let result = controller.call("result"),
-                                push = $(job).find("body push");
-                            result.addItem("Identificador", task);
-                            result.addItem("Rótulo", push.attr("label"));
-                            result.addItem("Consulta", push.find("data").text() || push.find("pushquery").text());
-                            result.addItem("API", "").find(".value").append($("<a />").attr({
+                            let result = controller.call('result'),
+                                push = $(job).find('body push');
+                            result.addItem('Identificador', task);
+                            result.addItem('Rótulo', push.attr('label'));
+                            result.addItem('Consulta', push.find('data').text() || push.find('pushquery').text());
+                            result.addItem('API', '').find('.value').append($('<a />').attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
-                                    q: "SELECT FROM 'PUSH'.'JOB'",
+                                    apiKey: push.find('apikey').text() || controller.serverCommunication.apiKey(),
+                                    q: 'SELECT FROM \'PUSH\'.\'JOB\'',
                                     id: task,
                                 })}`
-                            }).text("Visualização API"));
-                            result.addItem("API", "").find(".value").append($("<a />").attr({
+                            }).text('Visualização API'));
+                            result.addItem('API', '').find('.value').append($('<a />').attr({
                                 target: '_blank',
                                 href: `https://irql.bipbop.com.br/?${qs.stringify({
-                                    apiKey: push.find("apikey").text() || controller.serverCommunication.apiKey(),
-                                    q: "SELECT FROM 'PUSH'.'DOCUMENT'",
+                                    apiKey: push.find('apikey').text() || controller.serverCommunication.apiKey(),
+                                    q: 'SELECT FROM \'PUSH\'.\'DOCUMENT\'',
                                     id: task,
                                 })}`
-                            }).text("Documento"));
+                            }).text('Documento'));
                             items.push(result.element());
                         },
                         complete: () => callback()
@@ -130,11 +130,11 @@ harlan.addPlugin(controller => {
         });
 
         let dataQuerys = _.groupBy(data, a => a._id.query),
-            colors = harmonizer.harmonize("#cdfd9f", [...Array(_.keys(dataQuerys).length).keys()].map(i => i * 10)),
+            colors = harmonizer.harmonize('#cdfd9f', [...Array(_.keys(dataQuerys).length).keys()].map(i => i * 10)),
             iterator = 0;
         let dataset = _.sortBy(_.map(dataQuerys, (element, query) => {
             let color = new Color(colors[iterator++]),
-                counter = _.reduce(_.pluck(_.pluck(element, "value"), "count"), (a, b) => a + b),
+                counter = _.reduce(_.pluck(_.pluck(element, 'value'), 'count'), (a, b) => a + b),
                 label = query;
 
             return {
@@ -147,7 +147,7 @@ harlan.addPlugin(controller => {
         }), 'value');
 
         let canvas = report.canvas(250, 250);
-        new ChartJS(canvas.getContext("2d")).Doughnut(reduceDataset(dataset));
+        new ChartJS(canvas.getContext('2d')).Doughnut(reduceDataset(dataset));
 
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({
@@ -169,20 +169,20 @@ harlan.addPlugin(controller => {
             data = _.filter(data, item => item._id.query == filter);
         }
 
-        let ids = _.pluck(data, "_id"),
-            queryNames = _.pluck(ids, "query"),
+        let ids = _.pluck(data, '_id'),
+            queryNames = _.pluck(ids, 'query'),
             querys = _.uniq(queryNames),
-            report = controller.call("report", title, subtitle, paragraph);
+            report = controller.call('report', title, subtitle, paragraph);
 
-        report.button("Filtrar por Consulta", () => {
-            let modal = controller.call("modal");
-            modal.title("Filtro de Relatório Push");
-            modal.subtitle("Filtre os resultados para obter detalhes mais precisos.");
-            modal.paragraph("Você é capaz de filtrar as consultas pela expressão Juristek ou BIPBOP.");
+        report.button('Filtrar por Consulta', () => {
+            let modal = controller.call('modal');
+            modal.title('Filtro de Relatório Push');
+            modal.subtitle('Filtre os resultados para obter detalhes mais precisos.');
+            modal.paragraph('Você é capaz de filtrar as consultas pela expressão Juristek ou BIPBOP.');
 
             let queryList = _.object(querys, querys);
             let form = modal.createForm(),
-                inputQueryType = form.addSelect("field", "Consulta a ser realizada", queryList);
+                inputQueryType = form.addSelect('field', 'Consulta a ser realizada', queryList);
 
             form.element().submit(e => {
                 e.preventDefault();
@@ -190,7 +190,7 @@ harlan.addPlugin(controller => {
                 modal.close();
             });
 
-            form.addSubmit("send", "Filtrar");
+            form.addSubmit('send', 'Filtrar');
             modal.createActions().cancel();
         });
 
@@ -200,10 +200,10 @@ harlan.addPlugin(controller => {
         let dataset = _.sortBy(_.map(dataTrys, (element, trys) => {
             let color = new Color(trys < 3 ? colors.success[trys] :
                     (trys < 6 ? colors.warning[trys - 3] : colors.error[trys - 6])),
-                label = `${trys} ${trys == 1 ? "tentativa" : "tentativas"}`;
+                label = `${trys} ${trys == 1 ? 'tentativa' : 'tentativas'}`;
 
             return {
-                value: _.reduce(_.pluck(_.pluck(element, "value"), "count"), (a, b) => a + b),
+                value: _.reduce(_.pluck(_.pluck(element, 'value'), 'count'), (a, b) => a + b),
                 color: color.hsl().string(),
                 trys: trys,
                 label: label,
@@ -214,7 +214,7 @@ harlan.addPlugin(controller => {
         }), 'trys');
 
         let canvas = report.canvas(250, 250);
-        new ChartJS(canvas.getContext("2d")).Doughnut(dataset);
+        new ChartJS(canvas.getContext('2d')).Doughnut(dataset);
 
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({

@@ -1,14 +1,14 @@
 module.exports = controller => {
 
-    const searchBar = $(".kronoos-application .search-bar");
-    const searchBarContainer = $(".kronoos-application .search-bar .container");
-    const loader = $(".kronoos-application .kronoos-q-container i.status-icon");
-    const logo = $(".kronoos-application .kronoos-q-container img.kronoos-logo");
+    const searchBar = $('.kronoos-application .search-bar');
+    const searchBarContainer = $('.kronoos-application .search-bar .container');
+    const loader = $('.kronoos-application .kronoos-q-container i.status-icon');
+    const logo = $('.kronoos-application .kronoos-q-container img.kronoos-logo');
 
     var iterations = 0;
 
-    controller.registerCall("kronoos::status::ajax", function (icon, status, dict = {}) {
-        let kronoosStatus = controller.call("kronoos::status", icon, status, dict),
+    controller.registerCall('kronoos::status::ajax', function (icon, status, dict = {}) {
+        let kronoosStatus = controller.call('kronoos::status', icon, status, dict),
             complete = dict.complete;
 
         dict.complete = function () {
@@ -19,24 +19,24 @@ module.exports = controller => {
         return dict;
     });
 
-    controller.registerCall("kronoos::status", function (icon, status, obj = {}) {
+    controller.registerCall('kronoos::status', function (icon, status, obj = {}) {
         var it = iterations++;
         if (!it) {
             loader.show();
             logo.hide();
         }
 
-        var statusMessage = $("<div />").addClass("status-message"),
-            container = $("<div />").addClass("container"),
-            content = $("<div />").addClass("content"),
-            iconElement = $("<i />").addClass(`fa ${icon}`);
+        var statusMessage = $('<div />').addClass('status-message'),
+            container = $('<div />').addClass('container'),
+            content = $('<div />').addClass('content'),
+            iconElement = $('<i />').addClass(`fa ${icon}`);
 
         iconElement.click(e => {
             e.preventDefault();
-            if (searchBar.hasClass("showAll")) {
-                searchBar.removeClass("showAll");
+            if (searchBar.hasClass('showAll')) {
+                searchBar.removeClass('showAll');
             } else {
-                searchBar.addClass("showAll");
+                searchBar.addClass('showAll');
             }
         });
 

@@ -2,19 +2,18 @@ export default function matchText(node, regex, callback, validate = null, exclud
 
     let child = node.firstChild;
     while (child) {
-        switch (child.nodeType) {
-        case 1:
+        if (child.nodeType === 1) {
             if (excludeElements.indexOf(child.tagName.toLowerCase()) > -1) {
                 break;
             }
             matchText(child, regex, callback, validate, excludeElements);
             break;
-        case 3:
+        } else if (child.nodeType === 3) {
             let bk = 0;
             child.data.replace(regex, (...all) => {
                 let args = [].slice.call(all);
                 if (validate && !validate(args[0])) {
-                  return;
+                    return;
                 }
                 let offset = args[args.length - 2],
                     newTextNode = child.splitText(offset+bk), tag;

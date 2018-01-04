@@ -2,14 +2,14 @@ module.exports = controller => {
 
     var link = null;
 
-    controller.registerBootstrap("download", function(callback) {
+    controller.registerBootstrap('download', function(callback) {
         callback();
-        link = document.createElement("a");
+        link = document.createElement('a');
         document.body.appendChild(link);
-        $(link).css("display", "none");
+        $(link).css('display', 'none');
     });
 
-    controller.registerCall("download", (blob, filename = "harlan.dat") => {
+    controller.registerCall('download', (blob, filename = 'harlan.dat') => {
         if (!link) {
             console.error(`Could not capture link element for ${filename}`);
             return;

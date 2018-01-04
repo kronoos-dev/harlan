@@ -1,54 +1,54 @@
 /* global module */
 
-var sprintf = require("sprintf");
+var sprintf = require('sprintf');
 
 module.exports = function (controller) {
 
     /**
      * Atualiza a barra de progresso
      */
-    controller.registerCall("progress::update", function (inst, progress) {
+    controller.registerCall('progress::update', function (inst, progress) {
         progress = Math.abs(progress) * 100;
-        var percProgress = sprintf("%d%%", progress > 100 ? 100 : (Number.isNaN(progress) ? 0 : progress));
+        var percProgress = sprintf('%d%%', progress > 100 ? 100 : (Number.isNaN(progress) ? 0 : progress));
         inst.progressText.text(percProgress);
-        inst.progressBar.css("width", percProgress);
+        inst.progressBar.css('width', percProgress);
         return inst;
     });
 
     /**
      * Desenvolve uma barra de progresso
      */
-    controller.registerCall("progress::init", function (initProgress) {
+    controller.registerCall('progress::init', function (initProgress) {
         var content = {
-            element: $("<div />").addClass("app-progress"),
-            progressBar: $("<div />").addClass("perc"),
-            progressText: $("<span />").addClass("progress")
+            element: $('<div />').addClass('app-progress'),
+            progressBar: $('<div />').addClass('perc'),
+            progressText: $('<span />').addClass('progress')
         };
 
         content.element
-                .append(content.progressBar)
-                .append(content.progressText);
+            .append(content.progressBar)
+            .append(content.progressText);
 
-        controller.call("progress::update", content, initProgress || 0);
+        controller.call('progress::update', content, initProgress || 0);
 
         return content;
     });
 
-    controller.registerCall("progress::ui::noblock", () => {
-        let body = $("body");
+    controller.registerCall('progress::ui::noblock', () => {
+        let body = $('body');
         let radialProject = controller.interface.widgets.radialProject(body, 0);
         let position = [40, 40];
         radialProject.element.css({
-            'position': "fixed",
+            'position': 'fixed',
             'right': 40,
             'bottom': 40,
-            'cursor': "move",
-            'user-select': "none",
+            'cursor': 'move',
+            'user-select': 'none',
             'clip': 'auto',
             'opacity': 0.9
         }).mousedown(function() {
             let lastPosition = null;
-            body.bind("mousemove.radialProject", e => {
+            body.bind('mousemove.radialProject', e => {
                 if (lastPosition) {
                     position[0] += lastPosition.pageX - e.pageX;
                     position[1] += lastPosition.pageY - e.pageY;
@@ -59,7 +59,7 @@ module.exports = function (controller) {
                 }
                 lastPosition = e;
             });
-            body.one("mouseup", () => body.unbind("mousemove.radialProject"));
+            body.one('mouseup', () => body.unbind('mousemove.radialProject'));
         });
         return radialProject;
     });

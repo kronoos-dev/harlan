@@ -2,8 +2,8 @@
 
 module.exports = function (controller) {
 
-    controller.registerCall("instantSearch", function (input, callback, autocomplete) {
-        autocomplete = autocomplete || controller.call("autocomplete", input);
+    controller.registerCall('instantSearch', function (input, callback, autocomplete) {
+        autocomplete = autocomplete || controller.call('autocomplete', input);
 
         var searchLength;
         var searchId;
@@ -23,9 +23,9 @@ module.exports = function (controller) {
             }
 
             searchId = setTimeout(function () {
-                input.addClass("loading");
+                input.addClass('loading');
                 callback(search, autocomplete, function () {
-                    input.removeClass("loading");
+                    input.removeClass('loading');
                 });
             }, controller.confs.instantSearchDelay);
         });

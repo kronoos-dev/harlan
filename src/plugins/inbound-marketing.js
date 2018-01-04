@@ -2,76 +2,76 @@ import _ from 'underscore';
 
 harlan.addPlugin(controller => {
 
-    const selectInbound = "SELECT FROM 'TRIGGERS'.'INBOUND'";
-    const createInbound = "INSERT INTO 'TRIGGERS'.'INBOUND'";
-    const deleteInbound = "DELETE FROM 'TRIGGERS'.'INBOUND'";
-    const updateInbound = "UPDATE 'TRIGGERS'.'INBOUND'";
+    const selectInbound = 'SELECT FROM \'TRIGGERS\'.\'INBOUND\'';
+    const createInbound = 'INSERT INTO \'TRIGGERS\'.\'INBOUND\'';
+    const deleteInbound = 'DELETE FROM \'TRIGGERS\'.\'INBOUND\'';
+    const updateInbound = 'UPDATE \'TRIGGERS\'.\'INBOUND\'';
 
     let descriptionInbound = () => [
         [{
-            "name": 'name',
-            "optional": false,
-            "type": "text",
-            "placeholder": "Nome"
+            'name': 'name',
+            'optional': false,
+            'type': 'text',
+            'placeholder': 'Nome'
         }, {
-            "name": 'subject',
-            "optional": false,
-            "type": "text",
-            "placeholder": "Assunto"
+            'name': 'subject',
+            'optional': false,
+            'type': 'text',
+            'placeholder': 'Assunto'
         }],
         [{
-            "name": 'description',
-            "optional": false,
-            "type": "text",
-            "placeholder": "Descrição (para uso interno)"
+            'name': 'description',
+            'optional': false,
+            'type': 'text',
+            'placeholder': 'Descrição (para uso interno)'
         }, {
-            "name": 'trigger',
-            "optional": false,
-            "type": "text",
-            "placeholder": "Disparador"
+            'name': 'trigger',
+            'optional': false,
+            'type': 'text',
+            'placeholder': 'Disparador'
         }], {
-            "name": 'filename',
-            "contentKey": "content",
-            "optional": false,
-            "type": "file",
-            "placeholder": "Conteúdo"
+            'name': 'filename',
+            'contentKey': 'content',
+            'optional': false,
+            'type': 'file',
+            'placeholder': 'Conteúdo'
         }
     ];
 
-    controller.registerTrigger("findDatabase::instantSearch", "inboundMarketing", function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'inboundMarketing', function(args, callback) {
         callback();
         let [argument, autocomplete] = args;
         if (!/inbound/i.test(argument)) return;
-        autocomplete.item("Administrar E-mails Marketing",
-                "Gestão de Mensagens de E-mail Marketing",
-                "Adicionar, remover ou alterar e-mails marketing enviados a leads e clientes.")
-            .addClass("admin-company admin-new-company")
-            .click(controller.click("inboundMarketing"));
+        autocomplete.item('Administrar E-mails Marketing',
+            'Gestão de Mensagens de E-mail Marketing',
+            'Adicionar, remover ou alterar e-mails marketing enviados a leads e clientes.')
+            .addClass('admin-company admin-new-company')
+            .click(controller.click('inboundMarketing'));
     });
 
     let appendList = (list, data) => {
-        let item = list.add("fa-envelope-open-o", [data.trigger, data.name, data.description]);
-        item.click(controller.click("inboundMarketing::open", data, item));
+        let item = list.add('fa-envelope-open-o', [data.trigger, data.name, data.description]);
+        item.click(controller.click('inboundMarketing::open', list, data, item));
     };
 
-    controller.registerCall("inboundMarketing::open", (data, item) => controller.call("form", data => {
-        controller.server.call(updateInbound, controller.call("error::ajax", {
+    controller.registerCall('inboundMarketing::open', (list, data, item) => controller.call('form', data => {
+        controller.server.call(updateInbound, controller.call('error::ajax', {
             data: data,
             success: data => appendList(list, data)
         }));
     }).configure({
-        title: "Atualização de Email Marketing",
-        subtitle: "Preencha as informações corretamente para atualizar seu inbound marketing.",
-        paragraph: "",
-        gamification: "checkPoint",
+        title: 'Atualização de Email Marketing',
+        subtitle: 'Preencha as informações corretamente para atualizar seu inbound marketing.',
+        paragraph: '',
+        gamification: 'checkPoint',
         magicLabel: true,
         screens: [{
             fields: descriptionInbound(),
             actions: {
-                delete: ["Remover", modal => {
+                delete: ['Remover', modal => {
                     modal.close();
                     controller.server.call(deleteInbound, {
-                        dataType: "json",
+                        dataType: 'json',
                         data: data,
                         success: () => item.remove()
                     });
@@ -80,38 +80,38 @@ harlan.addPlugin(controller => {
         }]
     }).setValues(data));
 
-    controller.registerCall("inboundMarketing", () => {
-        let modal = controller.call("modal");
-        modal.gamification("checkPoint");
-        modal.title("Administrador de Inbound Marketing");
-        modal.subtitle("Crie o seu e-mail de inbound marketing.");
-        modal.paragraph("A ferramenta de inbound marketing se associa as triggers do sistema BIPBOP para enviar e-mails altamente eficientes.");
+    controller.registerCall('inboundMarketing', () => {
+        let modal = controller.call('modal');
+        modal.gamification('checkPoint');
+        modal.title('Administrador de Inbound Marketing');
+        modal.subtitle('Crie o seu e-mail de inbound marketing.');
+        modal.paragraph('A ferramenta de inbound marketing se associa as triggers do sistema BIPBOP para enviar e-mails altamente eficientes.');
         let list = modal.createForm().createList();
-        controller.server.call(selectInbound, controller.call("error::ajax", {
-            dataType: "json",
+        controller.server.call(selectInbound, controller.call('error::ajax', {
+            dataType: 'json',
             success: data => _.each(data, inbound => appendList(list, inbound))
         }));
 
         let actions = modal.createActions();
-        actions.add("Criar e-mail").click(controller.click("inboundMarketing::create", list));
+        actions.add('Criar e-mail').click(controller.click('inboundMarketing::create', list));
         actions.cancel();
     });
 
 
-    controller.registerCall("inboundMarketing::create", list => controller.call("form", data => {
-        controller.server.call(createInbound, controller.call("error::ajax", {
+    controller.registerCall('inboundMarketing::create', list => controller.call('form', data => {
+        controller.server.call(createInbound, controller.call('error::ajax', {
             dataType: 'json',
             data: data,
             success: data => appendList(list, data)
         }));
     }).configure({
-        "title": "Criação de Email Marketing",
-        "subtitle": "Preencha as informações corretamente para criar seu inbound marketing.",
-        "paragraph": "",
-        "gamification": "checkPoint",
-        "magicLabel": true,
-        "screens": [{
-            "fields": descriptionInbound()
+        'title': 'Criação de Email Marketing',
+        'subtitle': 'Preencha as informações corretamente para criar seu inbound marketing.',
+        'paragraph': '',
+        'gamification': 'checkPoint',
+        'magicLabel': true,
+        'screens': [{
+            'fields': descriptionInbound()
         }]
     }));
 

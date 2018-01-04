@@ -1,12 +1,12 @@
 var KronoosElement = function(title, subtitle, sidenote) {
 
-    var container = $("<div />").addClass("container kronoos-element-container"),
-        content = $("<div />").addClass("content"),
-        element = $("<div />").addClass("kronoos-element"),
-        sideContent = $("<div />").addClass("kronoos-side-content full"),
-        titleElement = $("<h3 />").append(title).addClass("kronoos-element-title"),
-        subtitleElement = $("<h4 />").append(subtitle).addClass("kronoos-element-subtitle"),
-        sidenoteElement = $("<h5 />").append(sidenote).addClass("kronoos-element-sidenote"),
+    var container = $('<div />').addClass('container kronoos-element-container'),
+        content = $('<div />').addClass('content'),
+        element = $('<div />').addClass('kronoos-element'),
+        sideContent = $('<div />').addClass('kronoos-side-content full'),
+        titleElement = $('<h3 />').append(title).addClass('kronoos-element-title'),
+        subtitleElement = $('<h4 />').append(subtitle).addClass('kronoos-element-subtitle'),
+        sidenoteElement = $('<h5 />').append(sidenote).addClass('kronoos-element-sidenote'),
         informationQA, informations, alertElement, aggregate, notation, behaviour,
         negativeCertificates;
 
@@ -17,17 +17,17 @@ var KronoosElement = function(title, subtitle, sidenote) {
         sideContent.append(sidenoteElement);
 
     container.append(content.append(element.append(sideContent)));
-    container.data("instance", this);
+    container.data('instance', this);
 
     var label = label => {
-        return $("<label />").append(label);
+        return $('<label />').append(label);
     };
 
     this.negativeCertificateStatus = (icon, message) => {
         if (!negativeCertificates) {
             negativeCertificates = {};
-            this.list("Resultados Negativos", negativeCertificates);
-            negativeCertificates.container.addClass("kronoos-stage");
+            this.list('Resultados Negativos', negativeCertificates);
+            negativeCertificates.container.addClass('kronoos-stage');
             
             negativeCertificates.container.insertAfter(sidenoteElement);
         }
@@ -45,8 +45,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.informationStatus = (icon, message) => {
         if (!informations) {
             informations = {};
-            this.list("Resumo do Relatório", informations);
-            informations.container.addClass("kronoos-stage");
+            this.list('Resumo do Relatório', informations);
+            informations.container.addClass('kronoos-stage');
             informations.container.insertAfter(sidenoteElement);
         }
         let item = {};
@@ -62,7 +62,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.canDelete = () => {
         /* future implementation */
-        element.addClass("kronoos-can-delete");
+        element.addClass('kronoos-can-delete');
         // element.append($("<a />").attr({href: "#"})
         //     .append($("<i />").addClass("fa fa-times"))
         //     .addClass("kronoos-delete-element")
@@ -75,8 +75,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.stage = (icon, message) => {
         if (!informationQA) {
             informationQA = {};
-            this.list("Qualidade dos Dados", informationQA);
-            informationQA.container.addClass("kronoos-stage");
+            this.list('Qualidade dos Dados', informationQA);
+            informationQA.container.addClass('kronoos-stage');
             informationQA.container.insertAfter(sidenoteElement);
         }
         let item = {};
@@ -105,12 +105,12 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.notation = (v = null, change = false) => {
         if (v !== null) {
-            let notationClass = v ? "hasNotation" : "hasntNotation";
+            let notationClass = v ? 'hasNotation' : 'hasntNotation';
             if (notationClass !== notation) {
                 if (this.brief) {
-                    if (notationClass === "hasNotation") {
+                    if (notationClass === 'hasNotation') {
                         this._briefElement = this.brief(`${titleElement.text()} <small>${subtitleElement.text()}</small>`, () => {
-                            titleElement.closest(".record").find(".kronoos-header .fa-plus-square-o").click();
+                            titleElement.closest('.record').find('.kronoos-header .fa-plus-square-o').click();
                             $('html, body').scrollTop(titleElement.offset().top);
                         });
                     } else if (this._briefElement) {
@@ -120,7 +120,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
                 }
 
                 if (this.notFound) {
-                    if (notationClass === "hasntNotation") {
+                    if (notationClass === 'hasntNotation') {
                         this._notFoundElement = {};
                         this.notFound(`${titleElement.text()} <small>${subtitleElement.text()}</small>`, this._notFoundElement);
                     } else if (this._notFoundElement) {
@@ -137,7 +137,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         }
 
         if (aggregate && change) aggregate();
-        return [notation || "unknownNotation", behaviour || "unknownBehaviour", change];
+        return [notation || 'unknownNotation', behaviour || 'unknownBehaviour', change];
     };
 
     this.dataStatus = (b, hasNotation) => {
@@ -150,13 +150,13 @@ var KronoosElement = function(title, subtitle, sidenote) {
         return this.notation(hasNotation, false);
     };
 
-    this.behaviourUnstructured = (hasNotation) => this.titleAlert('question-circle', "behaviourUnstructured", hasNotation);
-    this.behaviourHomonym = (hasNotation) => this.titleAlert('question-circle', "behaviourHomonym", hasNotation);
-    this.behaviourUnstructuredHomonym = (hasNotation) => this.titleAlert('question-circle', "behaviourUnstructuredHomonym", hasNotation);
-    this.behaviourAccurate = (hasNotation) => this.titleAlert(null, "behaviourAccurate", hasNotation);
+    this.behaviourUnstructured = (hasNotation) => this.titleAlert('question-circle', 'behaviourUnstructured', hasNotation);
+    this.behaviourHomonym = (hasNotation) => this.titleAlert('question-circle', 'behaviourHomonym', hasNotation);
+    this.behaviourUnstructuredHomonym = (hasNotation) => this.titleAlert('question-circle', 'behaviourUnstructuredHomonym', hasNotation);
+    this.behaviourAccurate = (hasNotation) => this.titleAlert(null, 'behaviourAccurate', hasNotation);
 
     this._briefElement = null;
-    this.titleAlert = (font = 'exclamation-triangle', behaviour = "behaviourUnstructured", hasNotation = true) => {
+    this.titleAlert = (font = 'exclamation-triangle', behaviour = 'behaviourUnstructured', hasNotation = true) => {
         let [, , change] = this.dataStatus(behaviour, hasNotation);
         if (!change) return this;
 
@@ -170,7 +170,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
         }
 
         if (font) {
-            alertElement = $("<i />").addClass(`fa fa-${font}`);
+            alertElement = $('<i />').addClass(`fa fa-${font}`);
             titleElement.prepend(alertElement);
         }
 
@@ -193,8 +193,8 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.header = (document, name, date, hour) => {
-        this.table("Data", "Hora")(date, hour)().addClass("kronoos-header").insertAfter(sidenoteElement);
-        this.table("Nome", "Documento")(name, document)().addClass("kronoos-header").insertAfter(sidenoteElement);
+        this.table('Data', 'Hora')(date, hour)().addClass('kronoos-header').insertAfter(sidenoteElement);
+        this.table('Nome', 'Documento')(name, document)().addClass('kronoos-header').insertAfter(sidenoteElement);
         return this;
     };
 
@@ -211,19 +211,19 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.elementCaptionTable = (appendTo, caption, ...header) => {
-        var table = $("<table />").addClass("multi-label"),
-            thead = $("<thead />"),
-            headRow = $("<tr />"),
-            tbody = $("<tbody />");
+        var table = $('<table />').addClass('multi-label'),
+            thead = $('<thead />'),
+            headRow = $('<tr />'),
+            tbody = $('<tbody />');
 
         if (caption) {
-            table.append($("<caption />").append(caption));
+            table.append($('<caption />').append(caption));
         }
 
 
         if (header.length) {
             for (let item of header) {
-                headRow.append($("<td />").append(label(item)));
+                headRow.append($('<td />').append(label(item)));
             }
             table.append(thead.append(headRow));
         }
@@ -235,9 +235,9 @@ var KronoosElement = function(title, subtitle, sidenote) {
                 return table;
             }
 
-            let row = $("<tr />");
+            let row = $('<tr />');
             for (let item of items) {
-                row.append($("<td />").append(item));
+                row.append($('<td />').append(item));
             }
             tbody.append(row);
 
@@ -261,12 +261,12 @@ var KronoosElement = function(title, subtitle, sidenote) {
 
     this.addNetwork = (nodesArray, edgesArray, options = null) => {
         options = options || this.networkOptions;
-        let elem = $("<div />").addClass("result-network");
+        let elem = $('<div />').addClass('result-network');
         element.append(elem);
         let network = new vis.Network(elem.get(0), {
-                nodes: nodesArray,
-                edges: edgesArray
-            }, options);
+            nodes: nodesArray,
+            edges: edgesArray
+        }, options);
         network.fit();
         return [network, elem];
     };
@@ -274,19 +274,19 @@ var KronoosElement = function(title, subtitle, sidenote) {
     this.picture = url => {
         var image = new Image();
         image.onload = () => {
-            let picture = $("<div />")
-                .addClass("kronoos-picture")
-                .css("background-image", `url(${url})`);
-            sideContent.removeClass("full");
-            $("<div />").addClass("kronoos-side-picture").append(picture).insertBefore(sideContent);
+            let picture = $('<div />')
+                .addClass('kronoos-picture')
+                .css('background-image', `url(${url})`);
+            sideContent.removeClass('full');
+            $('<div />').addClass('kronoos-side-picture').append(picture).insertBefore(sideContent);
         };
         image.src = url;
     };
 
     this.list = (name, obj = {}, appendTo = null, moreClick = 0) => {
-        let container = $("<div />").addClass("kronoos-list"),
+        let container = $('<div />').addClass('kronoos-list'),
             title = label(name),
-            list = $("<ul />");
+            list = $('<ul />');
 
         obj.container = container;
         obj.title = title;
@@ -299,27 +299,27 @@ var KronoosElement = function(title, subtitle, sidenote) {
         (appendTo || sideContent).append(container.append(title).append(list));
 
         if (obj.paragraph) {
-            $("<p />").append(obj.paragraph).insertAfter(obj.title);
+            $('<p />').append(obj.paragraph).insertAfter(obj.title);
         }
 
 
         let itemCounter = 0;
         let addItem = (content, item = {}) => {
-            item.element = $("<li />").html(content);
+            item.element = $('<li />').html(content);
             itemCounter++;
             if (moreClick && itemCounter > moreClick) {
-                item.element.addClass("hide-element");
+                item.element.addClass('hide-element');
                 if (!obj.nextElement) {
-                    obj.iconNextElement = $("<i />").addClass("fa fa-angle-down");
-                    list.append(obj.nextElement = $("<div />").attr("title", "Exibir Mais").append(obj.iconNextElement).addClass("more-click")).click(() => {
-                        if (obj.container.hasClass("show-all")) {
-                            obj.iconNextElement.removeClass("fa fa-angle-up");
-                            obj.iconNextElement.addClass("fa fa-angle-down");
-                            obj.container.removeClass("show-all");
+                    obj.iconNextElement = $('<i />').addClass('fa fa-angle-down');
+                    list.append(obj.nextElement = $('<div />').attr('title', 'Exibir Mais').append(obj.iconNextElement).addClass('more-click')).click(() => {
+                        if (obj.container.hasClass('show-all')) {
+                            obj.iconNextElement.removeClass('fa fa-angle-up');
+                            obj.iconNextElement.addClass('fa fa-angle-down');
+                            obj.container.removeClass('show-all');
                         } else {
-                            obj.iconNextElement.removeClass("fa fa-angle-down");
-                            obj.iconNextElement.addClass("fa fa-angle-up");
-                            obj.container.addClass("show-all");
+                            obj.iconNextElement.removeClass('fa fa-angle-down');
+                            obj.iconNextElement.addClass('fa fa-angle-up');
+                            obj.container.addClass('show-all');
                         }
                     });
                 }
@@ -340,12 +340,12 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.paragraph = content => {
-        sideContent.append($("<p />").html(content));
+        sideContent.append($('<p />').html(content));
         return this;
     };
 
     this.flexContent = () => {
-        let element = $("<div />").addClass("flex-itens");
+        let element = $('<div />').addClass('flex-itens');
         sideContent.append(element);
         return element;
     };
@@ -370,7 +370,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
 };
 
 module.exports = controller => {
-    controller.registerCall("kronoos::element", function() {
+    controller.registerCall('kronoos::element', function() {
         return new KronoosElement(...arguments);
     });
 };

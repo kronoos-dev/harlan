@@ -35,16 +35,16 @@ module.exports = controller => {
 
     /* Adaptadores para Compreensão Documental */
     let readAdapters = {
-        "RFBCNPJANDROID.CERTIDAO" : {
+        'RFBCNPJANDROID.CERTIDAO' : {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    let mainNode = relation.createNode($("nome", document).first().text(), CNPJ.format($("RFB > incricao", document).first().text()), "user", {
+                    let mainNode = relation.createNode($('nome', document).first().text(), CNPJ.format($('RFB > incricao', document).first().text()), 'user', {
                         unlabel: true
                     });
 
-                    let response = callback(null, $("RFB > socios > socio", document).map((idx, node) => {
+                    let response = callback(null, $('RFB > socios > socio', document).map((idx, node) => {
                         let label = $(node).text();
-                        return relation.createNode(relation.labelIdentification(label), label, "user", {
+                        return relation.createNode(relation.labelIdentification(label), label, 'user', {
                             unlabel: true
                         });
                     }).toArray().concat([mainNode]));
@@ -53,20 +53,20 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    let incricao = CNPJ.format($("RFB > incricao", document).first().text());
+                    let inscricao = CNPJ.format($('RFB > incricao', document).first().text());
                     let mainNode = relation.createEdge(legalDocument, inscricao);
-                    return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(incricao, relation.labelIdentification($(node).text()), "societária");
+                    return callback(null, $('RFB > socios > socio', document).map((idx, node) => {
+                        return relation.createEdge(inscricao, relation.labelIdentification($(node).text()), 'societária');
                     }).toArray().concat(mainNode));
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "RECUPERA.LOCALIZADORPJFILIAIS" : {
+        'RECUPERA.LOCALIZADORPJFILIAIS' : {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createNode($("CNPJ", node).text(), $("RAZAO", node).text(), "user", {
+                    return callback(null, $('PESSOA', document).map((idx, node) => {
+                        return relation.createNode($('CNPJ', node).text(), $('RAZAO', node).text(), 'user', {
                             unlabel: true
                         });
                     }).toArray());
@@ -74,18 +74,18 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $("CNPJ", node).text(), "societária");
+                    return callback(null, $('PESSOA', document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, $('CNPJ', node).text(), 'societária');
                     }).toArray());
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "RECUPERA.LOCALIZADORPARTEMPRESARIALPJ" : {
+        'RECUPERA.LOCALIZADORPARTEMPRESARIALPJ' : {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createNode($("CPF", node).text(), $("nome", node).text(), "user", {
+                    return callback(null, $('PESSOA', document).map((idx, node) => {
+                        return relation.createNode($('CPF', node).text(), $('nome', node).text(), 'user', {
                             unlabel: true
                         });
                     }).toArray());
@@ -93,56 +93,56 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("PESSOA", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $("CPF", node).text(), "societária");
+                    return callback(null, $('PESSOA', document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, $('CPF', node).text(), 'societária');
                     }).toArray());
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "JUCESP.DOCUMENT": {
+        'JUCESP.DOCUMENT': {
             trackNodes: (relation, legalDocument, document) => callback => {
                 let nodes = [];
-                let cpfList = _.uniq($("text", document)
-                        .text()
-                        .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g)
-                        .map(e => e.replace(/[^\d]/g, '')))
+                let cpfList = _.uniq($('text', document)
+                    .text()
+                    .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g)
+                    .map(e => e.replace(/[^\d]/g, '')))
                     .filter(c => CPF.isValid(c))
                     .filter(c => CPF.strip(c) !== '37554311816');
 
                 eachLimit(cpfList, 2, (cpf_cnpj, cb) => {
-                        controller.server.call("SELECT FROM 'BIPBOPJS'.'CPFCNPJ'", {
-                            data: {
-                                documento: cpf_cnpj
-                            },
-                            error : () => nodes.push(relation.createNode(cpf_cnpj, CPF.format(cpf_cnpj), "user", {
-                                unlabel: true
-                            })),
-                            success: data => nodes.push(relation.createNode(cpf_cnpj, $("nome", data).text(), "user", {
-                                unlabel: true
-                            })),
-                            complete: () => cb()
-                        });
-                    }, () => {
-                        callback(null, nodes);
+                    controller.server.call('SELECT FROM \'BIPBOPJS\'.\'CPFCNPJ\'', {
+                        data: {
+                            documento: cpf_cnpj
+                        },
+                        error : () => nodes.push(relation.createNode(cpf_cnpj, CPF.format(cpf_cnpj), 'user', {
+                            unlabel: true
+                        })),
+                        success: data => nodes.push(relation.createNode(cpf_cnpj, $('nome', data).text(), 'user', {
+                            unlabel: true
+                        })),
+                        complete: () => cb()
                     });
+                }, () => {
+                    callback(null, nodes);
+                });
             },
             trackEdges: (relation, legalDocument, document) => callback => {
-                let cpfList = _.uniq($("text", document)
-                        .text()
-                        .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g).map(e => e.replace(/[^\d]/g, '')))
+                let cpfList = _.uniq($('text', document)
+                    .text()
+                    .match(/[\d]{3}(\.)?[\d]{3}(\.)?[\d]{3}(\-)?\d{2}?/g).map(e => e.replace(/[^\d]/g, '')))
                     .filter(c => CPF.isValid(c))
                     .filter(c => CPF.strip(c) !== '37554311816');
-                let nodes = cpfList.map(document => relation.createEdge(legalDocument, document, "societária"));
+                let nodes = cpfList.map(document => relation.createEdge(legalDocument, document, 'societária'));
                 return callback(null, nodes);
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "CBUSCA.CONSULTA": {
+        'CBUSCA.CONSULTA': {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("socios > socio", document).map((idx, node) => {
-                        return relation.createNode($(node).text(), $(node).attr("nome"), "user", {
+                    return callback(null, $('socios > socio', document).map((idx, node) => {
+                        return relation.createNode($(node).text(), $(node).attr('nome'), 'user', {
                             unlabel: true
                         });
                     }).toArray());
@@ -150,20 +150,20 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, $(node).text(), "societária");
+                    return callback(null, $('socios > socio', document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, $(node).text(), 'societária');
                     }).toArray());
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "FINDER.RELATIONS": {
+        'FINDER.RELATIONS': {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    let response = callback(null, $("localizePessoasRelacionadas > localizePessoasRelacionadas", document).map((idx, node) => {
-                        if (/^6/.test($("grupo", node).text())) return;
-                        let document = $("documento", node).text();
-                        return relation.createNode(document, $("nome", node).text(), CPF.isValid(document) ? "user" : "company", {
+                    let response = callback(null, $('localizePessoasRelacionadas > localizePessoasRelacionadas', document).map((idx, node) => {
+                        if (/^6/.test($('grupo', node).text())) return;
+                        let document = $('documento', node).text();
+                        return relation.createNode(document, $('nome', node).text(), CPF.isValid(document) ? 'user' : 'company', {
                             unlabel: true
                         });
                     }).toArray());
@@ -172,21 +172,21 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    let response = callback(null, $("localizePessoasRelacionadas > localizePessoasRelacionadas", document).map((idx, node) => {
-                        if (/^6/.test($("grupo", node).text())) return;
-                        return relation.createEdge(legalDocument, $("documento", node).text(), $("relacao", node).text());
+                    let response = callback(null, $('localizePessoasRelacionadas > localizePessoasRelacionadas', document).map((idx, node) => {
+                        if (/^6/.test($('grupo', node).text())) return;
+                        return relation.createEdge(legalDocument, $('documento', node).text(), $('relacao', node).text());
                     }).toArray());
                     return response;
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "RFB.CERTIDAO": {
+        'RFB.CERTIDAO': {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    let response = callback(null, $("RFB > socios > socio", document).map((idx, node) => {
+                    let response = callback(null, $('RFB > socios > socio', document).map((idx, node) => {
                         let label = $(node).text();
-                        return relation.createNode(relation.labelIdentification(label), label, "user", {
+                        return relation.createNode(relation.labelIdentification(label), label, 'user', {
                             unlabel: true
                         });
                     }).toArray());
@@ -195,33 +195,33 @@ module.exports = controller => {
             },
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
-                    return callback(null, $("RFB > socios > socio", document).map((idx, node) => {
-                        return relation.createEdge(legalDocument, relation.labelIdentification($(node).text()), "Societária");
+                    return callback(null, $('RFB > socios > socio', document).map((idx, node) => {
+                        return relation.createEdge(legalDocument, relation.labelIdentification($(node).text()), 'Societária');
                     }).toArray());
                 };
             },
             purchaseNewDocuments: (relation, legalDocument, document) => callback => callback()
         },
-        "CCBUSCA.CONSULTA": {
+        'CCBUSCA.CONSULTA': {
             trackNodes: (relation, legalDocument, document) => {
                 return callback => {
-                    let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                        return relation.createNode($("cnpj", node).text(), $("nome", node).first().text(), "company", {
+                    let nodes = $('parsocietaria empresa', document).map((idx, node) => {
+                        return relation.createNode($('cnpj', node).text(), $('nome', node).first().text(), 'company', {
                             unlabel: true
                         });
                     }).toArray();
 
-                    nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
-                        return relation.createNode($("doc", node).text(), $("nome", node).first().text(), "user", {
+                    nodes = nodes.concat($('qsa socio', document).map((idx, node) => {
+                        return relation.createNode($('doc', node).text(), $('nome', node).first().text(), 'user', {
                             unlabel: true
                         });
                     }).toArray());
 
 
                     nodes.push(relation.createNode(
-                        $("cadastro cpf", document).first().text(),
-                        $("cadastro nome", document).first().text(),
-                        "user", {
+                        $('cadastro cpf', document).first().text(),
+                        $('cadastro nome', document).first().text(),
+                        'user', {
                             unlabel: true
                         }));
 
@@ -231,12 +231,12 @@ module.exports = controller => {
             trackEdges: (relation, legalDocument, document) => {
                 return callback => {
 
-                    let nodes = $("parsocietaria empresa", document).map((idx, node) => {
-                        return relation.createEdge($("cadastro cpf", document).first().text(), $("cnpj", node).first().text());
+                    let nodes = $('parsocietaria empresa', document).map((idx, node) => {
+                        return relation.createEdge($('cadastro cpf', document).first().text(), $('cnpj', node).first().text());
                     }).toArray();
 
-                    nodes = nodes.concat($("qsa socio", document).map((idx, node) => {
-                        return relation.createEdge($("cadastro cpf", document).first().text(), $("doc", node).first().text());
+                    nodes = nodes.concat($('qsa socio', document).map((idx, node) => {
+                        return relation.createEdge($('cadastro cpf', document).first().text(), $('doc', node).first().text());
                     }).toArray());
 
                     return callback(null, nodes);
@@ -252,7 +252,7 @@ module.exports = controller => {
         let documents = {};
         let labelIdentification = {};
 
-        this.createEdge = (vfrom, vto, relationType = "societária") => {
+        this.createEdge = (vfrom, vto, relationType = 'societária') => {
             return {
                 from: vfrom.replace(START_ZERO, ''),
                 to: vto.replace(START_ZERO, ''),
@@ -276,7 +276,7 @@ module.exports = controller => {
 
         /* Append Document */
         this.appendDocument = (document, legalDocument) => {
-            let query = $("BPQL > header > query", document).first(),
+            let query = $('BPQL > header > query', document).first(),
                 key = `${query.attr('database')}.${query.attr('table')}`.toUpperCase();
 
             documents[key] = documents[key] || {};
@@ -327,10 +327,10 @@ module.exports = controller => {
                     });
                 });
             }, (err, results) => {
-                let allNodes = _.uniq(_.flatten(_.pluck(results, "nodes")), false, a => a.id),
-                    unlabers = _.pluck(_.filter(allNodes, node => node.unlabel), "label"),
+                let allNodes = _.uniq(_.flatten(_.pluck(results, 'nodes')), false, a => a.id),
+                    unlabers = _.pluck(_.filter(allNodes, node => node.unlabel), 'label'),
                     nodes = _.filter(allNodes, node => unlabers.indexOf(node.id) === -1),
-                    edges = _.uniq(_.map(_.flatten(_.pluck(results, "edges")), edge => {
+                    edges = _.uniq(_.map(_.flatten(_.pluck(results, 'edges')), edge => {
                         for (let i of ['to', 'from']) {
                             if (unlabers.indexOf(edge[i]) !== -1) {
                                 let result = _.findWhere(nodes, {
@@ -358,11 +358,11 @@ module.exports = controller => {
     };
 
 
-    controller.registerCall("generateRelations", () => {
+    controller.registerCall('generateRelations', () => {
         return new GenerateRelations();
     });
 
-    controller.registerCall("generateRelations::createAdapter", (adapterName, adapter, group = null) => {
+    controller.registerCall('generateRelations::createAdapter', (adapterName, adapter, group = null) => {
         readAdapters[adapterName] = adapter;
         if (group) {
             $.extend(groups, group);

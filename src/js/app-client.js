@@ -1,17 +1,16 @@
 import 'babel-polyfill';
 import 'es6-shim';
 import 'dom4';
-        import './internals/library/safari-hacks';
+import './internals/library/safari-hacks';
 
 import Interface from './internals/library/interface';
 import ServerCommunication from './internals/library/server-communication';
 import ImportXMLDocument from './internals/library/import-xml-document';
-import Store from './internals/library/store';
 import I18n from './internals/library/i18n';
 import browserUpdate from 'browser-update';
 
 (function(d) {
-    var Harlan = require("./internals/controller");
+    var Harlan = require('./internals/controller');
 
     let harlan = new Harlan();
     d.harlan = harlan;

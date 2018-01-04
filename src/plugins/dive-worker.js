@@ -1,14 +1,14 @@
 /* global self, moment, csv, file, require, queue */
 
-var moment = require("moment"),
-    fileReaderStream = require("filereader-stream"),
-    CPF = require("cpf_cnpj").CPF,
-    CNPJ = require("cpf_cnpj").CNPJ,
-    csv = require("csv"),
-    concat = require("concat-stream"),
-    async = require("async"),
-    request = require("request"),
-    pad = require("pad");
+var moment = require('moment'),
+    fileReaderStream = require('filereader-stream'),
+    CPF = require('cpf_cnpj').CPF,
+    CNPJ = require('cpf_cnpj').CNPJ,
+    csv = require('csv'),
+    concat = require('concat-stream'),
+    async = require('async'),
+    request = require('request'),
+    pad = require('pad');
 
 var UPDATE_INTERVAL = 500;
 
@@ -19,9 +19,9 @@ self.onmessage = function(message) {
 
     var queue = async.queue((data, callback) => {
         request.post({
-            url: "https://irql.bipbop.com.br/",
+            url: 'https://irql.bipbop.com.br/',
             form: {
-                q: "INSERT INTO 'DIVE'.'ENTITY'",
+                q: 'INSERT INTO \'DIVE\'.\'ENTITY\'',
                 apiKey: message.data.apiKey,
                 documento: data.record[0],
                 birthday: data.record[1]
@@ -31,7 +31,7 @@ self.onmessage = function(message) {
 
             if (err) {
                 self.postMessage({
-                    method: "error",
+                    method: 'error',
                     data: {
                         record: data.record,
                         response: {
@@ -52,7 +52,7 @@ self.onmessage = function(message) {
 
     var updateInterval = setInterval(function() {
         self.postMessage({
-            method: "progress",
+            method: 'progress',
             data: loaded / parsed
         });
     }, UPDATE_INTERVAL);
@@ -79,10 +79,10 @@ self.onmessage = function(message) {
                 return;
             }
 
-            var birthday = moment(record[1], ["DD/MM/YYYY",
-                "YYYY-MM-DD",
-                "YY-MM-DD",
-                "DD/MM/YY"
+            var birthday = moment(record[1], ['DD/MM/YYYY',
+                'YYYY-MM-DD',
+                'YY-MM-DD',
+                'DD/MM/YY'
             ]);
 
 
@@ -93,7 +93,7 @@ self.onmessage = function(message) {
 
             parsed++;
             if ((birthday.isValid())) {
-                record[1] = birthday.format("DD/MM/YYYY");
+                record[1] = birthday.format('DD/MM/YYYY');
             }
             queue.push({
                 record: record

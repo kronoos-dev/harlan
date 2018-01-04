@@ -1,26 +1,26 @@
 /* global toastr */
 harlan.addPlugin(controller => {
 
-    controller.registerCall("admin::roleTypes", function() {
+    controller.registerCall('admin::roleTypes', function() {
         return {
-            "": "Tipo de Contrato",
-            "ichequeCustomer": "iCheques"
+            '': 'Tipo de Contrato',
+            'ichequeCustomer': 'iCheques'
         };
     });
 
-    $(controller.confs.container).addClass("icheques-extension");
+    $(controller.confs.container).addClass('icheques-extension');
 
-    controller.unregisterTrigger("serverCommunication::websocket::authentication", "accountOverview");
+    controller.unregisterTrigger('serverCommunication::websocket::authentication', 'accountOverview');
 
-    controller.registerCall("accountOverview", () => {});
+    controller.registerCall('accountOverview', () => {});
 
-    controller.confs.debtCollector = "juridico@pgn.srv.br";
+    controller.confs.debtCollector = 'juridico@pgn.srv.br';
     controller.confs.ccf = true;
-    controller.confs.iugu.token = "b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933";
-    controller.confs.smartsupp = controller.confs.isCordova ? "" : "6da797e6b8bcf7dce984a4787ca27fe5d5f2b179";
-    controller.endpoint.forgotPassword = "SELECT FROM 'ICHEQUESAUTHENTICATION'.'FORGOTPASSWORD'";
-    controller.endpoint.adminReport = "SELECT FROM 'ICHEQUESREPORT'.'REPORT'";
-    controller.endpoint.commercialReferenceOverview = "SELECT FROM 'IChequesReport'.'COMMERCIALREFERENCE' WHERE 'CACHE' = 'DISABLED'";
+    controller.confs.iugu.token = 'b3ed1c2a-ee7b-47d2-ab4d-7e8fba14e933';
+    controller.confs.smartsupp = controller.confs.isCordova ? '' : '6da797e6b8bcf7dce984a4787ca27fe5d5f2b179';
+    controller.endpoint.forgotPassword = 'SELECT FROM \'ICHEQUESAUTHENTICATION\'.\'FORGOTPASSWORD\'';
+    controller.endpoint.adminReport = 'SELECT FROM \'ICHEQUESREPORT\'.\'REPORT\'';
+    controller.endpoint.commercialReferenceOverview = 'SELECT FROM \'IChequesReport\'.\'COMMERCIALREFERENCE\' WHERE \'CACHE\' = \'DISABLED\'';
 
     $.extend(controller.confs.icheques, {
         price: 150,
@@ -28,45 +28,45 @@ harlan.addPlugin(controller => {
         moreMonths: 30
     });
 
-    controller.registerCall("admin::contactTypes", () => {
+    controller.registerCall('admin::contactTypes', () => {
         return {
-            "financeiro": "Ambos",
-            "comercial": "Operações",
-            "tecnico": "Ocorrências"
+            'financeiro': 'Ambos',
+            'comercial': 'Operações',
+            'tecnico': 'Ocorrências'
         };
     });
 
-    require("./lib/icheques/reference")(controller);
-    require("./lib/icheques/welcome")(controller);
-    require("./lib/icheques/parser")(controller);
-    require("./lib/icheques/new-check")(controller);
-    require("./lib/icheques/ban-file")(controller);
-    require("./lib/icheques/cmc-reader")(controller);
-    require("./lib/icheques/checkout")(controller);
-    require("./lib/icheques/create-account")(controller);
-    require("./lib/icheques/harlan")(controller);
-    require("./lib/icheques/report")(controller);
-    require("./lib/icheques/search")(controller);
-    require("./lib/icheques/buy-reader")(controller);
-    require("./lib/icheques/full-profile")(controller);
-    require("./lib/icheques/antecipate")(controller);
-    require("./lib/icheques/contact")(controller);
-    require("./lib/icheques/logout")(controller);
-    require("./lib/icheques/subaccount")(controller);
-    require("./lib/icheques/design")(controller);
-    require("./lib/icheques/contract-accept")(controller);
-    require("./lib/icheques/edit")(controller);
-    require("./lib/icheques/ban-generate")(controller);
-    require("./lib/icheques/can-antecipate")(controller);
-    require("./lib/icheques/fidc")(controller);
-    require("./lib/icheques/fidc-view")(controller);
-    require("./lib/icheques/ban-url-download")(controller);
-    require("./lib/icheques/operation-score")(controller);
-    require("./lib/icheques/commercial-reference")(controller);
-    require("./lib/icheques/enjoyhint")(controller);
-    require("./lib/icheques/daemon")(controller);
-    require("./lib/icheques/progress")(controller);
-    require("./lib/icheques/ccbusca")(controller);
+    require('./lib/icheques/reference')(controller);
+    require('./lib/icheques/welcome')(controller);
+    require('./lib/icheques/parser')(controller);
+    require('./lib/icheques/new-check')(controller);
+    require('./lib/icheques/ban-file')(controller);
+    require('./lib/icheques/cmc-reader')(controller);
+    require('./lib/icheques/checkout')(controller);
+    require('./lib/icheques/create-account')(controller);
+    require('./lib/icheques/harlan')(controller);
+    require('./lib/icheques/report')(controller);
+    require('./lib/icheques/search')(controller);
+    require('./lib/icheques/buy-reader')(controller);
+    require('./lib/icheques/full-profile')(controller);
+    require('./lib/icheques/antecipate')(controller);
+    require('./lib/icheques/contact')(controller);
+    require('./lib/icheques/logout')(controller);
+    require('./lib/icheques/subaccount')(controller);
+    require('./lib/icheques/design')(controller);
+    require('./lib/icheques/contract-accept')(controller);
+    require('./lib/icheques/edit')(controller);
+    require('./lib/icheques/ban-generate')(controller);
+    require('./lib/icheques/can-antecipate')(controller);
+    require('./lib/icheques/fidc')(controller);
+    require('./lib/icheques/fidc-view')(controller);
+    require('./lib/icheques/ban-url-download')(controller);
+    require('./lib/icheques/operation-score')(controller);
+    require('./lib/icheques/commercial-reference')(controller);
+    require('./lib/icheques/enjoyhint')(controller);
+    require('./lib/icheques/daemon')(controller);
+    require('./lib/icheques/progress')(controller);
+    require('./lib/icheques/ccbusca')(controller);
 
     /*
      *  Nada como um nado estilo livre nesse mar

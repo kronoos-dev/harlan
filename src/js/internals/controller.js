@@ -167,7 +167,7 @@ var Controller = function() {
         return this;
     };
 
-    this.registerTrigger("bootstrap::end", "plugins", (opts, cb) => {
+    this.registerTrigger('bootstrap::end', 'plugins', (opts, cb) => {
         this.addPlugin = callback => {
             callback(this);
             return this;
@@ -178,7 +178,7 @@ var Controller = function() {
         cb();
     });
 
-    this.registerBootstrap("bootstrap::end", cb => {
+    this.registerBootstrap('bootstrap::end', cb => {
         cb();
         this.sync.register(this.confs.syncInterval); /* register sync */
     });

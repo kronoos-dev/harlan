@@ -5,7 +5,7 @@
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
 
-var SHA256 = require("crypto-js/sha256");
+var SHA256 = require('crypto-js/sha256');
 
 module.exports = function (controller) {
 
@@ -37,15 +37,15 @@ module.exports = function (controller) {
      * @returns {undefined}
      */
     var defaultCallback = (data, event) => {
-        controller.trigger("serverCommunication::websocket::event", event);
+        controller.trigger('serverCommunication::websocket::event', event);
         if (data.method) {
-            controller.trigger("serverCommunication::websocket::" + data.method, data.data);
+            controller.trigger('serverCommunication::websocket::' + data.method, data.data);
         }
     };
 
     /* BIPBOP WebSocket */
     this.webSocket = bipbop.webSocket(bipbopApiKey, defaultCallback, ws => {
-        controller.trigger("serverCommunication::websocket::open", ws);
+        controller.trigger('serverCommunication::websocket::open', ws);
     });
 
     this.freeKey = () => {
@@ -70,9 +70,9 @@ module.exports = function (controller) {
     /* Retorna o XHR da requisição AJAX */
     this.call = (query, configuration) => {
         let conf = Object.assign({method: 'POST'}, configuration);
-        controller.trigger("serverCommunication::call", [query, conf]);
+        controller.trigger('serverCommunication::call', [query, conf]);
         return $.bipbop(query, bipbopApiKey, conf).always((...args) => {
-            controller.trigger("serverCommunication::responseComplete", [query, configuration, args]);
+            controller.trigger('serverCommunication::responseComplete', [query, configuration, args]);
         });
     };
 

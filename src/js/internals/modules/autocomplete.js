@@ -8,14 +8,14 @@ module.exports = function (controller) {
      * @returns {module.exports.autocomplete}
      */
     var Autocomplete = function (input) {
-        var inputContainer = $("<div />").addClass("autocomplete");
+        var inputContainer = $('<div />').addClass('autocomplete');
         /* Input Element First */
 
         input.replaceWith(inputContainer);
         inputContainer.append(input);
 
-        input.attr("autocomplete", "off");
-        var options = $("<ul />");
+        input.attr('autocomplete', 'off');
+        var options = $('<ul />');
         inputContainer.append(options);
         var position = null;
 
@@ -26,7 +26,7 @@ module.exports = function (controller) {
                 return;
             }
 
-            var items = options.find("li");
+            var items = options.find('li');
 
 
             if (!(code === 13 || code === 38 || code === 40))
@@ -39,7 +39,7 @@ module.exports = function (controller) {
             if (e.which === 13) {
                 if (position) {
                     /* Simulate a click (shame ;(* )*/
-                    items.eq(position % items.length).removeClass("selected").click();
+                    items.eq(position % items.length).removeClass('selected').click();
                 }
                 return;
             }
@@ -47,26 +47,26 @@ module.exports = function (controller) {
             if (position === null) {
                 position = 0;
             } else {
-                items.eq(position % items.length).removeClass("selected");
+                items.eq(position % items.length).removeClass('selected');
                 position += (e.which === 38 ? -1 : +1);
             }
 
-            items.eq(position % items.length).addClass("selected");
+            items.eq(position % items.length).addClass('selected');
 
         });
 
         input.blur(function () {
             timeout = setTimeout(function () {
-                options.removeClass("active");
+                options.removeClass('active');
             }, controller.confs.hideAutocomplete);
         }).focus(function () {
             if (timeout)
                 clearTimeout(timeout);
-            options.addClass("active");
+            options.addClass('active');
         });
 
         this.setIcon = function (i) {
-            input.after($("<i />").addClass("fa input-icon").addClass(i));
+            input.after($('<i />').addClass('fa input-icon').addClass(i));
             return this;
         };
 
@@ -75,8 +75,8 @@ module.exports = function (controller) {
         };
 
         var addOption = function (prepend) {
-            var item = $("<li />"),
-                    fnc  = prepend ? "prepend" : "append";
+            var item = $('<li />'),
+                fnc  = prepend ? 'prepend' : 'append';
             options[fnc](item);
             return item;
         };
@@ -90,13 +90,13 @@ module.exports = function (controller) {
             var item = addOption(prepend);
 
             if (title)
-                item.append($("<div />").text(title).addClass("item-title"));
+                item.append($('<div />').text(title).addClass('item-title'));
 
             if (subtitle)
-                item.append($("<div />").text(subtitle).addClass("item-subtitle"));
+                item.append($('<div />').text(subtitle).addClass('item-subtitle'));
 
             if (description)
-                item.append($("<div />").text(description).addClass("item-description"));
+                item.append($('<div />').text(description).addClass('item-description'));
 
             if (html)
                 item.append(html);
@@ -110,7 +110,7 @@ module.exports = function (controller) {
     /**
      * Autocomplete de um formulário
      */
-    controller.registerCall("autocomplete", function (input) {
+    controller.registerCall('autocomplete', function (input) {
         return new Autocomplete(input);
     });
 

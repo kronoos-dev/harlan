@@ -3,9 +3,9 @@
 
 var MoreResults = function (maxItems) {
 
-    var footer = $("<footer />").addClass("load-more"),
-        container = $("<div />").addClass("container"),
-        content = $("<div />").addClass("content").text("Mais Resultados"),
+    var footer = $('<footer />').addClass('load-more'),
+        container = $('<div />').addClass('container'),
+        content = $('<div />').addClass('content').text('Mais Resultados'),
         items = [],
         callit = null;
 
@@ -93,7 +93,7 @@ var MoreResults = function (maxItems) {
 };
 
 module.exports = controller => {
-    controller.registerCall("moreResults", (maxItems) =>  {
+    controller.registerCall('moreResults', (maxItems) =>  {
         return new MoreResults(maxItems);
     });
 };

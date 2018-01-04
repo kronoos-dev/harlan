@@ -8,7 +8,7 @@ export function DistanceMeter(pontoInicial, pontoFinal) {
 
     if (typeof pontoInicial === 'string') {
         pontoInicial = _.object(['latitude', 'longitude'],
-                pontoInicial.split(",").map(parseFloat));
+            pontoInicial.split(',').map(parseFloat));
     }
 
     var R = 6371;

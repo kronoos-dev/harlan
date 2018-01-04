@@ -10,11 +10,11 @@ const MAX_RESULTS = 5;
 
 harlan.addPlugin(controller => {
     let harmonizer = new harmony.Harmonizer(),
-        colorMix = "neutral",
+        colorMix = 'neutral',
         colors = {
-            error: harmonizer.harmonize("#ff1a53", colorMix),
-            warning: harmonizer.harmonize("#ffe500", colorMix),
-            success: harmonizer.harmonize("#00ff6b", colorMix)
+            error: harmonizer.harmonize('#ff1a53', colorMix),
+            warning: harmonizer.harmonize('#ffe500', colorMix),
+            success: harmonizer.harmonize('#00ff6b', colorMix)
         };
 
     /**
@@ -48,18 +48,18 @@ harlan.addPlugin(controller => {
                 } else {
                     a.value += (b.value / qtd);
                 }
-                a.color = "#93A7D8";
-                a.highlight = new Color("#93A7D8").lighten(0.1).hsl().string();
-                a.label = "Outros";
+                a.color = '#93A7D8';
+                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+                a.label = 'Outros';
                 return a;
             });
         });
 
     };
 
-    let generateReport = (data, subtitle, title, paragraph, variable = 'averageSuccessResourceUse', reduceDatasetPerc = 0.05, method = "average") => {
+    let generateReport = (data, subtitle, title, paragraph, variable = 'averageSuccessResourceUse', reduceDatasetPerc = 0.05, method = 'average') => {
 
-        var report = controller.call("report", title, subtitle, paragraph);
+        var report = controller.call('report', title, subtitle, paragraph);
         report.newContent();
 
         let dataset = _.sortBy(_.map(data, (element, key) => {
@@ -79,7 +79,7 @@ harlan.addPlugin(controller => {
         }), 'trys');
         dataset = reduceDataset(dataset, reduceDatasetPerc, method);
         let canvas = report.canvas(250, 250);
-        new ChartJS(canvas.getContext("2d")).Doughnut(dataset);
+        new ChartJS(canvas.getContext('2d')).Doughnut(dataset);
 
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({
@@ -93,13 +93,13 @@ harlan.addPlugin(controller => {
 
     /* @TODO Ajustar os nomes de parágrafos */
 
-    controller.serverCommunication.call("SELECT FROM 'PUSH'.'RESOURCEUSEQA'", {
-        dataType: "json",
+    controller.serverCommunication.call('SELECT FROM \'PUSH\'.\'RESOURCEUSEQA\'', {
+        dataType: 'json',
         success: data => {
-            generateReport(data, "Consumo da Última Execução", "Uso de Recursos Especiais",
-                "O relatório de Push fornece uma estatística de qualidade e detalhada para que as " +
-                "manutenções possam ser orientadas com maior precisão em relação aos problemas. Para " +
-                "obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.", "lastResourceUse", 0.05, "sum");
+            generateReport(data, 'Consumo da Última Execução', 'Uso de Recursos Especiais',
+                'O relatório de Push fornece uma estatística de qualidade e detalhada para que as ' +
+                'manutenções possam ser orientadas com maior precisão em relação aos problemas. Para ' +
+                'obter maiores informações clique sobre a etiqueta logo abaixo do gráfico.', 'lastResourceUse', 0.05, 'sum');
         }
     });
 

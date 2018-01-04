@@ -3,13 +3,13 @@ module.exports = function(controller) {
     let getPicture = (successCallback, errorCallback) => {
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            errorCallback("No multimedia resource available");
+            errorCallback('No multimedia resource available');
         }
 
         navigator.mediaDevices.getUserMedia({
             video: true
         }).then(stream => {
-            let videoContainer = $("<div />").addClass("video-container");
+            let videoContainer = $('<div />').addClass('video-container');
             let container = $(controller.confs.container);
 
             let [height, width] = [
@@ -17,15 +17,15 @@ module.exports = function(controller) {
                 container.outerWidth()
             ];
 
-            let video = $("<video />").attr({
+            let video = $('<video />').attr({
                 height: height,
                 width: width,
-                autoplay: "autoplay"
+                autoplay: 'autoplay'
             }).appendTo(videoContainer);
 
-            $("<div />")
-                .addClass("drop-button")
-                .append($("<i />").addClass("fa fa-times"))
+            $('<div />')
+                .addClass('drop-button')
+                .append($('<i />').addClass('fa fa-times'))
                 .appendTo(videoContainer)
                 .click(e => {
                     e.preventDefault();
@@ -34,9 +34,9 @@ module.exports = function(controller) {
                     errorCallback();
                 });
 
-            let snap = $("<div />")
-                .addClass("snap-button")
-                .append($("<i />").addClass("fa fa-camera"))
+            let snap = $('<div />')
+                .addClass('snap-button')
+                .append($('<i />').addClass('fa fa-camera'))
                 .appendTo(videoContainer)
                 .click(e => {
                     e.preventDefault();
@@ -44,7 +44,7 @@ module.exports = function(controller) {
                     let [videoHeight, videoWidth] = [video.get(0).videoHeight,
                         video.get(0).videoWidth];
 
-                    let canvas = $("<canvas />").attr({
+                    let canvas = $('<canvas />').attr({
                         width: videoWidth,
                         height: videoHeight,
                     });
@@ -57,7 +57,7 @@ module.exports = function(controller) {
                     stream = null;
                     video.remove();
                     snap.remove();
-                    let image = canvas.get(0).toDataURL("image/jpeg").replace(/^data\:image\/jpeg\;base64\,/, "");
+                    let image = canvas.get(0).toDataURL('image/jpeg').replace(/^data\:image\/jpeg\;base64\,/, '');
                     videoContainer.remove();
                     successCallback(image);
                 });
@@ -72,6 +72,6 @@ module.exports = function(controller) {
 
     navigator.camera = navigator.camera || {};
     navigator.camera.getPicture = navigator.camera.getPicture || getPicture;
-    controller.registerCall("takePicture", getPicture);
+    controller.registerCall('takePicture', getPicture);
 
 };

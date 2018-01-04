@@ -1,4 +1,4 @@
-var animationEvent = "animationend animationend webkitAnimationEnd oanimationend MSAnimationEnd";
+var animationEvent = 'animationend animationend webkitAnimationEnd oanimationend MSAnimationEnd';
 
 /**
  * Comentário para a posteridade
@@ -11,11 +11,11 @@ module.exports = function(controller) {
     var animationElement = null;
 
     controller.confs.loader = {
-        animations: ["animated rotateIn", "animated rotateOut"]
+        animations: ['animated rotateIn', 'animated rotateOut']
     };
 
-    controller.registerCall("loader::catchElement", function() {
-        return $(".logo:visible span");
+    controller.registerCall('loader::catchElement', function() {
+        return $('.logo:visible span');
     });
 
     var afterExecution = function() {
@@ -25,11 +25,11 @@ module.exports = function(controller) {
 
     var loaderRegister = 0;
 
-    controller.registerCall("loader::register", function() {
+    controller.registerCall('loader::register', function() {
         if (!loaderRegister) {
-            animationElement = controller.call("loader::catchElement");
+            animationElement = controller.call('loader::catchElement');
             if (!animationElement.length) {
-                $(".q").addClass("loading");
+                $('.q').addClass('loading');
                 return;
             }
             animationElement.bind(animationEvent, afterExecution);
@@ -38,14 +38,14 @@ module.exports = function(controller) {
         loaderRegister++;
     });
 
-    controller.registerCall("loader::unregister", function() {
+    controller.registerCall('loader::unregister', function() {
         if (--loaderRegister > 0) {
             return;
         }
 
         loaderRegister = 0;
         if (!animationElement.length) {
-            $(".q").removeClass("loading");
+            $('.q').removeClass('loading');
             return;
         }
         animationElement.removeClass(controller.confs.loader.animations[counter % controller.confs.loader.animations.length]);
@@ -54,7 +54,7 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall("loader::ajax", function(dict, bipbop = false) {
+    controller.registerCall('loader::ajax', function(dict, bipbop = false) {
         var beforeSend = dict.beforeSend,
             complete = dict.complete,
             bipbopRegister = null;
@@ -62,7 +62,7 @@ module.exports = function(controller) {
             if (bipbop) {
                 bipbopRegister = $.bipbopLoader.register();
             } else {
-                controller.call("loader::register");
+                controller.call('loader::register');
             }
 
             if (beforeSend)
@@ -74,7 +74,7 @@ module.exports = function(controller) {
                 bipbopRegister();
                 bipbopRegister = null;
             } else {
-                controller.call("loader::unregister");
+                controller.call('loader::unregister');
             }
             if (complete)
                 complete(jqXHR, textStatus, ...ag);

@@ -7,13 +7,13 @@ var radialCeil = function (value) {
 
 module.exports = function (parent, percent) {
     percent = radialCeil(percent);
-    var radialProject = $("<div />").addClass("radialProject"),
-            progress = $("<div />").addClass("progress"),
-            progressFill = $("<div />").addClass("progressFill"),
-            percents = $("<div />").addClass("percents"),
-            percentsWrapper = $("<div />").addClass("percentsWrapper"),
-            percentText = $("<span />").text("%"),
-            deg = 360 * percent / 100;
+    var radialProject = $('<div />').addClass('radialProject'),
+        progress = $('<div />').addClass('progress'),
+        progressFill = $('<div />').addClass('progressFill'),
+        percents = $('<div />').addClass('percents'),
+        percentsWrapper = $('<div />').addClass('percentsWrapper'),
+        percentText = $('<span />').text('%'),
+        deg = 360 * percent / 100;
 
     percents.append(percentsWrapper.append(percentText));
     progress.append(progressFill);
@@ -32,7 +32,7 @@ module.exports = function (parent, percent) {
         change: function (percent) {
             percent = radialCeil(percent);
             deg = 360 * percent / 100;
-            radialProject[percent > 50 ? "addClass" : "removeClass"]('gtHalf');
+            radialProject[percent > 50 ? 'addClass' : 'removeClass']('gtHalf');
             progressFill.css('transform', 'rotate(' + deg + 'deg)');
             percentText.text(Math.floor(percent).toString() + ' %');
             if (ret.onChange) ret.onChange(percent);

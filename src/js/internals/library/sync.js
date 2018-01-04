@@ -2,7 +2,7 @@ const LENGTH_REGEX = /%+/g;
 const JOB_REGEX = /%([^%]+)/g;
 
 import queue from 'async/queue';
-import localForage from "localforage";
+import localForage from 'localforage';
 import uuid from 'uuid';
 
 export default class Sync {
@@ -80,7 +80,7 @@ export default class Sync {
                 return;
             }
 
-            this.controller.trigger("sync::start");
+            this.controller.trigger('sync::start');
 
             this.q = new queue((task, cb) => {
                 this.controller.call(task.call, err => {
@@ -93,7 +93,7 @@ export default class Sync {
             }, 1);
 
             this.q.drain = (...args) => {
-                this.controller.trigger("sync::end", args);
+                this.controller.trigger('sync::end', args);
                 end(...args);
             };
 
@@ -127,7 +127,7 @@ export default class Sync {
                         if(cb) cb(err);
                         return;
                     }
-                    this.controller.trigger("sync::change");
+                    this.controller.trigger('sync::change');
                     if(cb) cb();
                 });
             });
@@ -147,7 +147,7 @@ export default class Sync {
                     if (cb) cb(err);
                     return;
                 }
-                if (!syncTasks) syncTasks = "";
+                if (!syncTasks) syncTasks = '';
                 syncTasks += `%${key}`;
                 localForage.setItem('syncTasks', syncTasks, err => {
                     if (err) {
@@ -155,7 +155,7 @@ export default class Sync {
                         if (cb) cb(err);
                         return;
                     }
-                    this.controller.trigger("sync::change");
+                    this.controller.trigger('sync::change');
                     if (cb) cb();
                 });
             });

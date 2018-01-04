@@ -1,7 +1,7 @@
-import async from "async";
+import async from 'async';
 
 const notificationInterval = 1500;
-const searchBarContainer = $(".kronoos-application .search-bar .kronoos-floating");
+const searchBarContainer = $('.kronoos-application .search-bar .kronoos-floating');
 
 if (Notification) Notification.requestPermission();
 
@@ -14,32 +14,32 @@ module.exports = function (controller) {
         let jqXHR;
 
         if (conf.statusElement)
-            searchBarContainer.append(conf.statusElement.addClass("processing"));
+            searchBarContainer.append(conf.statusElement.addClass('processing'));
 
-        jqXHR = task.parser.controller.server.call(target, controller.call("error::ajax", conf, false), ...args).always(() => {
+        jqXHR = task.parser.controller.server.call(target, controller.call('error::ajax', conf, false), ...args).always(() => {
             let idx = task.parser.xhr.indexOf(jqXHR);
             if (idx !== -1)
                 delete task.parser.xhr[idx];
             callback();
-            controller.trigger("kronoos::ajax::queue::change");
+            controller.trigger('kronoos::ajax::queue::change');
         });
 
         task.parser.xhr.push(jqXHR);
     }, 5);
 
-    controller.registerCall("kronoos::queue", () => {
+    controller.registerCall('kronoos::queue', () => {
         return ajaxQueue.length() + ajaxQueue.running();
     });
 
-    controller.registerCall("kronoos::ajax::queue::remove", filter => {
+    controller.registerCall('kronoos::ajax::queue::remove', filter => {
         ajaxQueue.remove(filter);
-        controller.trigger("kronoos::ajax::queue::change");
+        controller.trigger('kronoos::ajax::queue::change');
     });
 
-    controller.registerCall("kronoos::ajax::queue", (task, priority) => {
+    controller.registerCall('kronoos::ajax::queue', (task, priority) => {
         clearTimeout(notificationTimeout);
         ajaxQueue.push(task);
-        controller.trigger("kronoos::ajax::queue::change");
+        controller.trigger('kronoos::ajax::queue::change');
     });
 
     /* Progress Monitor */
@@ -54,9 +54,9 @@ module.exports = function (controller) {
             if (radialProject) radialProject.element.remove();
             radialProject = null;
             if (Notification && Notification.permission == 'granted') {
-                let notification = new Notification(`Processamento concluído do Kronoos concluído!`, {
+                let notification = new Notification('Processamento concluído do Kronoos concluído!', {
                     icon: 'images/kronoos/notification.png',
-                    body: `Boas novas! Terminamos de processar o documento informado.`,
+                    body: 'Boas novas! Terminamos de processar o documento informado.',
                 });
                 notification.onclick = () => {
                     parent.focus();
@@ -64,15 +64,15 @@ module.exports = function (controller) {
                     notification.close();
                 };
             }
-            controller.trigger("kronoos::end");
+            controller.trigger('kronoos::end');
         }, notificationInterval);
     };
 
-    controller.registerTrigger("kronoos::ajax::queue::change", "radialProject", (obj, cb) => {
+    controller.registerTrigger('kronoos::ajax::queue::change', 'radialProject', (obj, cb) => {
         cb();
         let queue = ajaxQueue.length() + ajaxQueue.running();
         if (!radialProject && !queue) return;
-        if (!radialProject) radialProject = controller.call("progress::ui::noblock");
+        if (!radialProject) radialProject = controller.call('progress::ui::noblock');
 
         if (queue > maxQueue) maxQueue = queue;
 

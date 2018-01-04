@@ -1,6 +1,6 @@
 import ClientLoader from './internals/library/client-loader';
 
-require("pseudo-worker/polyfill");
+require('pseudo-worker/polyfill');
 
 (function(path, size, compressedSize, encode) {
 
@@ -10,18 +10,18 @@ require("pseudo-worker/polyfill");
         clientLoader = null,
         contentIndex = 0,
         content = new Buffer(size),
-        streamHttp = require("stream-http"),
-        domReady = require("domready"),
-        inflateWorker = new Worker("js/app-client-inflate.js"),
+        streamHttp = require('stream-http'),
+        domReady = require('domready'),
+        inflateWorker = new Worker('js/app-client-inflate.js'),
         downloadedSize = 0,
         totalSize = compressedSize + size,
         decompressedSize = 0,
         updateInterfaceProgress = function() {
-            console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + "% Downloaded");
+            console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + '% Downloaded');
         };
 
     domReady(function() {
-        let harlanClient = $("<div />").class("harlan-client").prependTo("body");
+        let harlanClient = $('<div />').class('harlan-client').prependTo('body');
         clientLoader = new ClientLoader(harlanClient);
         updateInterfaceProgress = function() {
             var progress = (downloadedSize + decompressedSize) / totalSize;
@@ -53,4 +53,4 @@ require("pseudo-worker/polyfill");
         });
     });
 
-})("js/app-client.js.gz?h=/* @echo CLIENT_MD5 */", parseInt('/* @echo CLIENT_APP_SIZE */'), parseInt('/* @echo CLIENT_COMPRESSED_SIZE */'), "utf-8");
+})('js/app-client.js.gz?h=/* @echo CLIENT_MD5 */', parseInt('/* @echo CLIENT_APP_SIZE */'), parseInt('/* @echo CLIENT_COMPRESSED_SIZE */'), 'utf-8');

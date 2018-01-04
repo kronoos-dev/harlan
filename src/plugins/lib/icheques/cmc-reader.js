@@ -3,12 +3,12 @@ import { CMC7Validator } from './cmc7-validator';
 module.exports = function (controller) {
 
     let group = 0;
-    let cmcNumber = "";
+    let cmcNumber = '';
     let onTerminator = false;
     let timeout;
 
     $(window).keypress(e => {
-        if (document.activeElement && document.activeElement.tagName.toLowerCase() !== "body") {
+        if (document.activeElement && document.activeElement.tagName.toLowerCase() !== 'body') {
             return;
         }
 
@@ -19,12 +19,12 @@ module.exports = function (controller) {
 
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(() => {
-            cmcNumber = "";
+            cmcNumber = '';
         }, 3000);
 
         cmcNumber += char;
         if (new CMC7Validator(cmcNumber).isValid()) {
-            controller.trigger("icheques::newcheck", cmcNumber);
+            controller.trigger('icheques::newcheck', cmcNumber);
         }
     });
 

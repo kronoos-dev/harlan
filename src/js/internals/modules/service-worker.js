@@ -2,7 +2,7 @@
 
 module.exports = function (controller) {
 
-    controller.registerBootstrap("manifest", function (callback) {
+    controller.registerBootstrap('manifest', function (callback) {
         callback();
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js', {scope: './'}).then(function () {

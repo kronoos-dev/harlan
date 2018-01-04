@@ -3,18 +3,18 @@ var closeAction = null;
 
 module.exports = function (controller) {
 
-    var headerNode = $(".iframe header"),
-            iframeNode = $(".iframe iframe"),
-            inputNode = $(".iframe input"),
-            closeButtonNode = $(".iframe #action-close-iframe"),
-            gotoButtonNode = $(".iframe .icon.url"),
-            iframeLoaderNode = $(".iframe .q");
+    var headerNode = $('.iframe header'),
+        iframeNode = $('.iframe iframe'),
+        inputNode = $('.iframe input'),
+        closeButtonNode = $('.iframe #action-close-iframe'),
+        gotoButtonNode = $('.iframe .icon.url'),
+        iframeLoaderNode = $('.iframe .q');
 
     /*
      * Quando o módulo é colocado
      * embedded a caixa de consulta deve desaparecer
      */
-    controller.registerCall("iframeEmbed", function () {
+    controller.registerCall('iframeEmbed', function () {
         if (window !== window.top) {
             return true;
         }
@@ -24,17 +24,17 @@ module.exports = function (controller) {
     /**
      * Abre um iFrame
      */
-    controller.registerCall("iframeEmbed::open", function (args) {
+    controller.registerCall('iframeEmbed::open', function (args) {
         var location = args[0],
-                title = args[1];
+            title = args[1];
 
         title = title || location;
 
-        controller.interface.helpers.activeWindow(".iframe");
+        controller.interface.helpers.activeWindow('.iframe');
 
-        iframeLoaderNode.addClass("loading");
+        iframeLoaderNode.addClass('loading');
         clickLocation = location;
-        iframeNode.attr("src", location);
+        iframeNode.attr('src', location);
         inputNode.val(title);
         onResize();
     });
@@ -42,10 +42,10 @@ module.exports = function (controller) {
     /**
      * Quando o projeto se torna whitelabel
      */
-    controller.registerBootstrap("iframeEmbed::whitelabel", function (callback) {
+    controller.registerBootstrap('iframeEmbed::whitelabel', function (callback) {
         callback();
-        if (!controller.call("iframeEmbed") && controller.query.whitelabel) {
-            $("#scroll-down").hide();
+        if (!controller.call('iframeEmbed') && controller.query.whitelabel) {
+            $('#scroll-down').hide();
         }
     });
 
@@ -54,14 +54,14 @@ module.exports = function (controller) {
      * @returns {undefined}
      */
     var onResize = function () {
-        iframeNode.css("height", $(window).height() - headerNode.outerHeight());
+        iframeNode.css('height', $(window).height() - headerNode.outerHeight());
     };
 
     /**
      * Abre um iFrame
      * @param {callback} callback Callback fnc
      */
-    controller.registerBootstrap("iframeEmbed::open", function (callback) {
+    controller.registerBootstrap('iframeEmbed::open', function (callback) {
         callback();
 
         $(window).resize(onResize);
@@ -69,19 +69,19 @@ module.exports = function (controller) {
         closeButtonNode.click(function (e) {
             e.preventDefault();
             if (!closeAction) {
-                controller.interface.helpers.activeWindow(".app");
+                controller.interface.helpers.activeWindow('.app');
             }
         });
 
         gotoButtonNode.click(function (e) {
             e.preventDefault();
             if (clickLocation) {
-                window.open(clickLocation, "_blank");
+                window.open(clickLocation, '_blank');
             }
         });
 
-        iframeNode.on("load", function () {
-            iframeLoaderNode.removeClass("loading");
+        iframeNode.on('load', function () {
+            iframeLoaderNode.removeClass('loading');
         });
     });
 

@@ -1,6 +1,6 @@
 module.exports = function (controller) {
 
-    controller.registerBootstrap("analytics::google", function (callback) {
+    controller.registerBootstrap('analytics::google', function (callback) {
         callback();
         (function (h, a, r, l, n) {
             h.GoogleAnalyticsObject = r;
@@ -10,14 +10,14 @@ module.exports = function (controller) {
                 };
             }
             h[r].l = +new Date();
-            l = a.createElement("script");
+            l = a.createElement('script');
             n = a.scripts[0];
-            l.src = "//www.google-analytics.com/analytics.js";
+            l.src = '//www.google-analytics.com/analytics.js';
             n.parentNode.insertBefore(l, n);
-        })(window, document, "googleAnalytics");
+        })(window, document, 'googleAnalytics');
 
-        googleAnalytics("create", controller.confs.googleAnalyticsId, "auto");
-        googleAnalytics("send", "pageview");
+        googleAnalytics('create', controller.confs.googleAnalyticsId, 'auto');
+        googleAnalytics('send', 'pageview');
 
     });
 };
