@@ -353,7 +353,7 @@ export class KronoosParse {
             success: data => {
                 if (data.length !== 0) {
                     for (let appointMent of data.result) {
-                        let kelement = this.kronoosElement('adm', 'Presença do target nas mídias', `Notícias que contém o target pesquisado ${this.cpf_cnpj}`, appointMent.titulo);
+                        let kelement = this.kronoosElement(null, 'Presença do target nas mídias', `Notícias que contém o target pesquisado ${this.cpf_cnpj}`, appointMent.titulo);
                         kelement.table('Data da Notícia', 'Fonte da Notícia', 'Link da Notícia')(appointMent.dataNoticia || 'Não há', appointMent.fonteNoticia || 'Não há', $('<a />').text('Clique para acessar a fonte').attr({target: '_blank', href: appointMent.linkNoticia}) || 'Não há');
                         kelement.paragraph(appointMent.citacao);
                         kelement.behaviourAccurate(true);
@@ -405,7 +405,7 @@ export class KronoosParse {
                         return;
                     }
 
-                    let kelement = this.kronoosElement('juridic', `Certidão do ${database}`,
+                    let kelement = this.kronoosElement(null, `Certidão do ${database}`,
                         `Certidão do ${database}`, `Visualização da Certidão no ${database}`);
 
                     kelement.element().find('.kronoos-side-content').append($('<a />').attr({
@@ -449,7 +449,7 @@ export class KronoosParse {
                     let procs = data.aaData.filter(x => this.compareNames(x[0]));
                     if (!procs.length) return;
                     found = true;
-                    let kelement = this.kronoosElement('others', `Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
+                    let kelement = this.kronoosElement(null, `Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`,
                         `Investigado pelo Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`, null);
 
                     let table = kelement.table('Processo', 'Data', 'Situação');
@@ -488,7 +488,7 @@ export class KronoosParse {
                     return;
                 }
                 for (let spc of data.spc) {
-                    let kelement = this.kronoosElement('credito', 'Consulta ao SPC/Serasa',
+                    let kelement = this.kronoosElement(null, 'Consulta ao SPC/Serasa',
                         'Apontamentos e Restrições Financeiras e Comerciais',
                         'Pendências e restrições financeiras nos bureaus de crédito Serasa e SPC');
                     kelement.captionTable('Anotação Negativa', 'Associado', 'Valor')(spc.NomeAssociado, spc.Valor);
@@ -500,7 +500,7 @@ export class KronoosParse {
                 }
 
                 if (data.consultaRealizada.length) {
-                    let kelement = this.kronoosElement('credito', 'Consulta Realizada por Associado do SPC/Serasa',
+                    let kelement = this.kronoosElement(null, 'Consulta Realizada por Associado do SPC/Serasa',
                         'Consulta Realizada por Associado do SPC/Serasa',
                         'Um associado do SPC/Serasa consultou este CNPJ/CPF a procura de apontamentos e restrições financeiras e comerciais');
 
@@ -509,14 +509,9 @@ export class KronoosParse {
                         kelement.table('Data da Consulta', 'Cidade Associado', 'UF Associado')(consultaRealizada.DataDaConsulta, consultaRealizada.CidadeAssociado, consultaRealizada.UfAssociado);
                     }
 
-                    kelement.behaviourAccurate(false);
+                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
-
-                if (!data.spc.length) {
-                    this.notFoundCredito('SPC/Serasa');
-                }
-
             }
         }));
     }
@@ -589,7 +584,7 @@ export class KronoosParse {
                     this.notFoundAdm('Ministério da Fazenda - COMPROT');
                     return;
                 }
-                let kelement = this.kronoosElement('adm', 'Ministério da Fazenda - COMPROT',
+                let kelement = this.kronoosElement(null, 'Ministério da Fazenda - COMPROT',
                     'COMPROT - Processo Administrativo perante o Ministério da Fazenda',
                     data.totalDeProcessosEncontrados > 1 ?
                         `Existem ${data.totalDeProcessosEncontrados} processos administrativos perante o COMPROT/Ministério da Fazenda.` :
@@ -623,7 +618,7 @@ export class KronoosParse {
                     'dtPedido': data,
                 },
                 success: data => {
-                    let kelement = this.kronoosElement('juridic', 'Certidão do TJSP',
+                    let kelement = this.kronoosElement(null, 'Certidão do TJSP',
                         tipo,
                         'Visualização da Certidão no Tribunal de Justiça de São Paulo');
                     kelement.element().find('.kronoos-side-content').append($('<a />').attr({
@@ -655,7 +650,7 @@ export class KronoosParse {
                 success: data => {
                     let element = $('body > pedido', data);
                     if (!element.length) return;
-                    let kelement = this.kronoosElement('juridic', 'Certidão do TJSP',
+                    let kelement = this.kronoosElement(null, 'Certidão do TJSP',
                         'Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo',
                         'Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo');
                     let captionTableElement = kelement.captionTable('Lista de Certidões', 'Tipo', 'Pedido', 'Data');
@@ -708,9 +703,9 @@ export class KronoosParse {
                         this.notFoundOthers('COAF (PEP)');
                         return;
                     }
-                    let kelement = this.kronoosElement('others', 'Pessoa Políticamente Exposta',
-                        'A pessoa física se candidatou a cargo político e consta na base de dados do COAF.',
-                        'Visualização das candidaturas da pessoa física na base de dados do COAF.');
+                    let kelement = this.kronoosElement(null, 'Pessoa Políticamente Exposta',
+                        'A pessoa consta na base de dados do COAF.',
+                        'Visualização dos cargos políticos na base de dados do COAF.');
                     kelement.behaviourAccurate(true);
                     kelement.captionTable('Registros no COAF',
                         'Sigla', 'Descricão', 'Nível', 'Orgão')(
@@ -758,10 +753,10 @@ export class KronoosParse {
                         return politic.CPF_CANDIDATO == cpfValue;
                     });
                     if (!data.length) {
-                        this.notFoundOthers('TSE (PEP)');
+                        this.notFoundOthers('Base de dados do TSE - Candidatura a cargo político');
                         return;
                     }
-                    let kelement = this.kronoosElement('others', 'Pessoa Políticamente Exposta',
+                    let kelement = this.kronoosElement(null, 'Pessoa Políticamente Exposta',
                         'A pessoa física se candidatou a cargo político e consta na base de dados do TSE.',
                         'Visualização das candidaturas da pessoa física na base de dados do Tribunal Superior Eleitoral.');
                     kelement[behaviour](true);
@@ -802,7 +797,7 @@ export class KronoosParse {
                     }
                     let result = results[0];
 
-                    let kelement = this.kronoosElement('adm', 'Uso de Trabalho Análogo ao da Escravidão',
+                    let kelement = this.kronoosElement(null, 'Uso de Trabalho Análogo ao da Escravidão',
                         'Lista da Moda Livre sobre trabalho análogo ao da escravidão.',
                         'Conta apontamento na lista do aplicativo Moda Livre de empresa que usa trabalho análogo ao da escravidão.');
                     kelement.table('Descrição')(result.descricao);
@@ -826,7 +821,7 @@ export class KronoosParse {
                 success: data => {
                     let element = $('body > pedido', data);
                     if (!element.length) return;
-                    let kelement = this.kronoosElement('others', 'Certidão do TJSP',
+                    let kelement = this.kronoosElement(null, 'Certidão do TJSP',
                         'Cadastro de Pedido de Certidão no Tribunal de Justiça de São Paulo',
                         'Visualização do Pedido de Certidão no Tribunal de Justiça de São Paulo');
                     let captionTableElement = kelement.captionTable('Lista de Certidões', 'Tipo', 'Pedido', 'Data');
@@ -987,7 +982,7 @@ export class KronoosParse {
             }
 
             let pages = [].concat(..._.pluck(_.pluck(context, 'webPages'), 'value'));
-            let kelement = this.kronoosElement('others', 'Pesquisa na Internet',
+            let kelement = this.kronoosElement(null, 'Pesquisa na Internet',
                 `Consulta a internet utilizando o nome completo ${this.name} e/ou o documento ${this.cpf_cnpj}.`,
                 pages.length > 1 ?
                     `Foram localizadas ${pages.length} páginas relevantes na internet utilizando o nome completo e/ou o documento.` :
@@ -1141,7 +1136,7 @@ export class KronoosParse {
                 },
                 bipbopError: (type, message, code, push, xml) => {
                     if (/são insuficientes para a emissão de certidão/.test(message)) {
-                        let kelement = this.kronoosElement('adm', 'CND Federal',
+                        let kelement = this.kronoosElement(null, 'CND Federal',
                             'Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União',
                             'Existem pendências e/ou incosistência de informações no sistema da Receita Federal para o documento informado.');
                         kelement.behaviourAccurate(true);
@@ -1151,7 +1146,7 @@ export class KronoosParse {
                     this.errorHappen('Indisponibilidade de conexão com a fonte de dados - Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União');
                 },
                 success: data => {
-                    let kelement = this.kronoosElement('adm', 'CND Federal',
+                    let kelement = this.kronoosElement(null, 'CND Federal',
                         'Certidão de Débitos Relativos a Créditos Tributários Federais e à Dívida Ativa da União',
                         'Documento comprova que empresa está em condição regular em relação à Secretaria da Receita Federal e à dívida ativa da União.');
 
@@ -1159,7 +1154,8 @@ export class KronoosParse {
                     kelement.table('Validade', 'Código de Controle')($('validade', data).text(), $('codigo_de_controle', data).text());
                     let text = $('descricao', data).text();
                     kelement.paragraph(htmlEncode(text));
-                    kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
+                    //kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
+                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 },
             }, true));
@@ -1201,7 +1197,7 @@ export class KronoosParse {
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados para a certidão - Certidão Negativa de Débito do Ibama'),
                 success: data => {
-                    let kelement = this.kronoosElement('adm', 'Certidão de Débito do Ibama',
+                    let kelement = this.kronoosElement(null, 'Certidão de Débito do Ibama',
                         'Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.',
                         'Emissão de Geração de Certidão de Débito do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis.');
 
@@ -1221,6 +1217,7 @@ export class KronoosParse {
                         kelement.behaviourAccurate(!/\NADA CONSTA/i.test($('body > text', data).text()));
                     }
                     this.append(kelement.element());
+                    kelement.behaviourAccurate(true);
                 }
             }, true));
     }
@@ -1237,7 +1234,7 @@ export class KronoosParse {
                         this.notFoundAdm('Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade');
                         return;
                     }
-                    let kelement = this.kronoosElement('adm', 'Conselho Nacional de Justiça - CNJ',
+                    let kelement = this.kronoosElement(null, 'Conselho Nacional de Justiça - CNJ',
                         'Cadastro Nacional de Condenações Cíveis por Ato de Improbidade Administrativa e Inelegibilidade',
                         'Presença no cadastro nacional de condenações cíveis por ato de improbidade administrativa e inegibilidade.');
 
@@ -1262,7 +1259,7 @@ export class KronoosParse {
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados para a certidão - Secretaria de Inspeção do Trabalho - SIT'),
                 success: data => {
-                    let kelement = this.kronoosElement('adm', 'Secretaria de Inspeção do Trabalho - SIT',
+                    let kelement = this.kronoosElement(null, 'Secretaria de Inspeção do Trabalho - SIT',
                         'Geração de Certidão de Débito e Consulta a Informações Processuais de Autos de Infração',
                         'Emissão de Certidão de Débito, Consulta a Andamento Processual e Consulta a Informações Processuais de Autos de Infração.');
 
@@ -1296,7 +1293,7 @@ export class KronoosParse {
                     }
 
                     _.each(iterateOver, element => {
-                        let kelement = this.kronoosElement('credito', 'Protestos em Cartórios',
+                        let kelement = this.kronoosElement(null, 'Protestos em Cartórios',
                             'Detalhes a cerca de protestos realizados em cartório',
                             'Foram localizados protestos registrados em cartório.');
                         kelement.behaviourAccurate(true);
@@ -1327,7 +1324,7 @@ export class KronoosParse {
                         let bankName = bankCodes[$('banco', element).text()] ||
                             bankCodes[$('banco', element).text().replace(/^0+/, '')];
 
-                        let kelement = this.kronoosElement('Cheques sem Fundo em Instituição Bancária',
+                        let kelement = this.kronoosElement(null, 'Cheques sem Fundo em Instituição Bancária',
                             'Detalhes acerca de cheques sem fundo emitidos',
                             'Foram localizados cheques sem fundo em uma instituição bancária.');
                         kelement.behaviourAccurate(true);
@@ -1367,7 +1364,7 @@ export class KronoosParse {
                 error: () => this.notFoundAdm('Cadastro Nacional de Empresas Punidas'),
                 success: data => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('Cadastro Nacional de Empresas Punidas',
+                    let kelement = this.kronoosElement(null, 'Cadastro Nacional de Empresas Punidas',
                         'Existência de apontamentos cadastrais.', 'Portal da transparência, cadastro nacional de empresas punidas.');
                     kelement.behaviourAccurate(true);
                     kelement.table('Tipo da sanção', 'Fundamentação legal')(x('TIPO-DA-SANCAO'), x('FUNDAMENTACAO-LEGAL'));
@@ -1391,7 +1388,7 @@ export class KronoosParse {
                 error: () => this.notFoundAdm('Sanções e expulsões na Controladoria Geral da União'),
                 success: data => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('Sanções e Expulsões na Controladoria Geral da União',
+                    let kelement = this.kronoosElement(null, 'Sanções e Expulsões na Controladoria Geral da União',
                         'Existência de apontamentos cadastrais.', 'Sanções e expulsões na Controladoria Geral da União.');
 
                     kelement.behaviourAccurate(true);
@@ -1417,7 +1414,7 @@ export class KronoosParse {
                 },
                 success: data => {
                     let x = n => $(n, data).text();
-                    let kelement = this.kronoosElement('ONGs impedidas na CGU',
+                    let kelement = this.kronoosElement(null, 'ONGs impedidas na CGU',
                         'Existência de apontamentos cadastrais.', 'Entidades privadas sem fins lucrativas impedidas na controladoria geral da união.');
 
                     kelement.behaviourAccurate(true);
@@ -1442,7 +1439,7 @@ export class KronoosParse {
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP ${nire}`),
             success: data => {
-                let kelement = this.kronoosElement('Ficha Cadastral da Empresa na Jucesp',
+                let kelement = this.kronoosElement(null, 'Ficha Cadastral da Empresa na Jucesp',
                     'Ficha cadastral completa da empresa registrada na Jucesp desde 1992.',
                     'Consulta da ficha cadastral completa na Junta Comercial do Estado de São Paulo.');
                 kelement.element().find('.kronoos-side-content').append($('<a />').attr({
@@ -1478,7 +1475,7 @@ export class KronoosParse {
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Receita Federal (${this.cpf ? 'Certidão Negativa' : 'Cartão do CNPJ'})`),
                 success: data => {
                     let x = n => $(n, data).first().text();
-                    let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? 'CPF' : 'CNPJ'} pela Receita Federal`,
+                    let kelement = this.kronoosElement(null, `Situação Cadastral do ${this.cpf ? 'CPF' : 'CNPJ'} pela Receita Federal`,
                         'Consulta do documento na Receita Federal.', 'Certidão remetida pela Receita Federal.');
 
                     if (CPF.isValid(cpf_cnpj)) {
@@ -1534,6 +1531,7 @@ export class KronoosParse {
                     }
 
                     kelement.behaviourAccurate(['REGULAR', 'ATIVA'].indexOf(x('situacao').split(' ')[0]) === -1);
+                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 },
             }, true));
@@ -1642,7 +1640,7 @@ export class KronoosParse {
 
     kronoosElement(group, ...args) {
         let kelement = this.call('kronoos::element', ...args);
-        if (this.kelements.length) kelement.notFound = (element, ...x) => this.notFound(element, group, ...x);
+        if (this.kelements.length && group) kelement.notFound = (element, ...x) => this.notFound(element, group, ...x);
         kelement.brief = (...args) => this.brief(...args);
         this.kelements.push(kelement);
         kelement.aggregate(() => this.changeResult());
@@ -1660,7 +1658,7 @@ export class KronoosParse {
                 success: data => {
                     let x = n => $(n, data).text();
 
-                    let kelement = this.kronoosElement('adm', 'CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas',
+                    let kelement = this.kronoosElement(null, 'CEIS – Cadastro Nacional de Empresas Inidôneas e Suspensas',
                         'Cadastro Nacional de Empresas Inidôneas e Suspensas de celebrar convênios, contratos de repasse ou termos de parceria com a administração pública federal', 'Controladoria Geral da União (CGU)');
                     kelement.behaviourAccurate(true);
 
@@ -1701,7 +1699,7 @@ export class KronoosParse {
                     let mae = x('genitoras');
                     if (this.mae && mae && this.normalizeName(this.mae) != this.normalizeName(mae)) return;
 
-                    let kelement = this.kronoosElement('others', 'Mandado de Prisão',
+                    let kelement = this.kronoosElement(null, 'Mandado de Prisão',
                         'Existência de apontamentos cadastrais.', 'Mandado de prisão expedido.');
 
                     if ((!this.mae || !mae) && this.homonymous > 1) kelement.behaviourHomonym(true);
@@ -2073,7 +2071,7 @@ export class KronoosParse {
 
             let namespace = $('namespace', element).text(),
                 [title, description] = NAMESPACE_DESCRIPTION[namespace],
-                kelement = this.kronoosElement('others', title, 'Existência de apontamentos cadastrais.', description),
+                kelement = this.kronoosElement(null, title, 'Existência de apontamentos cadastrais.', description),
                 notes = $('notes node', element),
                 source = $('source node', element),
                 position = $('position', element),
@@ -2125,7 +2123,7 @@ export class KronoosParse {
 
     parseProc(proc, article, match) {
         if (this.procElements[proc]) return false;
-        let kelement = this.kronoosElement('juridic', `Processo Nº ${proc}`,
+        let kelement = this.kronoosElement(null, `Processo Nº ${proc}`,
             'Obtido em recorte de diário oficial.',
             'Foram encontradas informações, confirmação pendente pelo sistema Kronoos.');
 
@@ -2196,7 +2194,7 @@ export class KronoosParse {
     emptyChecker() {
         if (!this.kelements.length) {
             let [title, description] = NAMESPACE_DESCRIPTION.clear,
-                nelement = this.kronoosElement('others', title, 'Não consta nenhum apontamento cadastral.', description);
+                nelement = this.kronoosElement(null, title, 'Não consta nenhum apontamento cadastral.', description);
             this.titleCanChange = true;
             this.append(nelement.element());
             searchBar.addClass('minimize').removeClass('full');
@@ -2715,7 +2713,7 @@ export class KronoosParse {
                 cnjInstance = this.procElements[numproc];
                 if (!cnjInstance.element().data('nameSearch')) return;
             } else {
-                cnjInstance = this.kronoosElement('juridic', numproc ? `Processo Nº ${numproc}` : 'Processo Jurídico',
+                cnjInstance = this.kronoosElement(null, numproc ? `Processo Nº ${numproc}` : 'Processo Jurídico',
                     'Obtido em recorte de diário oficial.',
                     'Foram encontradas informações, confirmação pendente.');
                 this.procElements[numproc] = cnjInstance;
