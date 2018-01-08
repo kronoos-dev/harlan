@@ -32,7 +32,6 @@ var Controller = function() {
         return this;
     };
 
-
     this.unregisterTriggers = (name, except = []) => {
         for (let i in events[name]) {
             if (except.indexOf(i) != -1) {
@@ -150,7 +149,6 @@ var Controller = function() {
         this.trigger(`call::${name}`, parameters);
         return data;
     };
-
 
     this.run = () => {
         var calls = bootstrapCalls; /* prevent race cond */

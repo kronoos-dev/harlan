@@ -41,7 +41,6 @@ module.exports = controller =>  {
                 return item;
             };
 
-
             var header = $('<header />')
                 .addClass('separator')
                 .append(items.headerContainer);

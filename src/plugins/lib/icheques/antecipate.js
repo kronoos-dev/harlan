@@ -59,7 +59,6 @@ module.exports = function(controller) {
             });
     });
 
-
     controller.registerCall('icheques::antecipate::checksIsEmpty', () => {
         let modal = controller.call('modal');
 
@@ -93,7 +92,6 @@ module.exports = function(controller) {
             }
         });
     });
-
 
     controller.registerCall('icheques::antecipate', function(checks) {
         controller.server.call('SELECT FROM \'ICHEQUESPROFILE\'.\'PROFILE\'', {
@@ -452,7 +450,6 @@ module.exports = function(controller) {
                     return;
                 }
 
-
                 banks = _.sortBy(_.filter(banks.toArray(), element => {
 
                     return calculateDistance({
@@ -670,7 +667,6 @@ module.exports = function(controller) {
 
         modal.createActions().cancel();
     });
-
 
     controller.registerCall('icheques::register::all::show', profile => {
         controller.serverCommunication.call('SELECT FROM \'ICHEQUESFIDC\'.\'LIST\'',

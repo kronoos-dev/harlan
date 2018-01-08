@@ -56,7 +56,6 @@ module.exports = controller => {
         });
     });
 
-
     controller.registerCall('admin::message', (apiKeys) => {
         if (!apiKeys.length) {
             controller.alert({

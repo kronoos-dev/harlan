@@ -217,7 +217,6 @@ module.exports = controller => {
                         });
                     }).toArray());
 
-
                     nodes.push(relation.createNode(
                         $('cadastro cpf', document).first().text(),
                         $('cadastro nome', document).first().text(),
@@ -356,7 +355,6 @@ module.exports = controller => {
             });
         };
     };
-
 
     controller.registerCall('generateRelations', () => {
         return new GenerateRelations();

@@ -26,7 +26,6 @@ var factoryCloseSection = function (section) {
     };
 };
 
-
 var header = function (name, description, subdescription, section, disableDefaultActions, minimized) {
     var header = $('<header />'),
         headerContainer = $('<div />').addClass('container'),
@@ -56,7 +55,6 @@ var header = function (name, description, subdescription, section, disableDefaul
     if (subdescription) {
         headerContent.append($('<div />').addClass('results-display').text(subdescription));
     }
-
 
     headerContent.append(metadataElements);
     headerContainer.append(headerContent);

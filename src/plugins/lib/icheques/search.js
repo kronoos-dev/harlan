@@ -74,7 +74,6 @@ module.exports = function(controller) {
             });
     });
 
-
     controller.registerTrigger('findDatabase::instantSearch', 'icheques::search', function(args, callback) {
 
         var searchString = sprintf('%s%%', args[0]),

@@ -15,7 +15,6 @@ module.exports = function (controller) {
             return;
         }
 
-
         report = controller.call('report',
             'Como você encontrou a iCheques?',
             'Conte como ouviu falar de nós ou digite a referência que recebeu por e-mail de sua parceira financeira.',

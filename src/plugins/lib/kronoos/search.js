@@ -185,7 +185,6 @@ module.exports = function(controller) {
                 success: ret => callback(null, ret)
             })));
 
-
         async.tryEach([
             callback => findBureau(callback, 'USING \'CCBUSCA\' SELECT FROM \'FINDER\'.\'CONSULTA\'', {
                 'q[0]': 'USING \'CCBUSCA\' SELECT FROM \'FINDER\'.\'CONSULTA\'',

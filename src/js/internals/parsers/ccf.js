@@ -185,7 +185,6 @@ module.exports = function (controller) {
             let bankName = bankCodes[$('banco', element).text()] ||
                 bankCodes[$('banco', element).text().replace(/^0+/, '')];
 
-
             result.addSeparator('Cheques sem Fundo em Instituição Bancária',
                 'Detalhes acerca de cheques sem fundo emitidos',
                 'Foram localizados cheques sem fundo em uma instituição bancária.');
@@ -196,7 +195,6 @@ module.exports = function (controller) {
             result.addItem('Código Bancário', $('banco', element).text());
             result.addItem('Agência', $('agencia', element).text());
             result.addItem('Qtde. Ocorrências', $('qteOcorrencias', element).text());
-
 
             let v1 = moment($('dataUltOcorrencia', element).text(), 'DD/MM/YYYY'),
                 v2 = moment($('ultimo', element).text(), 'DD/MM/YYYY');

@@ -175,7 +175,6 @@ module.exports = function(controller) {
                 errors.push('Você precisa aceitar o contrato de usuário.');
             }
 
-
             if (!SAFE_PASSWORD.test(password)) {
                 inputPassword.addClass('error');
                 errors.push('A senha deve possuir no mínimo 6 dígitos.');

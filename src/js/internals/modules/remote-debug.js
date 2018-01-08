@@ -1,6 +1,5 @@
 const BIPBOP_FREE = '6057b71263c21e4ada266c9d4d4da613';
 
-
 module.exports = controller => {
 
     let counter = 0;

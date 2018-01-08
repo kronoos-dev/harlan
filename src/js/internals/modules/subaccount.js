@@ -191,7 +191,6 @@ module.exports = function(controller) {
                 return (status ? 'fa-check' : 'fa-times') + ' block';
             };
 
-
             var acc = list.add([iconStatus()].concat(icons), [cnpj ? CNPJ.format(cnpj) : (cpf ? CPF.format(cpf) : 'Sem Documento'), username]);
             acc.find('.fa-key').click(e => {
                 e.preventDefault();
@@ -239,7 +238,6 @@ module.exports = function(controller) {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
-
 
         controller.serverCommunication.call('SELECT FROM \'BIPBOPAPIKEY\'.\'LIST\'',
             controller.call('loader::ajax', {

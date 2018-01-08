@@ -18,7 +18,6 @@ module.exports = function(controller) {
 
         var checkbox;
 
-
         form.element().submit(function(e) {
             e.preventDefault();
             if (checkbox && !checkbox[1].is(':checked')) {

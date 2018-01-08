@@ -74,7 +74,6 @@ module.exports = function (controller) {
         }, configuration, screen);
     };
 
-
     controller.registerCall('bipbop::createAccount::submit', function (formData, creditCard) {
         controller.call('confirm', {
             icon: 'wizard',

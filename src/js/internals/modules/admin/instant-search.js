@@ -1,5 +1,6 @@
 const CREATE_COMPANY = /(^|\s)(adicio?n?a?r?|nova|criar)($|\s)/i;
 const ADMIN_COMPANY = /(^|\s)(admi?n?i?s?t?r?a?r?)($|\s)/i;
+const PRICE_TABLE = /(^|\s)(preço)($|\s)/i;
 
 module.exports = function(controller) {
     controller.registerTrigger('findDatabase::instantSearch', 'admin::createCompany', function(args, callback) {
@@ -8,6 +9,23 @@ module.exports = function(controller) {
         if (CREATE_COMPANY.test(argument)) {
             controller.call('admin::autocompleteCreateCompany', autocomplete);
         }
+    });
+
+    controller.registerTrigger('findDatabase::instantSearch', 'admin::price', function(args, callback) {
+        callback();
+        var [argument, autocomplete] = args;
+        if (!PRICE_TABLE.test(argument)) {
+            return;
+        }
+
+        autocomplete.item('Administrar Preços',
+            'Gestão de Preços do Sistema',
+            'Adicionar, remover ou alterar preços cadastrados no sistema.')
+            .addClass('admin-company admin-new-company')
+            .click(function(e) {
+                e.preventDefault();
+                controller.call('admin::price');
+            });
     });
 
     controller.registerTrigger('findDatabase::instantSearch', 'admin::index', function(args, callback) {
@@ -26,8 +44,6 @@ module.exports = function(controller) {
                 controller.call('admin::index');
             });
     });
-
-
 
     controller.registerTrigger('findDatabase::instantSearch', 'findCompany::tag', function (args, callback) {
         callback();

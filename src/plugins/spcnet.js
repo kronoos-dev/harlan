@@ -18,7 +18,6 @@ harlan.addPlugin(controller => {
         var value = state.result.addSeparator('Consulta de Protestos',
             'Verificação de Processos em Bureaus de Crédito').addClass('external-source waiting');
 
-
         var protests = reduce(Array.from(scpcNode.find('quantidade-total').map(function (idx, v) {
             return parseInt($(v).text());
         }))) || 0;

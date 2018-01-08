@@ -2,7 +2,6 @@ import localForage from 'localforage';
 
 let _authData = null;
 
-
 module.exports = function (controller) {
 
     /* Verifica se o usuário já está autenticado */
@@ -60,6 +59,5 @@ module.exports = function (controller) {
             }
         }, true);
     });
-
 
 };

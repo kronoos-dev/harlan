@@ -44,7 +44,6 @@ module.exports = function (controller) {
                 .attr('src', '/images/site/screenshoots/' + i.toString() + '.png'));
         }
 
-
         controller.call('site::carrousel');
     });
 
@@ -52,7 +51,6 @@ module.exports = function (controller) {
         var carrousel = $('body > .site .carrousel');
         var list = carrousel.find('ul');
         var images = carrousel.find('img');
-
 
         var first = true;
         images.each(function (idx, image) {

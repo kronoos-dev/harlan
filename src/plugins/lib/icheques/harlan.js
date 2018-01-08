@@ -68,7 +68,6 @@ module.exports = function(controller) {
         modal.subtitle('Últimas Consultas Realizadas e Protocolos');
         modal.paragraph('Através deste relatório você poderá visualizar as consultas realizadas e respectivos protocolos.');
 
-
         let form = modal.createForm(),
             list = form.createList();
 
@@ -573,7 +572,6 @@ module.exports = function(controller) {
         let mensagem = section[0].find('h3').text();
 
         if (controller.confs.ccf) {
-
 
             controller.server.call('SELECT FROM \'SEEKLOC\'.\'CCF\'', {
                 data: {

@@ -83,7 +83,6 @@ module.exports = function (controller) {
 
         let solved = maxQueue - queue;
 
-
         if (!solved) {
             radialProject.change(0);
             return;

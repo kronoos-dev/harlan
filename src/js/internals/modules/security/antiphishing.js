@@ -48,7 +48,6 @@ module.exports = function (controller) {
             }, 300);
         };
 
-
         var enabled = false;
         canvas.click(function (e) {
             e.preventDefault();

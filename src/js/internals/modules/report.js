@@ -153,7 +153,6 @@ module.exports = controller => {
         return this;
     };
 
-
     controller.registerCall('report', (title, subtitle, paragraph, closeable) => {
         var model = new ReportModel(closeable);
         if (title) {

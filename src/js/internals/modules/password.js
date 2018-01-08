@@ -17,9 +17,7 @@ var owasp = require('owasp-password-strength-test'),
         'Troque a senha periodicamente.'
     ];
 
-
 module.exports = function (controller) {
-
 
     controller.registerBootstrap('password', function (callback) {
         callback();
@@ -86,8 +84,6 @@ module.exports = function (controller) {
                     });
                 }}));
         });
-
-
 
         modal.createActions().add('Cancelar').click(function (e) {
             e.preventDefault();

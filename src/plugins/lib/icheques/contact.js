@@ -37,5 +37,4 @@ module.exports = function (controller) {
         controller.call('icheques::contact');
     });
     
-    
 };

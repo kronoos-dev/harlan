@@ -35,7 +35,6 @@ const CRITERIA_COLOR = {
         return str;
     };
 
-
 module.exports = controller => {
 
     var parseSocialProfile = (data, args) => {
@@ -191,7 +190,6 @@ module.exports = controller => {
             ]);
     });
 
-
     controller.registerTrigger('findDatabase::instantSearch', 'socialprofile', function(args, callback) {
         let [text, modal] = args;
         let isCPF = CPF.isValid(text);
@@ -210,7 +208,6 @@ module.exports = controller => {
             });
         callback();
     });
-
 
     var askBirthday = (stringDocument, callback) => {
         let modal = controller.call('modal');

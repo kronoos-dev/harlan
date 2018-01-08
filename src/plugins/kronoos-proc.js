@@ -26,7 +26,6 @@ harlan.addPlugin(controller => {
         modal.createActions().cancel();
     };
 
-
     controller.registerTrigger('kronoos::juristek', 'kronoos::plugins::procOpen', function (args, callback) {
         let [numproc, proc, pieces, cnjInstance] = args;
 
@@ -40,6 +39,5 @@ harlan.addPlugin(controller => {
 
         callback();
     });
-
 
 });

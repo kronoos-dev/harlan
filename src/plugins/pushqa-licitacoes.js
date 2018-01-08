@@ -162,7 +162,6 @@ harlan.addPlugin(controller => {
         }, 2000);
     };
 
-
     let generateReport = (data, title, subtitle, paragraph, filter = null) => {
 
         if (filter) {

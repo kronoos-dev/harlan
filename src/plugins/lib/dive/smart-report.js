@@ -30,7 +30,6 @@ var rfbStatus = {
     'nula': 'error'
 };
 
-
 module.exports = controller => {
 
     var items = [];
@@ -73,11 +72,8 @@ module.exports = controller => {
         }));
     };
 
-
     controller.registerTrigger('authentication::authenticated::end', 'dive::smartReport', () => {
         closeItems();
-
-
 
         controller.registerCall('dive::report::rfb', () => {
             var rfbColors = {
@@ -168,7 +164,6 @@ module.exports = controller => {
         //         }, {});
     });
 
-
     controller.registerCall('dive::smartReport::doughnut::show', (callback, endpoint, title, subtitle, markdown, nodeColor) => {
         controller.serverCommunication.call(endpoint, {
             success: ret => {
@@ -197,7 +192,6 @@ module.exports = controller => {
             }
         });
     });
-
 
     controller.registerCall('dive::smartReport::polar', (title, subtitle, markdown, ret, inputs, labels) => {
 
@@ -230,7 +224,6 @@ module.exports = controller => {
                 'background-color': colorInstance.hsl().string(),
                 'color': colorInstance.light() ? '#000' : '#fff'
             }).insertAfter(paragraph);
-
 
         }
 
@@ -324,7 +317,5 @@ module.exports = controller => {
             clearInterval(interval);
         }, 300);
     });
-
-
 
 };

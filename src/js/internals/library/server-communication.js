@@ -21,7 +21,6 @@ module.exports = function (controller) {
     if (controller.query.websocketAddress)
         bipbop.websocketAddress = controller.query.websocketAddress;
 
-
     /**
      * Api Key
      * @type string

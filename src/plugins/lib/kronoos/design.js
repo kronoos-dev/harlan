@@ -2,7 +2,6 @@ import emailRegex from 'email-regex';
 
 module.exports = function(controller) {
 
-
     /* Apply SCSS */
     require('../../styles/kronoos/fonts.js');
     require('../../styles/kronoos/application.js');
@@ -21,7 +20,6 @@ module.exports = function(controller) {
 
         require('../../styles/kronoos/site.js');
     }
-
 
     /* Actions */
     require('./design/resize')(controller);

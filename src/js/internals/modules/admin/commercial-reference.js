@@ -5,7 +5,6 @@ import ChartJS from 'chart.js';
 import _ from 'underscore';
 import Color from 'color';
 
-
 module.exports = controller => {
 
     let harmonizer = new Harmonizer();
@@ -76,7 +75,6 @@ module.exports = controller => {
             }
         });
     });
-
 
     controller.registerCall('admin::commercialReference', (data = {}) => {
         controller.server.call(controller.endpoint.commercialReferenceOverview, {

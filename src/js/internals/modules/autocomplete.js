@@ -28,7 +28,6 @@ module.exports = function (controller) {
 
             var items = options.find('li');
 
-
             if (!(code === 13 || code === 38 || code === 40))
                 return;
 

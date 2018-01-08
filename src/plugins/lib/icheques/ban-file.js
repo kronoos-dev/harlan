@@ -116,7 +116,6 @@ module.exports = function (controller) {
             storage.push(data);
         }
 
-
         controller.call('icheques::checkout', storage);
     };
 

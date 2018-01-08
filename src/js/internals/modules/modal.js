@@ -151,7 +151,6 @@ module.exports = controller =>  {
             };
         };
 
-
         return this;
     };
 

@@ -117,7 +117,6 @@ module.exports = function(controller, config) {
 
     });
 
-
     controller.registerCall('dive::new::file', function() {
         var modal = controller.call('modal');
         modal.gamification('harlan');
@@ -153,8 +152,6 @@ module.exports = function(controller, config) {
             modal.close();
         });
 
-
     });
-
 
 };

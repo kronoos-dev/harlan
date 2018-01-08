@@ -220,7 +220,6 @@ var KronoosElement = function(title, subtitle, sidenote) {
             table.append($('<caption />').append(caption));
         }
 
-
         if (header.length) {
             for (let item of header) {
                 headRow.append($('<td />').append(label(item)));
@@ -302,7 +301,6 @@ var KronoosElement = function(title, subtitle, sidenote) {
             $('<p />').append(obj.paragraph).insertAfter(obj.title);
         }
 
-
         let itemCounter = 0;
         let addItem = (content, item = {}) => {
             item.element = $('<li />').html(content);
@@ -324,7 +322,6 @@ var KronoosElement = function(title, subtitle, sidenote) {
                     });
                 }
             }
-
 
             if (obj.nextElement) {
                 item.element.insertBefore(obj.nextElement);

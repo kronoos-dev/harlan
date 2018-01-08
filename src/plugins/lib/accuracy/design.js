@@ -18,7 +18,6 @@ module.exports = function (controller) {
     const inputDocument = $('.login #input-cpf')
         .mask('000.000.000-00', {reverse: true});
 
-
     let showCounter = () => {
         controller.sync.queueLength(length => {
             logoCaller.text(length ? length.toString() : '');
@@ -65,6 +64,5 @@ module.exports = function (controller) {
         e.preventDefault();
         inputDocument.val(''); /* clear all inputs */
     });
-
 
 };

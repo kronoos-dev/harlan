@@ -60,7 +60,6 @@ module.exports = controller => {
         actions.cancel();
     });
 
-
     controller.registerCall('dive::history::new', (entity, callback) => {
         let modal = controller.call('modal');
         modal.gamification();

@@ -146,5 +146,4 @@ module.exports = function (controller) {
         return autocomplete;
     });
 
-
 };

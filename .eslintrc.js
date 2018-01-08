@@ -3,7 +3,7 @@ module.exports = {
         'browser': true,
         'es6': true
     },
-    'extends': 'eslint:recommended',
+    'extends': ['eslint:recommended', 'prettier'],
     'parserOptions': {
         'sourceType': 'module'
     },
@@ -39,6 +39,7 @@ module.exports = {
          'FileTransfer': true
     },
     'rules': {
+        'no-multiple-empty-lines': [2, {"max": 1, "maxBOF": 0}],
         'no-console': 0,
         'no-useless-escape': 0,
         'no-unused-vars': 0,

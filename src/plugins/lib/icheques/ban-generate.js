@@ -49,5 +49,4 @@ module.exports = function(controller) {
         }];
     });
 
-
 };

@@ -13,8 +13,6 @@ module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
         manifest: []
     };
 
-
-
     lib.webfontAvailable = function(family) {
         lib.properties.webfonts[family] = true;
         var txtFilters = lib.webFontTxtFilters && lib.webFontTxtFilters[family] || [];
@@ -23,8 +21,6 @@ module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
         }
     };
     // symbols:
-
-
 
     (lib.Símbolo1 = function(mode, startPosition, loop) {
         this.initialize(mode, startPosition, loop, {});
@@ -132,7 +128,6 @@ module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
 
     }).prototype = p = new cjs.MovieClip();
     p.nominalBounds = new cjs.Rectangle(-1, -1, 734.2, 358.5);
-
 
     (lib.Símbolo2 = function(mode, startPosition, loop) {
         this.initialize(mode, startPosition, loop, {});
@@ -293,7 +288,6 @@ module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
 
     }).prototype = p = new cjs.MovieClip();
     p.nominalBounds = new cjs.Rectangle(-0.3, -0.3, 506, 506.5);
-
 
     // stage content:
     (lib.ichequesanimacao = function(mode, startPosition, loop) {

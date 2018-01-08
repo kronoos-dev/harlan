@@ -198,7 +198,6 @@ module.exports = function (controller) {
                 inputCardNumber.removeClass('error');
             }
 
-
             var cardExpire = inputCardExpiry.val().split('/').map(function (v) {
                 return v.replace(/[^\d]/, '');
             });

@@ -19,7 +19,6 @@ module.exports = function (controller) {
         if (registered[key])
             return registered[key](document);
 
-
         var html = $('<div />').addClass('xml2html');
         html.data('document', jdocument);
 

@@ -396,7 +396,6 @@ module.exports = controller => {
         return this;
     };
 
-
     controller.registerCall('form', (...parameters) => {
         return new GenerateForm(...parameters);
     });

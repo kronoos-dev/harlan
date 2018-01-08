@@ -29,7 +29,6 @@ module.exports = function(controller) {
         controller.interface.helpers.activeWindow('.site');
     });
 
-
     // controller.registerTrigger("bootstrap::end", "authentication::centralized", (obj, callback) => {
     //     const loginElement = $(".login");
     //
@@ -73,7 +72,6 @@ module.exports = function(controller) {
         });
 
     });
-
 
     /**
      * Chama pelo logout
@@ -150,7 +148,6 @@ module.exports = function(controller) {
         callback();
     });
 
-
     /**
      * Chama pela autenticação
      */
@@ -176,7 +173,6 @@ module.exports = function(controller) {
                 },
                 success: function(domDocument) {
                     $('#logged-user').text($('BPQL > body username', domDocument).text());
-
 
                     var apiKey = $('BPQL > body apiKey', domDocument).text();
                     authenticate(apiKey, domDocument);

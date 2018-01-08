@@ -59,7 +59,6 @@ module.exports = function(controller) {
                 if (enableMessage) toastr.error('Não foi possível processar a sua requisição.', 'Tente novamente mais tarde.');
             }
 
-
             if (error) {
                 error(jqXHR, ...args);
             }
@@ -67,7 +66,5 @@ module.exports = function(controller) {
         };
         return dict;
     });
-
-
 
 };

@@ -36,7 +36,6 @@ var Timeline = function() {
             });
         }
 
-
         obj.headerContent = $('<span />').addClass('timeline-header-content').text(header);
         obj.actions = $('<ul />').addClass('actions');
 

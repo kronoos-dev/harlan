@@ -122,7 +122,6 @@ module.exports = function (controller) {
                 render();
             })));
 
-
             contentMenu.append($('<li />').append($('<a />').attr({
                 href: '#'
             }).text('Sair').click(e => {
@@ -130,7 +129,6 @@ module.exports = function (controller) {
                 controller.call('accuracy::logout');
                 controller.interface.helpers.activeWindow('.login');
             })));
-
 
             _.each(campaigns, campaign => {
                 let campaignElement = $('<li />').addClass('accuracy-campaign').click(e => {

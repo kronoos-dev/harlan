@@ -2,7 +2,6 @@ var _ = require('underscore');
 
 module.exports = function (controller) {
 
-
     var setAddress = function (result, jdocument) {
         var init = 'BPQL > body > addresses > address';
 

@@ -115,7 +115,6 @@ module.exports = function (controller) {
                 })));
         });
 
-
         form.addSubmit('new-password', 'Alterar Senha');
 
         modal.createActions().add('Cancelar').click(function (e) {

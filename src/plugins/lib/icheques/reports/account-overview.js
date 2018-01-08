@@ -113,7 +113,6 @@ var AccountOverview = function(closeable) {
             e.pikaday();
         });
 
-
         var situations = _.pluck(generateDataset(squel.expr()), 'situation');
 
         situations = _.filter(situations, situation => {
@@ -174,7 +173,6 @@ var AccountOverview = function(closeable) {
         });
 
     };
-
 
     var filterLabels = [];
 
@@ -269,7 +267,6 @@ var AccountOverview = function(closeable) {
         }
     };
 
-
     this.filter = f => {
         lastExpression = expression;
         expression = squel.expr();
@@ -325,7 +322,6 @@ var AccountOverview = function(closeable) {
             //            filterLabels.push(report.push(report.label("Expira de " + moment(f.initExpiration, "YYYYMMDD").format("DD/MM/YYYY"))));
         }
 
-
         if (f.initCreation && f.endCreation) {
             expression.and('CREATION >= ?', f.initCreation.second(0).minute(0).hour(0).unix());
             expression.and('CREATION <= ?', f.endCreation.second(59).minute(59).hour(23).unix());
@@ -334,7 +330,6 @@ var AccountOverview = function(closeable) {
         }  else if (f.initCreation) {
             expression.and('CREATION >= ?', f.initCreation.second(0).minute(0).hour(0).unix());
         }
-
 
         if (f.initAmmount && f.endAmmount) {
             expression.and('AMMOUNT >= ?', f.initAmmount * 100);
@@ -369,7 +364,6 @@ var AccountOverview = function(closeable) {
 
         this.draw();
     };
-
 
     var generateSum = () => {
         var totalAmmount = controller.database.exec(squel

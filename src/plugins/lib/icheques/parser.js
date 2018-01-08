@@ -1,4 +1,3 @@
-
 module.exports = function (controller) {
 
     var databaseInteger = function (value) {

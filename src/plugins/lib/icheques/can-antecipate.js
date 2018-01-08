@@ -76,7 +76,6 @@ module.exports = controller => {
             controller.call('icheques::canAntecipate');
         });
 
-
     controller.registerTrigger('serverCommunication::websocket::ichequeUpdate',
         'canAntecipate', (obj, cb) => {
             cb();

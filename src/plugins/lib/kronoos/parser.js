@@ -53,7 +53,6 @@ const NAMESPACE_DESCRIPTION = {
     'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
 
-
 const removeDiacritics = require('diacritics').remove;
 const highPriority = 0;
 const normalPriority = 100;
@@ -317,11 +316,17 @@ export class KronoosParse {
         }
 
         if (this._notFoundRows[group]) this._notFoundRows[group].remove();
-        this._notFoundItems[group] = this._notFoundItems[group] || []
+        this._notFoundItems[group] = this._notFoundItems[group] || [];
         this._notFoundItems[group].push(element);
         let data = args[0] || {};
         let ret = this._notFoundList(arrayToSentence(this._notFoundItems[group], {lastSeparator: ' e '}), data, ...args);
         this._notFoundRows[group] = data.element;
+        ret.remove = () => {
+            this._notFoundRows[group].remove();
+            this._notFoundItems[group].filter(x => x !== element);
+            this._notFoundList(arrayToSentence(this._notFoundItems[group], {lastSeparator: ' e '}), data, ...args);
+            this._notFoundRows[group] = data.element;
+        };
         return ret;
     }
 
@@ -394,6 +399,12 @@ export class KronoosParse {
                 },
                 complete: () => cb(),
                 success: data => {
+                    var str = $('body > text', data).text();
+                    if (!test(str)) {
+                        this.notFoundJuridic(database);
+                        return;
+                    }
+
                     let kelement = this.kronoosElement('juridic', `Certidão do ${database}`,
                         `Certidão do ${database}`, `Visualização da Certidão no ${database}`);
 
@@ -404,12 +415,6 @@ export class KronoosParse {
                     }).append($('<img />').addClass('certidao').attr({
                         src: `data:image/png;base64,${$('body > png', data).text()}`
                     })));
-
-                    var str = $('body > text', data).text();
-                    if (!test(str)) {
-                        this.notFoundJuridic(database);
-                        return;
-                    }
 
                     execall(/\d{7}(\-)?\d{2}(\.)?\d{4}(\.)?\d(\.)?\d{2}(\.)?\d{4}/g, str).map(r => {
                         let proc = r.match;
@@ -508,8 +513,6 @@ export class KronoosParse {
                     this.append(kelement.element());
                 }
 
-
-
                 if (!data.spc.length) {
                     this.notFoundCredito('SPC/Serasa');
                 }
@@ -597,7 +600,6 @@ export class KronoosParse {
                     target: '_blank',
                     'href': 'https://comprot.fazenda.gov.br/comprotegov/site/index.html#ajax/processo-consulta.html'
                 }));
-
 
                 for (let processo of data.processos) {
                     table(moment(pad(8, processo.dataProtocolo.toString(), '0'), 'DDMMYYYY')
@@ -725,7 +727,6 @@ export class KronoosParse {
             }, true));
     }
 
-
     searchPep() {
         if (!this.cpf) return;
         this.serverCall('SELECT FROM \'KRONOOS\'.\'ELEICOES\'',
@@ -812,7 +813,6 @@ export class KronoosParse {
                 }
             }, true));
     }
-
 
     searchTJSPCertidao() {
         if (!this.cnpj) return;
@@ -1225,7 +1225,6 @@ export class KronoosParse {
             }, true));
     }
 
-
     searchCNJImprobidade() {
         this.serverCall('SELECT FROM \'CNJ\'.\'IMPROBIDADE\'',
             this.loader('fa-legal', `Pesquisando no cadastro do Conselho Nacional de Justiça - CNJ ${this.cpf_cnpj}.`, {
@@ -1253,7 +1252,6 @@ export class KronoosParse {
                 }
             }, true));
     }
-
 
     searchMTE() {
         if (!this.cnpj) return;
@@ -1483,7 +1481,6 @@ export class KronoosParse {
                     let kelement = this.kronoosElement(`Situação Cadastral do ${this.cpf ? 'CPF' : 'CNPJ'} pela Receita Federal`,
                         'Consulta do documento na Receita Federal.', 'Certidão remetida pela Receita Federal.');
 
-
                     if (CPF.isValid(cpf_cnpj)) {
                         kelement.table('Nome', 'Código Comprovante')(x('nome'), x('codigo-comprovante'));
                         kelement.table('Data Consulta', 'Situação')(x('data-consulta'), x('situacao'));
@@ -1525,7 +1522,6 @@ export class KronoosParse {
                                 atividades($(this).attr('codigo'), $(this).text());
                             });
                         }
-
 
                         let socios = $('socio', data);
                         if (socios.length) {
@@ -2447,7 +2443,6 @@ export class KronoosParse {
             }), lowPriority);
     }
 
-
     searchTjspDocument() {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
@@ -2554,7 +2549,6 @@ export class KronoosParse {
         }
         return false;
     }
-
 
     testMatch(nameRow, data) {
         let idx = 0;
@@ -2729,7 +2723,6 @@ export class KronoosParse {
             }
         }
 
-
         if (checkName && $('partes parte', proc).length && !$('partes parte', proc).filter((x, a) => this.compareNames($(a).text())).length) {
             if (cnjInstance) {
                 cnjInstance.remove();
@@ -2779,7 +2772,6 @@ export class KronoosParse {
                     target: '_blank'
                 }).text('Acessar Processo') : null)
             });
-
 
         cnjInstance.subtitle('Existência de apontamentos cadastrais.');
         cnjInstance.sidenote('Participação em processo jurídico.');

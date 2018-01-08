@@ -24,7 +24,6 @@ module.exports = controller => {
             }),
             inputComments = form.addTextarea('comment', 'Comentários');
 
-
         form.addSubmit('enviar', 'Enviar');
         form.element().submit(e => {
             e.preventDefault();

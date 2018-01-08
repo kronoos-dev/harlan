@@ -21,7 +21,6 @@ module.exports = function (locale, controller) {
         'pt': 'pt-br'
     };
 
-
     var language = validLanguages[userLanguage] ? userLanguage : 'pt';
 
     document.documentElement.setAttribute('lang', language);

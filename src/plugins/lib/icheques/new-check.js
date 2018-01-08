@@ -11,7 +11,6 @@ import StringMask from 'string-mask';
 import validCheck from './data/valid-check';
 import KeyCode from 'key-code';
 
-
 const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
     MATCH_NON_DIGITS = /[^\d]/g,
     CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
@@ -62,7 +61,6 @@ module.exports = function(controller) {
             data.observation || data.document,
             data.ammount ? 'R$ ' + data.ammount : 'Valor não informado'
         ]);
-
 
         data.ammount = Math.floor(numeral(data.ammount)._value * 100);
 
@@ -174,7 +172,6 @@ module.exports = function(controller) {
             controller.call('icheques::imagetocmc', image, cmcValue, cpfValue, (cmcValue, cpfValue) =>
                 controller.call('icheques::newcheck::form', callback, cmcValue, cpfValue, image)));
     });
-
 
     controller.registerCall('icheques::newcheck::form', function(callback, cmcValue = null, cpfValue = null, image = null) {
         if (newCheckFormAction && !newCheckFormAction()) {
@@ -343,7 +340,6 @@ module.exports = function(controller) {
         if (!image) {
             showImage.hide();
         }
-
 
         actions.add('Fechar').click(function(e) {
             e.preventDefault();

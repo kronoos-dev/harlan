@@ -154,7 +154,6 @@ module.exports = function(controller) {
             controller.interface.helpers.activeWindow('.kronoos-application'),
         'Pesquisa Kronoos');
 
-
         if (!controller.confs.kronoos.isKronoos) {
             report.newAction('fa-info-circle', () => window.open('https://www.kronoos.com'), 'Sobre o Kronoos');
         }

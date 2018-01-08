@@ -38,7 +38,6 @@ module.exports = function (controller) {
             }, 10000);
     });
 
-
     controller.registerCall('icheques::wba', () => {
         $.ajax('https://daemon.icheques.com.br:3001/configuration', {
             timeout: 3000,

@@ -48,7 +48,6 @@ module.exports = controller => {
         return [emails, phones, addressNode];
     };
 
-
     controller.registerTrigger('call::authentication::loggedin', 'icheques::father::fidc', function(args, callback) {
         callback();
         controller.server.call('SELECT FROM \'ICHEQUES\'.\'MyFatherFIDC\'', {
@@ -61,7 +60,6 @@ module.exports = controller => {
             }
         });
     });
-
 
     controller.registerTrigger('call::authentication::loggedin', 'icheques::fidc', function(args, callback) {
         callback();
@@ -628,7 +626,6 @@ module.exports = controller => {
         });
         modal.createActions().cancel();
     };
-
 
     controller.registerCall('icheques::fidc::operation::decision', args => {
         var report = controller.call('report');

@@ -85,7 +85,6 @@ self.onmessage = function(message) {
                 'DD/MM/YY'
             ]);
 
-
             // if (moment().diff(birthday, 'years') < 16) {
             //     /* menores de 16 anos não */
             //     return;

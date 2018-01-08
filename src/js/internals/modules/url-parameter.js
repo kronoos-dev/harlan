@@ -9,7 +9,6 @@ module.exports = function (controller) {
             return;
         }
 
-
         $('.app .input-q').val(controller.query.q.replace(/\/$/, ''));
         $('.app .main-search').submit();
     });

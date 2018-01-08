@@ -69,7 +69,6 @@ module.exports = function(controller) {
         }).catch(errorCallback);
     };
 
-
     navigator.camera = navigator.camera || {};
     navigator.camera.getPicture = navigator.camera.getPicture || getPicture;
     controller.registerCall('takePicture', getPicture);

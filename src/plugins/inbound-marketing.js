@@ -97,7 +97,6 @@ harlan.addPlugin(controller => {
         actions.cancel();
     });
 
-
     controller.registerCall('inboundMarketing::create', list => controller.call('form', data => {
         controller.server.call(createInbound, controller.call('error::ajax', {
             dataType: 'json',

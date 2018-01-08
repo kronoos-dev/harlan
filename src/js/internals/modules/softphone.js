@@ -432,7 +432,6 @@ module.exports = controller => {
         });
         actions.cancel();
 
-
         form.element().append($('<div />').addClass('input-submit')
             .append(phoneInput)
             .append(form.addSubmit('submit', 'Discar')));

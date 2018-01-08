@@ -226,7 +226,6 @@ module.exports = function (controller) {
                 items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${isNaN(totalProtestos) ? '1 ou mais' : totalProtestos}.`);
             }});
 
-
             for (var idx in nodes) {
                 var data = $node.find(nodes[idx]).text();
                 nodes[idx] = (/^\**$/.test(data)) ? '' : data;
@@ -237,7 +236,6 @@ module.exports = function (controller) {
 
         }
     };
-
 
     var setSociety = (result, jdocument) => {
         let $empresas = jdocument.find('BPQL > body parsocietaria > empresa');
@@ -283,7 +281,6 @@ module.exports = function (controller) {
                     .reduce((a, b) => a + b, 0);
                 items.resultsDisplay.text(`${items.resultsDisplay.text()} Total de Protestos: ${isNaN(totalProtestos) ? '1 ou mais' : totalProtestos}.`);
             }});
-
 
             for (var idx in nodes) {
                 var data = $node.find(nodes[idx]).text();

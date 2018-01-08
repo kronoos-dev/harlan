@@ -212,7 +212,6 @@ export class BANFactory {
             complete = () => {}; /* evita duas chamadas */
         };
 
-
         modal.createActions().cancel(() => {
             tasks.kill();
             complete();

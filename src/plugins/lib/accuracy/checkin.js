@@ -82,7 +82,6 @@ module.exports = function (controller) {
             blockui.message.text('Estamos demorando para capturar sua localização. Experimente ir para um local aberto, certifique de ativar o Wi-Fi, dados e GPS.');
         }, 6000);
 
-
         controller.call('accuracy::authentication::data', authData =>
             navigator.geolocation.getCurrentPosition(position => {
                 clearTimeout(timeout);

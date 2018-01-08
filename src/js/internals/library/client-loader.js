@@ -9,7 +9,6 @@ export class ClientLoader {
         this.percentage = $('<div />').addClass('perc');
         this.progress = $('<span />').addClass('progress');
 
-
         this.container.append(this.row
             .append(this.cell
                 .append(this.modal

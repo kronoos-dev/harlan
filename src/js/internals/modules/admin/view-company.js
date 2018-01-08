@@ -260,7 +260,6 @@ module.exports = controller => {
             $('html, body').scrollTop(section.offset().top);
         }
 
-
         var lockSymbol = $('<i />').addClass('fa').addClass(isActive ? 'fa-unlock-alt' : 'fa-lock'),
             lockProcess = false,
             doLocking = e => {
@@ -339,7 +338,6 @@ module.exports = controller => {
                     }
                 });
             });
-
 
             controller.call('tooltip', actions, 'Revogar Contrato').append($('<i />').addClass('fa fa-hand-paper-o')).click(e => {
                 controller.call('confirm', {}, () => {
