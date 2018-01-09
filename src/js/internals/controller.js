@@ -33,8 +33,6 @@ module.exports = function() {
         return this;
     };
 
-    this.promiseBootstrap = Promise.promisify(this.trigger);
-
     this.unregisterTriggers = (name, except = []) => {
         for (let i in events[name]) {
             if (except.includes(i)) {
