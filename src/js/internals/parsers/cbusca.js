@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import natural from 'natural';
 
 module.exports = controller => {
 
@@ -33,8 +32,7 @@ module.exports = controller => {
             }
 
             if (_.contains(addressElements, nodes['Endereço']) ||
-                    _.contains(cepElements, nodes.CEP) ||
-                    Math.max(..._.map(addressElements, value => natural.JaroWinklerDistance(value, nodes['Endereço']))) > 0.85) {
+                    _.contains(cepElements, nodes.CEP)) {
                 return;
             }
 

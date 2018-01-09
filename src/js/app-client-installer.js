@@ -1,6 +1,6 @@
-import ClientLoader from './internals/library/client-loader';
+import 'pseudo-worker/polyfill';
 
-require('pseudo-worker/polyfill');
+import ClientLoader from './internals/library/client-loader';
 
 ((path, size, compressedSize, encode) => {
     let clientLoader = null;

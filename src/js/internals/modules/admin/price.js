@@ -14,7 +14,7 @@ function drawList(list, d, skip, {next, back}, text, pagination, observation) {
     let data = d;
 
     if (text) {
-        data = data.filter(x => natural.JaroWinklerDistance(x.name, text) > 0.85);
+        data = data.filter(x => (x.name, text) > 0.85);
     }
 
     observation.text(`Foram localizados ${numeral(data.length).format('000.000.000.000.000,00')} resultados.`);

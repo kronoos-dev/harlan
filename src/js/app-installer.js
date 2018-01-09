@@ -1,5 +1,5 @@
 /*jshint -W054 */
-require('pseudo-worker/polyfill');
+import 'pseudo-worker/polyfill';
 
 ((path, size, compressedSize, encode) => {
     let contentIndex = 0;
