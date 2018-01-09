@@ -1,8 +1,8 @@
-module.exports = function (controller) {
+export default controller => {
 
-    if (controller.confs.jane.hosts.indexOf(document.location.hostname) >= 0) {
-        controller.registerBootstrap('icheques::init::plataform', function (callback) {
-            $.getScript('js/jane.js', function () {
+    if (controller.confs.jane.hosts.includes(document.location.hostname)) {
+        controller.registerBootstrap('icheques::init::plataform', callback => {
+            $.getScript('js/jane.js', () => {
                 callback();
             });
         });

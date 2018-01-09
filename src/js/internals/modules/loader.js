@@ -1,31 +1,29 @@
-var animationEvent = 'animationend animationend webkitAnimationEnd oanimationend MSAnimationEnd';
+const animationEvent = 'animationend animationend webkitAnimationEnd oanimationend MSAnimationEnd';
 
 /**
  * Comentário para a posteridade
  * Criei essa caralha quando não havia ECMAScript 6!
  */
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var counter = 0;
-    var animationElement = null;
+    let counter = 0;
+    let animationElement = null;
 
     controller.confs.loader = {
         animations: ['animated rotateIn', 'animated rotateOut']
     };
 
-    controller.registerCall('loader::catchElement', function() {
-        return $('.logo:visible span');
-    });
+    controller.registerCall('loader::catchElement', () => $('.logo:visible span'));
 
-    var afterExecution = function() {
+    const afterExecution = () => {
         animationElement.removeClass(controller.confs.loader.animations[counter++ % controller.confs.loader.animations.length]);
         animationElement.addClass(controller.confs.loader.animations[counter % controller.confs.loader.animations.length]);
     };
 
-    var loaderRegister = 0;
+    let loaderRegister = 0;
 
-    controller.registerCall('loader::register', function() {
+    controller.registerCall('loader::register', () => {
         if (!loaderRegister) {
             animationElement = controller.call('loader::catchElement');
             if (!animationElement.length) {
@@ -38,7 +36,7 @@ module.exports = function(controller) {
         loaderRegister++;
     });
 
-    controller.registerCall('loader::unregister', function() {
+    controller.registerCall('loader::unregister', () => {
         if (--loaderRegister > 0) {
             return;
         }
@@ -54,11 +52,11 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall('loader::ajax', function(dict, bipbop = false) {
-        var beforeSend = dict.beforeSend,
-            complete = dict.complete,
-            bipbopRegister = null;
-        dict.beforeSend = function(...ag) {
+    controller.registerCall('loader::ajax', (dict, bipbop = false) => {
+        const beforeSend = dict.beforeSend;
+        const complete = dict.complete;
+        let bipbopRegister = null;
+        dict.beforeSend = (...ag) => {
             if (bipbop) {
                 bipbopRegister = $.bipbopLoader.register();
             } else {
@@ -69,7 +67,7 @@ module.exports = function(controller) {
                 beforeSend(...ag);
         };
 
-        dict.complete = function(jqXHR, textStatus, ...ag) {
+        dict.complete = (jqXHR, textStatus, ...ag) => {
             if (bipbopRegister) {
                 bipbopRegister();
                 bipbopRegister = null;

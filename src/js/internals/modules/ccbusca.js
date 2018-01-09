@@ -1,8 +1,8 @@
-var CPF = require('cpf_cnpj').CPF;
-var CNPJ = require('cpf_cnpj').CNPJ;
-var async = require('async');
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
+import async from 'async';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     controller.registerCall('ccbusca::enable', () => {
         controller.registerTrigger('mainSearch::submit', 'ccbusca', (val, cb) => {
@@ -16,7 +16,7 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall('ccbusca', function(val, callback) {
+    controller.registerCall('ccbusca', (val, callback) => {
         let ccbuscaQuery = {
             documento: val,
             cache: 'DISABLED'
@@ -30,15 +30,15 @@ module.exports = function (controller) {
         controller.serverCommunication.call('USING \'CCBUSCA\' SELECT FROM \'FINDER\'.\'BILLING\'',
             controller.call('error::ajax', controller.call('loader::ajax', {
                 data: ccbuscaQuery,
-                success: function(ret) {
+                success(ret) {
                     controller.call('ccbusca::parse', ret, val, callback);
                 }
             })));
     });
 
-    controller.registerCall('ccbusca::parse', function(ret, val, callback) {
+    controller.registerCall('ccbusca::parse', (ret, val, callback) => {
 
-        var sectionDocumentGroup = controller.call('section', 'Busca Consolidada',
+        const sectionDocumentGroup = controller.call('section', 'Busca Consolidada',
             'Informações agregadas do CPF ou CNPJ',
             'Registro encontrado');
 
@@ -57,8 +57,8 @@ module.exports = function (controller) {
 
         controller.call('tooltip', sectionDocumentGroup[2], 'Imprimir').append($('<i />').addClass('fa fa-print')).click(e => {
             e.preventDefault();
-            var html = sectionDocumentGroup[0].html(),
-                printWindow = window.open('about:blank', '', '_blank');
+            const html = sectionDocumentGroup[0].html();
+            const printWindow = window.open('about:blank', '', '_blank');
             if (!printWindow) return;
             printWindow.document.write($('<html />')
                 .append($('<head />'))
@@ -67,7 +67,7 @@ module.exports = function (controller) {
             printWindow.print();
         });
 
-        var juntaEmpresaHTML = controller.call('xmlDocument', ret, 'CCBUSCA', 'DOCUMENT');
+        const juntaEmpresaHTML = controller.call('xmlDocument', ret, 'CCBUSCA', 'DOCUMENT');
         juntaEmpresaHTML.find('.container').first().addClass('xml2html')
             .data('document', $(ret))
             .data('form', [{
@@ -76,7 +76,7 @@ module.exports = function (controller) {
             }]);
         sectionDocumentGroup[1].append(juntaEmpresaHTML);
 
-        (function () {
+        ((() => {
             if ($('ccf-failed', ret).length) {
                 appendMessage('consulta de cheque sem fundo falhou');
                 return;
@@ -88,13 +88,13 @@ module.exports = function (controller) {
                 return;
             }
             let qteOcorrencias = $(ret).find('BPQL > body > data > sumQteOcorrencias').text();
-            let v1 = moment($('dataUltOcorrencia', ret).text(), 'DD/MM/YYYY'),
-                v2 = moment($('ultimo', ret).text(), 'DD/MM/YYYY');
+            let v1 = moment($('dataUltOcorrencia', ret).text(), 'DD/MM/YYYY');
+            let v2 = moment($('ultimo', ret).text(), 'DD/MM/YYYY');
             appendMessage(`total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format('DD/MM/YYYY')}`);
             sectionDocumentGroup[1].append(controller.call('xmlDocument', ret, 'SEEKLOC', 'CCF'));
-        })();
+        }))();
 
-        (function () {
+        ((() => {
             if ($('ieptb-failed', ret).length) {
                 appendMessage('consulta de protesto falhou');
                 return;
@@ -109,6 +109,6 @@ module.exports = function (controller) {
                 .reduce((a, b) => a + b, 0);
             appendMessage(`total de protestos: ${totalProtestos}`);
             sectionDocumentGroup[1].append(controller.call('xmlDocument', ret, 'IEPTB', 'WS'));
-        })();
+        }))();
     });
 };

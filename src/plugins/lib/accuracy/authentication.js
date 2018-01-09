@@ -2,7 +2,7 @@ import localForage from 'localforage';
 
 let _authData = null;
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     /* Verifica se o usuário já está autenticado */
     controller.registerCall('accuracy::authentication', (authentication, logged) => {
@@ -15,7 +15,7 @@ module.exports = function (controller) {
             return authentication();
         });
     });
-
+    
     controller.registerCall('accuracy::authentication::data', cb => {
         if (_authData) cb(_authData);
         else localForage.getItem('accuracyAuth', (err, value) => {
@@ -35,7 +35,7 @@ module.exports = function (controller) {
     });
 
     controller.registerCall('accuracy::authentication::auth', (cpf, callback, errorCallback) => {
-        controller.accuracyServer.call('auth', {cpf: cpf}, {
+        controller.accuracyServer.call('auth', {cpf}, {
             success: (authData) => {
                 if (!authData[0].token) {
                     if (!errorCallback) return;

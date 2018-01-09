@@ -1,13 +1,12 @@
 /*jshint -W083 */
 /* global module */
 
-var MoreResults = function (maxItems) {
-
-    var footer = $('<footer />').addClass('load-more'),
-        container = $('<div />').addClass('container'),
-        content = $('<div />').addClass('content').text('Mais Resultados'),
-        items = [],
-        callit = null;
+const MoreResults = function (maxItems) {
+    const footer = $('<footer />').addClass('load-more');
+    const container = $('<div />').addClass('container');
+    const content = $('<div />').addClass('content').text('Mais Resultados');
+    let items = [];
+    let callit = null;
 
     footer.append(container.append(content)).hide();
 
@@ -21,14 +20,14 @@ var MoreResults = function (maxItems) {
     });
 
     this.show = (complete, i = 0) => {
-        var onComplete = (...p) => {
+        const onComplete = (...p) => {
             if (complete) complete(...p);
             footer.show();
         };
 
         footer.hide();
 
-        var item;
+        let item;
         for (; i < maxItems; i++) {
 
             item = items.shift();

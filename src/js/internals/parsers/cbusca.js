@@ -1,27 +1,30 @@
-var _ = require('underscore');
+import _ from 'underscore';
+import natural from 'natural';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var setAddress = function (result, jdocument) {
-        var init = 'BPQL > body > addresses > address';
+    const setAddress = (result, jdocument) => {
+        const init = 'BPQL > body > addresses > address';
 
-        var addressElements = [];
-        var cepElements = [];
+        const addressElements = [];
+        const cepElements = [];
 
-        jdocument.find(init).each(function (i, node) {
+        jdocument.find(init).each((i, node) => {
+            const nodes = {
+                Endereço: 'address',
+                Número: 'number',
+                Complemento: 'address-complement',
+                CEP: 'zipcode',
+                Bairro: 'neighborhood',
+                Cidade: 'city',
+                Estado: 'state'
+            };
 
-            var nodes = {
-                    'Endereço': 'address',
-                    'Número': 'number',
-                    'Complemento': 'address-complement',
-                    'CEP': 'zipcode',
-                    'Bairro': 'neighborhood',
-                    'Cidade': 'city',
-                    'Estado': 'state'
-                }, jnode = $(node), address = [];
+            const jnode = $(node);
+            const address = [];
 
             for (var idx in nodes) {
-                var data = jnode.find(nodes[idx]).text();
+                const data = jnode.find(nodes[idx]).text();
                 nodes[idx] = (/^\**$/.test(data)) ? '' : data;
             }
 
@@ -31,9 +34,7 @@ module.exports = function (controller) {
 
             if (_.contains(addressElements, nodes['Endereço']) ||
                     _.contains(cepElements, nodes.CEP) ||
-                    Math.max(..._.map(addressElements, function (value) {
-                        return natural.JaroWinklerDistance(value, nodes['Endereço']);
-                    })) > 0.85) {
+                    Math.max(..._.map(addressElements, value => natural.JaroWinklerDistance(value, nodes['Endereço']))) > 0.85) {
                 return;
             }
 
@@ -49,45 +50,45 @@ module.exports = function (controller) {
                 result.addItem(idx, nodes[idx]);
             }
 
-            jnode.find('*').each(function (idx, node) {
-                var jnode = $(node);
+            jnode.find('*').each((idx, node) => {
+                const jnode = $(node);
                 if (!/address-complement/i.test(jnode.prop('tagName'))) {
                     address.push(jnode.text());
                 }
             });
 
-            var mapUrl = 'http://maps.googleapis.com/maps/api/staticmap?' + $.param({
-                'scale': '1',
-                'size': '600x150',
-                'maptype': 'roadmap',
-                'format': 'png',
-                'visual_refresh': 'true',
-                'markers': 'size:mid|color:red|label:1|' + address.join(', ')
-            });
+            const mapUrl = `http://maps.googleapis.com/maps/api/staticmap?${$.param({
+                scale: '1',
+                size: '600x150',
+                maptype: 'roadmap',
+                format: 'png',
+                visual_refresh: 'true',
+                markers: `size:mid|color:red|label:1|${address.join(', ')}`
+            })}`;
 
             result.addItem().addClass('map').append(
                 $('<a />').attr({
-                    'href': 'https://www.google.com/maps?' + $.param({
+                    href: `https://www.google.com/maps?${$.param({
                         q: address.join(', ')
-                    }),
-                    'target': '_blank'
+                    })}`,
+                    target: '_blank'
                 }).append($('<img />').attr('src', mapUrl)));
         });
     };
 
-    var setContact = function (result, jdocument) {
-        var phones = [];
-        var emails = [];
+    const setContact = (result, jdocument) => {
+        let phones = [];
+        let emails = [];
 
-        jdocument.find('BPQL > body > phones > phone:lt(3)').each(function (idx, node) {
-            var jnode = $(node);
+        jdocument.find('BPQL > body > phones > phone:lt(3)').each((idx, node) => {
+            const jnode = $(node);
             let ddd = jnode.find('area-code').text().trim();
             let phone = jnode.find('number').text().trim();
             if (!ddd || !phone) return;
-            phones.push('(' + ddd + ') ' + phone);
+            phones.push(`(${ddd}) ${phone}`);
         });
 
-        jdocument.find('BPQL > body email:lt(3), BPQL > body > RFB > email').each(function (idx, node) {
+        jdocument.find('BPQL > body email:lt(3), BPQL > body > RFB > email').each((idx, node) => {
             emails.push($(node).text());
         });
 
@@ -99,30 +100,30 @@ module.exports = function (controller) {
         emails = _.uniq(emails);
 
         result.addSeparator('Contato', 'Meios de contato', 'Telefone, e-mail e outros');
-        for (var idxPhones in phones) {
+        for (const idxPhones in phones) {
             let phone = phones[idxPhones];
             if (!/[0-9]/.test(phone)) return;
             result.addItem('Telefone', phone);
         }
 
-        for (var idxEmails in emails) {
+        for (const idxEmails in emails) {
             result.addItem('Email', emails[idxEmails]);
         }
 
     };
 
-    var parserConsultas = function (document) {
-        var jdocument = $(document);
+    const parserConsultas = document => {
+        const jdocument = $(document);
 
-        var result = controller.call('result');
+        const result = controller.call('result');
 
-        var nodes = {
-            'Nome': 'name'
+        const nodes = {
+            Nome: 'name'
         };
 
-        var init = 'BPQL > body > ';
-        for (var idx in nodes) {
-            var data = jdocument.find(init + nodes[idx]).text();
+        const init = 'BPQL > body > ';
+        for (const idx in nodes) {
+            const data = jdocument.find(init + nodes[idx]).text();
             if (/^\**$/.test(data))
                 continue;
             result.addItem(idx, data, nodes[idx]);
@@ -134,7 +135,7 @@ module.exports = function (controller) {
         return result.element();
     };
 
-    controller.registerBootstrap('parserCbusca', function (callback) {
+    controller.registerBootstrap('parserCbusca', callback => {
         callback();
         controller.importXMLDocument.register('CBUSCA', 'CONSULTA', parserConsultas);
     });

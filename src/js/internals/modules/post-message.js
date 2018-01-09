@@ -1,12 +1,12 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
     let origin = controller.query.origin || window.location.origin;
 
-    window.addEventListener('message', function (e) {
+    window.addEventListener('message', e => {
         controller.trigger('message', e);
     });
 
-    controller.registerCall('parent', function (message, targetOrigin = null) {
+    controller.registerCall('parent', (message, targetOrigin = null) => {
         parent.postMessage(message, targetOrigin || origin);
     });
 };

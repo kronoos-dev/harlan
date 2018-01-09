@@ -10,7 +10,7 @@ import I18n from './internals/library/i18n';
 import browserUpdate from 'browser-update';
 
 (function(d) {
-    var Harlan = require('./internals/controller');
+    const Harlan = require('./internals/controller');
 
     let harlan = new Harlan();
     d.harlan = harlan;

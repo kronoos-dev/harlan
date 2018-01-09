@@ -9,6 +9,9 @@ import {
 } from 'change-case';
 import async from 'async';
 
+const FormError = Error.extend('Error', 500);
+const FormCancel = Error.extend('FormError', 500);
+
 module.exports = controller => {
 
     let GenerateForm = function(callback, onCancel) {
@@ -57,8 +60,8 @@ module.exports = controller => {
                 return;
             }
 
-            _.each(configuration.screens, v => {
-                _.each(_.flatten(v.fields), field => {
+            _.each(configuration.screens, ({fields}) => {
+                _.each(_.flatten(fields), field => {
                     if (camelCase(field.name) === name) {
                         if (field.type == 'file') {
                             /* can't set */
@@ -175,10 +178,10 @@ module.exports = controller => {
 
                 let reader = new FileReader();
 
-                reader.onload = e => {
+                reader.onload = ({target}) => {
                     let r = {};
                     r[input.name] = file.name;
-                    r[input.contentKey || `${input.name}@content`] = e.target.result;
+                    r[input.contentKey || `${input.name}@content`] = target.result;
                     cb(r);
                 };
 
@@ -376,7 +379,7 @@ module.exports = controller => {
                 if (!item.optional && !configuration.readOnly) {
                     if (item.element.attr('type') === 'checkbox') {
                         if (!item.element.is(':checked')) {
-                            $('label[for=\'' + item.element.attr('id') + '\']').addClass('error');
+                            $(`label[for='${item.element.attr('id')}']`).addClass('error');
                             ret = false;
                             callback();
                             return;
@@ -396,8 +399,10 @@ module.exports = controller => {
         return this;
     };
 
-    controller.registerCall('form', (...parameters) => {
-        return new GenerateForm(...parameters);
-    });
+    controller.registerCall('form', (...parameters) => new GenerateForm(...parameters));
+
+    controller.registerCall('form::callback', (parameters, callback) => new GenerateForm(callback, () => {
+        throw new FormCancel();
+    }).configure(parameters));
 
 };

@@ -31,18 +31,17 @@ const BACKGROUND_IMAGES = {
     officeStore: '/images/bg/kronoos/photodune-4129670-library-dossier-office-store-interior-full-of-indexcases-indexbox-files-l.jpg'
 };
 
-module.exports = function(controller) {
-
-    var xhr = [],
-        photos = [],
-        parsers = [],
-        registered,
-        backgroundTimeout,
-        mapQueue,
-        photosQueue,
-        brief,
-        searchTimeout,
-        depth = controller.query.d ? parseInt(controller.query.d) : 0;
+module.exports = controller => {
+    var xhr = [];
+    var photos = [];
+    var parsers = [];
+    var registered;
+    var backgroundTimeout;
+    var mapQueue;
+    var photosQueue;
+    var brief;
+    var searchTimeout;
+    var depth = controller.query.d ? parseInt(controller.query.d) : 0;
 
     const INPUT = $('#kronoos-q');
     const SEARCH_BAR = $('.kronoos-application .search-bar');
@@ -229,17 +228,15 @@ module.exports = function(controller) {
             }))));
     });
 
-    var smartBackground = function() {
-        return setInterval(function() {
-            if (!photos.length) {
-                return;
-            }
-            SEARCH_BAR.css('background-image', `url(${photos[Math.floor(Math.random() * photos.length)]})`);
-        }, 15000);
-    };
+    var smartBackground = () => setInterval(() => {
+        if (!photos.length) {
+            return;
+        }
+        SEARCH_BAR.css('background-image', `url(${photos[Math.floor(Math.random() * photos.length)]})`);
+    }, 15000);
 
     controller.registerCall('kronoos::smartBackground', (cbuscaData) => {
-        photosQueue = async.queue(function(picture, callback) {
+        photosQueue = async.queue((picture, callback) => {
             if (picture.width < SEARCH_BAR.width() || picture.height < SEARCH_BAR.height()) {
                 callback();
                 return;
@@ -255,8 +252,9 @@ module.exports = function(controller) {
             img.src = picture.photo_file_url;
         }, 2);
 
-        mapQueue = async.queue(function(task, callback) {
-            var lat, lng;
+        mapQueue = async.queue((task, callback) => {
+            var lat;
+            var lng;
             $.getJSON({
                 url: 'https://maps.googleapis.com/maps/api/geocode/json',
                 data: {
@@ -280,15 +278,15 @@ module.exports = function(controller) {
                         method: 'GET',
                         dataType: 'jsonp',
                         data: {
-                            'set': 'full',
-                            'from': '0',
-                            'to': '10',
-                            'minx': lng + (-200 / (R_EARTH * Math.cos(Math.PI * lat / 180))) * (180 / Math.PI),
-                            'miny': lat + (-200 / R_EARTH) * (180 / Math.PI),
-                            'maxx': lng + (200 / (R_EARTH * Math.cos(Math.PI * lat / 180))) * (180 / Math.PI),
-                            'maxy': lat + (200 / R_EARTH) * (180 / Math.PI),
-                            'size': 'original',
-                            'mapfilter': 'true'
+                            set: 'full',
+                            from: '0',
+                            to: '10',
+                            minx: lng + (-200 / (R_EARTH * Math.cos(Math.PI * lat / 180))) * (180 / Math.PI),
+                            miny: lat + (-200 / R_EARTH) * (180 / Math.PI),
+                            maxx: lng + (200 / (R_EARTH * Math.cos(Math.PI * lat / 180))) * (180 / Math.PI),
+                            maxy: lat + (200 / R_EARTH) * (180 / Math.PI),
+                            size: 'original',
+                            mapfilter: 'true'
                         },
                         success: ret => {
                             for (let picture of ret.photos.slice(0, 10)) {
@@ -316,7 +314,7 @@ module.exports = function(controller) {
         var runnedAddresses = [];
         $($('endereco cep', cbuscaData).get().reverse()).each((idx, element) => {
             let cep = $(element).text().replace(NON_NUMBER, '');
-            if (/^\s*$/.test(cep) || runnedAddresses.indexOf(cep) != -1) {
+            if (/^\s*$/.test(cep) || runnedAddresses.includes(cep)) {
                 return;
             }
 
@@ -359,7 +357,7 @@ module.exports = function(controller) {
                     if (!geolocation.results || !geolocation.results.length) continue;
                     let marker = new google.maps.Marker({
                         position: geolocation.results[0].geometry.location,
-                        map: map,
+                        map,
                         title: `${parser.name} / ${parser.cpf_cnpj}`
                     });
                     marker.addListener('click', () => $('html, body').scrollTop(parser.appendElement.offset().top));
@@ -372,7 +370,6 @@ module.exports = function(controller) {
         cb();
         /* aqui vamos receber os PDF's do TJSP */
     });
-
 };
 
 // https://www.youtube.com/watch?v=icgGyR3iusU

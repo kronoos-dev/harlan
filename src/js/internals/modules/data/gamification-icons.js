@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     magicWand: 'icon-0-0',
     star: 'icon-0-1',
     brilliantIdea: 'icon-0-2',

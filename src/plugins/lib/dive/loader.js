@@ -6,37 +6,37 @@ import sprintf from 'sprintf';
 const TEST_EXTENSION = /\.csv$/;
 const masks = ['999.999.999-99', '99.999.999/9999-99'];
 
-module.exports = function(controller, config) {
+module.exports = (controller, config) => {
 
-    var getFile = function(inputFile) {
-        var files = inputFile.get(0).files;
+    const getFile = inputFile => {
+        const files = inputFile.get(0).files;
         if (!files.length) {
             throw 'Selecione um arquivo!';
         }
 
-        var file = files.item(0);
+        const file = files.item(0);
         if (!TEST_EXTENSION.test(file.name)) {
             throw 'A extensão do arquivo deve ser CSV (comma-separated values)';
         }
         return file;
     };
 
-    controller.registerCall('dive::load', function(inputFile) {
-        var file = getFile(inputFile),
-            modal = controller.call('modal');
+    controller.registerCall('dive::load', inputFile => {
+        const file = getFile(inputFile);
+        const modal = controller.call('modal');
 
         modal.title('Carregando Arquivo');
         modal.subtitle('Os resultados estão sendo processados');
         modal.addParagraph('Os registros estão sendo carregados na API, esta operação pode levar alguns minutos. Para arquivos muito grandes pode levar até algumas horas, deixe esta página aberta até o fim do carregamento.');
 
-        var progress = modal.addProgress();
+        const progress = modal.addProgress();
 
         /* can't call it directly, CORS and WebWorkers */
-        $.get('/js/dive-worker.js', function(data) {
-            var worker = new Worker(window.URL.createObjectURL(new Blob([data], {
+        $.get('/js/dive-worker.js', data => {
+            const worker = new Worker(window.URL.createObjectURL(new Blob([data], {
                 type: 'text/javascript'
             })));
-            worker.onmessage = function(message) {
+            worker.onmessage = message => {
                 if (!message.data) {
                     worker.terminate();
                     modal.close();
@@ -51,21 +51,22 @@ module.exports = function(controller, config) {
                 }
             };
             worker.postMessage({
-                file: file,
+                file,
                 apiKey: controller.serverCommunication.apiKey()
             });
         });
     });
 
-    controller.registerCall('dive::new', function() {
-        var modal = controller.call('modal');
+    controller.registerCall('dive::new', () => {
+        const modal = controller.call('modal');
         modal.gamification('harlan');
         modal.title('Acompanhamento Cadastral e Análise de Crédito');
         modal.subtitle('Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.');
         modal.addParagraph('Este recurso é um poderoso módulo que integra soluções em acompanhamento cadastral e análise de crédito em uma só ferramenta, de maneira simples e eficaz. Com ele, você pode monitorar de perto, e em tempo real, as ações de pessoas físicas e jurídicas de seu interesse. Acompanhe cada passo de pessoas e empresas e esteja sempre à frente.');
-        var form = modal.createForm(),
-            inputDocument = form.addInput('text', 'text', 'CPF/CNPJ de Acompanhamento').magicLabel(),
-            // acceptTerms = form.addCheckbox("terms", "Eu concordo com os <a href='#'>termos de uso</a> e <a href='#'>confidencialidade</a>."),
+        const form = modal.createForm();
+        const inputDocument = form.addInput('text', 'text', 'CPF/CNPJ de Acompanhamento').magicLabel();
+
+        const // acceptTerms = form.addCheckbox("terms", "Eu concordo com os <a href='#'>termos de uso</a> e <a href='#'>confidencialidade</a>."),
             mask = () => {
                 let v = inputDocument.val();
                 inputDocument.val(VMasker.toPattern(v, masks[v.length > 14 ? 1 : 0]));
@@ -81,7 +82,7 @@ module.exports = function(controller, config) {
 
         inputDocument.on('keydown', mask);
 
-        form.addSubmit('submit', 'Acompanhar').click(function(e) {
+        form.addSubmit('submit', 'Acompanhar').click(e => {
             e.preventDefault();
             // if (!acceptTerms[1].is(':checked')) {
             //     toastr.warning("Você precisa aceitar os termos de uso e confidencialidade para poder continuar.",
@@ -106,7 +107,7 @@ module.exports = function(controller, config) {
             modal.close();
         });
 
-        var actions = modal.createActions();
+        const actions = modal.createActions();
         actions.cancel();
 
         actions.add('Importar').click(e => {
@@ -114,20 +115,21 @@ module.exports = function(controller, config) {
             controller.call('dive::new::file');
             modal.close();
         });
-
     });
 
-    controller.registerCall('dive::new::file', function() {
-        var modal = controller.call('modal');
+    controller.registerCall('dive::new::file', () => {
+        const modal = controller.call('modal');
         modal.gamification('harlan');
         modal.title('Acompanhamento Cadastral e Análise de Crédito');
         modal.subtitle('Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.');
         modal.addParagraph('Este recurso é um poderoso módulo que integra soluções em acompanhamento cadastral e análise de crédito em uma só ferramenta, de maneira simples e eficaz. Com ele, você pode monitorar de perto, e em tempo real, as ações de pessoas físicas e jurídicas de seu interesse. Acompanhe cada passo de pessoas e empresas e esteja sempre à frente.');
-        var form = modal.createForm(),
-            inputFile = form.addInput('file', 'file', 'Carteira de Acompanhamento').magicLabel();
-            // acceptTerms = form.addCheckbox("terms", "Eu concordo com os <a href='#'>termos de uso</a> e <a href='#'>confidencialidade</a>.");
 
-        form.addSubmit('submit', 'Acompanhar').click(function(e) {
+        const form = modal.createForm();
+        // acceptTerms = form.addCheckbox("terms", "Eu concordo com os <a href='#'>termos de uso</a> e <a href='#'>confidencialidade</a>.");
+
+        const inputFile = form.addInput('file', 'file', 'Carteira de Acompanhamento').magicLabel();
+
+        form.addSubmit('submit', 'Acompanhar').click(e => {
             e.preventDefault();
             // if (!acceptTerms[1].is(':checked')) {
             //     toastr.warning("Você precisa aceitar os termos de uso e confidencialidade para poder continuar.",
@@ -143,7 +145,7 @@ module.exports = function(controller, config) {
             }
         });
 
-        var actions = modal.createActions();
+        const actions = modal.createActions();
         actions.cancel();
 
         actions.add('Avulso').click(e => {
@@ -151,7 +153,6 @@ module.exports = function(controller, config) {
             controller.call('dive::new');
             modal.close();
         });
-
     });
 
 };

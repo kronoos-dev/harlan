@@ -1,18 +1,18 @@
 import { CMC7Validator } from './cmc7-validator';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     let group = 0;
     let cmcNumber = '';
     let onTerminator = false;
     let timeout;
 
-    $(window).keypress(e => {
+    $(window).keypress(({keyCode}) => {
         if (document.activeElement && document.activeElement.tagName.toLowerCase() !== 'body') {
             return;
         }
 
-        let char = String.fromCharCode(e.keyCode);
+        let char = String.fromCharCode(keyCode);
         if (!/^[0-9]+$/.test(char)) {
             return;
         }

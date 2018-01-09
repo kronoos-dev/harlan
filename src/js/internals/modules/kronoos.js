@@ -1,9 +1,9 @@
-module.exports = function(controller) {
+module.exports = controller => {
 
-    if (controller.confs.kronoos.hosts.indexOf(document.location.hostname) >= 0) {
+    if (controller.confs.kronoos.hosts.includes(document.location.hostname)) {
         controller.confs.kronoos.isKronoos = true;
-        controller.registerBootstrap('kronoos::init::plataform', function(callback) {
-            $.getScript('/js/kronoos.js', function() {
+        controller.registerBootstrap('kronoos::init::plataform', callback => {
+            $.getScript('/js/kronoos.js', () => {
                 callback();
             });
         });

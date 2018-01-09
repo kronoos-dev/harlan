@@ -1,14 +1,14 @@
-module.exports = function(controller) {
+module.exports = controller => {
 
     /** ugly facebook code */
     controller.registerBootstrap('facebook::track', callback => {
 
-        const facebook = function(f, b, e, v, n, t, s) {
+        const facebook = (f, b, e, v, n, t, s) => {
             if (f.fbq)
                 return;
-            n = f.fbq = function() {
-                if (n.callMethod) n.callMethod.apply(n, arguments);
-                else n.queue.push(arguments);
+            n = f.fbq = function(...args) {
+                if (n.callMethod) n.callMethod(...args);
+                else n.queue.push(args);
             };
             if (!f._fbq) f._fbq = n;
             n.push = n;

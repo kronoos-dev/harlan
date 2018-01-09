@@ -1,12 +1,10 @@
 /* global toastr */
 harlan.addPlugin(controller => {
 
-    controller.registerCall('admin::roleTypes', function() {
-        return {
-            '': 'Tipo de Contrato',
-            'ichequeCustomer': 'iCheques'
-        };
-    });
+    controller.registerCall('admin::roleTypes', () => ({
+        '': 'Tipo de Contrato',
+        ichequeCustomer: 'iCheques'
+    }));
 
     $(controller.confs.container).addClass('icheques-extension');
 
@@ -22,7 +20,7 @@ harlan.addPlugin(controller => {
     controller.endpoint.adminReport = 'SELECT FROM \'ICHEQUESREPORT\'.\'REPORT\'';
     controller.endpoint.commercialReferenceOverview = 'SELECT FROM \'IChequesReport\'.\'COMMERCIALREFERENCE\' WHERE \'CACHE\' = \'DISABLED\'';
 
-    $.extend(controller.confs.icheques, {
+    Object.assign(controller.confs.icheques, {
         price: 150,
         monthsIncluded: 5,
         moreMonths: 30
@@ -30,9 +28,9 @@ harlan.addPlugin(controller => {
 
     controller.registerCall('admin::contactTypes', () => {
         return {
-            'financeiro': 'Ambos',
-            'comercial': 'Operações',
-            'tecnico': 'Ocorrências'
+            financeiro: 'Ambos',
+            comercial: 'Operações',
+            tecnico: 'Ocorrências'
         };
     });
 

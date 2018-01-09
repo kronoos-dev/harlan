@@ -2,7 +2,7 @@ import { CPF } from 'cpf_cnpj';
 
 const logoCaller = $('.accuracy-app .logo i');
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     /* Design SCSS do Accuracy APP */
     require('../../styles/accuracy.js');

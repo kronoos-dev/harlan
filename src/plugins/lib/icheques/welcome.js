@@ -1,8 +1,8 @@
 /* global module */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerCall('icheques::welcome', function (ret) {
+    controller.registerCall('icheques::welcome', ret => {
 
         var report = controller.call('report',
             'Seja bem vindo ao iCheques',
@@ -11,15 +11,15 @@ module.exports = function (controller) {
             false);
 
         if (!controller.confs.isCordova) {
-            report.button('Adicionar Cheque', function () {
+            report.button('Adicionar Cheque', () => {
                 controller.call('icheques::newcheck');
             }).addClass('green-button');
 
-            report.button('Dados Cadastrais', function () {
+            report.button('Dados Cadastrais', () => {
                 controller.call('icheques::form::company');
             }).addClass('gray-button');
         } else {
-            report.button('Sair da Conta', function () {
+            report.button('Sair da Conta', () => {
                 controller.call('authentication::logout');
             }).addClass('gray-button');
 
@@ -30,10 +30,10 @@ module.exports = function (controller) {
         $('.app-content').prepend(report.element());
     });
 
-    controller.registerTrigger('call::authentication::loggedin', 'icheques::welcome', function (args, callback) {
+    controller.registerTrigger('call::authentication::loggedin', 'icheques::welcome', (args, callback) => {
         callback();
         controller.serverCommunication.call('SELECT FROM \'ICHEQUESAUTHENTICATION\'.\'ANNOTATIONS\'', {
-            success: function (ret) {
+            success(ret) {
                 controller.call('icheques::welcome', ret);
             }
         });

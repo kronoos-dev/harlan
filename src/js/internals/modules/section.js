@@ -1,8 +1,8 @@
-var factoryShowForm = function (section, button) {
-    var minimized = section.hasClass('minimized'),
-        iButton = button.find('i');
+const factoryShowForm = (section, button) => {
+    let minimized = section.hasClass('minimized');
+    const iButton = button.find('i');
 
-    return function (e) {
+    return e => {
         if (e) {
             e.preventDefault();
         }
@@ -19,25 +19,30 @@ var factoryShowForm = function (section, button) {
     };
 };
 
-var factoryCloseSection = function (section) {
-    return function (e) {
-        e.preventDefault();
-        section.remove();
-    };
+const factoryCloseSection = section => e => {
+    e.preventDefault();
+    section.remove();
 };
 
-var header = function (name, description, subdescription, section, disableDefaultActions, minimized) {
-    var header = $('<header />'),
-        headerContainer = $('<div />').addClass('container'),
-        headerContent = $('<div />').addClass('content'),
-        metadataElements = $('<ul />').addClass('metadata'),
-        actions = $('<ul />').addClass('actions'),
-        formShow = null;
+const header = (
+    name,
+    description,
+    subdescription,
+    section,
+    disableDefaultActions,
+    minimized
+) => {
+    const header = $('<header />');
+    const headerContainer = $('<div />').addClass('container');
+    const headerContent = $('<div />').addClass('content');
+    const metadataElements = $('<ul />').addClass('metadata');
+    const actions = $('<ul />').addClass('actions');
+    let formShow = null;
 
     headerContent.append(actions);
 
     if (!disableDefaultActions) {
-        var maximizeButton = $('<li />').addClass('action-resize').append($('<i />').addClass('fa fa-minus-square-o'));
+        const maximizeButton = $('<li />').addClass('action-resize').append($('<i />').addClass('fa fa-minus-square-o'));
         actions.append(maximizeButton);
         actions.append($('<li />').addClass('action-close').append($('<i />').addClass('fa fa-times-circle')).click(factoryCloseSection(section)));
         formShow = factoryShowForm(section, maximizeButton);
@@ -67,11 +72,11 @@ var header = function (name, description, subdescription, section, disableDefaul
     return [header, actions, metadataElements];
 };
 
-var section = function (name, description, subdescription, disableDefaultActions, minimized) {
-    var section = $('<section />').addClass('group-type');
-    var results = $('<section />').addClass('results');
+const section = (name, description, subdescription, disableDefaultActions, minimized) => {
+    const section = $('<section />').addClass('group-type');
+    const results = $('<section />').addClass('results');
 
-    var data = header(name, description, subdescription, section, disableDefaultActions, minimized);
+    const data = header(name, description, subdescription, section, disableDefaultActions, minimized);
 
     section.append(data[0]);
     section.append(results);
@@ -79,10 +84,8 @@ var section = function (name, description, subdescription, disableDefaultActions
     return [section, results, data[1]];
 };
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerCall('section', function (name, description, subdescription, disableDefaultActions, minimized) {
-        return section(name, description, subdescription, disableDefaultActions, minimized);
-    });
+    controller.registerCall('section', (name, description, subdescription, disableDefaultActions, minimized) => section(name, description, subdescription, disableDefaultActions, minimized));
 
 };

@@ -1,78 +1,83 @@
 /* global module, toastr, require */
 
-var SAFE_PASSWORD = /^.{6,}$/,
-    PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i,
-    VALIDATE_NAME = /^[a-z]{2,}\s+[a-z]{2,}/i,
-    CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ,
-    emailRegex = require('email-regex'),
-    sprintf = require('sprintf');
+const SAFE_PASSWORD = /^.{6,}$/;
 
-module.exports = function(controller) {
+const PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i;
+const VALIDATE_NAME = /^[a-z]{2,}\s+[a-z]{2,}/i;
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
+import emailRegex from 'email-regex';
+import sprintf from 'sprintf';
 
-    var referenceAutocomplete = function(input) {
-        controller.call('instantSearch', input, function(value, autocomplete, callback) {
+module.exports = controller => {
+
+    const referenceAutocomplete = input => {
+        controller.call('instantSearch', input, (value, autocomplete, callback) => {
             controller.serverCommunication.call('SELECT FROM \'ICHEQUES\'.\'REFERENCEAUTOCOMPLETE\'', {
                 data: {
                     input: value
                 },
-                success: function(document) {
-                    $('BPQL > body > references', document).each(function(idx, value) {
+                success(document) {
+                    $('BPQL > body > references', document).each((idx, value) => {
                         autocomplete.item(
                             $('nome', value).text(),
                             $('username', value).text(),
-                            'Referência Comercial').click(function() {
+                            'Referência Comercial').click(() => {
                             input.val($('username', value).text());
                         });
                     });
                 },
-                completed: function() {
+                completed() {
                     callback();
                 }
             });
         });
     };
 
-    controller.registerCall('icheques::createAccount::1', function(data, callback) {
-        var modal = controller.call('modal');
+    controller.registerCall('icheques::createAccount::1', (data, callback) => {
+        const modal = controller.call('modal');
         modal.title('Crie sua conta iCheques');
         modal.subtitle('Informe os dados abaixo para que possamos continuar');
         modal.addParagraph('Sua senha é secreta e recomendamos que não a revele a ninguém.');
 
-        var form = modal.createForm();
+        const form = modal.createForm();
 
-        var inputName = form.addInput('nome', 'text', 'Nome Completo').magicLabel(),
-            objDocument = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            objEmail = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            objLocation = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            inputCommercialReference = form.addInput('commercialReference', 'text', 'Quem nos indicou?', objEmail).magicLabel(),
-            inputCpf = form.addInput('cpf', 'text', 'CPF', objDocument).mask('000.000.000-00').magicLabel(),
-            inputCnpj = form.addInput('cnpj', 'text', 'CNPJ (opcional)', objDocument, 'CNPJ (opcional)').mask('00.000.000/0000-00').magicLabel(),
-            inputZipcode = form.addInput('cep', 'text', 'CEP', objLocation).mask('00000-000').magicLabel(),
-            inputPhone = form.addInput('phone', 'text', 'Telefone', objLocation).mask('(00) 0000-00009').magicLabel();
+        const inputName = form.addInput('nome', 'text', 'Nome Completo').magicLabel();
+
+        const objDocument = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        const objEmail = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        const objLocation = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        const inputCommercialReference = form.addInput('commercialReference', 'text', 'Quem nos indicou?', objEmail).magicLabel();
+        const inputCpf = form.addInput('cpf', 'text', 'CPF', objDocument).mask('000.000.000-00').magicLabel();
+        const inputCnpj = form.addInput('cnpj', 'text', 'CNPJ (opcional)', objDocument, 'CNPJ (opcional)').mask('00.000.000/0000-00').magicLabel();
+        const inputZipcode = form.addInput('cep', 'text', 'CEP', objLocation).mask('00000-000').magicLabel();
+        const inputPhone = form.addInput('phone', 'text', 'Telefone', objLocation).mask('(00) 0000-00009').magicLabel();
 
         referenceAutocomplete(inputCommercialReference);
 
         form.addSubmit('login', 'Criar Conta');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
 
-            var errors = [],
-                name = inputName.val(),
-                cpf = inputCpf.val(),
-                cnpj = inputCnpj.val(),
-                zipcode = inputZipcode.val(),
-                commercialReference = inputCommercialReference.val();
+            const errors = [];
+            const name = inputName.val();
+            const cpf = inputCpf.val();
+            const cnpj = inputCnpj.val();
+            const zipcode = inputZipcode.val();
+            const commercialReference = inputCommercialReference.val();
 
             if (!VALIDATE_NAME.test(name)) {
                 errors.push('O nome de usuário não pode conter espaços ou caracteres especiais, deve possuir no mínimo 3 caracteres.');
@@ -121,72 +126,73 @@ module.exports = function(controller) {
             }
 
             if (errors.length) {
-                for (var i in errors) {
+                for (const i in errors) {
                     toastr.warning(errors[i], 'Não foi possível prosseguir');
                 }
                 return;
             }
 
-            var phoneMatch = PHONE_REGEX.exec(inputPhone.val()),
-                ddd = phoneMatch[1],
-                phone = phoneMatch[2] + '-' + phoneMatch[3];
+            const phoneMatch = PHONE_REGEX.exec(inputPhone.val());
+            const ddd = phoneMatch[1];
+            var phone = `${phoneMatch[2]}-${phoneMatch[3]}`;
 
             controller.serverCommunication.call('INSERT INTO \'IChequesAuthentication\'.\'ACCOUNT\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
-                    data: $.extend({
-                        name: name,
-                        cpf: cpf,
-                        cnpj: cnpj,
-                        commercialReference: commercialReference,
-                        zipcode: zipcode,
-                        ddd: ddd,
-                        phone: phone
+                    data: Object.assign({
+                        name,
+                        cpf,
+                        cnpj,
+                        commercialReference,
+                        zipcode,
+                        ddd,
+                        phone
                     }, data),
-                    success: function(domDocument) {
+                    success(domDocument) {
                         modal.close();
-                        var apiKey = $('BPQL > body apiKey', domDocument).text();
+                        const apiKey = $('BPQL > body apiKey', domDocument).text();
                         controller.call('authentication::force', apiKey, domDocument);
                         if (callback)
                             callback(domDocument);
                     }
                 })));
         });
-        var actions = modal.createActions();
-        actions.add('Voltar').click(function(e) {
+        const actions = modal.createActions();
+        actions.add('Voltar').click(e => {
             e.preventDefault();
             modal.close();
             controller.call('icheques::createAccount', callback);
         });
 
-        actions.add('Cancelar').click(function(e) {
+        actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
     });
 
-    controller.registerCall('icheques::createAccount', function(callback, contract, parameters = {}) {
-        var modal = controller.call('modal');
+    controller.registerCall('icheques::createAccount', (callback, contract, parameters = {}) => {
+        const modal = controller.call('modal');
 
         modal.title('Crie sua conta iCheques');
         modal.subtitle('Informe seu usuário e senha desejados para continuar');
         modal.addParagraph('Sua senha é secreta e recomendamos que não a revele a ninguém.');
 
-        var form = modal.createForm(),
-            inputEmail = form.addInput('email', 'email', 'E-mail').magicLabel(),
-            inputPassword = form.addInput('password', 'password', 'Senha').magicLabel(),
-            inputConfirmPassword = form.addInput('password-confirm', 'password', 'Confirmar Senha').magicLabel(),
-            inputAgree = form.addCheckbox('agree', sprintf('Eu li e aceito o <a href="%s" target="_blank">contrato de usuário</a>.',
-                contract || 'legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf'), false);
+        const form = modal.createForm();
+        const inputEmail = form.addInput('email', 'email', 'E-mail').magicLabel();
+        const inputPassword = form.addInput('password', 'password', 'Senha').magicLabel();
+        const inputConfirmPassword = form.addInput('password-confirm', 'password', 'Confirmar Senha').magicLabel();
+
+        const inputAgree = form.addCheckbox('agree', sprintf('Eu li e aceito o <a href="%s" target="_blank">contrato de usuário</a>.',
+            contract || 'legal/icheques/MINUTA___CONTRATO__VAREJISTA___revisão_1_jcb.pdf'), false);
 
         form.addSubmit('login', 'Próximo Passo');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
 
-            var errors = [],
-                email = inputEmail.val(),
-                password = inputPassword.val(),
-                confirmPassword = inputConfirmPassword.val();
+            const errors = [];
+            const email = inputEmail.val();
+            const password = inputPassword.val();
+            const confirmPassword = inputConfirmPassword.val();
 
             if (!emailRegex().test(email)) {
                 inputEmail.addClass('error');
@@ -212,7 +218,7 @@ module.exports = function(controller) {
             }
 
             if (errors.length) {
-                for (var i in errors) {
+                for (const i in errors) {
                     toastr.warning(errors[i], 'Não foi possível prosseguir');
                 }
                 return;
@@ -225,74 +231,74 @@ module.exports = function(controller) {
                     },
                     success: () => {
                         modal.close();
-                        controller.call('icheques::createAccount::1', $.extend(parameters, {
+                        controller.call('icheques::createAccount::1', Object.assign(parameters, {
                             username: email,
-                            email: email,
-                            password: password
+                            email,
+                            password
                         }), callback);
                     }
                 })));
         });
 
-        var actions = modal.createActions();
+        const actions = modal.createActions();
 
         actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
 
-        actions.add('Login').click(function(e) {
+        actions.add('Login').click(e => {
             e.preventDefault();
             modal.close();
             controller.call('icheques::login', callback);
         });
     });
 
-    controller.registerCall('icheques::login', function(callback) {
-        var modal = controller.call('modal');
+    controller.registerCall('icheques::login', callback => {
+        const modal = controller.call('modal');
         modal.title('Autentique-se');
         modal.subtitle('Informe seu usuário e senha para continuar');
         modal.addParagraph('Sua senha é secreta e recomendamos que não a revele a ninguém.');
 
-        var form = modal.createForm(),
-            inputUsername = form.addInput('user', 'text', 'Usuário'),
-            inputPassword = form.addInput('password', 'password', 'Senha');
+        const form = modal.createForm();
+        const inputUsername = form.addInput('user', 'text', 'Usuário');
+        const inputPassword = form.addInput('password', 'password', 'Senha');
 
         form.addSubmit('login', 'Autenticar');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
-            controller.call('authentication::authenticate', inputUsername, inputPassword, false, function() {
+            controller.call('authentication::authenticate', inputUsername, inputPassword, false, () => {
                 modal.close();
                 callback();
             });
         });
 
-        var actions = modal.createActions();
+        const actions = modal.createActions();
 
-        actions.add('Criar Conta').click(function(e) {
+        actions.add('Criar Conta').click(e => {
             e.preventDefault();
-            controller.call('icheques::createAccount', function() {
+            controller.call('icheques::createAccount', () => {
                 controller.call('icheques::login', callback);
             });
             modal.close();
         });
 
-        actions.add('Esqueci minha Senha').click(function(e) {
+        actions.add('Esqueci minha Senha').click(e => {
             e.preventDefault();
-            controller.call('forgotPassword', function() {
+            controller.call('forgotPassword', () => {
                 controller.call('icheques::login', callback);
             });
             modal.close();
         });
 
-        actions.add('Cancelar').click(function(e) {
+        actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
     });
 
-    controller.registerCall('authentication::need', function(callback) {
+    controller.registerCall('authentication::need', callback => {
         if (controller.serverCommunication.freeKey()) {
             controller.call('icheques::login', callback);
             return true;

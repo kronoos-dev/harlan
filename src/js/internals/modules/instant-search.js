@@ -1,16 +1,14 @@
 /* global module */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerCall('instantSearch', function (input, callback, autocomplete) {
-        autocomplete = autocomplete || controller.call('autocomplete', input);
+    controller.registerCall('instantSearch', (input, callback, autocomplete = controller.call('autocomplete', input)) => {
+        let searchLength;
+        let searchId;
 
-        var searchLength;
-        var searchId;
-
-        input.keyup(function () {
-            var search = input.val();
-            var newLength = search.length;
+        input.keyup(() => {
+            const search = input.val();
+            const newLength = search.length;
 
             if (newLength === searchLength)
                 return;
@@ -22,9 +20,9 @@ module.exports = function (controller) {
                 clearTimeout(searchId);
             }
 
-            searchId = setTimeout(function () {
+            searchId = setTimeout(() => {
                 input.addClass('loading');
-                callback(search, autocomplete, function () {
+                callback(search, autocomplete, () => {
                     input.removeClass('loading');
                 });
             }, controller.confs.instantSearchDelay);

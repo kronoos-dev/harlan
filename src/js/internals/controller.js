@@ -2,17 +2,18 @@ import async from 'async';
 import assert from 'assert';
 import url from 'url';
 import _ from 'underscore';
+import Promise from 'bluebird';
 
 import Sync from './library/sync';
 
-var Controller = function() {
+module.exports = function() {
 
     this.confs = require('./config');
 
-    var bootstrapCalls = {};
-    var calls = {};
-    var events = {};
-    var plugins = [];
+    let bootstrapCalls = {};
+    const calls = {};
+    const events = {};
+    let plugins = [];
 
     this.endpoint = {};
     this.sync = new Sync(this);
@@ -32,9 +33,11 @@ var Controller = function() {
         return this;
     };
 
+    this.promiseBootstrap = Promise.promisify(this.trigger);
+
     this.unregisterTriggers = (name, except = []) => {
         for (let i in events[name]) {
-            if (except.indexOf(i) != -1) {
+            if (except.includes(i)) {
                 continue;
             }
             delete events[name][i];
@@ -67,7 +70,7 @@ var Controller = function() {
 
     this.trigger = (name, args, onComplete) => {
 
-        var run = () => {
+        const run = () => {
             if (onComplete) {
                 onComplete();
             }
@@ -79,13 +82,13 @@ var Controller = function() {
             return this;
         }
 
-        var submits = events[name] ? Object.keys(events[name]).length : 0;
+        let submits = events[name] ? Object.keys(events[name]).length : 0;
         if (submits === 0) {
             run();
             return this;
         }
 
-        var runsAtEnd = () => {
+        const runsAtEnd = () => {
             if (!--submits) {
                 console.log(':: trigger :: end ::', name);
                 run();
@@ -106,6 +109,8 @@ var Controller = function() {
         return this;
     };
 
+    this.triggerred = Promise.promisify(this.trigger);
+
     this.registerCall = (name, callback) => {
         console.log(':: register :: ', name);
         this.trigger(`call::register::${name}`);
@@ -122,17 +127,11 @@ var Controller = function() {
         }
     };
 
-    this.reference = name => {
-        return (...parameters) => {
-            this.call(name, ...parameters);
-        };
-    };
+    this.reference = name => (...parameters) => this.call(name, ...parameters);
 
-    this.click = (name, ...parameters) => {
-        return e => {
-            e.preventDefault();
-            this.call(name, ...parameters);
-        };
+    this.click = (name, ...parameters) => e => {
+        e.preventDefault();
+        this.call(name, ...parameters);
     };
 
     this.event = this.click;
@@ -145,18 +144,21 @@ var Controller = function() {
             return null;
         }
 
-        var data = calls[name](...parameters);
+        const data = calls[name](...parameters);
         this.trigger(`call::${name}`, parameters);
         return data;
     };
 
-    this.run = () => {
-        var calls = bootstrapCalls; /* prevent race cond */
+    this.promise = Promise.promisify(this.call);
+
+    this.run = (cb) => {
+        const calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
 
         async.auto(calls, (err, results) => {
             console.log(':: bootstrap ::', err, results);
             this.trigger('bootstrap::end');
+            if (cb) cb();
         });
     };
 
@@ -182,8 +184,4 @@ var Controller = function() {
     });
 
     return this;
-};
-
-module.exports = () => {
-    return new Controller();
 };

@@ -1,11 +1,10 @@
 import * as _ from 'underscore';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var parserConsultasWS = function(document) {
-
-        var result = controller.call('result'),
-            jdocument = $(document);
+    const parserConsultasWS = document => {
+        const result = controller.call('result');
+        const jdocument = $(document);
         _.each(jdocument.find('BPQL > body > consulta > conteudo > cartorio'), element => {
             result.addSeparator('Protestos em Cartório',
                 $('nome', element).text(),
@@ -31,7 +30,7 @@ module.exports = function(controller) {
         return result.element();
     };
 
-    controller.registerBootstrap('parserIEPTB', function(callback) {
+    controller.registerBootstrap('parserIEPTB', callback => {
         callback();
         controller.importXMLDocument.register('IEPTB', 'WS', parserConsultasWS);
     });

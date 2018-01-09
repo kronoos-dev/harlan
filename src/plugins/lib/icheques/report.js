@@ -1,7 +1,7 @@
 /*jshint -W083 */
 /* global module */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     var dictReports = {
         'icheques::report::overview': {
@@ -31,7 +31,7 @@ module.exports = function (controller) {
         });
     }
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::report', function (args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::report', (args, callback) => {
         callback();
         for (var i in dictReports) {
             if (!dictReports[i].findRegex.test(args[0]))
@@ -43,7 +43,7 @@ module.exports = function (controller) {
         }
     });
 
-    controller.registerTrigger('call::authentication::loggedin', 'icheques::report::overview', function (args, callback) {
+    controller.registerTrigger('call::authentication::loggedin', 'icheques::report::overview', (args, callback) => {
         callback();
         controller.call('icheques::report::overview', false, false);
     });

@@ -1,10 +1,11 @@
 /* global toastr, require, module, numeral, moment */
 
-const async = require('async'),
-    StringMask = require('string-mask'),
-    URL = require('url-parse'),
-    queryString = require('query-string'),
-    escapeStringRegexp = require('escape-string-regexp');
+import async from 'async';
+
+import StringMask from 'string-mask';
+import URL from 'url-parse';
+import queryString from 'query-string';
+import escapeStringRegexp from 'escape-string-regexp';
 
 import _ from 'underscore';
 import { CPF, CNPJ } from 'cpf_cnpj';
@@ -12,26 +13,26 @@ import { CMC7Parser } from '../../../lib/icheques/cmc7-parser.js';
 
 const CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     let format = (check, url, data) => {
-        let result = controller.call('result'),
-            separatorData = {},
-            separator = result.addSeparator('Verificação de Cheque',
-                'Verificação de Dados do Cheque',
-                'Cheque CMC7 ' + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, '')),
-                separatorData);
+        let result = controller.call('result');
+        let separatorData = {};
+
+        let separator = result.addSeparator('Verificação de Cheque',
+            'Verificação de Dados do Cheque',
+            `Cheque CMC7 ${CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, ''))}`,
+            separatorData);
 
         let actions = separator.find('.actions');
         controller.call('tooltip', actions, 'Dados para Depósito').append($('<i />').addClass('fa fa-bank')).click(e => {
             e.preventDefault();
 
             let [bank, ag, acc] = check.companyData.bankAccount;
-            let name = check.companyData.nome || check.companyData.responsavel,
-                document = check.companyData.cnpj ? CNPJ.format(check.companyData.cnpj) : CPF.format(check.companyData.cpf);
+            let name = check.companyData.nome || check.companyData.responsavel;
+            let document = check.companyData.cnpj ? CNPJ.format(check.companyData.cnpj) : CPF.format(check.companyData.cpf);
 
             let form = controller.call('form', i => {
-
                 let item = {
                     check: check._id,
                     hyperlink: url,
@@ -39,9 +40,11 @@ module.exports = function (controller) {
                     label: data.data.label,
                 };
                 i.ammount = Math.floor(i.ammount * 100);
+
                 /* Remove o Listener da Cobrança */
-                var validate = new RegExp(`(\\?|\\&)id\=${escapeStringRegexp(check._id)}`, 'gi'),
-                    historyCallback = _.filter(data.data.historyCallback, c => validate.test(c));
+                const validate = new RegExp(`(\\?|\\&)id\=${escapeStringRegexp(check._id)}`, 'gi');
+
+                const historyCallback = _.filter(data.data.historyCallback, c => validate.test(c));
                 if (historyCallback.length) {
                     item.historyCallback = historyCallback[0];
                 }
@@ -50,9 +53,9 @@ module.exports = function (controller) {
                     controller.call('error::ajax', controller.call('loader::ajax', {
                         dataType: 'json',
                         data: Object.assign(item, i),
-                        success: ret => {
+                        success: ({deleted}) => {
                             result.element().remove();
-                            if (ret.deleted) {
+                            if (deleted) {
                                 $(`*[data-entity='${data.data._id}']`).remove();
                                 data.section[0].remove();
                             }
@@ -63,66 +66,66 @@ module.exports = function (controller) {
                     })));
             });
             form.configure({
-                'title': 'Dados para Depósito',
-                'subtitle': 'Dados bancários para depósito dos valores do cheque.',
-                'gamification': 'magicWand',
-                'paragraph': 'Confirme o valor a ser depositado.',
-                'screens': [{
-                    'magicLabel': true,
-                    'fields': [[{
-                        'name': 'name',
-                        'optional': false,
-                        'type': 'text',
-                        'value': name,
-                        'disabled': true,
-                        'placeholder': 'Nome',
+                title: 'Dados para Depósito',
+                subtitle: 'Dados bancários para depósito dos valores do cheque.',
+                gamification: 'magicWand',
+                paragraph: 'Confirme o valor a ser depositado.',
+                screens: [{
+                    magicLabel: true,
+                    fields: [[{
+                        name: 'name',
+                        optional: false,
+                        type: 'text',
+                        value: name,
+                        disabled: true,
+                        placeholder: 'Nome',
                     }, {
-                        'name': 'document',
-                        'optional': false,
-                        'type': 'text',
-                        'value': document,
-                        'disabled': true,
-                        'placeholder': 'Documento',
+                        name: 'document',
+                        optional: false,
+                        type: 'text',
+                        value: document,
+                        disabled: true,
+                        placeholder: 'Documento',
                     }], [{
-                        'name': 'bank',
-                        'optional': false,
-                        'type': 'text',
-                        'value': bank,
-                        'magicLabel': true,
-                        'label': false,
-                        'placeholder': 'Banco',
-                        'disabled' : true,
+                        name: 'bank',
+                        optional: false,
+                        type: 'text',
+                        value: bank,
+                        magicLabel: true,
+                        label: false,
+                        placeholder: 'Banco',
+                        disabled : true,
                     }, {
-                        'name': 'ag',
-                        'optional': false,
-                        'type': 'text',
-                        'numeral': true,
-                        'value': ag,
-                        'placeholder': 'Agência',
-                        'mask': '0000',
-                        'disabled' : true
+                        name: 'ag',
+                        optional: false,
+                        type: 'text',
+                        numeral: true,
+                        value: ag,
+                        placeholder: 'Agência',
+                        mask: '0000',
+                        disabled : true
                     }, {
-                        'name': 'acc',
-                        'value': acc,
-                        'type': 'text',
-                        'optional': false,
-                        'mask': '99999999990-0',
-                        'placeholder': 'Conta Corrente',
-                        'disabled' : true,
-                        'maskOptions': {
-                            'reverse': true
+                        name: 'acc',
+                        value: acc,
+                        type: 'text',
+                        optional: false,
+                        mask: '99999999990-0',
+                        placeholder: 'Conta Corrente',
+                        disabled : true,
+                        maskOptions: {
+                            reverse: true
                         }
                     }],{
-                        'required': true,
-                        'name': 'ammount',
-                        'type': 'text',
-                        'placeholder': 'Valor Depositado (R$)',
-                        'labelText': 'Valor Depositado (R$)',
-                        'mask': '000.000.000.000.000,00',
-                        'maskOptions': {
-                            'reverse': true
+                        required: true,
+                        name: 'ammount',
+                        type: 'text',
+                        placeholder: 'Valor Depositado (R$)',
+                        labelText: 'Valor Depositado (R$)',
+                        mask: '000.000.000.000.000,00',
+                        maskOptions: {
+                            reverse: true
                         },
-                        'numeral': true
+                        numeral: true
                     }]}
                 ]});
         });
@@ -157,10 +160,10 @@ module.exports = function (controller) {
             checkResult.addItem('Cobrança', 'Ativa');
         }
 
-        let elementClass = 'success',
-            situation = check.situation,
-            display = check.display,
-            ocurrence = check.ocurrence;
+        let elementClass = 'success';
+        let situation = check.situation;
+        let display = check.display;
+        let ocurrence = check.ocurrence;
 
         if (check.queryStatus !== 1) {
             elementClass = 'error';
@@ -190,9 +193,9 @@ module.exports = function (controller) {
         controller.server.call('SELECT FROM \'DIVE\'.\'ICHEQUES\'', {
             dataType: 'json',
             data : {id : qs._id},
-            success: c => {
-                if (!c.count) return;
-                let result = format(c.list[qs._id], url, data);
+            success: ({count, list}) => {
+                if (!count) return;
+                let result = format(list[qs._id], url, data);
                 data.section[1].append(result.element());
             }
         });

@@ -5,7 +5,7 @@ const searchBarContainer = $('.kronoos-application .search-bar .kronoos-floating
 
 if (Notification) Notification.requestPermission();
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     let notificationTimeout;
 

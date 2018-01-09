@@ -1,7 +1,7 @@
 module.exports = controller => {
 
     var config = [{
-        'event': 'next',
+        event: 'next',
         selector: '#kronoos-q',
         description : 'Digite aqui um CPF/CNPJ para começar sua pesquisa Kronoos.',
         nextButton: {text: 'Próximo'},
@@ -9,7 +9,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event':'next',
+        event:'next',
         selector: '#kronoos-action > button',
         description: 'Clique neste botão para realizar sua consulta.',
         nextButton: {text: 'Próximo'},
@@ -17,7 +17,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: '#kronoos-q-container > i.fa.fa-search.icon',
         description : 'Deseja realizar uma pesquisa por nome?<br />Clique na lupa para buscar.',
         nextButton: {text: 'Próximo'},
@@ -25,7 +25,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: '#kronoos-q-container > i.fa.fa-thermometer-2.depth',
         description : 'Controle a profundidade e tempo das buscar com o termômetro.<br />Você no controle do tempo e qualidade das consultas.',
         nextButton: {text: 'Próximo'},
@@ -33,7 +33,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: 'body > div.kronoos-application > div.search-bar.full > div > div > div > nav > i',
         description: 'Encontre mais opções acessando o menu de nossa aplicação.',
         nextButton: {text: 'Próximo'},
@@ -41,7 +41,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event':'next',
+        event:'next',
         selector: '#chat-application',
         description: 'Precisa de ajuda?<br />Fale conosco no chat online.<br /> (Ao vivo, 24/7)',
         nextButton: {text: 'Próximo'},
@@ -49,7 +49,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: '#kronoos-q-container > img',
         description: 'Quer limpar a tela de resultados?<br/>Clique na logomarca.',
         nextButton: {text: 'Próximo'},

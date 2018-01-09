@@ -1,4 +1,4 @@
-module.exports = function(controller) {
+module.exports = controller => {
     controller.registerBootstrap('email-activation', cb => {
 
         if (!(controller.query.activationCode && controller.query.apiKey )) {

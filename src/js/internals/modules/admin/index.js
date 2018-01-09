@@ -1,26 +1,24 @@
 import doUntil from 'async/doUntil';
 
-var loaded = false;
-var _ = require('underscore');
+let loaded = false;
+import _ from 'underscore';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.endpoint.adminReport = 'SELECT FROM \'BIPBOPCOMPANYSREPORT\'.\'REPORT\'';
     controller.endpoint.createCompany = 'INSERT INTO \'BIPBOPCOMPANYS\'.\'COMPANY\'';
     controller.endpoint.commercialReferenceOverview = 'SELECT FROM \'BIPBOPCOMPANYSREPORT\'.\'COMMERCIALREFERENCE\'';
 
-    controller.registerCall('admin::roleTypes', function() {
-        return {
-            '': 'Tipo de Contrato',
-            'avancado': 'Avançado',
-            'simples': 'Simples'
-        };
-    });
+    controller.registerCall('admin::roleTypes', () => ({
+        '': 'Tipo de Contrato',
+        avancado: 'Avançado',
+        simples: 'Simples'
+    }));
 
-    controller.registerTrigger('serverCommunication::websocket::authentication', 'admin::reference::websocket::authentication', function(data, callback) {
+    controller.registerTrigger('serverCommunication::websocket::authentication', 'admin::reference::websocket::authentication', ({adminOf}, callback) => {
         callback();
 
-        if (loaded || !data.adminOf || !data.adminOf.length) {
+        if (loaded || !adminOf || !adminOf.length) {
             /* apenas para admins */
             return;
         }
@@ -43,13 +41,13 @@ module.exports = function(controller) {
         require('./report')(controller);
 
         controller.registerCall('admin::index', () => {
-            var report = controller.call('report', 'Administrador da Conta', 'Administre os usuários cadastrados no sistema.',
+            const report = controller.call('report', 'Administrador da Conta', 'Administre os usuários cadastrados no sistema.',
                 'Altere dados cadastrais como CPF, CNPJ, telefones, emails e endereço, bloqueie, desbloqueie, crie ' +
                 ' novos usuários, verifique o consumo de seus clientes e quantos créditos eles possuem em suas contas.');
 
             report.button('Disparar E-mail', () => controller.call('form', filter => {
-                let apiKeys = [],
-                    total = 0;
+                let apiKeys = [];
+                let total = 0;
                 doUntil(callback => controller.serverCommunication.call('SELECT FROM \'BIPBOPCOMPANYS\'.\'LIST\'', {
                     data: Object.assign({
                         skip: apiKeys.length
@@ -63,23 +61,23 @@ module.exports = function(controller) {
                     complete: () => callback()
                 }), () => total === apiKeys.length, () => controller.call('admin::message', apiKeys));
             }).configure({
-                'title': 'Filtrar E-mail de Clientes',
-                'subtitle': 'Preencha os campos abaixo para filtrar os destinatários do e-mail.',
-                'paragraph': 'Você enviará um e-mail para toda sua base de clientes que satisfazerem a condição abaixo, deixe em branco para enviar a todos.',
-                'gamification': 'checkPoint',
-                'magicLabel': true,
-                'screens': [{
-                    'nextButton': 'Filtrar',
-                    'fields': [{
-                        'name': 'commercialReference',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'Referência Comercial'
+                title: 'Filtrar E-mail de Clientes',
+                subtitle: 'Preencha os campos abaixo para filtrar os destinatários do e-mail.',
+                paragraph: 'Você enviará um e-mail para toda sua base de clientes que satisfazerem a condição abaixo, deixe em branco para enviar a todos.',
+                gamification: 'checkPoint',
+                magicLabel: true,
+                screens: [{
+                    nextButton: 'Filtrar',
+                    fields: [{
+                        name: 'commercialReference',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'Referência Comercial'
                     }, {
-                        'name': 'tag',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'Marcador (tag)'
+                        name: 'tag',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'Marcador (tag)'
                     }]
                 }]
             })).addClass('gray-button');

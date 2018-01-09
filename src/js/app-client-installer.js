@@ -2,55 +2,51 @@ import ClientLoader from './internals/library/client-loader';
 
 require('pseudo-worker/polyfill');
 
-(function(path, size, compressedSize, encode) {
+((path, size, compressedSize, encode) => {
+    let clientLoader = null;
+    let contentIndex = 0;
+    const content = new Buffer(size);
+    const streamHttp = require('stream-http');
+    const domReady = require('domready');
+    const inflateWorker = new Worker('js/app-client-inflate.js');
+    let downloadedSize = 0;
+    const totalSize = compressedSize + size;
+    let decompressedSize = 0;
 
-    'use strict';
+    let updateInterfaceProgress = () => {
+        console.log(`${Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString()}% Downloaded`);
+    };
 
-    var
-        clientLoader = null,
-        contentIndex = 0,
-        content = new Buffer(size),
-        streamHttp = require('stream-http'),
-        domReady = require('domready'),
-        inflateWorker = new Worker('js/app-client-inflate.js'),
-        downloadedSize = 0,
-        totalSize = compressedSize + size,
-        decompressedSize = 0,
-        updateInterfaceProgress = function() {
-            console.log(Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString() + '% Downloaded');
-        };
-
-    domReady(function() {
+    domReady(() => {
         let harlanClient = $('<div />').class('harlan-client').prependTo('body');
         clientLoader = new ClientLoader(harlanClient);
-        updateInterfaceProgress = function() {
-            var progress = (downloadedSize + decompressedSize) / totalSize;
+        updateInterfaceProgress = () => {
+            const progress = (downloadedSize + decompressedSize) / totalSize;
             clientLoader.parse(progress);
         };
     });
 
-    inflateWorker.onmessage = function(message) {
-        if (message.data === null) {
+    inflateWorker.onmessage = ({data}) => {
+        if (data === null) {
             if (clientLoader) clientLoader.close();
             (new Function(content.toString(encode)))();
             inflateWorker.terminate(); /* goodbye! */
             return;
         }
 
-        decompressedSize += message.data.length;
-        for (var i = 0; i < message.data.length; i++) {
-            content[contentIndex++] = message.data[i];
+        decompressedSize += data.length;
+        for (let i = 0; i < data.length; i++) {
+            content[contentIndex++] = data[i];
         }
 
         updateInterfaceProgress();
     };
 
-    streamHttp.get(path, function(pipe) {
-        pipe.on('data', function(data) {
+    streamHttp.get(path, pipe => {
+        pipe.on('data', data => {
             downloadedSize += data.length;
             inflateWorker.postMessage([data, downloadedSize < compressedSize ? false : true]);
             updateInterfaceProgress();
         });
     });
-
 })('js/app-client.js.gz?h=/* @echo CLIENT_MD5 */', parseInt('/* @echo CLIENT_APP_SIZE */'), parseInt('/* @echo CLIENT_COMPRESSED_SIZE */'), 'utf-8');

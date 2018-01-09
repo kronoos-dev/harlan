@@ -1,23 +1,23 @@
-var owasp = require('owasp-password-strength-test');
+import owasp from 'owasp-password-strength-test';
 
 module.exports = controller => {
-    controller.registerCall('admin::changePassword', function(username) {
-        var modal = controller.call('modal');
+    controller.registerCall('admin::changePassword', username => {
+        const modal = controller.call('modal');
         modal.title('Nova Senha Usuário');
         modal.subtitle('Digite a nova senha de usuário.');
         modal.addParagraph('Cuidado para não criar uma nova senha para estranhos, certifique que você está' +
                             ' passando a senha para um contato conhecido.');
 
-        var form = modal.createForm(),
-            inputPassword = form.addInput('newpassword', 'password', 'Nova Senha'),
-            inputConfirmPassword = form.addInput('newpassword-confirm', 'password', 'Confirmar Nova Senha');
+        const form = modal.createForm();
+        const inputPassword = form.addInput('newpassword', 'password', 'Nova Senha');
+        const inputConfirmPassword = form.addInput('newpassword-confirm', 'password', 'Confirmar Nova Senha');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
 
-            var errors = [],
-                password = inputPassword.val(),
-                confirmPassword = inputConfirmPassword.val();
+            const errors = [];
+            const password = inputPassword.val();
+            const confirmPassword = inputConfirmPassword.val();
 
             if (!owasp.test(password).strong) {
                 inputPassword.addClass('error');
@@ -34,7 +34,7 @@ module.exports = controller => {
             }
 
             if (errors.length) {
-                for (var i in errors) {
+                for (const i in errors) {
 
                     toastr.error(errors[i], 'Não foi possível prosseguir devido a um erro.');
                 }
@@ -47,10 +47,10 @@ module.exports = controller => {
                     controller.call('error::ajax', controller.call('loader::ajax', {
                         method: 'POST',
                         data: {
-                            username: username,
+                            username,
                             password: inputPassword.val()
                         },
-                        success: function() {
+                        success() {
                             modal.close();
                         }
                     })));
@@ -59,10 +59,9 @@ module.exports = controller => {
 
         form.addSubmit('new-password', 'Alterar Senha');
 
-        modal.createActions().add('Cancelar').click(function(e) {
+        modal.createActions().add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
-
     });
 };

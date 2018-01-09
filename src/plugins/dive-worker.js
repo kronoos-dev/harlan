@@ -1,30 +1,30 @@
 /* global self, file, require, queue */
 
-var moment = require('moment'),
-    fileReaderStream = require('filereader-stream'),
-    CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ,
-    csv = require('csv'),
-    concat = require('concat-stream'),
-    async = require('async'),
-    request = require('request'),
-    pad = require('pad');
+import moment from 'moment';
 
-var UPDATE_INTERVAL = 500;
+import fileReaderStream from 'filereader-stream';
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
+import csv from 'csv';
+import concat from 'concat-stream';
+import async from 'async';
+import request from 'request';
+import pad from 'pad';
 
-self.onmessage = function(message) {
+const UPDATE_INTERVAL = 500;
 
-    var loaded = 0,
-        parsed = 0;
+self.onmessage = message => {
+    let loaded = 0;
+    let parsed = 0;
 
-    var queue = async.queue((data, callback) => {
+    const queue = async.queue(({record}, callback) => {
         request.post({
             url: 'https://irql.bipbop.com.br/',
             form: {
                 q: 'INSERT INTO \'DIVE\'.\'ENTITY\'',
                 apiKey: message.data.apiKey,
-                documento: data.record[0],
-                birthday: data.record[1]
+                documento: record[0],
+                birthday: record[1]
             }
         }, (err, httpResponse, body) => {
             callback();
@@ -33,10 +33,10 @@ self.onmessage = function(message) {
                 self.postMessage({
                     method: 'error',
                     data: {
-                        record: data.record,
+                        record,
                         response: {
-                            httpResponse: httpResponse,
-                            body: body,
+                            httpResponse,
+                            body,
                             error: err
                         }
                     }
@@ -50,14 +50,14 @@ self.onmessage = function(message) {
 
     }, 5);
 
-    var updateInterval = setInterval(function() {
+    const updateInterval = setInterval(() => {
         self.postMessage({
             method: 'progress',
             data: loaded / parsed
         });
     }, UPDATE_INTERVAL);
 
-    var end = () => {
+    const end = () => {
         if (updateInterval) {
             clearInterval(updateInterval);
         }
@@ -79,7 +79,7 @@ self.onmessage = function(message) {
                 return;
             }
 
-            var birthday = moment(record[1], ['DD/MM/YYYY',
+            const birthday = moment(record[1], ['DD/MM/YYYY',
                 'YYYY-MM-DD',
                 'YY-MM-DD',
                 'DD/MM/YY'
@@ -95,12 +95,11 @@ self.onmessage = function(message) {
                 record[1] = birthday.format('DD/MM/YYYY');
             }
             queue.push({
-                record: record
+                record
             });
         })).on('finish', () => {
             if (!parsed) {
                 end();
             }
         });
-
 };

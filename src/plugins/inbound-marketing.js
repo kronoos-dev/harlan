@@ -9,36 +9,36 @@ harlan.addPlugin(controller => {
 
     let descriptionInbound = () => [
         [{
-            'name': 'name',
-            'optional': false,
-            'type': 'text',
-            'placeholder': 'Nome'
+            name: 'name',
+            optional: false,
+            type: 'text',
+            placeholder: 'Nome'
         }, {
-            'name': 'subject',
-            'optional': false,
-            'type': 'text',
-            'placeholder': 'Assunto'
+            name: 'subject',
+            optional: false,
+            type: 'text',
+            placeholder: 'Assunto'
         }],
         [{
-            'name': 'description',
-            'optional': false,
-            'type': 'text',
-            'placeholder': 'Descrição (para uso interno)'
+            name: 'description',
+            optional: false,
+            type: 'text',
+            placeholder: 'Descrição (para uso interno)'
         }, {
-            'name': 'trigger',
-            'optional': false,
-            'type': 'text',
-            'placeholder': 'Disparador'
+            name: 'trigger',
+            optional: false,
+            type: 'text',
+            placeholder: 'Disparador'
         }], {
-            'name': 'filename',
-            'contentKey': 'content',
-            'optional': false,
-            'type': 'file',
-            'placeholder': 'Conteúdo'
+            name: 'filename',
+            contentKey: 'content',
+            optional: false,
+            type: 'file',
+            placeholder: 'Conteúdo'
         }
     ];
 
-    controller.registerTrigger('findDatabase::instantSearch', 'inboundMarketing', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'inboundMarketing', (args, callback) => {
         callback();
         let [argument, autocomplete] = args;
         if (!/inbound/i.test(argument)) return;
@@ -56,7 +56,7 @@ harlan.addPlugin(controller => {
 
     controller.registerCall('inboundMarketing::open', (list, data, item) => controller.call('form', data => {
         controller.server.call(updateInbound, controller.call('error::ajax', {
-            data: data,
+            data,
             success: data => appendList(list, data)
         }));
     }).configure({
@@ -72,7 +72,7 @@ harlan.addPlugin(controller => {
                     modal.close();
                     controller.server.call(deleteInbound, {
                         dataType: 'json',
-                        data: data,
+                        data,
                         success: () => item.remove()
                     });
                 }]
@@ -100,17 +100,17 @@ harlan.addPlugin(controller => {
     controller.registerCall('inboundMarketing::create', list => controller.call('form', data => {
         controller.server.call(createInbound, controller.call('error::ajax', {
             dataType: 'json',
-            data: data,
+            data,
             success: data => appendList(list, data)
         }));
     }).configure({
-        'title': 'Criação de Email Marketing',
-        'subtitle': 'Preencha as informações corretamente para criar seu inbound marketing.',
-        'paragraph': '',
-        'gamification': 'checkPoint',
-        'magicLabel': true,
-        'screens': [{
-            'fields': descriptionInbound()
+        title: 'Criação de Email Marketing',
+        subtitle: 'Preencha as informações corretamente para criar seu inbound marketing.',
+        paragraph: '',
+        gamification: 'checkPoint',
+        magicLabel: true,
+        screens: [{
+            fields: descriptionInbound()
         }]
     }));
 

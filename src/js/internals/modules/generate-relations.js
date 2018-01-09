@@ -262,10 +262,10 @@ module.exports = controller => {
 
         this.createNode = (id, label, group, data = {}) => {
             labelIdentification[label] = id;
-            return $.extend({
+            return Object.assign({
                 id: id.replace(START_ZERO, ''),
                 label: wrap(label),
-                group: group,
+                group,
             }, data);
         };
 
@@ -275,8 +275,8 @@ module.exports = controller => {
 
         /* Append Document */
         this.appendDocument = (document, legalDocument) => {
-            let query = $('BPQL > header > query', document).first(),
-                key = `${query.attr('database')}.${query.attr('table')}`.toUpperCase();
+            let query = $('BPQL > header > query', document).first();
+            let key = `${query.attr('database')}.${query.attr('table')}`.toUpperCase();
 
             documents[key] = documents[key] || {};
             documents[key][legalDocument] = documents[key][legalDocument] || [];
@@ -319,39 +319,40 @@ module.exports = controller => {
                         this.purchaseNewDocuments((err, documents) => {
                             callback(null, {
                                 iteraction: i,
-                                nodes: nodes,
-                                edges: edges
+                                nodes,
+                                edges
                             });
                         });
                     });
                 });
             }, (err, results) => {
-                let allNodes = _.uniq(_.flatten(_.pluck(results, 'nodes')), false, a => a.id),
-                    unlabers = _.pluck(_.filter(allNodes, node => node.unlabel), 'label'),
-                    nodes = _.filter(allNodes, node => unlabers.indexOf(node.id) === -1),
-                    edges = _.uniq(_.map(_.flatten(_.pluck(results, 'edges')), edge => {
-                        for (let i of ['to', 'from']) {
-                            if (unlabers.indexOf(edge[i]) !== -1) {
-                                let result = _.findWhere(nodes, {
-                                    label: edge[i]
-                                });
-                                if (result) edge[i] = result.id;
-                            }
-                        }
-                        return edge;
-                    }), false, n => {
-                        let t = n.from >= n.to,
-                            a = t ? n.from : n.to,
-                            b = !t ? n.from : n.to;
+                let allNodes = _.uniq(_.flatten(_.pluck(results, 'nodes')), false, ({id}) => id);
+                let unlabers = _.pluck(_.filter(allNodes, ({unlabel}) => unlabel), 'label');
+                let nodes = _.filter(allNodes, ({id}) => !unlabers.includes(id));
 
-                        return `${b}:${a}`;
-                    });
-                callback({
-                    edges: edges,
-                    nodes: nodes,
-                    groups: groups
+                let edges = _.uniq(_.map(_.flatten(_.pluck(results, 'edges')), edge => {
+                    for (let i of ['to', 'from']) {
+                        if (unlabers.includes(edge[i])) {
+                            let result = _.findWhere(nodes, {
+                                label: edge[i]
+                            });
+                            if (result) edge[i] = result.id;
+                        }
+                    }
+                    return edge;
+                }), false, ({from, to}) => {
+                    let t = from >= to,
+                        a = t ? from : to,
+                        b = !t ? from : to;
+
+                    return `${b}:${a}`;
                 });
 
+                callback({
+                    edges,
+                    nodes,
+                    groups
+                });
             });
         };
     };
@@ -363,7 +364,7 @@ module.exports = controller => {
     controller.registerCall('generateRelations::createAdapter', (adapterName, adapter, group = null) => {
         readAdapters[adapterName] = adapter;
         if (group) {
-            $.extend(groups, group);
+            Object.assign(groups, group);
         }
     });
 

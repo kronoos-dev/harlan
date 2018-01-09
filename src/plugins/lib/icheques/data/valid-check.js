@@ -1,6 +1,6 @@
 /* global module */
 
-var validChecks = [
+const validChecks = [
     /^218/,
     /^237/,
     /^756/,
@@ -30,8 +30,8 @@ var validChecks = [
     /^136/
 ];
 
-module.exports = function (cmc7) {
-    for (var i in validChecks) {
+export default cmc7 => {
+    for (const i in validChecks) {
         if (validChecks[i].test(cmc7))
             return true;
     }

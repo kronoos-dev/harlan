@@ -17,9 +17,9 @@ import {
 
 const PAGINATE_FILTER = 5;
 
-const parseLocation = (element, elementPath) => parseFloat($(element).find(elementPath).text()),
-    R = 6378137,
-    PI_360 = Math.PI / 360;
+const parseLocation = (element, elementPath) => parseFloat($(element).find(elementPath).text());
+const R = 6378137;
+const PI_360 = Math.PI / 360;
 
 function calculateDistance(a, b) {
 
@@ -34,14 +34,13 @@ function calculateDistance(a, b) {
 }
 
 /* global module, numeral */
-module.exports = function(controller) {
+module.exports = controller => {
+    let commercialReference = null;
+    let hasOtherOccurrences = false;
+    let hasBlockedBead = false;
+    let hasProcessingOnes = false;
 
-    var commercialReference = null,
-        hasOtherOccurrences = false,
-        hasBlockedBead = false,
-        hasProcessingOnes = false;
-
-    controller.registerTrigger('findDatabase::instantSearch', 'antecipate', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'antecipate', (args, callback) => {
         callback();
 
         let [text, modal] = args;
@@ -54,7 +53,7 @@ module.exports = function(controller) {
             'Obtenha informações detalhadas para o documento.',
             'Verifique telefone, e-mails, endereços e muito mais através da análise Harlan.')
             .addClass('socialprofile')
-            .click(function() {
+            .click(() => {
                 controller.call('icheques::antecipate', text);
             });
     });
@@ -75,7 +74,7 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('icheques::register::all', function() {
+    controller.registerCall('icheques::register::all', () => {
         controller.server.call('SELECT FROM \'ICHEQUESPROFILE\'.\'PROFILE\'', {
             dataType: 'json',
             success: profile => {
@@ -93,7 +92,7 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('icheques::antecipate', function(checks) {
+    controller.registerCall('icheques::antecipate', checks => {
         controller.server.call('SELECT FROM \'ICHEQUESPROFILE\'.\'PROFILE\'', {
             dataType: 'json',
             success: profile => {
@@ -117,9 +116,9 @@ module.exports = function(controller) {
     });
 
     /* List Banks */
-    controller.registerCall('icheques::antecipate::init', function(checks, profile) {
-        let expired = [],
-            now = moment().format('YYYYMMDD');
+    controller.registerCall('icheques::antecipate::init', (checks, profile) => {
+        let expired = [];
+        let now = moment().format('YYYYMMDD');
 
         checks = _.filter(checks, check => {
             let booleanExpiration = check.expire < now;
@@ -129,12 +128,12 @@ module.exports = function(controller) {
             return !booleanExpiration;
         });
 
-        checks = _.filter(checks, check => {
-            return check.situation === 'Cheque sem ocorrências' ||
-                check.situation === 'Cheque com outras ocorrências' ||
-                check.situation === 'Instituição bancária não monitorada' ||
-                check.situation === 'O talão do cheque está bloqueado' ||
-                !check.situation;
+        checks = _.filter(checks, ({situation}) => {
+            return situation === 'Cheque sem ocorrências' ||
+                situation === 'Cheque com outras ocorrências' ||
+                situation === 'Instituição bancária não monitorada' ||
+                situation === 'O talão do cheque está bloqueado' ||
+                !situation;
         });
 
         if (expired.length) {
@@ -153,8 +152,8 @@ module.exports = function(controller) {
         checks = _.sortBy(checks, 'number');
 
         controller.call('billingInformation::need', () => {
-            var noAmmountChecks = _.filter(checks, obj => {
-                return !obj.ammount;
+            const noAmmountChecks = _.filter(checks, ({ammount}) => {
+                return !ammount;
             });
 
             if (noAmmountChecks.length) {
@@ -165,7 +164,7 @@ module.exports = function(controller) {
                     ${noAmmountChecks.length == 1 ? 'cheque' : 'cheques'} para poder continuar.`,
                     paragraph: 'Tudo que precisar ser editado com o valor será aberto para que você possa repetir esta operação, edite e tente novamente.',
                 }, () => {
-                    var q = queue((check, cb) => {
+                    const q = queue((check, cb) => {
                         controller.call('icheques::item::setAmmount', check, cb, form => {
                             form.actions.add('Parar Edição').click(e => {
                                 form.close(false);
@@ -177,15 +176,15 @@ module.exports = function(controller) {
                     q.push(noAmmountChecks, err => {
                         if (err == 'stop') {
                             q.kill();
-                            controller.call('icheques::antecipate', _.filter(checks, obj => {
-                                return obj.ammount > 0;
+                            controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => {
+                                return ammount > 0;
                             }));
                         }
                     });
 
                     q.drain = () => {
-                        controller.call('icheques::antecipate', _.filter(checks, obj => {
-                            return obj.ammount > 0;
+                        controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => {
+                            return ammount > 0;
                         }));
                     };
 
@@ -212,18 +211,18 @@ module.exports = function(controller) {
         });
     });
 
-    var updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
+    const updateList = (modal, pageActions, results, pagination, list, checks, limit = PAGINATE_FILTER, skip = 0, text = null, checksSum = null, callback = null) => {
         if (text) {
             text = text.trim();
-            checks = _.filter(checks, check => {
-                let doc = check.cnpj ? CNPJ.format(check.cnpj) : CPF.format(check.cpf);
-                return doc.toString().includes(text) || check.number.toString().includes(text);
+            checks = _.filter(checks, ({cnpj, cpf, number}) => {
+                let doc = cnpj ? CNPJ.format(cnpj) : CPF.format(cpf);
+                return doc.toString().includes(text) || number.toString().includes(text);
             });
         } else if (/\D/.test(text)) {
             text = undefined;
         }
 
-        var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
+        const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
             return memo + num;
         });
         if (totalAmmount) {
@@ -234,9 +233,9 @@ module.exports = function(controller) {
 
         list.empty();
 
-        var queryResults = checks.length,
-            currentPage = Math.floor(skip / limit) + 1,
-            pages = Math.ceil(queryResults / limit);
+        const queryResults = checks.length;
+        const currentPage = Math.floor(skip / limit) + 1;
+        const pages = Math.ceil(queryResults / limit);
 
         _.each(checks.slice(skip, skip + limit), element => {
             let doc = element.cnpj ? CNPJ.format(element.cnpj) : CPF.format(element.cpf); /* aplica mascara quando nao tiver*/
@@ -249,7 +248,7 @@ module.exports = function(controller) {
                 `Documento: ${doc}`,
                 // Valor
                 `Valor: ${numeral(element.ammount/100.).format('$ 0,0.00')}`
-            ]).click(function(e) {
+            ]).click(e => {
                 checks.splice(checks.indexOf(element), 1);
                 updateList(modal, pageActions, results, pagination, list, checks, limit, skip, text, checksSum);
             });
@@ -269,37 +268,37 @@ module.exports = function(controller) {
         modal.title('Cheques para Antecipar');
         modal.subtitle('Seleção de Cheques para Antecipação');
         modal.addParagraph('Selecione, da relação abaixo, os cheques que NÃO gostaria de antecipar. Serão eliminados da lista');
-        let form = modal.createForm(),
-            search = form.addInput('query', 'text', 'Digite aqui o número do documento ou do cheque para filtrar', {}, 'Documento ou nº do cheque'),
-            actions = modal.createActions(),
-            skip = 0,
-            text = null,
-            goodChecks = [],
-            otherOccurrences = [],
-            blockedBead = [],
-            processingOnes = [];
+        let form = modal.createForm();
+        let search = form.addInput('query', 'text', 'Digite aqui o número do documento ou do cheque para filtrar', {}, 'Documento ou nº do cheque');
+        let actions = modal.createActions();
+        let skip = 0;
+        let text = null;
+        let goodChecks = [];
+        let otherOccurrences = [];
+        let blockedBead = [];
+        let processingOnes = [];
 
-        otherOccurrences = _.filter(checks, check => {
-            return check.situation === 'Cheque com outras ocorrências' ||
-                check.situation === 'Instituição bancária não monitorada';
+        otherOccurrences = _.filter(checks, ({situation}) => {
+            return situation === 'Cheque com outras ocorrências' ||
+                situation === 'Instituição bancária não monitorada';
         });
 
-        blockedBead = _.filter(checks, check => {
-            return check.situation === 'O talão do cheque está bloqueado';
+        blockedBead = _.filter(checks, ({situation}) => {
+            return situation === 'O talão do cheque está bloqueado';
         });
 
-        processingOnes = _.filter(checks, check => {
-            return !check.situation;
+        processingOnes = _.filter(checks, ({situation}) => {
+            return !situation;
         });
 
-        checks = goodChecks = _.filter(checks, check => {
-            return check.situation === 'Cheque sem ocorrências';
+        checks = goodChecks = _.filter(checks, ({situation}) => {
+            return situation === 'Cheque sem ocorrências';
         });
 
-        let list = form.createList(),
-            fieldOtherOccurrences = form.addCheckbox('other-occurrences', 'Exibir cheques com outras ocorrências'),
-            fieldBlockedBead = form.addCheckbox('blocked-bead', 'Exibir cheques com talão bloqueado'),
-            fieldProcessingOnes = form.addCheckbox('processing-ones', 'Exibir cheques em processamento');
+        let list = form.createList();
+        let fieldOtherOccurrences = form.addCheckbox('other-occurrences', 'Exibir cheques com outras ocorrências');
+        let fieldBlockedBead = form.addCheckbox('blocked-bead', 'Exibir cheques com talão bloqueado');
+        let fieldProcessingOnes = form.addCheckbox('processing-ones', 'Exibir cheques em processamento');
 
         fieldOtherOccurrences[1].hide();
         fieldOtherOccurrences[1].change(() => {
@@ -349,7 +348,7 @@ module.exports = function(controller) {
         form.element().submit(e => {
             e.preventDefault();
 
-            var totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
+            const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
                 return memo + num;
             });
 
@@ -361,14 +360,14 @@ module.exports = function(controller) {
             modal.close();
         });
         form.addSubmit('filter', 'Enviar Cheques');
-        actions.add('Sair').click(function(e) {
+        actions.add('Sair').click(e => {
             e.preventDefault();
             modal.close();
         });
 
-        let results = actions.observation(),
-            pagination = actions.observation(),
-            checksSum = actions.observation();
+        let results = actions.observation();
+        let pagination = actions.observation();
+        let checksSum = actions.observation();
 
         var pageActions = {
             next: actions.add('Próxima Página').click(() => {
@@ -385,178 +384,176 @@ module.exports = function(controller) {
         updateList(modal, pageActions, results, pagination, list, checks, PAGINATE_FILTER, skip, text, checksSum);
     });
 
-    controller.registerCall('icheques::antecipate::show', (data, checks, profile, filterReference = true) =>
-        controller.call('geolocation', geoposition => {
-            var banks = $('BPQL > body > fidc', data),
-                validBankReferences = $();
+    controller.registerCall('icheques::antecipate::show', (data, checks, {revenue}, filterReference = true) => controller.call('geolocation', geoposition => {
+        let banks = $('BPQL > body > fidc', data);
+        const validBankReferences = $();
 
-            /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
-            if (filterReference && commercialReference) {
-                _.each(commercialReference.split(','), reference => {
-                    banks.each(function(i, element) {
-                        if ($('username', element).text() == reference ||
-                            $('cnpj', element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
-                            validBankReferences.push(element);
-                            return false; /* loop break */
-                        }
-                    });
+        /* https://trello.com/c/FSOYf1yH/163-cadastro-de-cliente-exclusivo-a-1-fundo-so */
+        if (filterReference && commercialReference) {
+            _.each(commercialReference.split(','), reference => {
+                banks.each((i, element) => {
+                    if ($('username', element).text() == reference ||
+                        $('cnpj', element).text().replace(/[^\d]/g, '') == reference.replace(/[^\d]/g, '')) {
+                        validBankReferences.push(element);
+                        return false; /* loop break */
+                    }
                 });
-                if (validBankReferences.length) {
-                    banks = validBankReferences;
+            });
+            if (validBankReferences.length) {
+                banks = validBankReferences;
+            }
+        }
+
+        banks = banks.filter((i, element) => {
+            const approved = $(element).children('approvedCustomer').text() == 'true';
+            const ask = $(element).children('ask').text() == 'true';
+            const fromValue = $(element).children('fromValue');
+            const toValue = $(element).children('toValue');
+
+            if (approved) {
+                return checks.length > 0;
+            }
+
+            if (fromValue.length) {
+                let fromValueInt = parseInt(fromValue.text());
+                if (fromValueInt && fromValueInt > revenue) {
+                    return false;
                 }
             }
 
-            banks = banks.filter((i, element) => {
-                var approved = $(element).children('approvedCustomer').text() == 'true',
-                    ask = $(element).children('ask').text() == 'true',
-                    fromValue = $(element).children('fromValue'),
-                    toValue = $(element).children('toValue');
-
-                if (approved) {
-                    return checks.length > 0;
+            if (toValue.length) {
+                let toValueInt = parseInt(toValue.text());
+                if (toValueInt && toValueInt < revenue) {
+                    return false;
                 }
+            }
 
-                if (fromValue.length) {
-                    let fromValueInt = parseInt(fromValue.text());
-                    if (fromValueInt && fromValueInt > profile.revenue) {
-                        return false;
-                    }
-                }
+            return !ask;
+        });
 
-                if (toValue.length) {
-                    let toValueInt = parseInt(toValue.text());
-                    if (toValueInt && toValueInt < profile.revenue) {
-                        return false;
-                    }
-                }
-
-                return !ask;
+        if (!banks.length) {
+            controller.call('alert', {
+                title: 'Não foi possível completar sua solicitação!',
+                subtitle: 'Para antecipar créditos você precisa ter o seu perfil aprovado por um Parceiro Financeiro. Entre em contato com o suporte: (11) 3661-4657.'
             });
+            return;
+        }
 
-            if (!banks.length) {
+        if (!validBankReferences.length) {
+            if (!geoposition) {
                 controller.call('alert', {
-                    title: 'Não foi possível completar sua solicitação!',
-                    subtitle: 'Para antecipar créditos você precisa ter o seu perfil aprovado por um Parceiro Financeiro. Entre em contato com o suporte: (11) 3661-4657.'
+                    title: 'Não foi possível capturar sua solicitação!',
+                    subtitle: 'Para antecipar você precisa habilitar a geolocalização no seu navegador. Entre em contato com o suporte: (11) 3661-4657.'
                 });
                 return;
             }
 
-            if (!validBankReferences.length) {
-                if (!geoposition) {
-                    controller.call('alert', {
-                        title: 'Não foi possível capturar sua solicitação!',
-                        subtitle: 'Para antecipar você precisa habilitar a geolocalização no seu navegador. Entre em contato com o suporte: (11) 3661-4657.'
-                    });
-                    return;
-                }
+            banks = _.sortBy(_.filter(banks.toArray(), element => {
 
-                banks = _.sortBy(_.filter(banks.toArray(), element => {
-
-                    return calculateDistance({
-                        lat: geoposition.coords.latitude,
-                        lon: geoposition.coords.longitude
-                    }, {
-                        lat: parseLocation(element, 'geocode > geometry > location > lat'),
-                        lon: parseLocation(element, 'geocode > geometry > location > lng')
-                    }) <= 200000;
-                }), element => calculateDistance({
+                return calculateDistance({
                     lat: geoposition.coords.latitude,
                     lon: geoposition.coords.longitude
                 }, {
                     lat: parseLocation(element, 'geocode > geometry > location > lat'),
                     lon: parseLocation(element, 'geocode > geometry > location > lng')
-                }));
+                }) <= 200000;
+            }), element => calculateDistance({
+                lat: geoposition.coords.latitude,
+                lon: geoposition.coords.longitude
+            }, {
+                lat: parseLocation(element, 'geocode > geometry > location > lat'),
+                lon: parseLocation(element, 'geocode > geometry > location > lng')
+            }));
 
+            if (!banks.length) {
                 if (!banks.length) {
-                    if (!banks.length) {
-                        controller.call('alert', {
-                            title: 'Não foi possível encontrar um parceiro antecipador!',
-                            subtitle: 'Sinto muito mas não há parceiros iCheques na sua região.',
-                            paragraph: 'Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657.'
-                        });
-                        return;
-                    }
+                    controller.call('alert', {
+                        title: 'Não foi possível encontrar um parceiro antecipador!',
+                        subtitle: 'Sinto muito mas não há parceiros iCheques na sua região.',
+                        paragraph: 'Tente novamente em alguns dias. Caso já tenha um parceiro na região entre em contato com o nosso suporte: (11) 3661-4657.'
+                    });
+                    return;
                 }
             }
+        }
 
-            var modal = controller.call('modal');
-            modal.title('Factorings iCheques');
-            modal.subtitle('Relação de Factorings iCheques');
-            modal.addParagraph('Selecione a Factoring iCheques que deseja enviar sua carteira de cheques.');
+        const modal = controller.call('modal');
+        modal.title('Factorings iCheques');
+        modal.subtitle('Relação de Factorings iCheques');
+        modal.addParagraph('Selecione a Factoring iCheques que deseja enviar sua carteira de cheques.');
 
-            var form = modal.createForm(),
-                list = form.createList();
+        const form = modal.createForm();
+        const list = form.createList();
 
-            _.each(banks, element => {
-                var approved = $(element).children('approvedCustomer').text() === 'true';
+        _.each(banks, element => {
+            const approved = $(element).children('approvedCustomer').text() === 'true';
 
-                list.add('fa-share', [
-                    $('company > nome', element).text() || $('company > responsavel', element).text() || $('company > username', element).text(), !approved ?
-                        'Solicitar Aprovação' :
-                        `${numeral($(element).children('interest').text().replace(',', '.')).format('0.00%')} / ${numeral(parseInt($(element).children('limit').text()) / 100).format('$0,0.00')}`,
-                    `${$('company > endereco > node:eq(4)', element).text()} / ${$('company > endereco > node:eq(6)', element).text()} - ${geoposition ? numeral(calculateDistance({
-                        lat: geoposition.coords.latitude,
-                        lon: geoposition.coords.longitude
-                    }, {
-                        lat: parseLocation(element, 'geocode > geometry > location > lat'),
-                        lon: parseLocation(element, 'geocode > geometry > location > lng')
-                    })).format('0,0') + ' metros' : ''}`,
-                    $(element).children('bio').text(),
-                ]).click(function(e) {
-                    if (!approved) {
-                        controller.call('icheques::antecipate::allow', data, element);
-                    } else {
-                        controller.call('icheques::antecipate::fidc', data, element, checks);
-                    }
-                    modal.close();
-                });
-            });
-
-            list.element().find('li:first div:last').css({
-                width: '185px'
-            });
-
-            var actions = modal.createActions();
-
-            actions.add('Sair').click(function(e) {
-                e.preventDefault();
+            list.add('fa-share', [
+                $('company > nome', element).text() || $('company > responsavel', element).text() || $('company > username', element).text(), !approved ?
+                    'Solicitar Aprovação' :
+                    `${numeral($(element).children('interest').text().replace(',', '.')).format('0.00%')} / ${numeral(parseInt($(element).children('limit').text()) / 100).format('$0,0.00')}`,
+                `${$('company > endereco > node:eq(4)', element).text()} / ${$('company > endereco > node:eq(6)', element).text()} - ${geoposition ? `${numeral(calculateDistance({
+                    lat: geoposition.coords.latitude,
+                    lon: geoposition.coords.longitude
+                }, {
+                    lat: parseLocation(element, 'geocode > geometry > location > lat'),
+                    lon: parseLocation(element, 'geocode > geometry > location > lng')
+                })).format('0,0')} metros` : ''}`,
+                $(element).children('bio').text(),
+            ]).click(e => {
+                if (!approved) {
+                    controller.call('icheques::antecipate::allow', data, element);
+                } else {
+                    controller.call('icheques::antecipate::fidc', data, element, checks);
+                }
                 modal.close();
             });
+        });
 
-            if (validBankReferences.length) {
-                actions.observation('Opera com mais algum fundo? <br />Entre em contato com o suporte.').css({
-                    display: 'block',
-                    'font-size': '12px',
-                    'line-height': '14px'
-                });
-            }
+        list.element().find('li:first div:last').css({
+            width: '185px'
+        });
 
-        }));
+        const actions = modal.createActions();
 
-    var companyData = (paragraph, element) => {
-        var phones = $('<ul />').addClass('phones');
+        actions.add('Sair').click(e => {
+            e.preventDefault();
+            modal.close();
+        });
+
+        if (validBankReferences.length) {
+            actions.observation('Opera com mais algum fundo? <br />Entre em contato com o suporte.').css({
+                display: 'block',
+                'font-size': '12px',
+                'line-height': '14px'
+            });
+        }
+    }));
+
+    const companyData = (paragraph, element) => {
+        const phones = $('<ul />').addClass('phones');
         $('company > telefone > node', element).each((idx, node) => {
-            var get = idx => {
+            const get = idx => {
                 return $(`node:eq(${idx.toString()})`, node).text();
             };
 
-            var phoneNumber = `Telefone: (${get(0)}) ${get(1)}${get(2).length ? '#' + get(2) : ''} - ${titleCase(get(4))}`;
+            const phoneNumber = `Telefone: (${get(0)}) ${get(1)}${get(2).length ? `#${get(2)}` : ''} - ${titleCase(get(4))}`;
             phones.append($('<li />').text(phoneNumber));
         });
 
-        var emails = $('<ul />').addClass('emails');
+        const emails = $('<ul />').addClass('emails');
         $('company > email > node', element).each((idx, node) => {
-            var emailAddress = `E-mail: ${$('node:eq(0)', node).text()} - ${titleCase($('node:eq(1)', node).text())}`;
+            const emailAddress = `E-mail: ${$('node:eq(0)', node).text()} - ${titleCase($('node:eq(1)', node).text())}`;
             emails.append($('<li />').text(emailAddress));
         });
 
-        var get = idx => {
+        const get = idx => {
             return $(`endereco node:eq(${idx.toString()})`, element).text();
         };
 
-        var address = `${get(0)} ${get(1)} ${get(2)} ${get(3)} - ${get(5)} ${get(4)} ${get(6)} `;
+        const address = `${get(0)} ${get(1)} ${get(2)} ${get(3)} - ${get(5)} ${get(4)} ${get(6)} `;
 
-        var addressNode = $('<p />').text(address).addClass('address').append($('<a />').attr({
+        const addressNode = $('<p />').text(address).addClass('address').append($('<a />').attr({
             href: `http\:\/\/maps.google.com\?q\=${encodeURI(address)}`,
             target: '_blank'
         }).append(
@@ -573,17 +570,17 @@ module.exports = function(controller) {
         let modal = controller.modal();
 
         modal.gamification('sword').css({
-            'background': `url(${$(element).children('logo').text()}) no-repeat center`
+            background: `url(${$(element).children('logo').text()}) no-repeat center`
         });
         modal.title($('company > nome', element).text() || $('company > responsavel', element).text());
         modal.subtitle($('company > cnpj', element).text() ?
-            'CNPJ ' + CNPJ.format($('company > cnpj', element).text()) :
-            'CPF ' + CPF.format($('company > cpf', element).text()));
+            `CNPJ ${CNPJ.format($('company > cnpj', element).text())}` :
+            `CPF ${CPF.format($('company > cpf', element).text())}`);
 
-        var paragraph = modal.paragraph($(element).children('bio').text());
+        const paragraph = modal.paragraph($(element).children('bio').text());
         modal.paragraph('A liberação da antecipadora pode ocorrer em até 7 dias úteis.');
         companyData(paragraph, element);
-        var form = modal.createForm();
+        const form = modal.createForm();
         form.element().submit(e => {
             e.preventDefault();
             controller.server.call('INSERT INTO \'ICHEQUES\'.\'FIDC\'',
@@ -609,7 +606,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall('icheques::antecipate::fidc', (data, element, checks, profile) => {
-        var modal = controller.modal();
+        const modal = controller.modal();
 
         if ((hasProcessingOnes && $(element).find('processingOnes').text() != 'true') ||
             (hasOtherOccurrences && $(element).find('otherOccurrences').text() != 'true') ||
@@ -624,18 +621,18 @@ module.exports = function(controller) {
         }
 
         modal.gamification('sword').css({
-            'background': `url(${$(element).children('logo').text()}) no-repeat center`
+            background: `url(${$(element).children('logo').text()}) no-repeat center`
         });
         modal.title($('company > nome', element).text() || $('company > responsavel', element).text());
         modal.subtitle($('company > cnpj', element).text() ?
-            'CNPJ ' + CNPJ.format($('company > cnpj', element).text()) :
-            'CPF ' + CPF.format($('company > cpf', element).text()));
+            `CNPJ ${CNPJ.format($('company > cnpj', element).text())}` :
+            `CPF ${CPF.format($('company > cpf', element).text())}`);
 
-        var paragraph = modal.paragraph($(element).children('bio').text());
+        const paragraph = modal.paragraph($(element).children('bio').text());
 
         companyData(paragraph, element);
 
-        var form = modal.createForm();
+        const form = modal.createForm();
         form.addSubmit('send', 'Antecipar');
         form.element().submit(e => {
             e.preventDefault();

@@ -1,9 +1,9 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    if (controller.confs.icheques.hosts.indexOf(document.location.hostname) >= 0) {
-        controller.registerBootstrap('icheques::init::plataform', function (callback) {
+    if (controller.confs.icheques.hosts.includes(document.location.hostname)) {
+        controller.registerBootstrap('icheques::init::plataform', callback => {
             controller.confs.disableDive = true;
-            $.getScript('/js/icheques.js', function () {
+            $.getScript('/js/icheques.js', () => {
 
                 if (navigator.userAgent.match(/iPad/i) !== null) {
                     callback();

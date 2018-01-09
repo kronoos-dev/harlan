@@ -1,10 +1,10 @@
 /* global module */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     var report = null;
 
-    controller.registerTrigger('serverCommunication::websocket::authentication', 'icheques', function (data, callback) {
+    controller.registerTrigger('serverCommunication::websocket::authentication', 'icheques', (data, callback) => {
         callback();
 
         if (report) {
@@ -21,33 +21,31 @@ module.exports = function (controller) {
             '',
             true);
 
-        var form = report.form(controller),
-            samaritano = form.addInput('samaritano', 'text', 'Referência');
+        var form = report.form(controller);
+        var samaritano = form.addInput('samaritano', 'text', 'Referência');
 
         var autocomplete = controller.call('autocomplete', samaritano);
-        var fill = function (val, submit) {
-            return function (e) {
-                e.preventDefault();
-                samaritano.val(val);
-                if (submit)
-                    form.element().submit();
+        var fill = (val, submit) => e => {
+            e.preventDefault();
+            samaritano.val(val);
+            if (submit)
+                form.element().submit();
 
-            };
         };
 
         autocomplete.item('Sites de Busca (aka. Google)', null, 'Eu encontrei o iCheques através de um site de buscas.').click(fill('Buscador do Google'));
         autocomplete.item('E-mail Marketing (não SPAM)', null, 'Eu recebi um e-mail marketing muito banaca de vocês.').click(fill('E-mail Marketing'));
         autocomplete.item('Um Amigo Apresentou', null, 'Um camarada meu apresentou o iCheques e agora virei fã.').click(fill('Referência de um Amigo'));
 
-        controller.call('instantSearch', samaritano, function (search, ac, cb) {
+        controller.call('instantSearch', samaritano, (search, ac, cb) => {
             controller.serverCommunication.call('SELECT FROM \'ICHEQUESAUTHENTICATION\'.\'ReferenceAutocomplete\'', {
                 data: {input: search},
-                success: function (doc) {
-                    $('BPQL body references node', doc).each(function (idx, vl) {
+                success(doc) {
+                    $('BPQL body references node', doc).each((idx, vl) => {
                         ac.item('Antecipadora de Cheques', $('nome', vl).text(), 'A antecipadora me apresentou o iCheques para operarmos on-line.').click(fill($('username', vl).text(), true));
                     });
                 },
-                complete: function () {
+                complete() {
                     cb();
                 }
             });
@@ -55,7 +53,7 @@ module.exports = function (controller) {
 
         form.addSubmit('send', 'Enviar');
 
-        form.element().submit(function (e) {
+        form.element().submit(e => {
             e.preventDefault();
             if (!samaritano.val()) {
                 samaritano.addClass('error');

@@ -14,28 +14,28 @@ const TEST_ITIT_EXTENSION = /\.itit/i;
 
 module.exports = controller => {
 
-    var globalReport = null;
+    let globalReport = null;
 
-    var companyData = (paragraph, company) => {
-        var phones = $('<ul />').addClass('phones');
-        _.each(company.telefone, phone => {
+    const companyData = (paragraph, {telefone, email, endereco}) => {
+        const phones = $('<ul />').addClass('phones');
+        _.each(telefone, phone => {
             if (!phone[0])
                 return;
-            var phoneNumber = `Telefone: (${phone[0]}) ${phone[1]}${phone[2].length ? '#' + phone[2] : ''} - ${titleCase(phone[4])}`;
+            const phoneNumber = `Telefone: (${phone[0]}) ${phone[1]}${phone[2].length ? `#${phone[2]}` : ''} - ${titleCase(phone[4])}`;
             phones.append($('<li />').text(phoneNumber));
         });
 
-        var emails = $('<ul />').addClass('emails');
-        _.each(company.email, node => {
+        const emails = $('<ul />').addClass('emails');
+        _.each(email, node => {
             if (!node[0])
                 return;
-            var emailAddress = `E-mail: ${node[0]} - ${titleCase(node[1])}`;
+            const emailAddress = `E-mail: ${node[0]} - ${titleCase(node[1])}`;
             emails.append($('<li />').text(emailAddress));
         });
 
-        var address = `${company.endereco[0] || ''} ${company.endereco[1] || ''} ${company.endereco[2] || ''} ${company.endereco[3] || ''} - ${company.endereco[5] || ''} ${company.endereco[4] || ''} ${company.endereco[6] || ''}`;
+        const address = `${endereco[0] || ''} ${endereco[1] || ''} ${endereco[2] || ''} ${endereco[3] || ''} - ${endereco[5] || ''} ${endereco[4] || ''} ${endereco[6] || ''}`;
 
-        var addressNode = $('<p />').text(address).addClass('address').append($('<a />').attr({
+        const addressNode = $('<p />').text(address).addClass('address').append($('<a />').attr({
             href: `http\:\/\/maps.google.com\?q\=${encodeURI(address)}`,
             target: '_blank'
         }).append(
@@ -48,7 +48,7 @@ module.exports = controller => {
         return [emails, phones, addressNode];
     };
 
-    controller.registerTrigger('call::authentication::loggedin', 'icheques::father::fidc', function(args, callback) {
+    controller.registerTrigger('call::authentication::loggedin', 'icheques::father::fidc', (args, callback) => {
         callback();
         controller.server.call('SELECT FROM \'ICHEQUES\'.\'MyFatherFIDC\'', {
             dataType: 'json',
@@ -61,11 +61,11 @@ module.exports = controller => {
         });
     });
 
-    controller.registerTrigger('call::authentication::loggedin', 'icheques::fidc', function(args, callback) {
+    controller.registerTrigger('call::authentication::loggedin', 'icheques::fidc', (args, callback) => {
         callback();
         controller.server.call('SELECT FROM \'ICHEQUESFIDC\'.\'STATUS\'', {
             success: ret => {
-                var id = $('BPQL > body > fidc > _id', ret);
+                const id = $('BPQL > body > fidc > _id', ret);
                 if (!id.length) {
                     if (globalReport) globalReport.element().remove();
                     return;
@@ -73,12 +73,12 @@ module.exports = controller => {
 
                 controller.confs.ccf = true;
 
-                var expireNode = $('BPQL > body > fidc > expire', ret),
-                    expire = expireNode.length ? moment.unix(parseInt(expireNode.text())) : null;
+                const expireNode = $('BPQL > body > fidc > expire', ret);
+                const expire = expireNode.length ? moment.unix(parseInt(expireNode.text())) : null;
 
                 controller.call('icheques::fidc::status', {
                     _id: id.text(),
-                    expire: expire,
+                    expire,
                     created: moment.unix(parseInt($('BPQL > body > fidc > created', ret).text())),
                     approved: $('BPQL > body > fidc > approved', ret).text() === 'true',
                     bio: $('BPQL > body > fidc > bio', ret).text(),
@@ -89,9 +89,9 @@ module.exports = controller => {
         });
     });
 
-    controller.registerCall('icheques::fidc::status', dict => {
-        var report = controller.call('report');
-        if (dict.approved && dict.expired) {
+    controller.registerCall('icheques::fidc::status', ({approved, expired, bio, logo}) => {
+        const report = controller.call('report');
+        if (approved && expired) {
             report.title('Seu cadastro de antecipador está expirado.');
             report.subtitle('Infelizmente você não poderá receber novas operações.');
             report.paragraph('Renove seu cadastro de antecipador clicando no botão abaixo, é um custo de R$ 900 (novecentos reais) para mais um mês de operações.');
@@ -111,16 +111,16 @@ module.exports = controller => {
                 });
             });
             report.gamification('fail');
-        } else if (dict.approved) {
+        } else if (approved) {
             report.title('Pronto! Seu FIDC/Factoring está configurado!');
             report.subtitle('Essa conta está habilitada para receber operações. Bons negócios!');
-            report.paragraph(dict.bio);
+            report.paragraph(bio);
 
-            var timeline = report.timeline(controller);
+            const timeline = report.timeline(controller);
 
-            var showing = {};
+            const showing = {};
 
-            var show = value => {
+            const show = value => {
                 if (showing[value.company.username]) {
                     showing[value.company.username].remove();
                 }
@@ -129,10 +129,10 @@ module.exports = controller => {
                     return;
                 }
 
-                var emails = _.filter(value.company.email, element => {
+                const emails = _.filter(value.company.email, element => {
                     return element[1] == 'financeiro';
                 });
-                let companyElement = $.extend({
+                let companyElement = Object.assign({
                     document: value.company.cnpj || value.company.cpf,
                     endereco: value.company.endereco[0],
                     zipcode: value.company.endereco[5],
@@ -142,13 +142,13 @@ module.exports = controller => {
                     cidade: value.company.endereco[4],
                     email: emails.length ? emails[0][0] : 0,
                 }, value.profile, {companyName: value.company.nome || value.company.responsavel || value.company.username});
-                var t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? ' para aprovação.' : ''}`, !value.approved ? 'O cadastro em 7 dias será automáticamente rejeitado.' : 'O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.', [
+                const t = timeline.add(value.created, `Cadastro do ${value.company.nome || value.company.responsavel || value.company.username}${ !value.approved ? ' para aprovação.' : ''}`, !value.approved ? 'O cadastro em 7 dias será automáticamente rejeitado.' : 'O cadastro se encontra operante, o cliente pode enviar carteiras de cheques.', [
                     ['fa-user', 'Informações', () => {
                         controller.call('icheques::fidc::company::view', companyElement);
                     }],
                     ['fa-print', 'Imprimir', () => {
 
-                        let printData = $.extend({}, companyElement);
+                        let printData = Object.assign({}, companyElement);
                         printData.document = CNPJ.format(printData.document);
                         printData.revenue = numeral(printData.revenue).format('$0,0.00');
                         printData.preBilling = numeral(printData.preBilling).format('$0,0.00');
@@ -180,8 +180,8 @@ module.exports = controller => {
                             modal.title('Motivo de Rejeição');
                             modal.subtitle('Insira o motivo do cadastro estar sendo recusado.');
                             modal.paragraph('Para poder continuar insira o motivo do cadastro estar sendo recusado.');
-                            let form = modal.createForm(),
-                                reason = form.addTextarea('reason', 'Por qual motivo o cadastro está sendo recusado?');
+                            let form = modal.createForm();
+                            let reason = form.addTextarea('reason', 'Por qual motivo o cadastro está sendo recusado?');
                             form.addSubmit('send', 'Recusar');
                             form.element().submit(e => {
                                 e.preventDefault();
@@ -229,14 +229,14 @@ module.exports = controller => {
             });
 
             report.gamification('pass').css({
-                'background': `url(${dict.logo}) no-repeat center`
+                background: `url(${logo}) no-repeat center`
             });
 
             controller.server.call('SELECT FROM \'ICHEQUESFIDC\'.\'OPERATIONS\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
                     success: ret => {
                         $('BPQL > body > antecipate', ret).each((idx, node) => {
-                            var args = {
+                            const args = {
                                 _id: $(node).children('_id').text(),
                                 cmcs: [],
                                 company: {
@@ -328,10 +328,10 @@ module.exports = controller => {
         controller.call('icheques::fidc::status', data);
     });
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::fidc::configure', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::fidc::configure', (args, callback) => {
         callback();
 
-        var [text, autocomplete] = args;
+        const [text, autocomplete] = args;
 
         if (!FIDC.test(text)) {
             return;
@@ -348,55 +348,58 @@ module.exports = controller => {
 
     controller.registerCall('fidc::configure', () => {
         controller.call('billingInformation::need', () => {
-            var modal = controller.call('modal'),
-                gamification = modal.gamification('moneyBag'),
-                logoImage = null;
+            const modal = controller.call('modal');
+            const gamification = modal.gamification('moneyBag');
+            let logoImage = null;
 
             modal.title('Configurar Antecipadora');
             modal.subtitle('Comece já a receber títulos do iCheques');
             modal.paragraph('Configurando sua antecipadora você passa a receber cheques de nossos clientes e parceiros, seu perfil estará sujeito a avaliação cadastral.');
-            var form = modal.createForm(),
-                logo = form.addInput('logo', 'file', 'Logomarca - 150x150'),
-                multifield = form.multiField(),
-                fromValue = form.addInput('value-from', 'input', 'De Faturamento (R$)', {
-                    append : multifield,
-                    labelPosition : 'before',
-                }, 'De Faturamento (R$)').mask('000.000.000.000.000,00', {reverse: true}).magicLabel(),
-                toValue = form.addInput('value-to', 'input', 'Até Faturamento (R$)', {
-                    append : multifield,
-                    labelPosition : 'before',
-                }, 'Até Faturamento (R$)').mask('000.000.000.000.000,00', {reverse: true}).magicLabel(),
-                bio = form.addTextarea('about', 'História da Empresa (200 caracteres)').attr({
-                    'maxlength': 200
-                });
+            const form = modal.createForm();
+            const logo = form.addInput('logo', 'file', 'Logomarca - 150x150');
+            const multifield = form.multiField();
+
+            const fromValue = form.addInput('value-from', 'input', 'De Faturamento (R$)', {
+                append : multifield,
+                labelPosition : 'before',
+            }, 'De Faturamento (R$)').mask('000.000.000.000.000,00', {reverse: true}).magicLabel();
+
+            const toValue = form.addInput('value-to', 'input', 'Até Faturamento (R$)', {
+                append : multifield,
+                labelPosition : 'before',
+            }, 'Até Faturamento (R$)').mask('000.000.000.000.000,00', {reverse: true}).magicLabel();
+
+            const bio = form.addTextarea('about', 'História da Empresa (200 caracteres)').attr({
+                maxlength: 200
+            });
 
             logo.on('change', () => {
-                var file = event.target.files[0];
+                const file = event.target.files[0];
                 if (!file.type.match(/image/)) {
                     toastr.warning(`O arquivo ${file.name} não é uma imagem.`, `A extensão enviada é ${file.type}.`);
                     return;
                 }
                 browserImageSize(file).then(size => {
-                    var scale = 150 / size[size.height > size.width ? 'height' : 'width'],
-                        fileReader = new FileReader();
+                    const scale = 150 / size[size.height > size.width ? 'height' : 'width'];
+                    const fileReader = new FileReader();
 
-                    var canvas = document.createElement('canvas');
+                    const canvas = document.createElement('canvas');
                     canvas.height = 150;
                     canvas.width = 150;
 
-                    var canvasContext = canvas.getContext('2d'),
-                        reader = new FileReader();
+                    const canvasContext = canvas.getContext('2d');
+                    const reader = new FileReader();
 
-                    reader.onload = function(e) {
-                        var image = new Image();
-                        image.onload = function() {
+                    reader.onload = ({target}) => {
+                        const image = new Image();
+                        image.onload = () => {
                             canvasContext.drawImage(image, 0, 0, size.width * scale, size.height * scale);
                             logoImage = canvas.toDataURL('image/png');
                             gamification.css({
-                                'background': `url(${logoImage}) no-repeat center`
+                                background: `url(${logoImage}) no-repeat center`
                             });
                         };
-                        image.src = e.target.result;
+                        image.src = target.result;
                     };
                     reader.readAsDataURL(file);
                 });
@@ -406,8 +409,8 @@ module.exports = controller => {
             form.element().submit(e => {
                 e.preventDefault();
 
-                var fromValueInput = numeral(fromValue.val()).value(),
-                    toValueInput =  numeral(toValue.val()).value();
+                const fromValueInput = numeral(fromValue.val()).value();
+                const toValueInput =  numeral(toValue.val()).value();
 
                 if (fromValueInput && toValueInput && fromValueInput >= toValueInput) {
                     toastr.warning('O valor inicial de faturamento é superior ou igual ao valor final.',
@@ -473,34 +476,34 @@ module.exports = controller => {
         });
 
         controller.registerCall('icheques::fidc::enable::xml', ret => {
-            var elements = [];
+            const elements = [];
 
             $('fidc', ret).each((idx, node) => {
                 elements.push(controller.call('icheques::fidc::enable', {
-                    'bio': $(node).children('bio').text(),
-                    '_id': $(node).children('_id').text(),
-                    'logo': $(node).children('logo').text(),
-                    'name': $('company nome', node).text() || $('company reponsabel', ret).text(),
-                    'creation': moment.unix(parseInt($(node).children('creation').text())),
-                    'responsible': $(node).children('bio'),
+                    bio: $(node).children('bio').text(),
+                    _id: $(node).children('_id').text(),
+                    logo: $(node).children('logo').text(),
+                    name: $('company nome', node).text() || $('company reponsabel', ret).text(),
+                    creation: moment.unix(parseInt($(node).children('creation').text())),
+                    responsible: $(node).children('bio'),
                 }));
             });
 
             return elements;
         });
 
-        controller.registerCall('icheques::fidc::enable', dict => {
-            var report = controller.call('report',
+        controller.registerCall('icheques::fidc::enable', ({bio, name, _id, logo}) => {
+            const report = controller.call('report',
                 'Deseja habilitar a empresa?',
                 'Ao habilitar a empresa você permite que todos os clientes iCheques possam enviar suas operações.',
-                dict.bio);
-            report.label(`Empresa: ${dict.name}`);
+                bio);
+            report.label(`Empresa: ${name}`);
             report.button('Habilitar Fundo', () => {
                 controller.call('confirm', {}, () => {
                     controller.server.call('UPDATE \'IChequesFIDC\'.\'Approve\'',
                         controller.call('loader::ajax', controller.call('error::ajax', {
                             data: {
-                                fidc: dict._id
+                                fidc: _id
                             },
                             success: ret => {
                                 controller.call('alert', {
@@ -515,7 +518,7 @@ module.exports = controller => {
                 });
             });
             report.gamification('pass').css({
-                'background': `url(${dict.logo}) no-repeat center`
+                background: `url(${logo}) no-repeat center`
             });
             $('.app-content').prepend(report.element());
             return report;
@@ -529,7 +532,7 @@ module.exports = controller => {
 
     });
 
-    var getFiles = function(inputFile) {
+    const getFiles = inputFile => {
         let files = inputFile.get(0).files;
 
         if (files.length) {
@@ -543,7 +546,7 @@ module.exports = controller => {
         return files;
     };
 
-    var parseReceipt = (args, files, cb) => {
+    const parseReceipt = ({cmcs}, files, cb) => {
         let obj = {
             file: '',
             equity: 0,
@@ -552,16 +555,16 @@ module.exports = controller => {
         };
 
         if (!files.length) {
-            obj.checkNumbers = args.cmcs.join(',');
+            obj.checkNumbers = cmcs.join(',');
             obj.operation = moment().format('DDMMYYYY');
             cb(obj);
             return;
         }
 
-        var queue = async.queue((file, cb) => {
-            fileReaderStream(file).pipe(concat(function(buffer) {
+        const queue = async.queue((file, cb) => {
+            fileReaderStream(file).pipe(concat(buffer => {
                 obj.file += buffer.toString();
-                var lines = buffer.toString().split('\r\n');
+                const lines = buffer.toString().split('\r\n');
                 for (let line of lines) {
                     let data = line.split(';');
                     switch (data[0]) {
@@ -576,14 +579,14 @@ module.exports = controller => {
                         if (data[1] === '') {
                             break;
                         }
-                        for (let idx in args.cmcs) {
-                            let cmc = args.cmcs[idx];
+                        for (let idx in cmcs) {
+                            let cmc = cmcs[idx];
                             if (!cmc) {
                                 continue;
                             }
                             if (new CMC7Parser(cmc).number == data[2]) {
                                 obj.checkNumbers.push(cmc);
-                                args.cmcs[idx] = null;
+                                cmcs[idx] = null;
                                 break;
                             }
                         }
@@ -602,19 +605,19 @@ module.exports = controller => {
         queue.push(Array.from(files));
     };
 
-    var askReceipt = (data, cb) => {
-        var modal = controller.call('modal');
+    const askReceipt = (data, cb) => {
+        const modal = controller.call('modal');
 
         modal.title('iCheques');
         modal.subtitle('Apresentação de Recibo da Operação');
         modal.addParagraph('Para finalizar a operação é necessário que você apresente o recibo no formato iTit (WBA).');
 
-        var form = modal.createForm();
-        var inputFile = form.addInput('fidc-file', 'file', 'Selecionar arquivo.', {}, 'Arquivo de Fundo FIDC').attr({
+        const form = modal.createForm();
+        const inputFile = form.addInput('fidc-file', 'file', 'Selecionar arquivo.', {}, 'Arquivo de Fundo FIDC').attr({
             multiple: 'multiple'
         });
 
-        form.addSubmit('submit', 'Enviar').click(function(e) {
+        form.addSubmit('submit', 'Enviar').click(e => {
             e.preventDefault();
             try {
                 parseReceipt(data, getFiles(inputFile), cb);
@@ -628,7 +631,7 @@ module.exports = controller => {
     };
 
     controller.registerCall('icheques::fidc::operation::decision', args => {
-        var report = controller.call('report');
+        const report = controller.call('report');
         report.title('Carteira de Antecipação');
         report.subtitle('Visualização da Carteira Recebida');
         report.paragraph('Você recebeu uma carteira de cheques para antecipação. ' +
@@ -639,13 +642,13 @@ module.exports = controller => {
         report.label(`Nome\: ${args.company.nome || args.company.responsavel || args.company.username}`);
         report.label(`Cheques\: ${args.cmcs.length}`);
 
-        report.newAction('fa-print', function() {
+        report.newAction('fa-print', () => {
             controller.server.call('SELECT FROM \'iChequesFIDC\'.\'OPERATION\'', controller.call('error::ajax', {
                 data: {
                     id: args._id
                 },
-                success: function(ret) {
-                    var storage = [];
+                success(ret) {
+                    const storage = [];
                     $(ret).find('check').each(function() {
                         storage.push(controller.call('icheques::parse::element', this));
                     });
@@ -661,15 +664,17 @@ module.exports = controller => {
                         check.ammount = numeral(check.ammount / 100.0).format('$0,0.00');
                     }
 
-                    var doc = require('./reports/print'),
-                        input = {
-                            message: `Usuário\: ${args.company.username}, Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}, Nome: ${args.company.nome || args.company.responsavel || args.company.username}`,
-                            checks: storage,
-                            soma: numeral(sum / 100.0).format('$0,0.00')
-                        };
+                    const doc = require('./reports/print');
+
+                    const input = {
+                        message: `Usuário\: ${args.company.username}, Documento\: ${args.company.cnpj ? CNPJ.format(args.company.cnpj) : CPF.format(args.company.cpf)}, Nome: ${args.company.nome || args.company.responsavel || args.company.username}`,
+                        checks: storage,
+                        soma: numeral(sum / 100.0).format('$0,0.00')
+                    };
+
                     let render = Mustache.render(doc, input);
-                    var html =  new MarkdownIt().render(render),
-                        printWindow = window.open('about:blank', '', '_blank');
+                    let html =  new MarkdownIt().render(render);
+                    const printWindow = window.open('about:blank', '', '_blank');
 
                     if (!printWindow) return;
                     html += `<style>${require('./reports/print-style')}</style>`;
@@ -680,13 +685,13 @@ module.exports = controller => {
             }));
         });
 
-        report.newAction('fa-cloud-download', function() {
+        report.newAction('fa-cloud-download', () => {
             controller.server.call('SELECT FROM \'iChequesFIDC\'.\'OPERATION\'', controller.call('error::ajax', {
                 data: {
                     id: args._id
                 },
-                success: function(ret) {
-                    var storage = [];
+                success(ret) {
+                    const storage = [];
                     $(ret).find('check').each(function() {
                         storage.push(controller.call('icheques::parse::element', this));
                     });
@@ -697,13 +702,13 @@ module.exports = controller => {
             }));
         });
 
-        report.newAction('fa-folder-open', function() {
+        report.newAction('fa-folder-open', () => {
             controller.server.call('SELECT FROM \'iChequesFIDC\'.\'OPERATION\'', controller.call('error::ajax', {
                 data: {
                     id: args._id
                 },
-                success: function(ret) {
-                    var storage = [];
+                success(ret) {
+                    const storage = [];
                     $(ret).find('check').each(function() {
                         storage.push(controller.call('icheques::parse::element', this));
                     });
@@ -712,11 +717,11 @@ module.exports = controller => {
             }));
         });
 
-        var sendAccept = (accept, obj) => {
+        const sendAccept = (accept, obj) => {
             controller.confirm({}, () => {
                 controller.server.call('UPDATE \'iChequesFIDC\'.\'Operation\'',
                     controller.call('error::ajax', controller.call('loader::ajax', {
-                        data: $.extend({
+                        data: Object.assign({
                             id: args._id,
                             approved: accept
                         }, obj),
@@ -740,8 +745,8 @@ module.exports = controller => {
                 modal.title('Qual o motivo da recusa?');
                 modal.subtitle('Você precisa informar o motivo da recusa para continuar.');
                 modal.paragraph('Ao informar seu cliente o motivo da recusa você evita discussões posteriores no telefone ou email.');
-                let form = modal.createForm(),
-                    reason = form.addTextarea('textarea', 'Qual motivo da recusa?');
+                let form = modal.createForm();
+                let reason = form.addTextarea('textarea', 'Qual motivo da recusa?');
                 form.addSubmit('continue', 'Recusar');
                 form.element().submit(e => {
                     e.preventDefault();
@@ -754,11 +759,11 @@ module.exports = controller => {
         };
 
         report.newAction('fa-user', () => {
-            var modal = controller.modal();
+            const modal = controller.modal();
             modal.gamification('moneyBag');
             modal.title(args.company.nome || args.company.responsavel);
-            modal.subtitle(args.company.cnpj ? 'CNPJ ' + CNPJ.format(args.company.cnpj) : 'CPF ' + CPF.format(args.company.cpf));
-            var paragraph = modal.paragraph('Dados cadastrais registrados sobre a empresa no sistema iCheques.');
+            modal.subtitle(args.company.cnpj ? `CNPJ ${CNPJ.format(args.company.cnpj)}` : `CPF ${CPF.format(args.company.cpf)}`);
+            const paragraph = modal.paragraph('Dados cadastrais registrados sobre a empresa no sistema iCheques.');
             companyData(paragraph, args.company);
             modal.createActions().cancel();
         });
@@ -770,7 +775,7 @@ module.exports = controller => {
     });
 
     controller.registerCall('icheques::fidc::allowedCompany::edit', (value, t) => {
-        var form = controller.call('form', function(formData) {
+        const form = controller.call('form', formData => {
             if (!formData.processingOnes) delete formData.processingOnes;
             if (!formData.blockedBead) delete formData.blockedBead;
             if (!formData.otherOccurrences) delete formData.otherOccurrences;
@@ -778,7 +783,7 @@ module.exports = controller => {
             formData.limit = Math.ceil(formData.limit * 100);
             controller.server.call('UPDATE \'ICHEQUESFIDC\'.\'ALLOWEDCOMPANYS\'', {
                 dataType: 'json',
-                data: $.extend({
+                data: Object.assign({
                     id: value._id,
                     approved: true
                 }, formData),
@@ -789,40 +794,40 @@ module.exports = controller => {
         });
 
         form.configure({
-            'title': 'Cadastro Completo',
-            'subtitle': 'Realize o cadastro completo de sua empresa.',
-            'paragraph': 'O cadastro completo permite a realização de operações de crédito.',
-            'gamification': 'star',
-            'screens': [{
-                'magicLabel': true,
-                'fields': [{
-                    'value': value.limit,
-                    'name': 'limit',
-                    'type': 'text',
-                    'placeholder': 'Limite (R$)',
-                    'labelText': 'Limite (R$)',
-                    'mask': '000.000.000.000.000,00',
-                    'maskOptions': {
-                        'reverse': true
+            title: 'Cadastro Completo',
+            subtitle: 'Realize o cadastro completo de sua empresa.',
+            paragraph: 'O cadastro completo permite a realização de operações de crédito.',
+            gamification: 'star',
+            screens: [{
+                magicLabel: true,
+                fields: [{
+                    value: value.limit,
+                    name: 'limit',
+                    type: 'text',
+                    placeholder: 'Limite (R$)',
+                    labelText: 'Limite (R$)',
+                    mask: '000.000.000.000.000,00',
+                    maskOptions: {
+                        reverse: true
                     },
-                    'numeral': true,
-                    validate: function(item) {
-                        return numeral(item.element.val()).value() > 0;
+                    numeral: true,
+                    validate({element}) {
+                        return numeral(element.val()).value() > 0;
                     }
                 }, {
-                    'value': value.interest,
-                    'name': 'interest',
-                    'type': 'text',
-                    'placeholder': 'Taxa (%)',
-                    'labelText': 'Taxa (%)',
-                    'numeralFormat': '0.00%',
-                    'mask': '##0,99%',
-                    'maskOptions': {
-                        'reverse': true
+                    value: value.interest,
+                    name: 'interest',
+                    type: 'text',
+                    placeholder: 'Taxa (%)',
+                    labelText: 'Taxa (%)',
+                    numeralFormat: '0.00%',
+                    mask: '##0,99%',
+                    maskOptions: {
+                        reverse: true
                     },
-                    'numeral': true,
-                    validate: function(item) {
-                        return numeral(item.element.val()).value() > 0;
+                    numeral: true,
+                    validate({element}) {
+                        return numeral(element.val()).value() > 0;
                     }
                 }, /*{
                     "value": value.otherOccurrences,
@@ -832,26 +837,26 @@ module.exports = controller => {
                     "labelText": "Enviar Outras Ocorrências",
                     "optional": true,
                 },*/ {
-                    'value': value.blockedBead,
-                    'checked': value.blockedBead,
-                    'name': 'blocked-bead',
-                    'type': 'checkbox',
-                    'labelText': 'Enviar Talão Bloqueado',
-                    'optional': true,
+                    value: value.blockedBead,
+                    checked: value.blockedBead,
+                    name: 'blocked-bead',
+                    type: 'checkbox',
+                    labelText: 'Enviar Talão Bloqueado',
+                    optional: true,
                 }, {
-                    'value': value.processingOnes,
-                    'checked': value.processingOnes,
-                    'name': 'processing-ones',
-                    'type': 'checkbox',
-                    'labelText': 'Enviar em Processamento',
-                    'optional': true,
+                    value: value.processingOnes,
+                    checked: value.processingOnes,
+                    name: 'processing-ones',
+                    type: 'checkbox',
+                    labelText: 'Enviar em Processamento',
+                    optional: true,
                 }, {
-                    'value': value.linkedAccount,
-                    'checked': value.linkedAccount,
-                    'name': 'linked-account',
-                    'type': 'checkbox',
-                    'labelText': 'Linkar crédito',
-                    'optional': true,
+                    value: value.linkedAccount,
+                    checked: value.linkedAccount,
+                    name: 'linked-account',
+                    type: 'checkbox',
+                    labelText: 'Linkar crédito',
+                    optional: true,
                 }, ]
             }]
         });

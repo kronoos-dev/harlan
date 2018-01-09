@@ -12,49 +12,53 @@ import parallel from 'async/parallel';
 import pad from 'pad';
 
 const CRITERIA_COLOR = {
-        'A1': '',
-        'A2': '',
-        'B1': '',
-        'B2': '',
-        'C1': '',
-        'C2': '',
-        'D': '',
-        'E': ''
-    },
-    PHOTO_INTERVAL = 10000,
-    corrigeArtigos = str => {
-        _.each([
-            'o', 'os', 'a', 'as', 'um', 'uns', 'uma', 'umas',
-            'a', 'ao', 'aos', 'a', 'as',
-            'de', 'do', 'dos', 'da', 'das', 'dum', 'duns', 'duma', 'dumas',
-            'em', 'no', 'nos', 'na', 'nas', 'num', 'nuns', 'numa', 'numas',
-            'por', 'per', 'pelo', 'pelos', 'pela', 'pelas'
-        ], art => {
-            str = str.replace(new RegExp(`\\s${art}\\s`, 'ig'), ` ${art} `);
-        });
-        return str;
-    };
+    A1: '',
+    A2: '',
+    B1: '',
+    B2: '',
+    C1: '',
+    C2: '',
+    D: '',
+    E: ''
+};
+
+const PHOTO_INTERVAL = 10000;
+
+const corrigeArtigos = str => {
+    _.each([
+        'o', 'os', 'a', 'as', 'um', 'uns', 'uma', 'umas',
+        'a', 'ao', 'aos', 'a', 'as',
+        'de', 'do', 'dos', 'da', 'das', 'dum', 'duns', 'duma', 'dumas',
+        'em', 'no', 'nos', 'na', 'nas', 'num', 'nuns', 'numa', 'numas',
+        'por', 'per', 'pelo', 'pelos', 'pela', 'pelas'
+    ], art => {
+        str = str.replace(new RegExp(`\\s${art}\\s`, 'ig'), ` ${art} `);
+    });
+    return str;
+};
 
 module.exports = controller => {
 
-    var parseSocialProfile = (data, args) => {
+    const parseSocialProfile = (data, args) => {
         let socialProfiles = data.find('socialProfiles > socialProfiles');
         if (socialProfiles.length) {
-            var socialProfilesContainer = $('<ul />').addClass('social-networks');
+            const socialProfilesContainer = $('<ul />').addClass('social-networks');
             socialProfiles.each((idx, socialProfile) => {
-                let jSocialProfile = $(socialProfile),
-                    socialProfileContainer = $('<li>'),
-                    socialProfileHref = $('<a />').attr({
-                        target: '_blank',
-                        href: jSocialProfile.find('url').text(),
-                        title: [
-                            jSocialProfile.find('typeName').text(),
-                            jSocialProfile.find('bio').text(),
-                            jSocialProfile.find('followers').text(),
-                            jSocialProfile.find('username').text()
-                        ].filter(i => i).join(' - ')
-                    }),
-                    socialProfileIcon = $('<i />').addClass(`fa fa-${socialIcons[jSocialProfile.find('typeId').text()] || 'external-link'}`);
+                let jSocialProfile = $(socialProfile);
+                let socialProfileContainer = $('<li>');
+
+                let socialProfileHref = $('<a />').attr({
+                    target: '_blank',
+                    href: jSocialProfile.find('url').text(),
+                    title: [
+                        jSocialProfile.find('typeName').text(),
+                        jSocialProfile.find('bio').text(),
+                        jSocialProfile.find('followers').text(),
+                        jSocialProfile.find('username').text()
+                    ].filter(i => i).join(' - ')
+                });
+
+                let socialProfileIcon = $('<i />').addClass(`fa fa-${socialIcons[jSocialProfile.find('typeId').text()] || 'external-link'}`);
                 socialProfilesContainer.append(socialProfileContainer.append(socialProfileHref.append(socialProfileIcon)));
             });
             args.report.content().append(socialProfilesContainer);
@@ -65,35 +69,36 @@ module.exports = controller => {
         });
 
         if (photos.length) {
-            let gamification = args.report.element().find('.gamification'),
-                currentPhoto = 0,
-                photosInterval,
-                recoverPhoto = () => {
+            let gamification = args.report.element().find('.gamification');
+            let currentPhoto = 0;
+            let photosInterval;
 
-                    if (!gamification.is(':visible')) {
-                        clearInterval(photosInterval);
-                    }
+            let recoverPhoto = () => {
 
-                    let photo = photos[currentPhoto++ % photos.length],
-                        image = new Image();
+                if (!gamification.is(':visible')) {
+                    clearInterval(photosInterval);
+                }
 
-                    image.onload = () => gamification.css({
-                        'background-image': `url("${photo}")`,
-                        'background-size': 'cover',
-                        'background-color': 'rgba(0, 0, 0, 0)',
-                        'background-repeat': 'no-repeat'
-                    });
+                let photo = photos[currentPhoto++ % photos.length],
+                    image = new Image();
 
-                    image.src = photo;
+                image.onload = () => gamification.css({
+                    'background-image': `url("${photo}")`,
+                    'background-size': 'cover',
+                    'background-color': 'rgba(0, 0, 0, 0)',
+                    'background-repeat': 'no-repeat'
+                });
 
-                };
+                image.src = photo;
+
+            };
 
             photosInterval = setInterval(recoverPhoto, PHOTO_INTERVAL);
             recoverPhoto();
         }
 
-        let parseMoneyData = a => numeral(data.find(a).text()).format('$0,0.00'),
-            subtitle = args.report.element().find('h3');
+        let parseMoneyData = a => numeral(data.find(a).text()).format('$0,0.00');
+        let subtitle = args.report.element().find('h3');
 
         args.report.label(`Classificação ${data.find('criteria').text()}`)
             .css('background-color', CRITERIA_COLOR[data.find('criteria').text()])
@@ -111,7 +116,7 @@ module.exports = controller => {
             args.report.label($(node).text());
         });
 
-        var organization = data.find('organizations > organizations').filter((idx, node) => {
+        const organization = data.find('organizations > organizations').filter((idx, node) => {
             return $(node).find('isPrimary').text() == 'true';
         }).first();
         if (organization.length) {
@@ -122,8 +127,8 @@ module.exports = controller => {
         }
 
         data.find('organizations > organizations').each((idx, node) => {
-            let jnode = $(node),
-                companyName = jnode.find('name').text();
+            let jnode = $(node);
+            let companyName = jnode.find('name').text();
 
             if (!companyName) {
                 return;
@@ -159,15 +164,15 @@ module.exports = controller => {
         let item = args.timeline.add(null, 'Obter informações socioeconômicas e de perfil na internet.',
             'Informações relacionadas ao aspecto econômico e social do indivíduo inferidas a partir do comportamento online e público. Qualifica em ordem de grandeza e confiabilidade entregando índices sociais, econômicos, jurídico, consumerista e comportamental.', [
                 ['fa-folder-open', 'Abrir', () => {
-                    let email = _.uniq(Array.from(args.ccbusca.getElementsByTagName('email')).map(a => a.firstChild.nodeValue.trim()).filter(a => a))[0],
-                        modal = controller.call('modal');
+                    let email = _.uniq(Array.from(args.ccbusca.getElementsByTagName('email')).map(({firstChild}) => firstChild.nodeValue.trim()).filter(a => a))[0];
+                    let modal = controller.call('modal');
 
                     modal.title('E-mail para Cruzamento');
                     modal.subtitle(`Para maior assertividade digite o e-mail de ${corrigeArtigos(titleCase(args.name))}.`);
                     modal.paragraph(`O endereço de e-mail será utilizado junto do documento ${(CPF.isValid(args.document) ? CPF : CNPJ).format(args.document)} para cruzamentos em bases de dados online.`);
 
-                    let form = modal.createForm(),
-                        emailField = form.addInput('email', 'email', 'Endereço de e-mail do usuário (opcional).').val(email);
+                    let form = modal.createForm();
+                    let emailField = form.addInput('email', 'email', 'Endereço de e-mail do usuário (opcional).').val(email);
 
                     form.addSubmit('send', 'Pesquisar');
                     form.element().submit(e => {
@@ -190,7 +195,7 @@ module.exports = controller => {
             ]);
     });
 
-    controller.registerTrigger('findDatabase::instantSearch', 'socialprofile', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'socialprofile', (args, callback) => {
         let [text, modal] = args;
         let isCPF = CPF.isValid(text);
 
@@ -203,19 +208,19 @@ module.exports = controller => {
             'Obtenha informações detalhadas para o documento.',
             'Verifique telefone, e-mails, endereços e muito mais através da análise Harlan.')
             .addClass('socialprofile')
-            .click(function() {
+            .click(() => {
                 controller.call('socialprofile', text);
             });
         callback();
     });
 
-    var askBirthday = (stringDocument, callback) => {
+    const askBirthday = (stringDocument, callback) => {
         let modal = controller.call('modal');
         modal.title('Qual a data de nascimento?');
         modal.subtitle(`Será necessário que informe a data de nascimento para o documento ${stringDocument}.`);
         modal.paragraph('Essa verficação adicional é requerida em alguns casos para evitar pesquisas desncessárias e fraudes.');
-        let form = modal.createForm(),
-            nasc = form.addInput('nasc', 'type', 'Nascimento (dia/mês/ano)').mask('00/00/0000');
+        let form = modal.createForm();
+        let nasc = form.addInput('nasc', 'type', 'Nascimento (dia/mês/ano)').mask('00/00/0000');
 
         form.element().submit(e => {
             e.preventDefault();
@@ -233,17 +238,17 @@ module.exports = controller => {
         modal.createActions().cancel();
     };
 
-    var openEmail = (report, email, document) => {
+    const openEmail = (report, email, document) => {
         return e => {
             e.preventDefault();
             window.open(`mailto:${email}`, '_blank');
         };
     };
 
-    var openPhone = (report, ddd, numero, document) => {
+    const openPhone = (report, ddd, numero, document) => {
         return e => {
             e.preventDefault();
-            var modal = controller.confirm({
+            const modal = controller.confirm({
                 icon: 'phone-icon-7',
                 title: 'Você deseja realmente estabeler uma ligação?',
                 subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, '9999-99999')}.`,
@@ -254,8 +259,8 @@ module.exports = controller => {
         };
     };
 
-    var openGraph = (report, ccbusca, document) => {
-        var result;
+    const openGraph = (report, ccbusca, document) => {
+        let result;
         return function(e) {
             e.preventDefault();
 
@@ -273,65 +278,69 @@ module.exports = controller => {
             let generateRelations = controller.call('generateRelations');
             generateRelations.appendDocument(ccbusca, document);
 
-            let network, node, ids = {},
-                track = () => {
+            let network;
+            let node;
+            let ids = {};
 
-                    if (network) {
-                        network.destroy();
-                        network = null;
-                    }
+            let track = () => {
 
-                    if (node) {
-                        node.remove();
-                        node = null;
-                    }
+                if (network) {
+                    network.destroy();
+                    network = null;
+                }
 
-                    generateRelations.track(data => {
-                        [network, node] = result.addNetwork(data.nodes, data.edges, {
-                            groups: data.groups
-                        });
+                if (node) {
+                    node.remove();
+                    node = null;
+                }
 
-                        let oneclick = params => {
-                                if (!params.nodes[0] || ids[params.nodes[0]]) {
-                                    return;
-                                }
+                generateRelations.track(({nodes, edges, groups}) => {
+                    [network, node] = result.addNetwork(nodes, edges, {
+                        groups
+                    });
 
-                                ids[params.nodes[0]] = true;
-
-                                let getDocument = query =>
-                                    callback => controller.server.call(query, controller.call('loader::ajax', {
-                                        data: {
-                                            documento: pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0')
-                                        },
-                                        success: data => generateRelations.appendDocument(data, params.nodes[0]),
-                                        complete: () => callback()
-                                    }, true));
-
-                                parallel([
-                                    getDocument('SELECT FROM \'CCBUSCA\'.\'CONSULTA\''),
-                                    getDocument('SELECT FROM \'RFB\'.\'CERTIDAO\''),
-                                    getDocument('SELECT FROM \'CBUSCA\'.\'CONSULTA\''),
-                                ], () => {
-                                    track();
-                                });
-                            }, doubleclick = params => controller.call('socialprofile', params.nodes[0]);
-
-                        let clickTimer = null;
-                        network.on('click', params => {
-                            if (clickTimer) {
-                                clearTimeout(clickTimer);
-                                clickTimer = null;
-                                doubleclick(params);
+                    let oneclick = ({nodes}) => {
+                            if (!nodes[0] || ids[nodes[0]]) {
                                 return;
                             }
 
-                            clickTimer = setTimeout(() => {
-                                oneclick(params);
-                                clickTimer = null;
-                            }, 400);
-                        });
+                            ids[nodes[0]] = true;
+
+                            let getDocument = query =>
+                                callback => controller.server.call(query, controller.call('loader::ajax', {
+                                    data: {
+                                        documento: pad(nodes[0].length > 11 ? 14 : 11, nodes[0], '0')
+                                    },
+                                    success: data => generateRelations.appendDocument(data, nodes[0]),
+                                    complete: () => callback()
+                                }, true));
+
+                            parallel([
+                                getDocument('SELECT FROM \'CCBUSCA\'.\'CONSULTA\''),
+                                getDocument('SELECT FROM \'RFB\'.\'CERTIDAO\''),
+                                getDocument('SELECT FROM \'CBUSCA\'.\'CONSULTA\''),
+                            ], () => {
+                                track();
+                            });
+                        }, doubleclick = ({nodes}) => controller.call('socialprofile', nodes[0]);
+
+                    let clickTimer = null;
+                    network.on('click', params => {
+                        if (clickTimer) {
+                            clearTimeout(clickTimer);
+                            clickTimer = null;
+                            doubleclick(params);
+                            return;
+                        }
+
+                        clickTimer = setTimeout(() => {
+                            oneclick(params);
+                            clickTimer = null;
+                        }, 400);
                     });
-                };
+                });
+            };
+
             controller.server.call('SELECT FROM \'CBUSCA\'.\'CONSULTA\'', controller.call('loader::ajax', {
                 data: { documento : document },
                 success: data => generateRelations.appendDocument(data, document),
@@ -340,8 +349,8 @@ module.exports = controller => {
         };
     };
 
-    var openAddress = (report, filterCep, ccbusca, document) => {
-        var results = [];
+    const openAddress = (report, filterCep, ccbusca, document) => {
+        let results = [];
         return function(e) {
             e.preventDefault();
 
@@ -361,15 +370,16 @@ module.exports = controller => {
                     return /* void */;
                 }
 
-                let obj = {},
-                    result = report.result(),
-                    addItem = (key, value) => {
-                        if (!value || /^\s*$/.test(value)) {
-                            return;
-                        }
-                        obj[camelCase(diacritics.remove(key))] = value;
-                        return result.addItem(key, value);
-                    };
+                let obj = {};
+                let result = report.result();
+
+                let addItem = (key, value) => {
+                    if (!value || /^\s*$/.test(value)) {
+                        return;
+                    }
+                    obj[camelCase(diacritics.remove(key))] = value;
+                    return result.addItem(key, value);
+                };
 
                 results.push(result);
                 addItem('Endereco', `${$('tipo', element).text().trim()} ${$('logradouro', element).text().trim()}`.trim());
@@ -381,23 +391,24 @@ module.exports = controller => {
                 addItem('Cidade', $('cidade', element).text().trim());
                 addItem('Estado', $('estado', element).text().trim());
 
-                let image = new Image(),
-                    imageAddress = 'http://maps.googleapis.com/maps/api/staticmap?' + $.param({
-                        'scale': '1',
-                        'size': '600x150',
-                        'maptype': 'roadmap',
-                        'format': 'png',
-                        'visual_refresh': 'true',
-                        'markers': 'size:mid|color:red|label:1|' + _.values(obj).join(', ')
-                    });
+                let image = new Image();
+
+                let imageAddress = `http://maps.googleapis.com/maps/api/staticmap?${$.param({
+                    scale: '1',
+                    size: '600x150',
+                    maptype: 'roadmap',
+                    format: 'png',
+                    visual_refresh: 'true',
+                    markers: `size:mid|color:red|label:1|${_.values(obj).join(', ')}`
+                })}`;
 
                 image.onload = () => {
                     result.addItem().addClass('map').append(
                         $('<a />').attr({
-                            'href': 'https://www.google.com/maps?' + $.param({
+                            href: `https://www.google.com/maps?${$.param({
                                 q: _.values(obj).join(', ')
-                            }),
-                            'target': '_blank'
+                            })}`,
+                            target: '_blank'
                         }).append($('<img />').attr('src', imageAddress)));
                 };
 
@@ -406,9 +417,9 @@ module.exports = controller => {
         };
     };
 
-    var buildReport = (document, name, ccbusca = null, results = [], specialParameters = {}, callback = null) => {
-        let report = controller.call('report'),
-            isCPF = CPF.isValid(document);
+    const buildReport = (document, name, ccbusca = null, results = [], specialParameters = {}, callback = null) => {
+        let report = controller.call('report');
+        let isCPF = CPF.isValid(document);
 
         report.element().addClass('social-profile');
         if (callback) callback(report);
@@ -417,18 +428,19 @@ module.exports = controller => {
         report.subtitle(`Informações relacionadas ao documento
             ${(isCPF ? CPF : CNPJ).format(document)}.`);
 
-        let timeline = report.timeline(),
-            paragraph = report.paragraph('Foram encontrados os seguintes apontamentos cadatrais para o documento em nossos bureaus de crédito, você pode clicar sobre uma informação para obter mais dados a respeito ou realizar uma ação, como enviar um e-mail, SMS, iniciar uma ligação.').hide(),
-            m = report.markers(),
-            newMark = (...args) => {
-                paragraph.show();
-                m(...args);
-            };
+        let timeline = report.timeline();
+        let paragraph = report.paragraph('Foram encontrados os seguintes apontamentos cadatrais para o documento em nossos bureaus de crédito, você pode clicar sobre uma informação para obter mais dados a respeito ou realizar uma ação, como enviar um e-mail, SMS, iniciar uma ligação.').hide();
+        let m = report.markers();
+
+        let newMark = (...args) => {
+            paragraph.show();
+            m(...args);
+        };
 
         if (ccbusca) {
             $('BPQL > body telefones > telefone', ccbusca).each((idx, element) => {
-                let ddd = $('ddd', element).text(),
-                    numero = $('numero', element).text();
+                let ddd = $('ddd', element).text();
+                let numero = $('numero', element).text();
                 if (!/^\d{2}$/.test(ddd) || !/^\d{8,9}$/.test(numero)) {
                     return /* void */;
                 }
@@ -445,11 +457,11 @@ module.exports = controller => {
                 newMark('fa-at', email, openEmail(report, email, document));
             });
 
-            var addresses = {};
+            const addresses = {};
             $('BPQL > body enderecos > endereco', ccbusca).each((idx, element) => {
-                let cidade = corrigeArtigos(titleCase($('cidade', element).text().replace(/\s+/, ' ').trim())),
-                    estado = $('estado', element).text().replace(/\s+/, ' ').trim().toUpperCase(),
-                    cep = $('cep', element).text().trim();
+                let cidade = corrigeArtigos(titleCase($('cidade', element).text().replace(/\s+/, ' ').trim()));
+                let estado = $('estado', element).text().replace(/\s+/, ' ').trim().toUpperCase();
+                let cep = $('cep', element).text().trim();
 
                 if (/^\s*$/.test(cidade) || /^\s*$/.test(estado) || !/^\d{8}$/.test(cep)) {
                     return /* void */;
@@ -468,15 +480,15 @@ module.exports = controller => {
         newMark('fa-share-alt', 'Relações', openGraph(report, ccbusca, document));
 
         controller.trigger('socialprofile::queryList', {
-            report: report,
-            timeline: timeline,
-            name: name,
-            ccbusca: ccbusca,
-            document: document,
+            report,
+            timeline,
+            name,
+            ccbusca,
+            document,
             mark: newMark
         });
 
-        var game = report.gamification('silhouette').addClass(isCPF ? 'cpf' : 'cnpj');
+        const game = report.gamification('silhouette').addClass(isCPF ? 'cpf' : 'cnpj');
         detect(name.split(' ')[0]).then(gender => {
             if (gender === 'female') {
                 game.addClass('people-2');
@@ -518,7 +530,7 @@ module.exports = controller => {
 
         controller.server.call('SELECT FROM \'BIPBOPJS\'.\'CPFCNPJ\'',
             controller.call('error::ajax', controller.call('loader::ajax', {
-                data: $.extend({
+                data: Object.assign({
                     documento: document
                 }, specialParameters),
                 success: ret => {
@@ -528,7 +540,7 @@ module.exports = controller => {
                     if (isCPF && exceptionType == 'ExceptionDatabase' &&
                         exceptionCode == e.ExceptionDatabase.missingArgument) {
                         askBirthday(CPF.format(document), birthday => {
-                            controller.call('socialprofile', document, $.extend({}, specialParameters, {
+                            controller.call('socialprofile', document, Object.assign({}, specialParameters, {
                                 nascimento: birthday
                             }), results, callback);
                         });
@@ -539,17 +551,17 @@ module.exports = controller => {
             })));
     });
 
-    controller.registerTrigger('socialprofile::queryList', 'certidaoCNPJ', (args, cb) => {
-        if (!CNPJ.isValid(args.document)) {
+    controller.registerTrigger('socialprofile::queryList', 'certidaoCNPJ', ({document, report}, cb) => {
+        if (!CNPJ.isValid(document)) {
             cb();
             return;
         }
         controller.server.call('SELECT FROM \'RFB\'.\'CERTIDAO\'', {
             data: {
-                documento: args.document
+                documento: document
             },
             success: ret => {
-                args.report.results.append(controller.call('xmlDocument', ret, 'RFB', 'CERTIDAO'));
+                report.results.append(controller.call('xmlDocument', ret, 'RFB', 'CERTIDAO'));
             },
             complete: () => {
                 cb();

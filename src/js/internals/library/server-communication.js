@@ -5,9 +5,9 @@
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
  */
 
-var SHA256 = require('crypto-js/sha256');
+import SHA256 from 'crypto-js/sha256';
 
-module.exports = function (controller) {
+export default function (controller) {
 
     if (controller.confs.websocketAddress)
         bipbop.websocketAddress = controller.confs.websocketAddress;
@@ -25,7 +25,7 @@ module.exports = function (controller) {
      * Api Key
      * @type string
      */
-    var bipbopApiKey = BIPBOP_FREE;
+    let bipbopApiKey = BIPBOP_FREE;
 
     /** O Harlan é assíncrono e o BIPBOP Loader bloqueante */
     $.bipbopDefaults.automaticLoader = false;
@@ -35,10 +35,10 @@ module.exports = function (controller) {
      * @param {WebSocket Data} data
      * @returns {undefined}
      */
-    var defaultCallback = (data, event) => {
+    const defaultCallback = (data, event) => {
         controller.trigger('serverCommunication::websocket::event', event);
         if (data.method) {
-            controller.trigger('serverCommunication::websocket::' + data.method, data.data);
+            controller.trigger(`serverCommunication::websocket::${data.method}`, data.data);
         }
     };
 

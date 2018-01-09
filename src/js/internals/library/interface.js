@@ -1,16 +1,16 @@
 module.exports = function (controller) {
 
-    var sheet = (function () {
-        var style = document.createElement('style');
+    const sheet = ((() => {
+        const style = document.createElement('style');
         style.appendChild(document.createTextNode(''));
         document.head.appendChild(style);
         return style.sheet;
-    })();
+    }))();
 
     this.addCSSRule = function (selector, rules) {
-        var index = sheet.cssRules.length;
+        const index = sheet.cssRules.length;
         if ('insertRule' in sheet) {
-            sheet.insertRule(selector + '{' + rules + '}', index);
+            sheet.insertRule(`${selector}{${rules}}`, index);
         }
         else if ('addRule' in sheet) {
             sheet.addRule(selector, rules, index);
@@ -22,7 +22,7 @@ module.exports = function (controller) {
         $('head').append($('<link />').attr({
             rel: 'stylesheet',
             type: type || 'text/css',
-            href: href,
+            href,
             media: media || 'screen'
         }));
         return this.addCSSDocument;

@@ -1,4 +1,4 @@
-module.exports = function(controller) {
+module.exports = controller => {
 
     if (!(controller.query.banId && controller.query.apiKey )) {
         return;
@@ -12,8 +12,8 @@ module.exports = function(controller) {
             },
             success: ret => {
                 console.log(ret);
-                let storage = [],
-                    companyObj = controller.call('data::company', $(ret).find('body > company'));
+                let storage = [];
+                let companyObj = controller.call('data::company', $(ret).find('body > company'));
 
                 $(ret).find('check').each(function() {
                     storage.push(controller.call('icheques::parse::element', this));

@@ -1,18 +1,18 @@
 /* global toastr */
 
-var MarkdownIt = require('markdown-it')({
+const MarkdownIt = require('markdown-it')({
     break: true,
     xhtmlOut: true,
 });
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var alert = null;
+    let alert = null;
 
-    controller.registerCall('inbox::check', function() {
+    controller.registerCall('inbox::check', () => {
         controller.serverCommunication.call('SELECT FROM \'HARLANMESSAGES\'.\'CountUnread\'', {
-            success: function(ret) {
-                var count = parseInt($(ret).find('BPQL > body > count').text());
+            success(ret) {
+                const count = parseInt($(ret).find('BPQL > body > count').text());
                 if (count > 0) {
                     if (!alert) {
                         alert = $('<span />').addClass('alert');
@@ -28,7 +28,7 @@ module.exports = function(controller) {
         });
     });
 
-    var checkbox = function(data, cb) {
+    const checkbox = (data, cb) => {
         cb();
         controller.call('inbox::check');
     };
@@ -36,7 +36,7 @@ module.exports = function(controller) {
     controller.registerTrigger('authentication::authenticated', 'inbox', checkbox);
     controller.registerTrigger('serverCommunication::websocket::sendMessage', 'inbox', checkbox);
 
-    controller.registerBootstrap('inbox', function(callback) {
+    controller.registerBootstrap('inbox', callback => {
         callback();
 
         controller.call('inbox::check');
@@ -56,13 +56,13 @@ module.exports = function(controller) {
                 data: {
                     id: controller.query.message
                 },
-                success: function(message) {
+                success(message) {
                     controller.call('inbox::open', message, controller.query.message);
                 }
             })));
     });
 
-    controller.registerCall('inbox::open', function(message, idMessage) {
+    controller.registerCall('inbox::open', (message, idMessage) => {
         let modal = controller.call('modal');
         modal.title($('message > subject', message).text());
         let when = moment.unix(parseInt($('message > send', message).text()));
@@ -77,8 +77,8 @@ module.exports = function(controller) {
         modal.createActions().cancel(null, 'Fechar');
     });
 
-    var parseMessage = (list, message) => {
-        var item = list.item('fa-envelope', [
+    const parseMessage = (list, message) => {
+        const item = list.item('fa-envelope', [
             moment.unix(parseInt($('send', message).text())).format('DD/MM/YYYY, HH:mm:ss'),
             $('subject', message).text()
         ]);
@@ -87,35 +87,46 @@ module.exports = function(controller) {
             item.addClass('unread');
         }
 
-        item.click(function() {
+        item.click(() => {
             if (item.hasClass('unread')) {
                 /* server-side read check */
                 controller.call('inbox::check');
                 item.removeClass('unread');
             }
 
-            var idMessage = $('id', message).text();
+            const idMessage = $('id', message).text();
 
             controller.serverCommunication.call('SELECT FROM \'HARLANMESSAGES\'.\'GET\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
                     data: {
                         id: idMessage
                     },
-                    success: function(message) {
+                    success(message) {
                         controller.call('inbox::open', message, idMessage);
                     }
                 })));
         });
     };
 
-    var parseMessages = (list, messages) => {
+    const parseMessages = (list, messages) => {
         list.empty();
-        messages.each(function(idx, node) {
+        messages.each((idx, node) => {
             parseMessage(list, node);
         });
     };
 
-    var updateList = (modal, pageActions, results, pagination, list, limit = 5, skip = 0, text = null, callback = null, bipbopLoader = true) => {
+    const updateList = (
+        modal,
+        {next, back},
+        results,
+        pagination,
+        list,
+        limit = 5,
+        skip = 0,
+        text = null,
+        callback = null,
+        bipbopLoader = true
+    ) => {
         if (!text || /^\s*$/.test(text)) {
             text = undefined;
         }
@@ -123,14 +134,14 @@ module.exports = function(controller) {
         controller.serverCommunication.call('SELECT FROM \'HARLANMESSAGES\'.\'SEARCH\'',
             controller.call('loader::ajax', {
                 data: {
-                    text: text,
-                    skip: skip,
-                    limit: limit
+                    text,
+                    skip,
+                    limit
                 },
                 success: data => {
-                    var queryResults = parseInt($('BPQL > body count', data).text()),
-                        currentPage = Math.floor(skip / limit) + 1,
-                        pages = Math.ceil(queryResults / limit);
+                    const queryResults = parseInt($('BPQL > body count', data).text());
+                    const currentPage = Math.floor(skip / limit) + 1;
+                    const pages = Math.ceil(queryResults / limit);
 
                     if (!queryResults) {
                         controller.call('alert', {
@@ -141,8 +152,8 @@ module.exports = function(controller) {
                         return;
                     }
 
-                    pageActions.next[currentPage >= pages ? 'hide' : 'show']();
-                    pageActions.back[currentPage <= 1 ? 'hide' : 'show']();
+                    next[currentPage >= pages ? 'hide' : 'show']();
+                    back[currentPage <= 1 ? 'hide' : 'show']();
 
                     results.text(`Página ${currentPage} de ${pages}`);
                     pagination.text(`Resultados ${queryResults}`);
@@ -155,29 +166,30 @@ module.exports = function(controller) {
             }, bipbopLoader));
     };
 
-    controller.registerCall('inbox', function() {
-        var skip = 0, text = null;
+    controller.registerCall('inbox', () => {
+        let skip = 0;
+        let text = null;
 
-        var modal = controller.call('modal');
+        const modal = controller.call('modal');
 
         modal.title('Mensagens Privadas');
         modal.subtitle('Caixa de mensagens privadas.');
         modal.addParagraph('Aqui estão as mensagens importantes que o sistema tem para você, é importante que você leia todas. Mantendo sua caixa sempre zerada.');
 
-        var form = modal.createForm(),
-            search = form.addInput('text', 'text', 'Mensagem que procura'),
-            list = form.createList(),
-            actions = modal.createActions();
+        const form = modal.createForm();
+        const search = form.addInput('text', 'text', 'Mensagem que procura');
+        const list = form.createList();
+        const actions = modal.createActions();
 
-        actions.add('Sair').click(function(e) {
+        actions.add('Sair').click(e => {
             e.preventDefault();
             modal.close();
         });
 
-        var results = actions.observation(),
-            pagination = actions.observation();
+        const results = actions.observation();
+        const pagination = actions.observation();
 
-        var pageActions = {
+        const pageActions = {
             next: actions.add('Próxima Página').click(() => {
                 skip += 5;
                 updateList(modal, pageActions, results, pagination, list, 5, skip, text);

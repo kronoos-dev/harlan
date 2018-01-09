@@ -1,12 +1,12 @@
-var CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ,
-    emailRegex = require('email-regex'),
-    PHONE_REGEX = /^[\(]?\d{2}[\)]?\s*\d{4}[\-]?\d{4,5}$/;
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
+import emailRegex from 'email-regex';
+const PHONE_REGEX = /^[\(]?\d{2}[\)]?\s*\d{4}[\-]?\d{4,5}$/;
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     controller.registerCall('accuracy::createStore', () => {
-        var form = controller.call('form', opts => {
+        const form = controller.call('form', opts => {
             let formdata = new FormData();
             for (let key in opts) formdata.append(key, opts[key]);
             controller.accuracyServer.call('saveStore', {}, {
@@ -21,150 +21,150 @@ module.exports = function (controller) {
         });
 
         form.configure({
-            'title': 'Dados para Cadastro de Loja',
-            'subtitle': 'Uma vez cadastrada a loja você poderá realizar o check-in.',
-            'paragraph': 'É muito importante que os dados estejam preenchidos de maneira correta para que a loja seja criada corretamente.',
-            'screens': [{
-                'fields': [
+            title: 'Dados para Cadastro de Loja',
+            subtitle: 'Uma vez cadastrada a loja você poderá realizar o check-in.',
+            paragraph: 'É muito importante que os dados estejam preenchidos de maneira correta para que a loja seja criada corretamente.',
+            screens: [{
+                fields: [
                     {
-                        'name': 'name',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Nome Fantasia',
+                        name: 'name',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Nome Fantasia',
                     },
                     {
-                        'name': 'company',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Razão Social',
+                        name: 'company',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Razão Social',
                     }, {
-                        'name': 'cnpj',
-                        'placeholder': 'CNPJ',
-                        'mask': '00.000.000/0000-00',
-                        'optional': false,
+                        name: 'cnpj',
+                        placeholder: 'CNPJ',
+                        mask: '00.000.000/0000-00',
+                        optional: false,
                     }, {
-                        'name': 'ie',
-                        'placeholder': 'Inscrição Estadual',
-                        'optional': true,
+                        name: 'ie',
+                        placeholder: 'Inscrição Estadual',
+                        optional: true,
                     }, {
-                        'name': 'address',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Endereço',
+                        name: 'address',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Endereço',
                     }, {
-                        'name': 'zipcode',
-                        'type': 'text',
-                        'placeholder': 'CEP',
-                        'optional': false,
-                        'labelText': 'CEP',
-                        'mask': '00000-000'
+                        name: 'zipcode',
+                        type: 'text',
+                        placeholder: 'CEP',
+                        optional: false,
+                        labelText: 'CEP',
+                        mask: '00000-000'
                     }, {
-                        'name': 'complement',
-                        'type': 'text',
-                        'optional': true,
-                        'placeholder': 'Complemento'
+                        name: 'complement',
+                        type: 'text',
+                        optional: true,
+                        placeholder: 'Complemento'
                     }, {
-                        'name': 'neighborhood',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'Bairro'
+                        name: 'neighborhood',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'Bairro'
                     }, {
-                        'name': 'city',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Cidade'
+                        name: 'city',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Cidade'
                     }, {
-                        'name': 'state',
-                        'optional': false,
-                        'type': 'select',
-                        'placeholder': 'Estado',
-                        'list': {
+                        name: 'state',
+                        optional: false,
+                        type: 'select',
+                        placeholder: 'Estado',
+                        list: {
                             '': 'Escolha um estado',
-                            'Acre': 'Acre',
-                            'Alagoas': 'Alagoas',
-                            'Amazonas': 'Amazonas',
-                            'Amapá': 'Amapá',
-                            'Bahia': 'Bahia',
-                            'Ceará': 'Ceará',
+                            Acre: 'Acre',
+                            Alagoas: 'Alagoas',
+                            Amazonas: 'Amazonas',
+                            Amapá: 'Amapá',
+                            Bahia: 'Bahia',
+                            Ceará: 'Ceará',
                             'Distrito Federal': 'Distrito Federal',
                             'Espírito Santo': 'Espírito Santo',
-                            'Goiás': 'Goiás',
-                            'Maranhão': 'Maranhão',
+                            Goiás: 'Goiás',
+                            Maranhão: 'Maranhão',
                             'Mato Grosso': 'Mato Grosso',
                             'Mato Grosso do Sul': 'Mato Grosso do Sul',
                             'Minas Gerais': 'Minas Gerais',
-                            'Pará': 'Pará',
-                            'Paraíba': 'Paraíba',
-                            'Paraná': 'Paraná',
-                            'Pernambuco': 'Pernambuco',
-                            'Piauí': 'Piauí',
+                            Pará: 'Pará',
+                            Paraíba: 'Paraíba',
+                            Paraná: 'Paraná',
+                            Pernambuco: 'Pernambuco',
+                            Piauí: 'Piauí',
                             'Rio de Janeiro': 'Rio de Janeiro',
                             'Rio Grande do Norte': 'Rio Grande do Norte',
-                            'Rondônia': 'Rondônia',
+                            Rondônia: 'Rondônia',
                             'Rio Grande do Sul': 'Rio Grande do Sul',
-                            'Roraima': 'Roraima',
+                            Roraima: 'Roraima',
                             'Santa Catarina': 'Santa Catarina',
-                            'Sergipe': 'Sergipe',
+                            Sergipe: 'Sergipe',
                             'São Paulo': 'São Paulo',
-                            'Tocantins': 'Tocantins'
+                            Tocantins: 'Tocantins'
                         }
                     },
                     {
-                        'name': 'email',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'E-mail',
-                        'validate': item => {
-                            return emailRegex().test(item.element.val());
+                        name: 'email',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'E-mail',
+                        validate: ({element}) => {
+                            return emailRegex().test(element.val());
                         }
                     } ,{
-                        'name': 'phone',
-                        'optional': true,
-                        'type': 'text',
-                        'mask': '(00) 0000-00009',
-                        'placeholder': 'Telefone de Contato',
-                        'validate': item => {
-                            return PHONE_REGEX.test(item.element.val());
+                        name: 'phone',
+                        optional: true,
+                        type: 'text',
+                        mask: '(00) 0000-00009',
+                        placeholder: 'Telefone de Contato',
+                        validate: ({element}) => {
+                            return PHONE_REGEX.test(element.val());
                         }
                     },{
-                        'name': 'cellphone',
-                        'optional': true,
-                        'type': 'text',
-                        'mask': '(00) 0000-00009',
-                        'placeholder': 'Celular de Contato',
-                        'validate': item => {
-                            return PHONE_REGEX.test(item.element.val());
+                        name: 'cellphone',
+                        optional: true,
+                        type: 'text',
+                        mask: '(00) 0000-00009',
+                        placeholder: 'Celular de Contato',
+                        validate: ({element}) => {
+                            return PHONE_REGEX.test(element.val());
                         }
                     },
                     {
-                        'name': 'region',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Região'
+                        name: 'region',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Região'
                     },
                     {
-                        'name': 'network',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Rede'
+                        name: 'network',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Rede'
                     },
                     {
-                        'name': 'channel',
-                        'optional': false,
-                        'type': 'text',
-                        'placeholder': 'Canal'
+                        name: 'channel',
+                        optional: false,
+                        type: 'text',
+                        placeholder: 'Canal'
                     },
                     {
-                        'name': 'manager',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'Gerente'
+                        name: 'manager',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'Gerente'
                     },
                     {
-                        'name': 'note',
-                        'optional': true,
-                        'type': 'text',
-                        'placeholder': 'Nota'
+                        name: 'note',
+                        optional: true,
+                        type: 'text',
+                        placeholder: 'Nota'
                     },
                 ]
             }]

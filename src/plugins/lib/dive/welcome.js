@@ -1,22 +1,24 @@
 module.exports = (controller) => {
 
-    controller.registerTrigger('authentication::authenticated', 'dive::authenticated', function(arg, cb) {
+    controller.registerTrigger('authentication::authenticated', 'dive::authenticated', (arg, cb) => {
         cb();
-        var report = controller.call('report',
-                'Recuperação de Ativos Dive',
-                'Mergulhe sua cobrança em dados no streaming.',
-                'Através deste módulo fique sabendo em tempo real o que acontece na sua carteira de devedores, são informações que te ajudarão a descobrir quem e quando cobrar alguém.',
-                false),
-            timeline = report.timeline(controller);
 
-        var generateActions = (data) => {
-            var update = (useful) => {
-                return (obj) => {
-                    obj.item.remove();
+        const report = controller.call('report',
+            'Recuperação de Ativos Dive',
+            'Mergulhe sua cobrança em dados no streaming.',
+            'Através deste módulo fique sabendo em tempo real o que acontece na sua carteira de devedores, são informações que te ajudarão a descobrir quem e quando cobrar alguém.',
+            false);
+
+        const timeline = report.timeline(controller);
+
+        const generateActions = ({_id, entity}) => {
+            const update = (useful) => {
+                return ({item}) => {
+                    item.remove();
                     controller.server.call('UPDATE \'DIVE\'.\'EVENT\'', {
                         data: {
-                            useful: useful,
-                            id: data._id
+                            useful,
+                            id: _id
                         },
                         complete: () => {
                             getActions({
@@ -30,13 +32,13 @@ module.exports = (controller) => {
 
             return [
                 ['fa-folder-open', 'Abrir', (obj) => {
-                    var sectionDocumentGroup = controller.call('section', 'Informações Cadastrais',
-                        `Informações cadastrais para o documento ${data.entity.label}`,
+                    const sectionDocumentGroup = controller.call('section', 'Informações Cadastrais',
+                        `Informações cadastrais para o documento ${entity.label}`,
                         'Telefone, endereço e e-mails.');
 
                     $('.app-content').prepend(sectionDocumentGroup[0]);
 
-                    for (let push of data.entity.push) {
+                    for (let push of entity.push) {
                         controller.server.call('SELECT FROM \'PUSH\'.\'DOCUMENT\'',
                             controller.call('loader::ajax', {
                                 data: {
@@ -57,8 +59,8 @@ module.exports = (controller) => {
             controller.server.call('SELECT FROM \'DIVE\'.\'EVENTS\'', {
                 dataType: 'json',
                 data: data || {},
-                success: function(ret) {
-                    for (let data of ret.events) {
+                success({events}) {
+                    for (let data of events) {
                         timeline.add(data.created, data.title, data.description, generateActions(data));
                     }
                 }
@@ -72,7 +74,7 @@ module.exports = (controller) => {
             timeline.add(data.created, data.title, data.description, generateActions(data));
         });
 
-        report.button('Adicionar Documentos', function() {
+        report.button('Adicionar Documentos', () => {
             controller.call('dive::new');
         });
 

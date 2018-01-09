@@ -1,23 +1,24 @@
 import { ApplicationState } from './application-state';
 import _ from 'underscore';
 
-let as, campaignContainer;
+let as;
+let campaignContainer;
 
 const applicationElement = $('.accuracy-app');
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     let cameraErrorCallback = message => {
         return fatalError('Não foi possível abrir a câmera do dispositivo.', message);
     };
 
-    let geolocationErrorCallback = e => {
-        return fatalError('Não foi possível capturar a sua localização.', `${e.code} - ${e.message}`);
+    let geolocationErrorCallback = ({code, message}) => {
+        return fatalError('Não foi possível capturar a sua localização.', `${code} - ${message}`);
     };
 
     let fatalError = (title, message) => {
         return controller.alert({
-            title: title,
+            title,
             subtitle: message,
             paragraph: 'Ocorreu um erro fatal e o programa será finalizado, tente novamente mais tarde.'
         }, () => navigator.app.exitApp());
@@ -38,7 +39,7 @@ module.exports = function (controller) {
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o checkout. ${distantMessage(obj)}`
             }, () => {
                 controller.call('accuracy::checkin::picture', obj, () => {
-                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, q => q.is_checkin != 'Y'),
+                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, ({is_checkin}) => is_checkin != 'Y'),
                         response => {
                             obj[0].token = as.applicationState.checkin[0].token;
                             obj[0].questions = response;
@@ -71,8 +72,8 @@ module.exports = function (controller) {
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o check-in. ${distantMessage(obj)}`
             }, () => {
                 controller.call('accuracy::checkin::picture', obj, () => {
-                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, q => {
-                        return q.is_checkin == 'Y';
+                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, ({is_checkin}) => {
+                        return is_checkin == 'Y';
                     }), response => {
                         obj[0].questions = response;
                         objectConfirm(obj, () => {
@@ -159,8 +160,8 @@ module.exports = function (controller) {
         modal.title('Loja da Campanha');
         modal.subtitle('Escolha a loja em que será realizada a ação.');
         modal.paragraph('Selecione abaixo a loja em que será realizada a ação.');
-        let form = modal.createForm(),
-            storeSelector = form.addSelect('select', 'Loja para Checkin', _.map(campaign.store, s => s.name));
+        let form = modal.createForm();
+        let storeSelector = form.addSelect('select', 'Loja para Checkin', _.map(campaign.store, ({name}) => name));
         form.addSubmit('submit', 'Selecionar Loja');
         modal.createActions().cancel();
         form.element().submit(e => {
@@ -169,7 +170,7 @@ module.exports = function (controller) {
             realizar o checkin */
             render({
                 status: 'checkin',
-                campaign: campaign,
+                campaign,
                 store: campaign.store[storeSelector.val()]
             });
             modal.close();

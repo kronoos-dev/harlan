@@ -1,15 +1,15 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerBootstrap('endpoint', function (callback) {
+    controller.registerBootstrap('endpoint', callback => {
         callback();
-        $('#action-show-endpoint').click(function (e) {
+        $('#action-show-endpoint').click(e => {
             e.preventDefault();
             controller.call('endpoint');
         });
     });
 
-    controller.registerCall('endpoint', function () {
-        var apiKey = controller.serverCommunication.apiKey();
+    controller.registerCall('endpoint', () => {
+        const apiKey = controller.serverCommunication.apiKey();
         controller.call('alert', {
             icon: 'locked',
             title: 'Chave de API',

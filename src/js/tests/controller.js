@@ -1,15 +1,15 @@
-module.exports = function () {
+module.exports = () => {
 
-    describe('bipbop.controller', function () {
-        describe('module', function () {
-            it('register module', function (done) {
-                harlan.registerCall('allahu::akbar', function () {
+    describe('bipbop.controller', () => {
+        describe('module', () => {
+            it('register module', done => {
+                harlan.registerCall('allahu::akbar', () => {
                     done();
                 });
                 harlan.call('allahu::akbar');
             });
-            it('register trigger', function (done) {
-                harlan.registerTrigger('allahu::akbar', 'allahu::akbar', function () {
+            it('register trigger', done => {
+                harlan.registerTrigger('allahu::akbar', 'allahu::akbar', () => {
                     done();
                 });
                 harlan.trigger('allahu::akbar');

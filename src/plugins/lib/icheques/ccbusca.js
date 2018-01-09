@@ -1,7 +1,7 @@
-var CPF = require('cpf_cnpj').CPF;
-var CNPJ = require('cpf_cnpj').CNPJ;
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.registerTrigger('mainSearch::submit', 'ccbusca', (val, cb) => {
         cb();

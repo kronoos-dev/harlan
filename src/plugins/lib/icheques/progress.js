@@ -1,5 +1,6 @@
-module.exports = function(controller) {
-    let graphicalProgress, lastEmptyCheckCounter;
+module.exports = controller => {
+    let graphicalProgress;
+    let lastEmptyCheckCounter;
 
     let bootstrap = (data, callback) => {
         if (callback) callback(); /* no block */
@@ -33,5 +34,4 @@ module.exports = function(controller) {
     };
 
     controller.registerTrigger('icheques::update', bootstrap);
-
 };

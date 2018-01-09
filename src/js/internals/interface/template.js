@@ -1,10 +1,8 @@
-var Templates = function () {
+const Templates = function () {
     
-    this.render = function (path, view, callback) {
-        return $.get('templates/' + path + '.tpl', function (data) {
-            callback(Mustache.render(data, view));
-        });
-    };
+    this.render = (path, view, callback) => $.get(`templates/${path}.tpl`, data => {
+        callback(Mustache.render(data, view));
+    });
 };
 
 module.exports = new Templates();

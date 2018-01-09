@@ -1,14 +1,14 @@
 import _ from 'underscore';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     controller.registerCall('accuracy::campaigns', (cb, onError) => {
         controller.call('accuracy::campaigns::get', data => cb(controller.call('accuracy::campaigns::parse', data)), onError);
     });
 
     controller.registerCall('accuracy::campaigns::parse', data => {
-        return _.filter(data[0], (campaignObject) => {
-            return moment(campaignObject.period_end, 'YYYY-MM-DD').isAfter();
+        return _.filter(data[0], ({period_end}) => {
+            return moment(period_end, 'YYYY-MM-DD').isAfter();
         });
     });
 

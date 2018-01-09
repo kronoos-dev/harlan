@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.registerCall('kronoos::contractAccepted', (...args) => {
         controller.call('confirm', {
@@ -25,14 +25,14 @@ module.exports = function(controller) {
     });
 
     if (controller.confs.kronoos.isKronoos) {
-        controller.registerTrigger('serverCommunication::websocket::authentication', 'kronoos::contract::websocket::authentication', function(data, callback) {
+        controller.registerTrigger('serverCommunication::websocket::authentication', 'kronoos::contract::websocket::authentication', (data, callback) => {
             callback();
 
             if (controller.serverCommunication.freeKey() || data.contractAccepted) {
                 return;
             }
 
-            controller.call('kronoos::contractAccepted', function() {
+            controller.call('kronoos::contractAccepted', () => {
                 controller.serverCommunication.call('SELECT FROM \'KRONOOS\'.\'CONTRACTACCEPTED\'');
                 controller.call('alert', {
                     icon: 'pass',
@@ -40,7 +40,7 @@ module.exports = function(controller) {
                     subtitle: 'Agora você já pode usufruir de todas as funcionalidades do Kronoos.',
                     paragraph: 'Agora você já pode começar a utilizar o sistema e todas suas funcionalidades contradas, comece agora buscando na barra superior por um CPF ou CNPJ.'
                 });
-            }, function() {
+            }, () => {
                 controller.call('authentication::logout');
             });
         });

@@ -3,13 +3,13 @@ import _ from 'underscore';
 
 module.exports = controller => {
     controller.registerCall('admin::openCompanys', (report, data = {}) => {
-        var skip = 0;
-        var results = controller.call('moreResults', MAX_RESULTS).callback(callback => {
+        let skip = 0;
+        const results = controller.call('moreResults', MAX_RESULTS).callback(callback => {
             controller.serverCommunication.call('SELECT FROM \'BIPBOPCOMPANYS\'.\'LIST\'',
                 controller.call('loader::ajax', controller.call('error::ajax', {
-                    data: $.extend({
+                    data: Object.assign({
                         limit: MAX_RESULTS,
-                        skip: skip
+                        skip
                     }, data),
                     success: response => {
                         callback(_.map($('BPQL > body > company', response), company => {

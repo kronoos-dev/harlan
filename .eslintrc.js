@@ -39,6 +39,7 @@ module.exports = {
          'FileTransfer': true
     },
     'rules': {
+        'quote-props': [2, 'as-needed'],
         'no-multiple-empty-lines': [2, {"max": 1, "maxBOF": 0}],
         'no-console': 0,
         'no-useless-escape': 0,

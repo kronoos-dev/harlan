@@ -1,7 +1,7 @@
 /*jshint -W083 */
 
-var Timeline = function() {
-    var timeline = $('<ul />').addClass('timeline');
+const Timeline = function() {
+    const timeline = $('<ul />').addClass('timeline');
 
     this.add = (time, header, details, actions, obj = {}) => {
         obj.item = $('<li />');
@@ -27,7 +27,7 @@ var Timeline = function() {
 
         if (time) {
             obj.time = $('<span />').addClass('timeline-time').text(time.fromNow());
-            var interval = setInterval(function() {
+            const interval = setInterval(() => {
                 obj.time.text(time.fromNow());
             }, 60000);
 
@@ -40,22 +40,24 @@ var Timeline = function() {
         obj.actions = $('<ul />').addClass('actions');
 
         for (let idx in actions) {
-            (function() {
-                var [icon, label, action] = actions[idx];
+            ((() => {
+                const [icon, label, action] = actions[idx];
 
-                var id = require('node-uuid').v4(),
-                    item = $('<li />').append($('<i />').addClass('fa ' + icon)).click(function(e) {
-                        e.preventDefault();
-                        action(obj);
-                    }).attr({
-                        id: id
-                    }),
-                    materialTip = $('<div />').addClass('mdl-tooltip').attr('for', id).text(label);
+                const id = require('node-uuid').v4();
+
+                const item = $('<li />').append($('<i />').addClass(`fa ${icon}`)).click(e => {
+                    e.preventDefault();
+                    action(obj);
+                }).attr({
+                    id
+                });
+
+                const materialTip = $('<div />').addClass('mdl-tooltip').attr('for', id).text(label);
 
                 item.append(materialTip);
                 obj.actions.append(item);
 
-                var componentVisible = setInterval(function() {
+                const componentVisible = setInterval(() => {
                     if (!item.is(':visible')) {
                         return;
                     }
@@ -63,7 +65,7 @@ var Timeline = function() {
                     componentHandler.upgradeElement(materialTip.get(0), 'MaterialTooltip');
                     clearInterval(componentVisible);
                 }, 300);
-            })();
+            }))();
         }
 
         obj.meta = $('<div />').addClass('timeline-meta');

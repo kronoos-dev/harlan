@@ -7,9 +7,9 @@ module.exports = controller => {
 
     var iterations = 0;
 
-    controller.registerCall('kronoos::status::ajax', function (icon, status, dict = {}) {
-        let kronoosStatus = controller.call('kronoos::status', icon, status, dict),
-            complete = dict.complete;
+    controller.registerCall('kronoos::status::ajax', (icon, status, dict = {}) => {
+        let kronoosStatus = controller.call('kronoos::status', icon, status, dict);
+        let complete = dict.complete;
 
         dict.complete = function () {
             if (complete) complete(...arguments);
@@ -19,17 +19,17 @@ module.exports = controller => {
         return dict;
     });
 
-    controller.registerCall('kronoos::status', function (icon, status, obj = {}) {
+    controller.registerCall('kronoos::status', (icon, status, obj = {}) => {
         var it = iterations++;
         if (!it) {
             loader.show();
             logo.hide();
         }
 
-        var statusMessage = $('<div />').addClass('status-message'),
-            container = $('<div />').addClass('container'),
-            content = $('<div />').addClass('content'),
-            iconElement = $('<i />').addClass(`fa ${icon}`);
+        var statusMessage = $('<div />').addClass('status-message');
+        var container = $('<div />').addClass('container');
+        var content = $('<div />').addClass('content');
+        var iconElement = $('<i />').addClass(`fa ${icon}`);
 
         iconElement.click(e => {
             e.preventDefault();
@@ -45,7 +45,7 @@ module.exports = controller => {
 
         obj.statusElement = statusMessage;
 
-        return function () {
+        return () => {
             statusMessage.remove();
             if (!--iterations) {
                 loader.hide();

@@ -2,26 +2,27 @@
 
 var TIMEOUT = 5000;
 var AVOID_FILTER = /(sem ocorrência|em processamento)/i;
-var Harmonizer = require('color-harmony').Harmonizer,
-    Color = require('color'),
-    sprintf = require('sprintf'),
-    _ = require('underscore'),
-    hashObject = require('hash-object'),
-    ChartJS = require('chart.js'),
-    squel = require('squel'),
-    changeCase = require('change-case');
+var Harmonizer = require('color-harmony').Harmonizer;
+var Color = require('color');
+var sprintf = require('sprintf');
+var _ = require('underscore');
+var hashObject = require('hash-object');
+var ChartJS = require('chart.js');
+var squel = require('squel');
+var changeCase = require('change-case');
 import { CMC7Parser } from '../cmc7-parser';
 var controller;
 var MarkdownIt = require('markdown-it');
 var updateRegister = [];
 var async = require('async');
 var harmonizer = new Harmonizer();
-var colorMix = 'neutral',
-    colors = {
-        error: harmonizer.harmonize('#ff1a53', colorMix),
-        warning: harmonizer.harmonize('#ffe500', colorMix),
-        success: harmonizer.harmonize('#00ff6b', colorMix)
-    };
+var colorMix = 'neutral';
+
+var colors = {
+    error: harmonizer.harmonize('#ff1a53', colorMix),
+    warning: harmonizer.harmonize('#ffe500', colorMix),
+    success: harmonizer.harmonize('#00ff6b', colorMix)
+};
 
 var messages = {
     overall: require('../../../markdown/icheques/default.report.html.js'),
@@ -47,21 +48,21 @@ var parseValue = val => {
 };
 
 var AccountOverview = function(closeable) {
-
     var report = controller.call('report',
-            AccountOverview.prototype.about.title,
-            AccountOverview.prototype.about.subtitle, null, closeable),
-        timeout = null,
-        labels = [],
-        doughnut = null,
-        lastDataset = null;
+        AccountOverview.prototype.about.title,
+        AccountOverview.prototype.about.subtitle, null, closeable);
+
+    var timeout = null;
+    var labels = [];
+    var doughnut = null;
+    var lastDataset = null;
 
     report.element().addClass('ichequesAccountOverview');
 
-    var status = report.paragraph().html(messages.overall),
-        mainLabel = report.label('Visão Geral').hide(),
-        expression = squel.expr().and('(EXPIRE >= ?)', moment().format('YYYYMMDD')),
-        lastExpression = expression;
+    var status = report.paragraph().html(messages.overall);
+    var mainLabel = report.label('Visão Geral').hide();
+    var expression = squel.expr().and('(EXPIRE >= ?)', moment().format('YYYYMMDD'));
+    var lastExpression = expression;
 
     var modalFilter = () => {
         /* How deep is your love? */
@@ -71,43 +72,49 @@ var AccountOverview = function(closeable) {
         modal.subtitle('Adicione filtros a sua consulta.');
         var form = modal.createForm();
 
-        var multiFieldCreation = form.multiField(),
-            multiFieldExpire = form.multiField(),
-            multiFieldValue = form.multiField().addClass('double-margin'),
-            initExpiration = form.addInput('init-expire', 'text', '00/00/00', {
-                append: multiFieldExpire,
-                labelPosition: 'before',
-                class: 'labelShow'
-            }, 'Expiração').mask('00/00/0000'),
-            endExpiration = form.addInput('end-expire', 'text', '00/00/00', {
-                append: multiFieldExpire,
-                labelPosition: 'before',
-                class: 'labelShow'
-            }, 'Expiração até').mask('00/00/0000'),
-            initCreation = form.addInput('init-creation', 'text', '00/00/00', {
-                append: multiFieldCreation,
-                labelPosition: 'before',
-                class: 'labelShow'
-            }, 'Criação').mask('00/00/0000'),
-            endCreation = form.addInput('end-creation', 'text', '00/00/00', {
-                append: multiFieldCreation,
-                labelPosition: 'before',
-                class: 'labelShow'
-            }, 'Criação Até').mask('00/00/0000'),
-            initAmmount = form.addInput('init-ammount', 'text', 'Valor', {
-                append: multiFieldValue,
-                class: 'money',
-                labelPosition: 'before'
-            }, 'R$').mask('000.000.000.000.000,00', {
-                reverse: true
-            }),
-            endAmmount = form.addInput('end-ammount', 'text', 'Valor Até', {
-                append: multiFieldValue,
-                class: 'money',
-                labelPosition: 'before'
-            }, 'R$').mask('000.000.000.000.000,00', {
-                reverse: true
-            });
+        var multiFieldCreation = form.multiField();
+        var multiFieldExpire = form.multiField();
+        var multiFieldValue = form.multiField().addClass('double-margin');
+
+        var initExpiration = form.addInput('init-expire', 'text', '00/00/00', {
+            append: multiFieldExpire,
+            labelPosition: 'before',
+            class: 'labelShow'
+        }, 'Expiração').mask('00/00/0000');
+
+        var endExpiration = form.addInput('end-expire', 'text', '00/00/00', {
+            append: multiFieldExpire,
+            labelPosition: 'before',
+            class: 'labelShow'
+        }, 'Expiração até').mask('00/00/0000');
+
+        var initCreation = form.addInput('init-creation', 'text', '00/00/00', {
+            append: multiFieldCreation,
+            labelPosition: 'before',
+            class: 'labelShow'
+        }, 'Criação').mask('00/00/0000');
+
+        var endCreation = form.addInput('end-creation', 'text', '00/00/00', {
+            append: multiFieldCreation,
+            labelPosition: 'before',
+            class: 'labelShow'
+        }, 'Criação Até').mask('00/00/0000');
+
+        var initAmmount = form.addInput('init-ammount', 'text', 'Valor', {
+            append: multiFieldValue,
+            class: 'money',
+            labelPosition: 'before'
+        }, 'R$').mask('000.000.000.000.000,00', {
+            reverse: true
+        });
+
+        var endAmmount = form.addInput('end-ammount', 'text', 'Valor Até', {
+            append: multiFieldValue,
+            class: 'money',
+            labelPosition: 'before'
+        }, 'R$').mask('000.000.000.000.000,00', {
+            reverse: true
+        });
 
         _.each([initCreation, endCreation, initExpiration, endExpiration], e => {
             e.pikaday();
@@ -127,12 +134,12 @@ var AccountOverview = function(closeable) {
             return obj;
         });
 
-        var filter = form.addSelect('filter-overview', 'Cheques', $.extend({
-            '0': 'Todos os tipos de cheque',
-            '1': 'Cheques processados',
-            '2': 'Cheques em processamento',
-            '3': 'Cheques sem ocorrências',
-            '4': 'Cheques com ocorrências'
+        var filter = form.addSelect('filter-overview', 'Cheques', Object.assign({
+            0: 'Todos os tipos de cheque',
+            1: 'Cheques processados',
+            2: 'Cheques em processamento',
+            3: 'Cheques sem ocorrências',
+            4: 'Cheques com ocorrências'
         }, _.object(situations, keys)));
 
         var observationInput = form.addInput('observation', 'text', 'Arquivo / Observação').magicLabel();
@@ -171,7 +178,6 @@ var AccountOverview = function(closeable) {
             e.preventDefault();
             modal.close();
         });
-
     };
 
     var filterLabels = [];
@@ -216,15 +222,17 @@ var AccountOverview = function(closeable) {
             check.ammount = numeral(check.ammount / 100.0).format('$0,0.00');
         }
 
-        var doc = require('./print'),
-            input = {
-                message: status.text(),
-                checks: query,
-                soma: numeral(sum / 100.0).format('$0,0.00')
-            };
+        var doc = require('./print');
+
+        var input = {
+            message: status.text(),
+            checks: query,
+            soma: numeral(sum / 100.0).format('$0,0.00')
+        };
+
         let render = Mustache.render(doc, input);
-        var html =  new MarkdownIt().render(render),
-            printWindow = window.open('about:blank', '', '_blank');
+        var html =  new MarkdownIt().render(render);
+        var printWindow = window.open('about:blank', '', '_blank');
 
         if (!printWindow) return;
         html += `<style>${require('./print-style')}</style>`;
@@ -437,7 +445,6 @@ var AccountOverview = function(closeable) {
      * @returns {Array|AccountOverview.generateDataset.data}
      */
     var generateDataset = expr => {
-
         var query = squel
             .select()
             .from('ICHEQUES_CHECKS')
@@ -455,12 +462,13 @@ var AccountOverview = function(closeable) {
 
         queryResult = queryResult.values;
 
-        var data = [],
-            iteratorColors = {
-                error: 0,
-                warning: 0,
-                success: 0
-            };
+        var data = [];
+
+        var iteratorColors = {
+            error: 0,
+            warning: 0,
+            success: 0
+        };
 
         for (var i in queryResult) {
 
@@ -538,8 +546,8 @@ var AccountOverview = function(closeable) {
             var color = new Color(element.color);
             return report.label(sprintf('%s: %d', element.situation, element.value)).css({
                 'background-color': color.hsl().string(),
-                'color': color.light() ? '#000' : '#fff',
-                'cursor': 'pointer'
+                color: color.light() ? '#000' : '#fff',
+                cursor: 'pointer'
             }).click(e => {
                 e.preventDefault();
                 openDocuments(element.situation != 'Em processamento' ? element.situation : null);

@@ -1,6 +1,6 @@
 import emailRegex from 'email-regex';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     /* Apply SCSS */
     require('../../styles/kronoos/fonts.js');

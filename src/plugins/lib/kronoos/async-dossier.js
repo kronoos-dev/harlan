@@ -9,7 +9,7 @@ import {
 
 const masks = ['999.999.999-99', '99.999.999/9999-99'];
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     let report;
     let timeline;
@@ -21,7 +21,7 @@ module.exports = function(controller) {
             controller.server.call('INSERT INTO \'DOSSIERKRONOOS\'.\'CAPTURE\'', controller.call('error::ajax', {
                 dataType: 'json',
                 data: Object.assign(data, {
-                    name: name
+                    name
                 }),
                 success: () => toastr.success(`Um novo acompanhamento foi adicionado para o documento ${data.documento}`,
                     'Em alguns instantes o dossiê será finalizado e as informações estarão a sua disposição')

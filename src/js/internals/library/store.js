@@ -1,6 +1,6 @@
-module.exports = function (controller) {
+export default function (controller) {
 
-    var elements = {};
+    const elements = {};
 
     /**
      * Store a value
@@ -18,9 +18,7 @@ module.exports = function (controller) {
      * @param {string} key
      * @returns mixed
      */
-    this.get = function (key) {
-        return elements[key];
-    };
+    this.get = key => elements[key];
 
     /**
      * Recover a value

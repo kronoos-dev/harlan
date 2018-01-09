@@ -1,32 +1,32 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var parserPlacas = function (document) {
-        var jdocument = $(document);
+    const parserPlacas = document => {
+        const jdocument = $(document);
 
-        var result = controller.call('result');
+        const result = controller.call('result');
 
-        var init = 'BPQL > body > ';
-        var nodes = {
-            'Modelo': 'modelo',
-            'Marca': 'marca',
-            'Cor': 'cor',
-            'Ano': 'ano',
+        const init = 'BPQL > body > ';
+        const nodes = {
+            Modelo: 'modelo',
+            Marca: 'marca',
+            Cor: 'cor',
+            Ano: 'ano',
             'Ano Modelo': 'anoModelo',
-            'Placa': 'placa',
-            'Data': 'data',
-            'Estado': 'uf',
-            'Cidade': 'municipio',
-            'Situação': 'situacao'
+            Placa: 'placa',
+            Data: 'data',
+            Estado: 'uf',
+            Cidade: 'municipio',
+            Situação: 'situacao'
         };
 
-        for (var idx in nodes) {
+        for (const idx in nodes) {
             result.addItem(idx, jdocument.find(init + nodes[idx]).text(), nodes[idx]);
         }
 
         return result.element();
     };
 
-    controller.registerBootstrap('parserPlacas', function (callback) {
+    controller.registerBootstrap('parserPlacas', callback => {
         callback();
         controller.importXMLDocument.register('PLACA', 'CONSULTA', parserPlacas);
     });

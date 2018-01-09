@@ -1,7 +1,6 @@
-module.exports = function (controller) {
-
-    var siteTemplate = require('../../templates/dive-site.html.js'),
-        emailRegex = require('email-regex');
+module.exports = controller => {
+    const siteTemplate = require('../../templates/dive-site.html.js');
+    const emailRegex = require('email-regex');
 
     require('../../styles/dive.js');
 
@@ -13,10 +12,10 @@ module.exports = function (controller) {
     controller.interface.helpers.changeFavicon('//cdn-dive.harlan.com.br/favicon.png');
     $(controller.confs.container).append(siteTemplate);
 
-    var resize = function () {
+    const resize = () => {
         $('body > .dive-site .call-to-action').css({
             'min-height': $(window).height(),
-            'height': $(window).height()
+            height: $(window).height()
         });
     };
 
@@ -28,7 +27,7 @@ module.exports = function (controller) {
 
     controller.registerCall('default::page', () => controller.interface.helpers.activeWindow(controller.confs.isPhone ? '.login' : '.dive-site'));
 
-    var emailInput = $('body > .dive-site .email');
+    const emailInput = $('body > .dive-site .email');
     $('body > .dive-site .form-createAccount').submit(e => {
         e.preventDefault();
         if (!emailRegex().test(emailInput.val())) {
@@ -43,5 +42,4 @@ module.exports = function (controller) {
         e.preventDefault();
         controller.call('bipbop::createAccount');
     });
-
 };

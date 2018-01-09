@@ -32,25 +32,25 @@ const BAD_ADP = ['das', 'do', 'de', 'dos', 'di', 'da'];
 const CNJ_REGEX_TPL = '(\\s|^|-)(\\d+\\-?\\d{2}.?\\d{4}\\.?\\d{1}\\.?\\d{2}\\.?\\d{4})(\\s|$)';
 const NON_NUMBER = /[^\d]/g;
 const NAMESPACE_DESCRIPTION = {
-    'peps': ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
-    'congressmen': ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
-    'state_representatives': ['Deputado Estadual', 'Representante eleito para a Assembleia Legislativa Estadual'],
-    'corruption_scandals': ['Escândalo de Corrupção', 'Fatos políticos marcantes chamados de escândalos'],
-    'slave_work': ['Trabalho Escravo', 'Lista de Trabalho Escravo'],
-    'green_peace': ['Apontamento Greenpeace', 'Organização não governamental de preservação do meio ambiente'],
-    'ibama': ['Apontamento Ibama', 'Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis'],
-    'gas_station': ['Postos de Gasolina Cassados', 'Estão sujeitos à fiscalização postos de combustíveis, distribuidoras e transportadoras'],
-    'interpol': ['Interpol', 'A Organização Internacional de Polícia Criminal'],
-    'ceaf': ['Cadastro de Expulsões da Administração Federal', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'ceispj': ['Pessoa Jurídica listada no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'ceispf': ['Pessoas Físicas listadas no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
-    'bovespa': ['Apontamento em Empresa de Capital Aberto - Bovespa', 'Cargos em empresas e/ou participações em assembleias.'],
-    'clear': ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
-    'licitacoes': ['Participação em Licitações', 'Constam participações em licitações.'],
-    'hsbc': ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'],
+    peps: ['Pessoa Políticamente Exposta', 'Art. 52 da Convenção das Nações Unidas contra a Corrupção'],
+    congressmen: ['Deputado Federal', 'Representante eleito para a Câmara dos Deputados'],
+    state_representatives: ['Deputado Estadual', 'Representante eleito para a Assembleia Legislativa Estadual'],
+    corruption_scandals: ['Escândalo de Corrupção', 'Fatos políticos marcantes chamados de escândalos'],
+    slave_work: ['Trabalho Escravo', 'Lista de Trabalho Escravo'],
+    green_peace: ['Apontamento Greenpeace', 'Organização não governamental de preservação do meio ambiente'],
+    ibama: ['Apontamento Ibama', 'Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis'],
+    gas_station: ['Postos de Gasolina Cassados', 'Estão sujeitos à fiscalização postos de combustíveis, distribuidoras e transportadoras'],
+    interpol: ['Interpol', 'A Organização Internacional de Polícia Criminal'],
+    ceaf: ['Cadastro de Expulsões da Administração Federal', 'Banco de informações mantido pela Controladoria-Geral da União'],
+    ceispj: ['Pessoa Jurídica listada no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
+    ceispf: ['Pessoas Físicas listadas no Cadastro listada no Cadastro Nacional de Empresas Inidôneas e Suspensas', 'Banco de informações mantido pela Controladoria-Geral da União'],
+    bovespa: ['Apontamento em Empresa de Capital Aberto - Bovespa', 'Cargos em empresas e/ou participações em assembleias.'],
+    clear: ['Não Constam Apontamentos Cadastrais', 'Não há nenhum apontamento cadastral registrado no sistema Kronoos.'],
+    licitacoes: ['Participação em Licitações', 'Constam participações em licitações.'],
+    hsbc: ['Fortunas e Offshores Ligadas a Brasileiros no HSBC da Suiça', 'Brasileiros com contas sigilosas na filial suíça do banco HSBC, por meio das "offshores"'],
 
     /* OrigemComprador, Participante, Status, data, Tipo da Licitações */
-    'terrorismo': ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
+    terrorismo: ['Enquadrados na Lei-antiterrorismo', 'Pessoas enquadradas na lei-antiterrorismo.'],
 };
 
 const removeDiacritics = require('diacritics').remove;
@@ -93,7 +93,7 @@ export class KronoosParse {
         this.responses = [];
         this.runOnEnd = [];
 
-        this.confirmQueue = async.queue(function(task, callback) {
+        this.confirmQueue = async.queue((task, callback) => {
             task(callback);
         });
 
@@ -194,7 +194,7 @@ export class KronoosParse {
         async.eachLimit(ceps, 2, (cep, callback) => this.serverCall('SELECT FROM \'CORREIOS\'.\'CONSULTA\'',
             this.loader('fa-map-marker', `Verificando o CEP ${cep} em busca de diferentes grafias para o nome ${this.name}.`, {
                 data: {
-                    cep: cep
+                    cep
                 },
                 success: data => {
                     if (!$('logradouro', data).length) {
@@ -213,7 +213,7 @@ export class KronoosParse {
                             success: data => {
                                 for (let result of data) {
                                     if (metaname !== metaphone(result.values.nome)) return;
-                                    if (this.otherNames.indexOf(result.values.nome) !== -1) return;
+                                    if (this.otherNames.includes(result.values.nome)) return;
                                     this.otherNames.push(result.values.nome);
                                 }
                             },
@@ -246,10 +246,10 @@ export class KronoosParse {
         let resourceUseAnalytics = (xml, hasError) => {
 
             this.responses.push({
-                query: query,
+                query,
                 data: conf.data,
                 response: xml,
-                hasError: hasError
+                hasError
             });
 
             if (!xml || !(xml instanceof XMLDocument)) return;
@@ -442,7 +442,7 @@ export class KronoosParse {
                 dataType: 'json',
                 data: {
                     data: this.name,
-                    n: n
+                    n
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Ministério Público do Trabalho, ${n}º região - ${MPT_STATES[n]}`),
                 success: data => {
@@ -457,9 +457,9 @@ export class KronoosParse {
                         let [investigado, proc, date, status] = row;
                         let procData = JSON.parse(proc);
                         table($('<a/>').attr({
-                            'href': `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
-                            'target': '_blank',
-                            'title': `Processo ${procData.proNumero}`
+                            href: `http://www.prt${n}.mpt.mp.br/index.php?option=com_mpt&view=procedimentos&extras=${procData.cipher}`,
+                            target: '_blank',
+                            title: `Processo ${procData.proNumero}`
                         }).text(procData.proNumero), date, status);
                     }
 
@@ -593,7 +593,7 @@ export class KronoosParse {
                 let table = kelement.captionTable('Número do Processo', 'Data', 'Número do Processo');
                 kelement.table('Fonte de Dados')($('<a />').text('Consultar Processo').attr({
                     target: '_blank',
-                    'href': 'https://comprot.fazenda.gov.br/comprotegov/site/index.html#ajax/processo-consulta.html'
+                    href: 'https://comprot.fazenda.gov.br/comprotegov/site/index.html#ajax/processo-consulta.html'
                 }));
 
                 for (let processo of data.processos) {
@@ -614,8 +614,8 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'TJSP\'.\'DOWNLOAD\'',
             this.loader('fa-balance-scale', `Capturando certidões no Tribunal de Justiça de São Paulo - ${tipo} ${this.cpf_cnpj}.`, {
                 data: {
-                    'nuPedido': pedido,
-                    'dtPedido': data,
+                    nuPedido: pedido,
+                    dtPedido: data,
                 },
                 success: data => {
                     let kelement = this.kronoosElement(null, 'Certidão do TJSP',
@@ -640,12 +640,12 @@ export class KronoosParse {
         _.map(['M'], flGenero => this.serverCall('SELECT FROM \'TJSP\'.\'CERTIDAO\'',
             this.loader('fa-balance-scale', `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cpf}.`, {
                 data: {
-                    'nuCpfFormatado': this.cpf,
-                    'nmPesquisa': this.name,
-                    'nmMae': this.mae || '',
-                    'dtNascimento': this.nascimento || '',
-                    'tpPessoa': 'F',
-                    'flGenero': flGenero
+                    nuCpfFormatado: this.cpf,
+                    nmPesquisa: this.name,
+                    nmMae: this.mae || '',
+                    dtNascimento: this.nascimento || '',
+                    tpPessoa: 'F',
+                    flGenero: flGenero
                 },
                 success: data => {
                     let element = $('body > pedido', data);
@@ -728,7 +728,7 @@ export class KronoosParse {
             this.loader('fa-user-circle', `Comparando documento com base de dados das pessoas políticamente expostas - ${this.cpf}.`, {
                 dataType: 'json',
                 data: {
-                    'nome': `"${this.name}"`
+                    nome: `"${this.name}"`
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados - Pessoas Políticamente Expostas (TSE).'),
                 success: data => {
@@ -814,9 +814,9 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'TJSP\'.\'CERTIDAO\'',
             this.loader('fa-balance-scale', `Capturando certidões no Tribunal de Justiça de São Paulo - ${this.cnpj}.`, {
                 data: {
-                    'nuCnpjFormatado': this.cnpj,
-                    'nmPesquisa': this.name,
-                    'tpPessoa': 'J'
+                    nuCnpjFormatado: this.cnpj,
+                    nmPesquisa: this.name,
+                    tpPessoa: 'J'
                 },
                 success: data => {
                     let element = $('body > pedido', data);
@@ -904,7 +904,7 @@ export class KronoosParse {
     }
 
     buy(title, ammount, action) {
-        if ((this.controller.query.buyAll || (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.indexOf('kronoos-buyall') !== -1)) && !ammount) {
+        if ((this.controller.query.buyAll || (Array.isArray(this.controller.confs.user.tags) && this.controller.confs.user.tags.includes('kronoos-buyall'))) && !ammount) {
             action();
             return;
         }
@@ -1320,7 +1320,6 @@ export class KronoosParse {
                         return;
                     }
                     _.each(iterateOver, element => {
-
                         let bankName = bankCodes[$('banco', element).text()] ||
                             bankCodes[$('banco', element).text().replace(/^0+/, '')];
 
@@ -1338,10 +1337,10 @@ export class KronoosParse {
 
                         kelement.table('Qtde. Ocorrências', 'Alínea')($('qteOcorrencias', element).text(), $('motivo', element).text());
 
-                        let v1 = moment($('dataUltOcorrencia', element).text(), 'DD/MM/YYYY'),
-                            v2 = moment($('ultimo', element).text(), 'DD/MM/YYYY'),
-                            e1 = v1.isAfter(v2) ? v2 : v1,
-                            e2 = v1.isAfter(v2) ? v1 : v2;
+                        let v1 = moment($('dataUltOcorrencia', element).text(), 'DD/MM/YYYY');
+                        let v2 = moment($('ultimo', element).text(), 'DD/MM/YYYY');
+                        let e1 = v1.isAfter(v2) ? v2 : v1;
+                        let e2 = v1.isAfter(v2) ? v1 : v2;
 
                         let table = kelement.table(`Primeiro Registro (${e1.fromNow()})`,
                             `Última Ocorrência (${e2.fromNow()})`);
@@ -1435,7 +1434,7 @@ export class KronoosParse {
     searchJucespNire(nire) {
         this.serverCall('SELECT FROM \'JUCESP\'.\'DOCUMENT\'', this.loader('fa-archive', `Procurando ficha cadastral da empresa ${this.name} (NIRE: ${nire}) junto a JUCESP.`, {
             data: {
-                nire: nire
+                nire
             },
             bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - JUCESP ${nire}`),
             success: data => {
@@ -1470,7 +1469,7 @@ export class KronoosParse {
             this.loader('fa-archive', `Verificando a situação do documento ${this.cpf_cnpj} junto a Receita Federal.`, {
                 data: {
                     documento: cpf_cnpj,
-                    nascimento: nascimento
+                    nascimento
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - Receita Federal (${this.cpf ? 'Certidão Negativa' : 'Cartão do CNPJ'})`),
                 success: data => {
@@ -1530,7 +1529,7 @@ export class KronoosParse {
 
                     }
 
-                    kelement.behaviourAccurate(['REGULAR', 'ATIVA'].indexOf(x('situacao').split(' ')[0]) === -1);
+                    kelement.behaviourAccurate(!['REGULAR', 'ATIVA'].includes(x('situacao').split(' ')[0]));
                     kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 },
@@ -1690,7 +1689,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'PROCURADOS\'.\'MANDADO\'',
             this.loader('fa-eye-slash', `Verificando mandado de prisão ${numeroMandado}.`, {
                 data: {
-                    idLog: idLog,
+                    idLog,
                     numero: numeroMandado
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados - Mandados de Prisão (SINESP)'),
@@ -1886,8 +1885,8 @@ export class KronoosParse {
             data: {
                 table: JSON.stringify(Object.keys(this.procElements).map(x => [x])),
                 interface: JSON.stringify(['', '1', '2', '2', [{
-                    'db': 'PROJURIS',
-                    'table': 'PROJURIS'
+                    db: 'PROJURIS',
+                    table: 'PROJURIS'
                 }],
                 [],
                 []
@@ -2069,14 +2068,14 @@ export class KronoosParse {
                 return;
             }
 
-            let namespace = $('namespace', element).text(),
-                [title, description] = NAMESPACE_DESCRIPTION[namespace],
-                kelement = this.kronoosElement(null, title, 'Existência de apontamentos cadastrais.', description),
-                notes = $('notes node', element),
-                source = $('source node', element),
-                position = $('position', element),
-                insertMethod = 'append',
-                insertElement = this.appendElement;
+            let namespace = $('namespace', element).text();
+            let [title, description] = NAMESPACE_DESCRIPTION[namespace];
+            let kelement = this.kronoosElement(null, title, 'Existência de apontamentos cadastrais.', description);
+            let notes = $('notes node', element);
+            let source = $('source node', element);
+            let position = $('position', element);
+            let insertMethod = 'append';
+            let insertElement = this.appendElement;
 
             if (cnpjFilter || cpfFilter || this.homonymous <= 1) {
                 kelement.behaviourAccurate(true);
@@ -2097,7 +2096,7 @@ export class KronoosParse {
                     source.each(idx => {
                         let s = source.eq(idx).text();
                         ksources($('<a />').attr({
-                            'href': s,
+                            href: s,
                             target: '_blank'
                         }).text(s).html());
                     });
@@ -2109,7 +2108,7 @@ export class KronoosParse {
                     source.each(i => {
                         let s = source.eq(i).text();
                         ktable(position.eq(i).text(), $('<a />').attr({
-                            'href': s,
+                            href: s,
                             target: '_blank'
                         }).text(s).html());
                     });
@@ -2154,7 +2153,7 @@ export class KronoosParse {
             success: data => async.each($('nire', data).map((i, e) => $(e).text()).toArray(), (nire, callback) => {
                 this.serverCall('SELECT FROM \'JUCESP\'.\'DOCUMENT\'', this.loader('fa-archive', `Procurando conexões com a ficha cadastral da empresa ${name} (NIRE: ${nire}) junto a JUCESP.`, {
                     data: {
-                        nire: nire
+                        nire
                     },
                     success: data => {
                         this.generateRelations.appendDocument(data, cpf_cnpj);
@@ -2193,8 +2192,8 @@ export class KronoosParse {
 
     emptyChecker() {
         if (!this.kelements.length) {
-            let [title, description] = NAMESPACE_DESCRIPTION.clear,
-                nelement = this.kronoosElement(null, title, 'Não consta nenhum apontamento cadastral.', description);
+            let [title, description] = NAMESPACE_DESCRIPTION.clear;
+            let nelement = this.kronoosElement(null, title, 'Não consta nenhum apontamento cadastral.', description);
             this.titleCanChange = true;
             this.append(nelement.element());
             searchBar.addClass('minimize').removeClass('full');
@@ -2391,8 +2390,8 @@ export class KronoosParse {
         if (!this.networkData.edges.length) return;
         let relationTable = this.firstElement().captionTable('Lista Relações', 'De', 'Com', 'Relação');
         _.map(this.networkData.edges, edge => {
-            let from = _.find(this.networkData.nodes, node => edge.from == node.id),
-                to = _.find(this.networkData.nodes, node => edge.to == node.id);
+            let from = _.find(this.networkData.nodes, node => edge.from == node.id);
+            let to = _.find(this.networkData.nodes, node => edge.to == node.id);
             if (!from || !to) return;
             relationTable(`${from.label}<br /><small>${f(from.id)}</small>`, `${to.label}<br /><small>${f(to.id)}</small>`, capitalize(edge.relationType));
         });
@@ -2406,7 +2405,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no CARF para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
-                    'data': `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                    data: `SELECT FROM 'CARF'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados para a certidão - Conselho Administrativo de Recursos Fiscais'),
                 success: jusSearch => {
@@ -2423,7 +2422,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no TJCE para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
-                    'data': `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                    data: `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 success: jusSearch => this.juristekCNJ(jusSearch, null, true, false, false)
             }), lowPriority);
@@ -2433,7 +2432,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no TJCE para ${this.name}.`, {
                 data: {
-                    'data': `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace('\'', '')}'`,
+                    data: `SELECT FROM 'TJCEESAJ'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace('\'', '')}'`,
                 },
                 success: jusSearch => {
                     this.juristekCNJ(jusSearch, null, true, true, this.cnpj ? false : true);
@@ -2445,7 +2444,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no TJSP para ${this.name}, documento ${this.cpf_cnpj}.`, {
                 data: {
-                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
+                    data: `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIADOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}'`,
                 },
                 success: jusSearch => {
                     this.juristekCNJ(jusSearch, null, true, false, false);
@@ -2457,7 +2456,7 @@ export class KronoosParse {
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'',
             this.loader('fa-balance-scale', `Buscando por processos jurídicos no TJSP para ${this.name}.`, {
                 data: {
-                    'data': `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace('\'', '')}'`,
+                    data: `SELECT FROM 'TJSP'.'PRIMEIRAINSTANCIANOME' WHERE 'NOME_PARTE' = '${this.name.replace('\'', '')}'`,
                 },
                 success: jusSearch => {
                     this.juristekCNJ(jusSearch, null, true, true, this.cnpj ? false : true);
@@ -2484,9 +2483,8 @@ export class KronoosParse {
 
         let cnjs = {};
         $('BPQL > body snippet', jusSearch).each((idx, article) => {
-
-            let articleText = $(article).text(),
-                match = CNJ_NUMBER.exec(articleText);
+            let articleText = $(article).text();
+            let match = CNJ_NUMBER.exec(articleText);
 
             if (!match) return;
 
@@ -2540,9 +2538,9 @@ export class KronoosParse {
         for (let index of matches) {
             let plusOne = data[index + (1 * direction)];
             let plusTwo = data[index + (2 * direction)];
-            if (plusOne && (plusOne[1] === 'PROPN' || BAD_NAMES.indexOf(plusOne[0]) !== -1)) continue;
-            if (plusOne && (plusOne[1] === 'ADP' || BAD_ADP.indexOf(plusOne[0].toLocaleLowerCase()) !== -1) && plusTwo &&
-                (BAD_NAMES.indexOf(plusTwo[0]) !== -1 || plusTwo[1] == 'PROPN')) continue;
+            if (plusOne && (plusOne[1] === 'PROPN' || BAD_NAMES.includes(plusOne[0]))) continue;
+            if (plusOne && (plusOne[1] === 'ADP' || BAD_ADP.includes(plusOne[0].toLocaleLowerCase())) && plusTwo &&
+                (BAD_NAMES.includes(plusTwo[0]) || plusTwo[1] == 'PROPN')) continue;
             return true;
         }
         return false;
@@ -2745,31 +2743,32 @@ export class KronoosParse {
             }));
         });
 
-        let urlProcesso,
-            getNode = x => $(x, proc).first().text(),
-            partes = $('partes parte', proc),
-            andamentos = $('andamentos andamento', proc),
-            pieces = _.pairs({
-                'Valor Causa': getNode('valor_causa'),
-                'Foro': getNode('foro'),
-                'Origem do Processo': getNode('origem_processo'),
-                'Vara': getNode('vara'),
-                'Comarca': getNode('comarca'),
-                'Número Antigo': getNode('numero_antigo'),
-                'Número Processo': getNode('numero_processo'),
-                'Autuação': getNode('autuacao'),
-                'Localização': getNode('localizacao'),
-                'Ação': getNode('acao'),
-                'Área': getNode('area'),
-                'Situação': getNode('situacao'),
-                'Observação': getNode('observacao'),
-                'Classe': getNode('classe'),
-                'Distribuição': getNode('distribuicao'),
-                'Acesso': ((urlProcesso = getNode('url_processo')) ? $('<a />').attr({
-                    href: urlProcesso,
-                    target: '_blank'
-                }).text('Acessar Processo') : null)
-            });
+        let urlProcesso;
+        let getNode = x => $(x, proc).first().text();
+        let partes = $('partes parte', proc);
+        let andamentos = $('andamentos andamento', proc);
+
+        let pieces = _.pairs({
+            'Valor Causa': getNode('valor_causa'),
+            Foro: getNode('foro'),
+            'Origem do Processo': getNode('origem_processo'),
+            Vara: getNode('vara'),
+            Comarca: getNode('comarca'),
+            'Número Antigo': getNode('numero_antigo'),
+            'Número Processo': getNode('numero_processo'),
+            Autuação: getNode('autuacao'),
+            Localização: getNode('localizacao'),
+            Ação: getNode('acao'),
+            Área: getNode('area'),
+            Situação: getNode('situacao'),
+            Observação: getNode('observacao'),
+            Classe: getNode('classe'),
+            Distribuição: getNode('distribuicao'),
+            Acesso: ((urlProcesso = getNode('url_processo')) ? $('<a />').attr({
+                href: urlProcesso,
+                target: '_blank'
+            }).text('Acessar Processo') : null)
+        });
 
         cnjInstance.subtitle('Existência de apontamentos cadastrais.');
         cnjInstance.sidenote('Participação em processo jurídico.');
@@ -2837,11 +2836,9 @@ export class KronoosParse {
 
     verifierDigit(numbers) {
         var index = 2;
-        var reverse = numbers.split('').reduce(function(buffer, number) {
-            return [parseInt(number, 10)].concat(buffer);
-        }, []);
+        var reverse = numbers.split('').reduce((buffer, number) => [parseInt(number, 10)].concat(buffer), []);
 
-        var sum = reverse.reduce(function(buffer, number) {
+        var sum = reverse.reduce((buffer, number) => {
             buffer += number * index;
             index = (index === 9 ? 2 : index + 1);
             return buffer;

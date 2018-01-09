@@ -1,6 +1,6 @@
 import e from '../library/server-communication/exception-dictionary';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.registerCall('error::server', (exceptionType, exceptionMessage, exceptionCode, push) => {
 
@@ -48,11 +48,11 @@ module.exports = function(controller) {
         toastr.error('Não foi possível processar a sua requisição.', 'Tente novamente mais tarde.');
     });
 
-    controller.registerCall('error::ajax', function(dict, enableMessage = true) {
-        var error = dict.error;
-        dict.error = function(jqXHR, ...args) {
+    controller.registerCall('error::ajax', (dict, enableMessage = true) => {
+        const error = dict.error;
+        dict.error = (jqXHR, ...args) => {
             try {
-                var xml = $.parseXML(jqXHR.responseText);
+                const xml = $.parseXML(jqXHR.responseText);
                 $.bipbopAssert(xml, dict.bipbopError || controller.reference('error::server'));
             } catch (err) {
                 if (dict.bipbopError) dict.bipbopError(null, null, 0, false, null);

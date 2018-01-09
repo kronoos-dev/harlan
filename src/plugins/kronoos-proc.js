@@ -26,7 +26,7 @@ harlan.addPlugin(controller => {
         modal.createActions().cancel();
     };
 
-    controller.registerTrigger('kronoos::juristek', 'kronoos::plugins::procOpen', function (args, callback) {
+    controller.registerTrigger('kronoos::juristek', 'kronoos::plugins::procOpen', (args, callback) => {
         let [numproc, proc, pieces, cnjInstance] = args;
 
         pieces.push(['Download do Processo', $('documentos documento', proc).length ? $('<a />').attr({

@@ -5,10 +5,14 @@ module.exports = controller => {
         if (!controller.confs.smartsupp) return;
         window._smartsupp = _smartsupp;
         window._smartsupp.key = controller.confs.smartsupp;
-        (window.smartsupp || (function(d) {
-            var s, c, o = window.smartsupp = function() {
-                o._.push(arguments);
+        (window.smartsupp || ((d => {
+            let s;
+            let c;
+
+            const o = window.smartsupp = function(...args) {
+                o._.push(args);
             };
+
             o._ = [];
             s = d.getElementsByTagName('script')[0];
             c = d.createElement('script');
@@ -17,7 +21,7 @@ module.exports = controller => {
             c.async = true;
             c.src = '//www.smartsuppchat.com/loader.js?';
             s.parentNode.insertBefore(c, s);
-        }))(document);
+        })))(document);
 
     });
 

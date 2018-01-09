@@ -1,6 +1,6 @@
-var _ = require('underscore');
+import _ from 'underscore';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     function addressIsEmpty(nodes) {
         for (let idx in nodes) {
@@ -20,26 +20,28 @@ module.exports = function (controller) {
         return true;
     }
 
-    var setAddress = function (result, jdocument) {
-        var init = 'BPQL > body enderecos > endereco';
+    const setAddress = (result, jdocument) => {
+        const init = 'BPQL > body enderecos > endereco';
 
-        var addressElements = [];
-        var cepElements = [];
+        const addressElements = [];
+        const cepElements = [];
 
-        jdocument.find(init).each(function (i, node) {
+        jdocument.find(init).each((i, node) => {
+            const nodes = {
+                Endereço: 'logradouro',
+                Número: 'numero',
+                Complemento: 'complemento',
+                CEP: 'cep',
+                Bairro: 'bairro',
+                Cidade: 'municipio',
+                Estado: 'uf'
+            };
 
-            var nodes = {
-                    'Endereço': 'logradouro',
-                    'Número': 'numero',
-                    'Complemento': 'complemento',
-                    'CEP': 'cep',
-                    'Bairro': 'bairro',
-                    'Cidade': 'municipio',
-                    'Estado': 'uf'
-                }, jnode = $(node), address = [];
+            const jnode = $(node);
+            const address = [];
 
             for (var idx in nodes) {
-                var data = jnode.find(nodes[idx]).text();
+                const data = jnode.find(nodes[idx]).text();
                 nodes[idx] = (/^\**$/.test(data)) ? '' : data;
             }
 
@@ -49,9 +51,7 @@ module.exports = function (controller) {
 
             if (_.contains(addressElements, nodes['Endereço']) ||
                     _.contains(cepElements, nodes.CEP) ||
-                    Math.max(..._.map(addressElements, function (value) {
-                        return require('jaro-winkler')(value, nodes['Endereço']);
-                    })) > 0.85) {
+                    Math.max(..._.map(addressElements, value => require('jaro-winkler')(value, nodes['Endereço']))) > 0.85) {
                 return;
             }
 
@@ -66,35 +66,34 @@ module.exports = function (controller) {
                     }
                 }
 
-                jnode.find('*').each(function (idx, node) {
-                    var jnode = $(node);
+                jnode.find('*').each((idx, node) => {
+                    const jnode = $(node);
                     if (!/complemento/i.test(jnode.prop('tagName'))) {
                         address.push(jnode.text());
                     }
                 });
 
-                var mapUrl = 'http://maps.googleapis.com/maps/api/staticmap?' + $.param({
-                    'scale': '1',
-                    'size': '600x150',
-                    'maptype': 'roadmap',
-                    'format': 'png',
-                    'visual_refresh': 'true',
-                    'markers': 'size:mid|color:red|label:1|' + address.join(', ')
-                });
+                const mapUrl = `http://maps.googleapis.com/maps/api/staticmap?${$.param({
+                    scale: '1',
+                    size: '600x150',
+                    maptype: 'roadmap',
+                    format: 'png',
+                    visual_refresh: 'true',
+                    markers: `size:mid|color:red|label:1|${address.join(', ')}`
+                })}`;
 
                 result.addItem().addClass('map').append(
                     $('<a />').attr({
-                        'href': 'https://www.google.com/maps?' + $.param({
+                        href: `https://www.google.com/maps?${$.param({
                             q: address.join(', ')
-                        }),
-                        'target': '_blank'
+                        })}`,
+                        target: '_blank'
                     }).append($('<img />').attr('src', mapUrl)));
             }
-
         });
     };
 
-    var setSociety = (result, jdocument) => {
+    const setSociety = (result, jdocument) => {
         let $empresas = jdocument.find('BPQL > body socios > socio');
 
         if ($empresas.length === 0) return;
@@ -105,24 +104,24 @@ module.exports = function (controller) {
             nodes[$node.attr('qualificacao')] = $node.text();
 
             result.addSeparator('Quadro Societário', 'Empresa', 'Empresa a qual faz parte.');
-            for (var idx in nodes) {
+            for (const idx in nodes) {
                 result.addItem(idx, nodes[idx]);
             }
 
         }
     };
 
-    var setContact = function (result, jdocument) {
-        var phones = [];
-        var emails = [];
+    const setContact = (result, jdocument) => {
+        let phones = [];
+        let emails = [];
 
-        jdocument.find('BPQL > body telefones').each(function (idx, node) {
-            var phone = $(node).text();
+        jdocument.find('BPQL > body telefones').each((idx, node) => {
+            const phone = $(node).text();
             if (!phone) return;
-            phones.push('(' + phone.substring(0,2) + ') ' + phone.substring(3, 12));
+            phones.push(`(${phone.substring(0,2)}) ${phone.substring(3, 12)}`);
         });
 
-        jdocument.find('BPQL > body email').each(function (idx, node) {
+        jdocument.find('BPQL > body email').each((idx, node) => {
             let email = $(node).text().trim();
             if (_.contains(emails, email)) return;
             emails.push(email);
@@ -136,38 +135,38 @@ module.exports = function (controller) {
         emails = _.uniq(emails);
 
         result.addSeparator('Contato', 'Meios de contato', 'Telefone, e-mail e outros');
-        for (var idxPhones in phones) {
+        for (const idxPhones in phones) {
             result.addItem('Telefone', phones[idxPhones]);
         }
 
-        for (var idxEmails in emails) {
+        for (const idxEmails in emails) {
             result.addItem('Email', emails[idxEmails]);
         }
 
     };
 
-    var parserConsultas = function (document) {
-        var jdocument = $(document);
+    const parserConsultas = document => {
+        const jdocument = $(document);
 
-        var result = controller.call('result');
+        const result = controller.call('result');
 
-        var nodes = {
-            'Nome': 'nome',
+        const nodes = {
+            Nome: 'nome',
             'Atividade Econômica' : 'atividade-economica',
             'Natureza Jurídica' : 'natureza-juridica',
-            'Situação' : 'situacao',
+            Situação : 'situacao',
             'Data de Abertura' : 'data-abertura'
         };
 
-        var init = 'BPQL > body ';
-        for (var idx in nodes) {
-            var data = jdocument.find(init + nodes[idx]).text();
+        const init = 'BPQL > body ';
+        for (const idx in nodes) {
+            const data = jdocument.find(init + nodes[idx]).text();
             if (/^\**$/.test(data))
                 continue;
             result.addItem(idx, data, nodes[idx]);
         }
 
-        var capitalSocial = jdocument.find('capitalSocial');
+        const capitalSocial = jdocument.find('capitalSocial');
         if (capitalSocial.length) {
             result.addItem('Capital Social', numeral(capitalSocial.text().replace('.', ',')).format('\'$0,0.00\''), 'capitalSocial');
         }
@@ -179,7 +178,7 @@ module.exports = function (controller) {
         return result.element();
     };
 
-    controller.registerBootstrap('parserRFBCNPJ', function (callback) {
+    controller.registerBootstrap('parserRFBCNPJ', callback => {
         callback();
         controller.importXMLDocument.register('RFBCNPJ', 'CERTIDAO', parserConsultas);
         controller.importXMLDocument.register('RFBCNPJANDROID', 'CERTIDAO', parserConsultas);

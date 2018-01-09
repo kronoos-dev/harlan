@@ -1,4 +1,4 @@
-module.exports = function(controller) {
+module.exports = controller => {
 
     let getPicture = (successCallback, errorCallback) => {
 
@@ -18,8 +18,8 @@ module.exports = function(controller) {
             ];
 
             let video = $('<video />').attr({
-                height: height,
-                width: width,
+                height,
+                width,
                 autoplay: 'autoplay'
             }).appendTo(videoContainer);
 

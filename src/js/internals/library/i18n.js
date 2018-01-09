@@ -1,33 +1,33 @@
-module.exports = function (locale, controller) {
+module.exports = (locale, controller) => {
 
-    var userLanguage = locale.split('-')[0];
-    var validLanguages = {
-        'pt': require('../i18n/pt')
+    const userLanguage = locale.split('-')[0];
+    const validLanguages = {
+        pt: require('../i18n/pt')
     };
 
-    var validPikaday = {
+    const validPikaday = {
         pt: {
             format: 'DD/MM/YYYY',
             i18n: {
-                'previousMonth': 'Mes Anterior', 'nextMonth': 'Mes Seguinte',
-                'months': ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-                'weekdays': ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
-                'weekdaysShort': ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab']
+                previousMonth: 'Mes Anterior', nextMonth: 'Mes Seguinte',
+                months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                weekdays: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+                weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab']
             }
         }
     };
 
-    var numeralConversor = {
-        'pt': 'pt-br'
+    const numeralConversor = {
+        pt: 'pt-br'
     };
 
-    var language = validLanguages[userLanguage] ? userLanguage : 'pt';
+    const language = validLanguages[userLanguage] ? userLanguage : 'pt';
 
     document.documentElement.setAttribute('lang', language);
 
-    var pikaday = $.fn.pikaday;
+    const pikaday = $.fn.pikaday;
     $.fn.pikaday = function () {
-        var args = Array.from(arguments);
+        const args = Array.from(arguments);
         if (typeof args[0] !== 'object') {
             args[0] = {};
         }
@@ -41,7 +41,7 @@ module.exports = function (locale, controller) {
         numeral.locale(numeralConversor[language]);
     } catch (e) {}
 
-    var validLanguage = validLanguages[language];
+    const validLanguage = validLanguages[language];
     validLanguage.pikaday = validPikaday[language];
     return validLanguage;
 };

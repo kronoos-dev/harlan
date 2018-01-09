@@ -1,8 +1,8 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var hasUrlParameter = false;
+    const hasUrlParameter = false;
 
-    controller.registerBootstrap('urlParameter', function (callback) {
+    controller.registerBootstrap('urlParameter', callback => {
         callback();
 
         if (typeof controller.query.q === 'undefined') {

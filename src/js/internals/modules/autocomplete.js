@@ -1,32 +1,32 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var timeout = null;
+    let timeout = null;
 
     /**
      * Autocomplete
      * @param mixed jinput
-     * @returns {module.exports.autocomplete}
+     * @returns {module.exports = .autocomplete}
      */
-    var Autocomplete = function (input) {
-        var inputContainer = $('<div />').addClass('autocomplete');
+    const Autocomplete = function (input) {
+        const inputContainer = $('<div />').addClass('autocomplete');
         /* Input Element First */
 
         input.replaceWith(inputContainer);
         inputContainer.append(input);
 
         input.attr('autocomplete', 'off');
-        var options = $('<ul />');
+        const options = $('<ul />');
         inputContainer.append(options);
-        var position = null;
+        let position = null;
 
-        input.keydown(function (e) {
-            var code = e.keyCode || e.which;
+        input.keydown(function({keyCode, which}) {
+            const code = keyCode || which;
             if (code === 27) {
                 this.empty();
                 return;
             }
 
-            var items = options.find('li');
+            const items = options.find('li');
 
             if (!(code === 13 || code === 38 || code === 40))
                 return;
@@ -35,7 +35,7 @@ module.exports = function (controller) {
                 return;
             }
 
-            if (e.which === 13) {
+            if (which === 13) {
                 if (position) {
                     /* Simulate a click (shame ;(* )*/
                     items.eq(position % items.length).removeClass('selected').click();
@@ -47,18 +47,18 @@ module.exports = function (controller) {
                 position = 0;
             } else {
                 items.eq(position % items.length).removeClass('selected');
-                position += (e.which === 38 ? -1 : +1);
+                position += (which === 38 ? -1 : +1);
             }
 
             items.eq(position % items.length).addClass('selected');
 
         });
 
-        input.blur(function () {
-            timeout = setTimeout(function () {
+        input.blur(() => {
+            timeout = setTimeout(() => {
                 options.removeClass('active');
             }, controller.confs.hideAutocomplete);
-        }).focus(function () {
+        }).focus(() => {
             if (timeout)
                 clearTimeout(timeout);
             options.addClass('active');
@@ -69,24 +69,22 @@ module.exports = function (controller) {
             return this;
         };
 
-        this.input = function () {
-            return input;
-        };
+        this.input = () => input;
 
-        var addOption = function (prepend) {
-            var item = $('<li />'),
-                fnc  = prepend ? 'prepend' : 'append';
+        const addOption = prepend => {
+            const item = $('<li />');
+            const fnc  = prepend ? 'prepend' : 'append';
             options[fnc](item);
             return item;
         };
 
-        this.empty = function () {
+        this.empty = () => {
             position = null;
             options.empty();
         };
 
-        this.item = function (title, subtitle, description, html, prepend) {
-            var item = addOption(prepend);
+        this.item = (title, subtitle, description, html, prepend) => {
+            const item = addOption(prepend);
 
             if (title)
                 item.append($('<div />').text(title).addClass('item-title'));
@@ -109,8 +107,6 @@ module.exports = function (controller) {
     /**
      * Autocomplete de um formulário
      */
-    controller.registerCall('autocomplete', function (input) {
-        return new Autocomplete(input);
-    });
+    controller.registerCall('autocomplete', input => new Autocomplete(input));
 
 };

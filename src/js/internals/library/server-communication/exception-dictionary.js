@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     ExceptionDatabase: {
         tableNotFound: 1,
         notFound: 2,

@@ -14,10 +14,10 @@ module.exports = controller => {
             }, () => {
                 controller.serverCommunication.call('DELETE FROM \'BIPBOPCOMPANYS\'.\'PHONE\'', {
                     data: {
-                        username: username,
-                        ddd: ddd,
-                        phone: phone,
-                        pabx: pabx
+                        username,
+                        ddd,
+                        phone,
+                        pabx
                     },
                     success: response => {
                         controller.call('admin::viewCompany', $(response).find('BPQL > body > company'), section, 'replaceWith');
@@ -34,8 +34,8 @@ module.exports = controller => {
             }, () => {
                 controller.serverCommunication.call('DELETE FROM \'BIPBOPCOMPANYS\'.\'EMAIL\'', {
                     data: {
-                        username: username,
-                        email: email
+                        username,
+                        email
                     },
                     success: response => {
                         controller.call('admin::viewCompany', $(response).find('BPQL > body > company'), section, 'replaceWith');
@@ -70,7 +70,7 @@ module.exports = controller => {
                         controller.call('loader::ajax', controller.call('error::ajax', {
                             data: {
                                 tag: nodeValue,
-                                username: username
+                                username
                             },
                             success: () => item.remove()
                         })));
@@ -91,14 +91,14 @@ module.exports = controller => {
         controller.server.call('SELECT FROM \'BIPBOPCOMPANYS\'.\'TAGS\'',
             controller.call('error::ajax', controller.call('loader::ajax', {
                 data: {
-                    username: username
+                    username
                 },
                 dataType: 'json',
                 success: data => controller.call('admin::tags::view', data, username)
             })));
     });
 
-    controller.registerCall('admin::tag::create', function(username) {
+    controller.registerCall('admin::tag::create', username => {
         let modal = controller.call('modal');
         modal.title('Adicionar uma Tag');
         modal.subtitle(`Tags alteram o comportamento do sistema do usuário ${username}.`);
@@ -114,7 +114,7 @@ module.exports = controller => {
                 controller.call('loader::ajax', controller.call('error::ajax', {
                     data: {
                         tag: tag.val(),
-                        username: username
+                        username
                     },
                     success: data => {
                         toastr.success(`A tag ${tag.val()} foi adicionada com sucesso.`,
@@ -126,20 +126,19 @@ module.exports = controller => {
         });
     });
 
-    controller.registerCall('admin::viewCompany', function(companyNode, element, method, minimized) {
+    controller.registerCall('admin::viewCompany', (companyNode, element, method, minimized) => {
+        const company = $(companyNode);
 
-        var company = $(companyNode);
+        const name = company.children('nome').text();
+        const username = company.children('username').text();
+        const cnpj = company.children('cnpj').text();
+        const cpf = company.children('cpf').text();
+        const responsible = company.children('responsavel').text();
+        const commercialReference = company.children('commercialReference').text();
+        const credits = parseInt(company.children('credits').text());
+        let postPaid = company.children('postPaid').text() == 'true';
 
-        var name = company.children('nome').text(),
-            username = company.children('username').text(),
-            cnpj = company.children('cnpj').text(),
-            cpf = company.children('cpf').text(),
-            responsible = company.children('responsavel').text(),
-            commercialReference = company.children('commercialReference').text(),
-            credits = parseInt(company.children('credits').text()),
-            postPaid = company.children('postPaid').text() == 'true';
-
-        var [section, results, actions] = controller.call('section',
+        const [section, results, actions] = controller.call('section',
             `Administração ${name || username}`,
             `Conta registrada para documento ${(cnpj ? CNPJ.format(cnpj) : null) || (cpf ? CPF.format(cpf) : null) || username}`,
             'Visualizar, editar e controlar', false, minimized);
@@ -147,38 +146,38 @@ module.exports = controller => {
         section.addClass('admin-company');
 
         /* We live in citys we never seen in screen */
-        var result = controller.call('result');
+        const result = controller.call('result');
 
         if (name) result.addItem('Assinante', name);
         if (cnpj) result.addItem('CNPJ', CNPJ.format(cnpj));
         if (responsible) result.addItem('Responsável', responsible);
         if (cpf) result.addItem('CPF', CPF.format(cpf));
-        var postPaidInput = result.addItem('Pós-pago', postPaid ? 'Sim' : 'Não');
-        var creditsInput = null;
+        const postPaidInput = result.addItem('Pós-pago', postPaid ? 'Sim' : 'Não');
+        let creditsInput = null;
         if (credits) creditsInput = result.addItem('Créditos Sistema', numeral(credits / 100.0).format('$0,0.00'));
         if (commercialReference) result.addItem('Referência Comercial', commercialReference);
 
-        var apiKey;
-        var inputApiKey = result.addItem('Chave de API', apiKey = company.children('apiKey').text());
+        let apiKey;
+        const inputApiKey = result.addItem('Chave de API', apiKey = company.children('apiKey').text());
         result.addItem('Usuário', username);
-        var acceptedContract = result.addItem('Contrato Aceito', company.children('contractAccepted').text() == 'true' ? 'Aceito' : 'Não Aceito');
+        const acceptedContract = result.addItem('Contrato Aceito', company.children('contractAccepted').text() == 'true' ? 'Aceito' : 'Não Aceito');
 
-        var isActive = company.children('status').text() === '1',
-            activeLabel = result.addItem('Situação', isActive ? 'Ativo' : 'Bloqueado');
+        let isActive = company.children('status').text() === '1';
+        const activeLabel = result.addItem('Situação', isActive ? 'Ativo' : 'Bloqueado');
 
         if (!isActive) {
             section.addClass('inactive');
         }
 
-        var phones = company.children('telefone').children('telefone');
+        const phones = company.children('telefone').children('telefone');
         if (phones.length) {
             result.addSeparator('Telefones',
                 'Lista de Telefones para Contato',
                 'O telefone deve ser usado apenas para emergências e tratativas comerciais.');
 
             phones.each((idx, phoneNode) => {
-                var $phoneNode = $(phoneNode);
-                var [ddd, phone, pabx, contactName, kind] = [
+                const $phoneNode = $(phoneNode);
+                const [ddd, phone, pabx, contactName, kind] = [
                     $phoneNode.children('telefone:eq(0)').text(),
                     $phoneNode.children('telefone:eq(1)').text(),
                     $phoneNode.children('telefone:eq(2)').text(),
@@ -190,8 +189,8 @@ module.exports = controller => {
             });
         }
 
-        var generateSeparator = (separatorCall) => {
-            var separator = false;
+        const generateSeparator = (separatorCall) => {
+            let separator = false;
             return (item, value) => {
                 if (!value) {
                     return null;
@@ -206,9 +205,9 @@ module.exports = controller => {
             };
         };
 
-        var endereco = company.children('endereco');
+        const endereco = company.children('endereco');
         if (endereco.length) {
-            var appendAddressItem = generateSeparator(() => {
+            const appendAddressItem = generateSeparator(() => {
                 result.addSeparator('Endereço',
                     'Endereço registrado para emissão de faturas',
                     'As notas fiscais e faturas são enviadas para este endereço cadastrado, se certifique que esteja atualizado.');
@@ -223,13 +222,13 @@ module.exports = controller => {
             appendAddressItem('Estado', endereco.find('endereco:eq(6)').text());
 
         }
-        var appendContractItem = generateSeparator(() => {
+        const appendContractItem = generateSeparator(() => {
             result.addSeparator('Contrato',
                 'Informações do Serviço Contratado',
                 'Informações referentes ao contrato comercial estabelecido entre as partes.');
         });
 
-        var contrato = company.children('contrato');
+        const contrato = company.children('contrato');
 
         appendContractItem('Dia Vencimento', contrato.find('contrato:eq(0)').text() || '1');
         appendContractItem('Valor', numeral(contrato.find('contrato:eq(1)').text() || '0').format('$0,0.00'));
@@ -239,14 +238,14 @@ module.exports = controller => {
         appendContractItem('Tipo do Contrato', changeCase.titleCase(contrato.find('contrato:eq(4)').text()));
         appendContractItem('Criação', moment.unix(parseInt(contrato.find('contrato:eq(5)').text())).fromNow());
 
-        var emails = company.children('email').children('email');
+        const emails = company.children('email').children('email');
         if (emails.length) {
             result.addSeparator('Endereços de Email',
                 'Endereços de e-mail registrados',
                 'As notificações geradas pelo sistema são enviadas para estes e-mails.');
 
-            emails.each(function(idx, value) {
-                var email = $('email:eq(0)', value).text();
+            emails.each((idx, value) => {
+                const email = $('email:eq(0)', value).text();
                 controller.call('admin::remove::email', result.addItem($('email:eq(1)', value).text(), email),
                     section, username, email);
             });
@@ -260,32 +259,33 @@ module.exports = controller => {
             $('html, body').scrollTop(section.offset().top);
         }
 
-        var lockSymbol = $('<i />').addClass('fa').addClass(isActive ? 'fa-unlock-alt' : 'fa-lock'),
-            lockProcess = false,
-            doLocking = e => {
-                e.preventDefault();
-                if (lockProcess) {
-                    return;
-                }
-                controller.serverCommunication.call('UPDATE \'BIPBOPCOMPANYS\'.\'STATUS\'',
-                    controller.call('error::ajax', controller.call('loader::ajax', {
-                        data: {
-                            account: username,
-                            set: !isActive ? 1 : 0,
-                        },
-                        success: function() {
-                            isActive = !isActive;
-                            activeLabel.find('.value').text(isActive ? 'Ativo' : 'Bloqueado');
-                            section[isActive ? 'removeClass' : 'addClass']('inactive');
-                            lockSymbol
-                                .removeClass('fa-unlock-alt')
-                                .removeClass('fa-lock')
-                                .addClass(isActive ? 'fa-unlock-alt' : 'fa-lock');
-                        }
-                    })));
-            };
+        const lockSymbol = $('<i />').addClass('fa').addClass(isActive ? 'fa-unlock-alt' : 'fa-lock');
+        const lockProcess = false;
 
-        var showInterval = setInterval(() => {
+        const doLocking = e => {
+            e.preventDefault();
+            if (lockProcess) {
+                return;
+            }
+            controller.serverCommunication.call('UPDATE \'BIPBOPCOMPANYS\'.\'STATUS\'',
+                controller.call('error::ajax', controller.call('loader::ajax', {
+                    data: {
+                        account: username,
+                        set: !isActive ? 1 : 0,
+                    },
+                    success() {
+                        isActive = !isActive;
+                        activeLabel.find('.value').text(isActive ? 'Ativo' : 'Bloqueado');
+                        section[isActive ? 'removeClass' : 'addClass']('inactive');
+                        lockSymbol
+                            .removeClass('fa-unlock-alt')
+                            .removeClass('fa-lock')
+                            .addClass(isActive ? 'fa-unlock-alt' : 'fa-lock');
+                    }
+                })));
+        };
+
+        const showInterval = setInterval(() => {
             if (!document.contains(actions.get(0)) || !$(actions).is(':visible')) {
                 return;
             }
@@ -323,11 +323,11 @@ module.exports = controller => {
                 controller.serverCommunication.call('SELECT FROM \'BIPBOPCOMPANYS\'.\'bankAccount\'', {
                     dataType: 'json',
                     data: {
-                        username: username
+                        username
                     },
                     success: data => {
                         controller.call('bankAccount::update', null, !data ? {} : data, 'UPDATE \'BIPBOPCOMPANYS\'.\'bankAccount\'', {
-                            username: username
+                            username
                         }, {
                             documento: cnpj ? CNPJ.format(cnpj) : CPF.format(cpf),
                             nome: name || responsible,
@@ -344,9 +344,9 @@ module.exports = controller => {
                     controller.serverCommunication.call('DELETE FROM \'BIPBOPCOMPANYS\'.\'contractAccepted\'',
                         controller.call('error::ajax', controller.call('loader::ajax', {
                             data: {
-                                username: username
+                                username
                             },
-                            success: function() {
+                            success() {
                                 acceptedContract.remove();
                             }
                         })));
@@ -358,10 +358,10 @@ module.exports = controller => {
                     controller.serverCommunication.call('UPDATE \'BIPBOPCOMPANYS\'.\'POSTPAID\'',
                         controller.call('error::ajax', controller.call('loader::ajax', {
                             data: {
-                                username: username,
+                                username,
                                 postPaid: postPaid ? 'false' : 'true'
                             },
-                            success: function() {
+                            success() {
                                 postPaid = !postPaid;
                                 postPaidInput.find('.value').text(postPaid ? 'Sim' : 'Não');
                             }
@@ -374,9 +374,9 @@ module.exports = controller => {
                     controller.serverCommunication.call('UPDATE \'BIPBOPCOMPANYS\'.\'APIKEY\'',
                         controller.call('error::ajax', controller.call('loader::ajax', {
                             data: {
-                                username: username
+                                username
                             },
-                            success: function(ret) {
+                            success(ret) {
                                 inputApiKey.find('.value').text($('BPQL > body > apiKey', ret).text());
                             }
                         })));
@@ -405,7 +405,7 @@ module.exports = controller => {
                 modal.paragraph('Ao submeter o usuário terá de recarregar a página para verificar as mudanças em sua conta, oriente o usuário a recarregar a página.');
 
                 let form = modal.createForm();
-                var input = form.addInput('Créditos', 'text', 'Créditos (R$)')
+                const input = form.addInput('Créditos', 'text', 'Créditos (R$)')
                     .mask('#.##0,00', {
                         reverse: true
                     });
@@ -414,17 +414,17 @@ module.exports = controller => {
                     input.val(numeral(Math.abs(credits) / 100.0).format('0,0.00'));
                 }
 
-                var invertCredits = form.addCheckbox('invert', 'Saldo Devedor', credits < 0);
+                const invertCredits = form.addCheckbox('invert', 'Saldo Devedor', credits < 0);
 
                 form.addSubmit('change-credits', 'Alterar Créditos');
                 form.element().submit(e => {
                     e.preventDefault();
-                    var ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(':checked') ? -1 : 1);
+                    const ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(':checked') ? -1 : 1);
                     controller.server.call('UPDATE \'BIPBOPCOMPANYS\'.\'CREDITS\'',
                         controller.call('loader::ajax', controller.call('error::ajax', {
                             data: {
-                                ammount: ammount,
-                                username: username
+                                ammount,
+                                username
                             },
                             success: () => {
                                 if (creditsInput) {
@@ -444,7 +444,7 @@ module.exports = controller => {
 
             controller.call('tooltip', actions, 'Consumo').append($('<i />').addClass('fa fa-tasks')).click(e => {
                 e.preventDefault();
-                var unregister = $.bipbopLoader.register();
+                const unregister = $.bipbopLoader.register();
                 controller.call('admin::report', report => {
                     report.gamification('lives');
 

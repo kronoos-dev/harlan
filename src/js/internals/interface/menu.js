@@ -1,17 +1,17 @@
-var Menu = function () {
+const Menu = function () {
 
-    this.add = function (title, icon) {
-        var elementId = 'action-' + title;
-        var elementIcon = $('<i />').addClass('fa fa-' + icon);
-        var elementLink = $('<a />').attr({
+    this.add = (title, icon) => {
+        const elementId = `action-${title}`;
+        const elementIcon = $('<i />').addClass(`fa fa-${icon}`);
+        const elementLink = $('<a />').attr({
             href: '#',
             id: elementId
         });
 
-        var elementItem = $('<li />');
-        var elementTooltip = $('<div />').attr({
+        const elementItem = $('<li />');
+        const elementTooltip = $('<div />').attr({
             class: 'mdl-tooltip',
-            'for': elementId
+            for: elementId
         }).text(title);
 
         elementItem

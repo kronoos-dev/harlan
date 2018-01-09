@@ -1,6 +1,4 @@
-module.exports = function (windowSelector) {
+module.exports = windowSelector => {
     $('body > *').addClass('hide');
-    $(windowSelector).not(function (i, e) {
-        return $(e).parent().get(0).tagName.toLowerCase() !== 'body';
-    }).removeClass('hide');
+    $(windowSelector).not((i, e) => $(e).parent().get(0).tagName.toLowerCase() !== 'body').removeClass('hide');
 };

@@ -1,8 +1,8 @@
 module.exports = controller => {
 
-    var link = null;
+    let link = null;
 
-    controller.registerBootstrap('download', function(callback) {
+    controller.registerBootstrap('download', callback => {
         callback();
         link = document.createElement('a');
         document.body.appendChild(link);
@@ -15,7 +15,7 @@ module.exports = controller => {
             return;
         }
 
-        var url = window.URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(blob);
         link.href = url;
         link.download = filename;
         link.click();

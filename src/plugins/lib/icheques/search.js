@@ -1,23 +1,24 @@
 /* global module */
 
-var squel = require('squel'),
-    sprintf = require('sprintf'),
-    changeCase = require('change-case'),
-    _ = require('underscore'),
-    CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ,
-    StringMask = require('string-mask');
+var squel = require('squel');
+
+var sprintf = require('sprintf');
+var changeCase = require('change-case');
+var _ = require('underscore');
+var CPF = require('cpf_cnpj').CPF;
+var CNPJ = require('cpf_cnpj').CNPJ;
+var StringMask = require('string-mask');
 
 import { CMC7Parser } from './cmc7-parser';
 import { CMC7Validator } from './cmc7-validator';
 
 var CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::document', function(args, callback) {
-        var expr = squel.expr(),
-            format;
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::document', (args, callback) => {
+        var expr = squel.expr();
+        var format;
 
         if (CPF.isValid(args[0])) {
             expr.or('CPF = ?', CPF.strip(args[0]));
@@ -30,8 +31,8 @@ module.exports = function(controller) {
             return;
         }
 
-        var query = squel.select().from('ICHEQUES_CHECKS').where(expr).toString(),
-            databaseResult = controller.call('icheques::resultDatabase', controller.database.exec(query)[0]);
+        var query = squel.select().from('ICHEQUES_CHECKS').where(expr).toString();
+        var databaseResult = controller.call('icheques::resultDatabase', controller.database.exec(query)[0]);
 
         if (!databaseResult.values.length) {
             callback();
@@ -40,7 +41,7 @@ module.exports = function(controller) {
 
         args[1].item('iCheques', 'Relatório Geral de Cheques', sprintf('Documento: %s', format))
             .addClass('icheque')
-            .click(function(e) {
+            .click(e => {
                 e.preventDefault();
                 controller.call('icheques::show', databaseResult.values, null, null, true);
             });
@@ -55,7 +56,7 @@ module.exports = function(controller) {
         };
     });
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::cmc7', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::cmc7', (args, callback) => {
         let [search, autocomplete] = args;
         callback();
 
@@ -74,22 +75,22 @@ module.exports = function(controller) {
             });
     });
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::search', (args, callback) => {
+        var searchString = sprintf('%s%%', args[0]);
 
-        var searchString = sprintf('%s%%', args[0]),
-            query = squel.select()
-                .from('ICHEQUES_CHECKS')
-                .order('EXPIRE', false)
-                .limit(3)
-                .where(squel.expr()
-                    .or('CPF LIKE ?', searchString)
-                    .or('CMC LIKE ?', sprintf('%%%s%%', searchString))
-                    .or('CNPJ LIKE ?', searchString)
-                    .or(squel.expr()
-                        .and('OBSERVATION IS NOT NULL')
-                        .and('OBSERVATION != \'\'')
-                        .and('OBSERVATION LIKE ?', sprintf('%%%s%%', args[0]))
-                    )).toString();
+        var query = squel.select()
+            .from('ICHEQUES_CHECKS')
+            .order('EXPIRE', false)
+            .limit(3)
+            .where(squel.expr()
+                .or('CPF LIKE ?', searchString)
+                .or('CMC LIKE ?', sprintf('%%%s%%', searchString))
+                .or('CNPJ LIKE ?', searchString)
+                .or(squel.expr()
+                    .and('OBSERVATION IS NOT NULL')
+                    .and('OBSERVATION != \'\'')
+                    .and('OBSERVATION LIKE ?', sprintf('%%%s%%', args[0]))
+                )).toString();
 
         var databaseResult = controller.call('icheques::resultDatabase', controller.database.exec(query)[0]);
 

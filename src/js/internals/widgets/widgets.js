@@ -1,9 +1,9 @@
-var ChartJS = require('chart.js');
+import ChartJS from 'chart.js';
 
 module.exports = {
     radialProject : require('./radial-project'),
-    chart: function () {
-        return new ChartJS(...arguments);
+    chart(...args) {
+        return new ChartJS(...args);
     }
 };
 

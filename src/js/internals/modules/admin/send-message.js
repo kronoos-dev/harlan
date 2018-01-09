@@ -12,7 +12,7 @@ module.exports = controller => {
             return;
         }
 
-        controller.call('form', data => {
+        controller.call('form', ({trigger}) => {
             let modal = controller.call('modal');
             modal.title('Progresso de Trigger');
             modal.subtitle('Seu evento está sendo enviado, por favor aguarde.');
@@ -23,7 +23,7 @@ module.exports = controller => {
             let sended = 0;
             each(apiKeys, (apiKey, callback) => $.bipbop('INSERT INTO \'TRIGGER\'.\'TRIGGER\'', apiKey, controller.call('error::ajax', {
                 method: 'POST',
-                data: JSON.stringify([data.trigger, {}, moment().unix() + 10]),
+                data: JSON.stringify([trigger, {}, moment().unix() + 10]),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 complete: () => {
@@ -36,21 +36,21 @@ module.exports = controller => {
                 modal.close();
             });
         }).configure({
-            'title': 'Disparar Evento',
-            'subtitle': 'Preencha os campos abaixo para disparar um evento ao cliente.',
-            'paragraph': 'Certifique de preencher o campo com um evento válido registrado.',
-            'gamification': 'checkPoint',
-            'magicLabel': true,
-            'screens': [{
-                'nextButton': 'Enviar',
-                'observations': [
+            title: 'Disparar Evento',
+            subtitle: 'Preencha os campos abaixo para disparar um evento ao cliente.',
+            paragraph: 'Certifique de preencher o campo com um evento válido registrado.',
+            gamification: 'checkPoint',
+            magicLabel: true,
+            screens: [{
+                nextButton: 'Enviar',
+                observations: [
                     apiKeys.length == 1 ? '1 usuário' : `${apiKeys.length} usuários`
                 ],
-                'fields': [{
-                    'name': 'trigger',
-                    'optional': false,
-                    'type': 'text',
-                    'placeholder': 'Disparador (trigger)'
+                fields: [{
+                    name: 'trigger',
+                    optional: false,
+                    type: 'text',
+                    placeholder: 'Disparador (trigger)'
                 }]
             }]
         });
@@ -91,33 +91,33 @@ module.exports = controller => {
                 modal.close();
             });
         }).configure({
-            'title': 'E-mail ao Cliente',
-            'subtitle': 'Preencha os campos abaixo para enviar um e-mail ao cliente.',
-            'paragraph': 'O formato do e-mail é markdown, certifique-se de ter preenchido corretamente o campo assunto e mensagem.',
-            'gamification': 'checkPoint',
-            'magicLabel': true,
-            'screens': [{
-                'nextButton': 'Enviar',
-                'actions': [
+            title: 'E-mail ao Cliente',
+            subtitle: 'Preencha os campos abaixo para enviar um e-mail ao cliente.',
+            paragraph: 'O formato do e-mail é markdown, certifique-se de ter preenchido corretamente o campo assunto e mensagem.',
+            gamification: 'checkPoint',
+            magicLabel: true,
+            screens: [{
+                nextButton: 'Enviar',
+                actions: [
                     ['Editor Markdown', () => window.open('http://dillinger.io/', '_blank').focus()],
                     ['Trigger', modal => {
                         controller.call('admin::trigger', apiKeys);
                         modal.close();
                     }]
                 ],
-                'observations': [
+                observations: [
                     apiKeys.length == 1 ? '1 destinatário' : `${apiKeys.length} destinatários`
                 ],
-                'fields': [{
-                    'name': 'subject',
-                    'optional': false,
-                    'type': 'text',
-                    'placeholder': 'Assunto'
+                fields: [{
+                    name: 'subject',
+                    optional: false,
+                    type: 'text',
+                    placeholder: 'Assunto'
                 }, {
-                    'name': 'content',
-                    'optional': false,
-                    'type': 'textarea',
-                    'placeholder': 'Mensagem (Markdown)'
+                    name: 'content',
+                    optional: false,
+                    type: 'textarea',
+                    placeholder: 'Mensagem (Markdown)'
                 }]
             }]
         });

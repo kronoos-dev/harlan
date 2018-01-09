@@ -1,7 +1,7 @@
 import checkdigit from 'checkdigit';
 
-const CMC7_GROUPS = /(\d{7})(\d{1})(\d{10})(\d{1})(\d{10})(\d{1})/,
-    NON_NUMBERS = /[^\d]/g;
+const CMC7_GROUPS = /(\d{7})(\d{1})(\d{10})(\d{1})(\d{10})(\d{1})/;
+const NON_NUMBERS = /[^\d]/g;
 
 export class CMC7Validator {
 
@@ -24,9 +24,9 @@ export class CMC7Validator {
             return false;
         }
 
-        let dv1 = checkdigit.mod10.create(this.group1),
-            dv2 = checkdigit.mod10.create(this.group2),
-            dv3 = checkdigit.mod10.create(this.group3);
+        let dv1 = checkdigit.mod10.create(this.group1);
+        let dv2 = checkdigit.mod10.create(this.group2);
+        let dv3 = checkdigit.mod10.create(this.group3);
 
         return this.dv1 == dv1 && this.dv2 == dv2 && this.dv3 == dv3;
     }

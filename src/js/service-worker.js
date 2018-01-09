@@ -41,7 +41,7 @@ self.addEventListener('push', event =>
                         title: messageQuery.find('subject').text().replace(/^[^\|]+\|/, '').trim(),
                         body: messageQuery.find('text').text(),
                         data: {
-                            apiKey: apiKey,
+                            apiKey,
                             id: messageId,
                             content: messageText
                         }
@@ -50,13 +50,13 @@ self.addEventListener('push', event =>
             })).catch(error => message(error));
         }))));
 
-self.addEventListener('notificationclick', function (event) {
+self.addEventListener('notificationclick', event => {
     event.notification.close();
     event.waitUntil(clients.matchAll({type: 'window'}).then(clist => {
         return clients.openWindow(`/?apiKey=${event.notification.data.apiKey}&message=${event.notification.data.id}`);
     }));
 });
 
-self.addEventListener('message', function(event) {
-    localForage.setItem('apikey', event.data);
+self.addEventListener('message', ({data}) => {
+    localForage.setItem('apikey', data);
 });

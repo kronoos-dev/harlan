@@ -3,14 +3,14 @@ import async from 'async';
 /**
  * Módulo responsável por listar as consultas do INFO.INFO na UX
  */
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var xhr;
+    let xhr;
 
-    var parseWrapper = function(field) {
-        var jField = $(field);
-        var options = jField.find('option');
-        var attributes = {
+    const parseWrapper = field => {
+        const jField = $(field);
+        const options = jField.find('option');
+        const attributes = {
             name: jField.attr('name'),
             required: jField.attr('required') === 'true' ? true : false,
             placeholder: !options.length ? jField.attr('description') : null,
@@ -20,11 +20,11 @@ module.exports = function(controller) {
             attributes['data-mask'] = jField.attr('mask');
         }
 
-        var label = $('<label />').text(jField.attr('caption'));
-        var input = $(!options.length ? '<input />' : '<select />').attr(attributes);
+        const label = $('<label />').text(jField.attr('caption'));
+        const input = $(!options.length ? '<input />' : '<select />').attr(attributes);
 
-        options.each(function(idx, optNode) {
-            var jOptNode = $(optNode);
+        options.each((idx, optNode) => {
+            const jOptNode = $(optNode);
             input.append($('<option />').text(jOptNode.text()).attr('value', jOptNode.attr('value')));
         });
 
@@ -34,38 +34,36 @@ module.exports = function(controller) {
             .append(input);
     };
 
-    var factoryShowForm = function(section, button) {
-        return function(e) {
-            e.preventDefault();
-            var iButton = button.find('i');
-            var flipElements = section.find('form, section, footer');
-            if (iButton.hasClass('fa-minus-square-o')) {
-                flipElements.hide();
-                iButton.removeClass().addClass('fa fa-plus-square-o');
-            } else {
-                iButton.removeClass().addClass('fa fa-minus-square-o');
-                flipElements.show();
-            }
-        };
+    const factoryShowForm = (section, button) => e => {
+        e.preventDefault();
+        const iButton = button.find('i');
+        const flipElements = section.find('form, section, footer');
+        if (iButton.hasClass('fa-minus-square-o')) {
+            flipElements.hide();
+            iButton.removeClass().addClass('fa fa-plus-square-o');
+        } else {
+            iButton.removeClass().addClass('fa fa-minus-square-o');
+            flipElements.show();
+        }
     };
 
-    var parseFormContent = function(tableJNode, databaseJNode, header, wrappers) {
-        var nFields = wrappers.length;
+    const parseFormContent = (tableJNode, databaseJNode, header, wrappers) => {
+        let nFields = wrappers.length;
         if (nFields % 2)
             nFields += 1;
 
-        var inputLines = [];
+        const inputLines = [];
 
-        for (var line = 0, idxField = 0; line < nFields / 2; line++, idxField += 2) {
-            var inputLine = $('<div />').addClass('input-line').append(wrappers[idxField]);
+        for (let line = 0, idxField = 0; line < nFields / 2; line++, idxField += 2) {
+            const inputLine = $('<div />').addClass('input-line').append(wrappers[idxField]);
             if (typeof wrappers[idxField + 1] !== 'undefined') {
                 inputLine.append(wrappers[idxField + 1]);
             }
             inputLines.push(inputLine);
         }
 
-        var contentFilters = $('<div />').addClass('content-filters');
-        for (var idxLine in inputLines) {
+        const contentFilters = $('<div />').addClass('content-filters');
+        for (const idxLine in inputLines) {
             contentFilters.append(inputLines[idxLine]);
         }
 
@@ -74,21 +72,21 @@ module.exports = function(controller) {
             .append($('<div />').addClass('content').append(contentFilters));
     };
 
-    var parseForm = function(tableJNode, databaseJNode, header, section) {
-        var wrappers = [];
+    const parseForm = (tableJNode, databaseJNode, header, section) => {
+        const wrappers = [];
 
-        var form = $('<form />').addClass('block-filters').attr({
+        const form = $('<form />').addClass('block-filters').attr({
             method: 'post',
             action: '#'
         });
 
-        tableJNode.find('field').each(function(idx, field) {
+        tableJNode.find('field').each((idx, field) => {
             wrappers.push(parseWrapper(field));
         });
 
         form.append(parseFormContent(tableJNode, databaseJNode, header, wrappers));
 
-        var inputLine = $('<div />').addClass('input-line');
+        const inputLine = $('<div />').addClass('input-line');
         if (tableJNode.attr('harlanSearch') === 'enabled')
             inputLine.append($('<div />').addClass('input-wrapper').append($('<input />').attr({
                 value: 'Pesquisar',
@@ -102,27 +100,25 @@ module.exports = function(controller) {
         return form;
     };
 
-    var factoryCloseSection = function(section) {
-        return function(e) {
-            e.preventDefault();
-            section.remove();
-        };
+    const factoryCloseSection = section => e => {
+        e.preventDefault();
+        section.remove();
     };
 
-    var parseHeader = function(tableJNode, databaseJNode, section) {
-        var header = $('<header />');
-        var container = $('<div />').addClass('container');
-        var content = $('<div />').addClass('content');
-        var form = parseForm(tableJNode, databaseJNode, header, section);
+    const parseHeader = (tableJNode, databaseJNode, section) => {
+        const header = $('<header />');
+        const container = $('<div />').addClass('container');
+        const content = $('<div />').addClass('content');
+        const form = parseForm(tableJNode, databaseJNode, header, section);
 
         content.append($('<h2 />').text(databaseJNode.attr('label') || databaseJNode.attr('name')));
         content.append($('<h3 />').text(tableJNode.attr('label') || tableJNode.attr('name')));
         content.append($('<div />').addClass('results-display').text(tableJNode.attr('description')));
 
-        var actions = $('<ul />').addClass('actions');
+        const actions = $('<ul />').addClass('actions');
         actions.append($('<li />').addClass('display-loader').append($('<i />').addClass('fa fa-spinner fa-spin')));
-        var maximizeButton = $('<li />').addClass('action-resize').append($('<i />').addClass('fa fa-minus-square-o'));
-        var closeButton = $('<li />').addClass('action-close').append($('<i />').addClass('fa fa-times-circle'));
+        const maximizeButton = $('<li />').addClass('action-resize').append($('<i />').addClass('fa fa-minus-square-o'));
+        const closeButton = $('<li />').addClass('action-close').append($('<i />').addClass('fa fa-times-circle'));
         maximizeButton.click(factoryShowForm(section, maximizeButton));
         closeButton.click(factoryCloseSection(section));
         actions.append(maximizeButton);
@@ -133,27 +129,27 @@ module.exports = function(controller) {
         section.append(header);
     };
 
-    var parseSection = function(tableJNode, databaseJNode, section) {
+    const parseSection = (tableJNode, databaseJNode, section) => {
         section.append($('<section />').addClass('results'));
     };
 
-    var parseFooter = function(tableJNode, databaseJNode, section) {
-        var footer = $('<footer />').addClass('load-more hide');
-        var container = $('<div />').addClass('container');
-        var content = $('<div />').addClass('content').text('Mais Resultados');
+    const parseFooter = (tableJNode, databaseJNode, section) => {
+        const footer = $('<footer />').addClass('load-more hide');
+        const container = $('<div />').addClass('container');
+        const content = $('<div />').addClass('content').text('Mais Resultados');
         section.append(footer.append(container.append(content)));
     };
 
-    var parseTable = function(tableJNode, databaseJNode) {
-        var section = $('<section />').addClass('group-type database');
+    const parseTable = (tableJNode, databaseJNode) => {
+        const section = $('<section />').addClass('group-type database');
         parseHeader(tableJNode, databaseJNode, section);
         parseSection(tableJNode, databaseJNode, section);
         parseFooter(tableJNode, databaseJNode, section);
         return section;
     };
 
-    var loadExternalJavascript = function(domTable, jElement) {
-        var scripts = jElement.find('harlanJSONP');
+    const loadExternalJavascript = (domTable, jElement) => {
+        const scripts = jElement.find('harlanJSONP');
         if (!scripts.length)
             return false;
 
@@ -164,24 +160,24 @@ module.exports = function(controller) {
         return true;
     };
 
-    var items = [];
+    const items = [];
 
-    var parseDocument = function(jDocument, text, modal) {
+    const parseDocument = (jDocument, text, modal) => {
 
         text = text.toLowerCase();
 
-        for (var idx in items) {
+        for (const idx in items) {
             items[idx].remove();
         }
 
-        jDocument.find('database table[harlan="enabled"]').each(function(idx, element) {
-            var tableJNode = $(element);
-            var databaseJNode = tableJNode.closest('database');
+        jDocument.find('database table[harlan="enabled"]').each((idx, element) => {
+            const tableJNode = $(element);
+            const databaseJNode = tableJNode.closest('database');
 
-            var matchText = function(node) {
-                var validAttrs = ['label', 'name', 'description'];
-                for (var idx in validAttrs) {
-                    if (node.attr(validAttrs[idx]).toLowerCase().indexOf(text) >= 0)
+            const matchText = node => {
+                const validAttrs = ['label', 'name', 'description'];
+                for (const idx in validAttrs) {
+                    if (node.attr(validAttrs[idx]).toLowerCase().includes(text))
                         return true;
                 }
                 return false;
@@ -195,11 +191,9 @@ module.exports = function(controller) {
                 tableJNode.attr('label') || tableJNode.attr('name'),
                 tableJNode.attr('description'))
                 .addClass('database')
-                .click(function() {
-                    var domTable = parseTable(tableJNode, databaseJNode);
-                    controller.trigger('findDatabase::table::' +
-                        databaseJNode.attr('name').toUpperCase() + '::' +
-                        tableJNode.attr('name').toUpperCase(), {
+                .click(() => {
+                    const domTable = parseTable(tableJNode, databaseJNode);
+                    controller.trigger(`findDatabase::table::${databaseJNode.attr('name').toUpperCase()}::${tableJNode.attr('name').toUpperCase()}`, {
                         dom: domTable,
                         about: tableJNode
                     });
@@ -210,13 +204,13 @@ module.exports = function(controller) {
         });
     };
 
-    controller.registerTrigger('findDatabase::instantSearch', 'findDatabase::instantSearch', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'findDatabase::instantSearch', (args, callback) => {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }
 
-        var text = args[0],
-            modal = args[1];
+        const text = args[0];
+        const modal = args[1];
 
         if (!/^[a-z]{3,}[a-z\s*]/i.test(text)) {
             callback();
@@ -224,28 +218,28 @@ module.exports = function(controller) {
         }
 
         xhr = controller.serverCommunication.call('SELECT FROM \'INFO\'.\'INFO\'', {
-            complete: function() {
+            complete() {
                 callback();
             },
-            success: function(domDocument) {
+            success(domDocument) {
                 parseDocument($(domDocument), text, modal);
             },
             cache: true
         });
     });
 
-    controller.registerBootstrap('databaseSearch', function(callback) {
+    controller.registerBootstrap('databaseSearch', callback => {
         callback();
         $('.input-q').each((i, v) => {
             let inputDatabaseSearch = $(v);
-            var autocomplete = controller.call('autocomplete', inputDatabaseSearch);
+            const autocomplete = controller.call('autocomplete', inputDatabaseSearch);
 
-            var searchLength;
-            var searchId;
+            let searchLength;
+            let searchId;
 
-            inputDatabaseSearch.keyup(function() {
-                var search = inputDatabaseSearch.val();
-                var newLength = search.length;
+            inputDatabaseSearch.keyup(() => {
+                const search = inputDatabaseSearch.val();
+                const newLength = search.length;
 
                 if (newLength === searchLength)
                     return;
@@ -256,9 +250,9 @@ module.exports = function(controller) {
                 if (searchId)
                     clearTimeout(searchId);
 
-                searchId = setTimeout(function() {
+                searchId = setTimeout(() => {
                     $('.q').addClass('loading');
-                    controller.trigger('findDatabase::instantSearch', [search, autocomplete], function(args, callback) {
+                    controller.trigger('findDatabase::instantSearch', [search, autocomplete], (args, callback) => {
                         if (typeof callback === 'function') {
                             callback();
                         }

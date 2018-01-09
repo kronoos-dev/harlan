@@ -1,12 +1,12 @@
 /* global toastr, BIPBOP_FREE, module */
 import localForage from 'localforage';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     /**
      * Captura o Session ID
      */
-    var getSessionId = function(callback) {
+    const getSessionId = callback => {
         if (controller.query.apiKey) callback(controller.query.apiKey);
         else if (sessionStorage.apiKey) callback(sessionStorage.apiKey);
         else localForage.getItem('sessionId', (err, value) => callback(err ? null : value));
@@ -15,7 +15,7 @@ module.exports = function(controller) {
     /**
      * Define um Session ID
      */
-    var setSessionId = function(value, cb) {
+    const setSessionId = (value, cb) => {
         if (!value) localForage.removeItem('sessionId', cb);
         else localForage.setItem('sessionId', value, cb);
     };
@@ -25,7 +25,7 @@ module.exports = function(controller) {
     /**
      * Set the default page! \m/
      */
-    controller.registerCall('default::page', function() {
+    controller.registerCall('default::page', () => {
         controller.interface.helpers.activeWindow('.site');
     });
 
@@ -50,7 +50,7 @@ module.exports = function(controller) {
     /**
      * Registra o formulário
      */
-    controller.registerTrigger('bootstrap::end', 'authentication::bootstrap', function(obj, callback) {
+    controller.registerTrigger('bootstrap::end', 'authentication::bootstrap', (obj, callback) => {
         callback();
 
         if (!authenticate()) {
@@ -61,12 +61,12 @@ module.exports = function(controller) {
             }
         }
 
-        $('#action-logout').click(function(e) {
+        $('#action-logout').click(e => {
             e.preventDefault();
             controller.call('authentication::logout');
         });
 
-        $('#form-login').submit(function(e) {
+        $('#form-login').submit(e => {
             e.preventDefault();
             controller.call('authentication::authenticate');
         });
@@ -76,30 +76,32 @@ module.exports = function(controller) {
     /**
      * Chama pelo logout
      */
-    controller.registerCall('authentication::logout', function() {
-        var modal = controller.call('modal');
+    controller.registerCall('authentication::logout', () => {
+        const modal = controller.call('modal');
         modal.title('Você está saindo da conta.');
         modal.subtitle('Aguarde enquanto a página é recarregada para sua segurança.');
         modal.addParagraph('Esperamos que sua visita tenha sido proveitosa e sua experiência incrível.');
         delete sessionStorage.apiKey;
-        var loggedout = false,
-            logout = function() {
-                loggedout = true;
-                controller.serverCommunication.apiKey(BIPBOP_FREE);
-                controller.call('default::page');
-                $('#input-username').val('');
-                $('#input-password').val('');
-                $('#input-save-password').removeAttr('checked');
-                setSessionId(null, () => {
-                    controller.trigger('authentication::logout::end');
-                    if (navigator.serviceWorker && navigator.serviceWorker.controller)
-                        navigator.serviceWorker.controller.postMessage(null);
-                    location.reload(true); /* prevent information leak */
-                });
-            },
-            timeout = setTimeout(logout, 10000);
+        let loggedout = false;
 
-        controller.trigger('authentication::logout', null, function() {
+        const logout = () => {
+            loggedout = true;
+            controller.serverCommunication.apiKey(BIPBOP_FREE);
+            controller.call('default::page');
+            $('#input-username').val('');
+            $('#input-password').val('');
+            $('#input-save-password').removeAttr('checked');
+            setSessionId(null, () => {
+                controller.trigger('authentication::logout::end');
+                if (navigator.serviceWorker && navigator.serviceWorker.controller)
+                    navigator.serviceWorker.controller.postMessage(null);
+                location.reload(true); /* prevent information leak */
+            });
+        };
+
+        const timeout = setTimeout(logout, 10000);
+
+        controller.trigger('authentication::logout', null, () => {
             if (loggedout) {
                 return;
             }
@@ -108,7 +110,7 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('authentication::loggedin', function() {
+    controller.registerCall('authentication::loggedin', () => {
         controller.interface.helpers.activeWindow('.app');
     });
 
@@ -122,7 +124,7 @@ module.exports = function(controller) {
         controller.serverCommunication.apiKey(key);
         sessionStorage.apiKey = key;
 
-        controller.trigger('authentication::authenticated', ret, function(err) {
+        controller.trigger('authentication::authenticated', ret, err => {
             if (err) {
                 controller.call('default::page');
                 return;
@@ -137,7 +139,7 @@ module.exports = function(controller) {
     /**
      * Força uma autenticação
      */
-    controller.registerCall('authentication::force', function(apiKey, ret, cb) {
+    controller.registerCall('authentication::force', (apiKey, ret, cb) => {
         authenticate(apiKey, ret, cb);
     });
 
@@ -151,15 +153,12 @@ module.exports = function(controller) {
     /**
      * Chama pela autenticação
      */
-    controller.registerCall('authentication::authenticate', function(inputUsername, inputPassword, savePassword, callback) {
-
-        savePassword = typeof savePassword !== 'undefined' ?
-            savePassword :
-            $('#input-save-password').is(':checked');
-
-        inputUsername = inputUsername || $('#input-username');
-        inputPassword = inputPassword || $('#input-password');
-
+    controller.registerCall('authentication::authenticate', (
+        inputUsername = $('#input-username'),
+        inputPassword = $('#input-password'),
+        savePassword = $('#input-save-password').is(':checked'),
+        callback
+    ) => {
         if (/^\s*$/.test(inputUsername.val()) || inputPassword.val() === '') {
             toastr.error('Para acessar o sistema você precisa inserir seu usuário e senha.', 'Insira seu nome de usuário e senha.');
             return;
@@ -167,14 +166,14 @@ module.exports = function(controller) {
 
         controller.serverCommunication.call('SELECT FROM \'HarlanAuthentication\'.\'Authenticate\'',
             controller.call('loader::ajax', controller.call('error::ajax', {
-                error: function() {
+                error() {
                     inputUsername.addClass('error');
                     inputPassword.addClass('error');
                 },
-                success: function(domDocument) {
+                success(domDocument) {
                     $('#logged-user').text($('BPQL > body username', domDocument).text());
 
-                    var apiKey = $('BPQL > body apiKey', domDocument).text();
+                    const apiKey = $('BPQL > body apiKey', domDocument).text();
                     authenticate(apiKey, domDocument);
 
                     if (savePassword) {
@@ -197,15 +196,15 @@ module.exports = function(controller) {
         $('#form-login').trigger('reset');
     });
 
-    controller.registerCall('authentication::need', function(callback) {
+    controller.registerCall('authentication::need', callback => {
         if (controller.serverCommunication.freeKey()) {
             controller.interface.helpers.activeWindow('.login');
-            var modal = controller.call('modal');
+            const modal = controller.call('modal');
             modal.title('Você precisa estar autenticado');
             modal.subtitle('Essa operação exige que você esteja autenticado.');
             modal.addParagraph('Reinicie a operação após autenticar-se.');
-            var form = modal.createForm();
-            form.element().submit(function(e) {
+            const form = modal.createForm();
+            form.element().submit(e => {
                 e.preventDefault();
                 modal.close();
             });

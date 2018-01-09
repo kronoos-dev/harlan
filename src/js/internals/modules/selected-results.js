@@ -1,12 +1,12 @@
-module.exports = function (controller) {
-    controller.registerCall('selectedResults', function () {
+module.exports = controller => {
+    controller.registerCall('selectedResults', () => {
         
-        var result = $('.result');
+        const result = $('.result');
         if (result.length === 1) {
             return result;
         }
         
-        var results = $('.result.selected');
+        const results = $('.result.selected');
         if (!results.length) {
             toastr.warning('Nenhum resultado selecionado.');
             return results;

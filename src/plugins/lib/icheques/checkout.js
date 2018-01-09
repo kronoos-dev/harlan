@@ -28,20 +28,20 @@ const DATABASE_KEYS = [
     'image'
 ];
 
-var squel = require('squel'),
-    changeCase = require('change-case'),
-    async = require('async'),
-    _ = require('underscore'),
-    validCheck = require('./data/valid-check');
+import squel from 'squel';
+import changeCase from 'change-case';
+import async from 'async';
+import _ from 'underscore';
+import validCheck from './data/valid-check';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var databaseObject = (obj, type) => {
+    const databaseObject = (obj, type) => {
 
         type = type || 'constantCase';
-        var n = {};
-        for (var i in obj) {
-            if (DATABASE_KEYS.indexOf(changeCase.camelCase(i)) < 0) {
+        const n = {};
+        for (const i in obj) {
+            if (!DATABASE_KEYS.includes(changeCase.camelCase(i))) {
                 continue;
             }
             n[changeCase[type](i)] = obj[i];
@@ -51,13 +51,11 @@ module.exports = function(controller) {
 
     controller.registerCall('icheques::databaseObject', databaseObject);
 
-    var insertDatabase = function(check) {
+    const insertDatabase = check => {
         if (Array.isArray(check)) {
             if (check.length <= 0)
                 return;
-            _.map(check, function(check) {
-                return insertDatabase(check);
-            });
+            _.map(check, check => insertDatabase(check));
             return;
         }
 
@@ -78,7 +76,7 @@ module.exports = function(controller) {
 
     controller.registerCall('icheques::insertDatabase', insertDatabase);
 
-    var calculateCheck = function(check) {
+    const calculateCheck = check => {
         if (!validCheck(check.cmc)) {
             return 0;
         }
@@ -91,7 +89,7 @@ module.exports = function(controller) {
         if (checkDiff <= 0) {
             return controller.confs.icheques.price;
         }
-        var months = checkDiff - controller.confs.icheques.monthsIncluded;
+        const months = checkDiff - controller.confs.icheques.monthsIncluded;
         if (months <= 0) {
             return controller.confs.icheques.price;
         }
@@ -99,18 +97,18 @@ module.exports = function(controller) {
         return controller.confs.icheques.price + (months * controller.confs.icheques.moreMonths);
     };
 
-    var newCheck = function(check, callback) {
+    const newCheck = (check, callback) => {
         controller.serverCommunication.call('SELECT FROM \'ICHEQUES\'.\'CHECK\'',
             controller.call('error::ajax', {
                 data: check,
-                success: function(ret) {
+                success(ret) {
                     if (!$('new', ret).length) {
                         toastr.warning(`O cheque ${check.cmc} informado já foi cadastrado.`, 'Efetue uma busca no sistema e tente novamente.');
                     }
-                    $.extend(check, controller.call('icheques::parse::element', $(ret).find('check').get(0)));
+                    Object.assign(check, controller.call('icheques::parse::element', $(ret).find('check').get(0)));
                     insertDatabase(check);
                 },
-                complete: function() {
+                complete() {
                     callback();
                 }
             }));
@@ -120,26 +118,26 @@ module.exports = function(controller) {
     controller.registerCall('icheques::newCheck', newCheck);
     controller.registerCall('icheques::calculateCheckValue', calculateCheck);
 
-    controller.registerCall('icheques::checkout', function(storage) {
+    controller.registerCall('icheques::checkout', storage => {
         if (!storage.length) {
             return;
         }
 
-        controller.call('icheques::calculateBill', storage, function() {
-            var q = async.queue(newCheck);
-            var loaderUnregister = $.bipbopLoader.register();
-            q.drain = function() {
+        controller.call('icheques::calculateBill', storage, () => {
+            const q = async.queue(newCheck);
+            const loaderUnregister = $.bipbopLoader.register();
+            q.drain = () => {
                 loaderUnregister();
                 controller.call('icheques::show', storage);
             };
 
-            for (var i in storage) {
+            for (const i in storage) {
                 q.push(storage[i]);
             }
         });
     });
 
-    controller.registerCall('icheques::calculateBill', function(checks, callback) {
+    controller.registerCall('icheques::calculateBill', (checks, callback) => {
         controller.server.call('SELECT FROM \'ICHEQUES\'.\'IPAYTHEBILL\'', controller.call('loader::ajax', {
             dataType: 'json',
             success: data => {
@@ -152,9 +150,9 @@ module.exports = function(controller) {
         }));
     });
 
-    controller.registerCall('icheques::calculateBill::pay', function(checks, callback) {
-        var total = 0;
-        for (var i in checks) {
+    controller.registerCall('icheques::calculateBill::pay', (checks, callback) => {
+        let total = 0;
+        for (const i in checks) {
             total += calculateCheck(checks[i]);
         }
 

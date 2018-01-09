@@ -23,7 +23,7 @@ harlan.addPlugin(controller => {
      * @returns {array}
      */
     var reduceDataset = (dataArgument, reduceDatasetPerc = 0.5, method = 'average') => {
-        let data = jQuery.extend(true, {}, dataArgument);
+        let data = Object.assign( {}, dataArgument);
         var sum = _.reduce(data, (a, b) => {
             return {
                 value: a.value + b.value
@@ -84,7 +84,7 @@ harlan.addPlugin(controller => {
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({
                 'background-color': item.color,
-                'color': item.colorInstance.light() ? '#000' : '#fff',
+                color: item.colorInstance.light() ? '#000' : '#fff',
             });
         }
 

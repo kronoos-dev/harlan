@@ -5,7 +5,7 @@ import {
     CNPJ
 } from 'cpf_cnpj';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     const INPUT = $('#kronoos-q');
     const KRONOOS_ACTION = $('#kronoos-action');

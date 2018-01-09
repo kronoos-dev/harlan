@@ -1,22 +1,22 @@
 /* global module */
-var _ = require('underscore');
+import _ from 'underscore';
 
-module.exports = function(element) {
+export default function(element) {
 
-    var list = $('<ul />').addClass('list');
-    var container = $('<div />').addClass('list-container').append(list);
+    const list = $('<ul />').addClass('list');
+    const container = $('<div />').addClass('list-container').append(list);
     element.append(container);
 
-    var elementCellCounter = element => {
+    const elementCellCounter = element => {
         return $(element).children().length;
     };
 
-    var cellCounter = () => {
+    const cellCounter = () => {
         return _.max(_.map(list.children('li'), elementCellCounter));
     };
 
-    var tableAjustment = () => {
-        var numChilds = cellCounter();
+    const tableAjustment = () => {
+        const numChilds = cellCounter();
         list.children('li').each((i, element) => {
             element = $(element);
             for (let it = 0; it < numChilds - elementCellCounter(element); it++) {
@@ -31,14 +31,14 @@ module.exports = function(element) {
     };
 
     this.item = (icon, text) => {
-        var item = $('<li />');
+        const item = $('<li />');
         list.append(item);
         if (icon instanceof Array) {
             for (let idx in icon) {
-                item.append($('<i />').addClass('fa ' + icon[idx]));
+                item.append($('<i />').addClass(`fa ${icon[idx]}`));
             }
         } else {
-            item.append($('<i />').addClass('fa ' + icon));
+            item.append($('<i />').addClass(`fa ${icon}`));
         }
         if (text instanceof Array) {
             for (let idx in text) {
@@ -54,9 +54,7 @@ module.exports = function(element) {
 
     this.add = this.item;
 
-    this.element = function() {
-        return list;
-    };
+    this.element = () => list;
 
     return this;
 };

@@ -1,16 +1,17 @@
 /* global module, toastr, require */
 
-var SAFE_PASSWORD = /^.{6,}$/,
-    PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i,
-    VALIDATE_NAME = /^[a-z]{2,}\s+[a-z]{2,}/i,
-    CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ,
-    emailRegex = require('email-regex'),
-    sprintf = require('sprintf');
+var SAFE_PASSWORD = /^.{6,}$/;
 
-module.exports = function(controller) {
+var PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i;
+var VALIDATE_NAME = /^[a-z]{2,}\s+[a-z]{2,}/i;
+var CPF = require('cpf_cnpj').CPF;
+var CNPJ = require('cpf_cnpj').CNPJ;
+var emailRegex = require('email-regex');
+var sprintf = require('sprintf');
 
-    controller.registerCall('kronoos::createAccount::1', function(data, callback, type = 'Account') {
+module.exports = controller => {
+
+    controller.registerCall('kronoos::createAccount::1', (data, callback, type = 'Account') => {
         var modal = controller.call('modal');
         modal.fullscreen();
         modal.title('Crie sua conta Kronoos');
@@ -19,36 +20,40 @@ module.exports = function(controller) {
 
         var form = modal.createForm();
 
-        var inputName = form.addInput('nome', 'text', 'Nome Completo').magicLabel(),
-            objDocument = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            objEmail = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            objLocation = {
-                append: form.multiField(),
-                labelPosition: 'before'
-            },
-            inputCommercialReference = form.addInput('commercialReference', 'text', 'Quem nos indicou? / Referência comercial', objEmail).magicLabel(),
-            inputCpf = form.addInput('cpf', 'text', 'CPF', objDocument).mask('000.000.000-00').magicLabel(),
-            inputCnpj = form.addInput('cnpj', 'text', 'CNPJ (opcional)', objDocument, 'CNPJ (opcional)').mask('00.000.000/0000-00').magicLabel(),
-            inputZipcode = form.addInput('cep', 'text', 'CEP', objLocation).mask('00000-000').magicLabel(),
-            inputPhone = form.addInput('phone', 'text', 'Telefone', objLocation).mask('(00) 0000-00009').magicLabel();
+        var inputName = form.addInput('nome', 'text', 'Nome Completo').magicLabel();
+
+        var objDocument = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        var objEmail = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        var objLocation = {
+            append: form.multiField(),
+            labelPosition: 'before'
+        };
+
+        var inputCommercialReference = form.addInput('commercialReference', 'text', 'Quem nos indicou? / Referência comercial', objEmail).magicLabel();
+        var inputCpf = form.addInput('cpf', 'text', 'CPF', objDocument).mask('000.000.000-00').magicLabel();
+        var inputCnpj = form.addInput('cnpj', 'text', 'CNPJ (opcional)', objDocument, 'CNPJ (opcional)').mask('00.000.000/0000-00').magicLabel();
+        var inputZipcode = form.addInput('cep', 'text', 'CEP', objLocation).mask('00000-000').magicLabel();
+        var inputPhone = form.addInput('phone', 'text', 'Telefone', objLocation).mask('(00) 0000-00009').magicLabel();
 
         form.addSubmit('login', 'Criar Conta');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
 
-            var errors = [],
-                name = inputName.val(),
-                cpf = inputCpf.val(),
-                cnpj = inputCnpj.val(),
-                zipcode = inputZipcode.val(),
-                commercialReference = inputCommercialReference.val();
+            var errors = [];
+            var name = inputName.val();
+            var cpf = inputCpf.val();
+            var cnpj = inputCnpj.val();
+            var zipcode = inputZipcode.val();
+            var commercialReference = inputCommercialReference.val();
 
             if (!VALIDATE_NAME.test(name)) {
                 errors.push('Favor preencher o nome completo adequadamente.');
@@ -103,22 +108,22 @@ module.exports = function(controller) {
                 return;
             }
 
-            var phoneMatch = PHONE_REGEX.exec(inputPhone.val()),
-                ddd = phoneMatch[1],
-                phone = phoneMatch[2] + '-' + phoneMatch[3];
+            var phoneMatch = PHONE_REGEX.exec(inputPhone.val());
+            var ddd = phoneMatch[1];
+            var phone = phoneMatch[2] + '-' + phoneMatch[3];
 
             controller.serverCommunication.call(`INSERT INTO 'kronoosAuthentication'.'${type}'`,
                 controller.call('error::ajax', controller.call('loader::ajax', {
-                    data: $.extend({
-                        name: name,
-                        cpf: cpf,
-                        cnpj: cnpj,
-                        commercialReference: commercialReference,
-                        zipcode: zipcode,
-                        ddd: ddd,
-                        phone: phone
+                    data: Object.assign({
+                        name,
+                        cpf,
+                        cnpj,
+                        commercialReference,
+                        zipcode,
+                        ddd,
+                        phone
                     }, data),
-                    success: function(domDocument) {
+                    success(domDocument) {
                         modal.close();
                         var apiKey = $('BPQL > body apiKey', domDocument).text();
                         controller.call('authentication::force', apiKey, domDocument);
@@ -128,41 +133,42 @@ module.exports = function(controller) {
                 })));
         });
         var actions = modal.createActions();
-        actions.add('Voltar').click(function(e) {
+        actions.add('Voltar').click(e => {
             e.preventDefault();
             modal.close();
             controller.call('kronoos::createAccount', callback);
         });
 
-        actions.add('Cancelar').click(function(e) {
+        actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
     });
 
-    controller.registerCall('kronoos::createAccount', function(callback, contract, parameters = {}, type = 'Account') {
+    controller.registerCall('kronoos::createAccount', (callback, contract, parameters = {}, type = 'Account') => {
         var modal = controller.call('modal');
         modal.fullscreen();
         modal.title('Crie sua conta Kronoos');
         modal.subtitle('Informe seu usuário e senha desejados para continuar');
         modal.addParagraph('Sua senha é secreta e recomendamos que não a revele a ninguém.');
 
-        var form = modal.createForm(),
-            inputEmail = form.addInput('email', 'email', 'E-mail').magicLabel(),
-            inputPassword = form.addInput('password', 'password', 'Senha').magicLabel(),
-            inputConfirmPassword = form.addInput('password-confirm', 'password', 'Confirmar Senha').magicLabel(),
-            inputAgree = form.addCheckbox('agree', sprintf('Eu li e aceito o <a href="%s" target="_blank">contrato de usuário</a>.',
-                contract || 'legal/kronoos/MINUTA___CONTRATO___CONTA.pdf'), false);
+        var form = modal.createForm();
+        var inputEmail = form.addInput('email', 'email', 'E-mail').magicLabel();
+        var inputPassword = form.addInput('password', 'password', 'Senha').magicLabel();
+        var inputConfirmPassword = form.addInput('password-confirm', 'password', 'Confirmar Senha').magicLabel();
+
+        var inputAgree = form.addCheckbox('agree', sprintf('Eu li e aceito o <a href="%s" target="_blank">contrato de usuário</a>.',
+            contract || 'legal/kronoos/MINUTA___CONTRATO___CONTA.pdf'), false);
 
         form.addSubmit('login', 'Próximo Passo');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
 
-            var errors = [],
-                email = inputEmail.val(),
-                password = inputPassword.val(),
-                confirmPassword = inputConfirmPassword.val();
+            var errors = [];
+            var email = inputEmail.val();
+            var password = inputPassword.val();
+            var confirmPassword = inputConfirmPassword.val();
 
             if (!emailRegex().test(email)) {
                 inputEmail.addClass('error');
@@ -199,12 +205,12 @@ module.exports = function(controller) {
                     data: {
                         username: email
                     },
-                    success: function() {
+                    success() {
                         modal.close();
-                        controller.call('kronoos::createAccount::1', $.extend(parameters, {
+                        controller.call('kronoos::createAccount::1', Object.assign(parameters, {
                             username: email,
-                            email: email,
-                            password: password
+                            email,
+                            password
                         }), callback, type);
                     }
                 })));
@@ -212,34 +218,34 @@ module.exports = function(controller) {
 
         var actions = modal.createActions();
 
-        actions.add('Cancelar').click(function(e) {
+        actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
 
-        actions.add('Login').click(function(e) {
+        actions.add('Login').click(e => {
             e.preventDefault();
             modal.close();
             controller.call('kronoos::login', callback);
         });
     });
 
-    controller.registerCall('kronoos::login', function(callback) {
+    controller.registerCall('kronoos::login', callback => {
         var modal = controller.call('modal');
         modal.fullscreen();
         modal.title('Autentique-se');
         modal.subtitle('Informe seu usuário e senha para continuar');
         modal.addParagraph('Sua senha é secreta e recomendamos que não a revele a ninguém.');
 
-        var form = modal.createForm(),
-            inputUsername = form.addInput('user', 'text', 'Usuário').magicLabel(),
-            inputPassword = form.addInput('password', 'password', 'Senha').magicLabel();
+        var form = modal.createForm();
+        var inputUsername = form.addInput('user', 'text', 'Usuário').magicLabel();
+        var inputPassword = form.addInput('password', 'password', 'Senha').magicLabel();
 
         form.addSubmit('login', 'Autenticar');
 
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
-            controller.call('authentication::authenticate', inputUsername, inputPassword, false, function() {
+            controller.call('authentication::authenticate', inputUsername, inputPassword, false, () => {
                 modal.close();
                 callback();
             });
@@ -247,30 +253,30 @@ module.exports = function(controller) {
 
         var actions = modal.createActions();
 
-        actions.add('Criar Conta').click(function(e) {
+        actions.add('Criar Conta').click(e => {
             e.preventDefault();
-            controller.call('kronoos::createAccount', function() {
+            controller.call('kronoos::createAccount', () => {
                 controller.call('kronoos::login', callback);
             });
             modal.close();
         });
 
-        actions.add('Esqueci minha Senha').click(function(e) {
+        actions.add('Esqueci minha Senha').click(e => {
             e.preventDefault();
-            controller.call('forgotPassword', function() {
+            controller.call('forgotPassword', () => {
                 controller.call('kronoos::login', callback);
             });
             modal.close();
         });
 
-        actions.add('Cancelar').click(function(e) {
+        actions.add('Cancelar').click(e => {
             e.preventDefault();
             modal.close();
         });
     });
 
     if (controller.confs.kronoos.isKronoos) {
-        controller.registerCall('authentication::need', function(callback) {
+        controller.registerCall('authentication::need', callback => {
             if (controller.serverCommunication.freeKey()) {
                 controller.call('kronoos::login', callback);
                 return true;

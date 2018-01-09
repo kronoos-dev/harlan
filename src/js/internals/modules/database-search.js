@@ -1,56 +1,55 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerCall('databaseSearch::submit', function (args) {
+    controller.registerCall('databaseSearch::submit', args => {
+        const form = args[0];
+        const tableJNode = args[1];
+        const databaseJNode = args[2];
+        const section = args[3];
 
-        var form = args[0],
-            tableJNode = args[1],
-            databaseJNode = args[2],
-            section = args[3];
+        const database = databaseJNode.attr('name');
+        const table = tableJNode.attr('name');
 
-        var database = databaseJNode.attr('name');
-        var table = tableJNode.attr('name');
-
-        return function (e) {
-            var loader = section.find('.display-loader');
+        return e => {
+            const loader = section.find('.display-loader');
             e.preventDefault();
-            var formdata = form.serialize();
+            const formdata = form.serialize();
             controller.serverCommunication.call(`SELECT FROM '${database}'.'${table}'`, {
                 data: formdata,
-                success: function (doc) {
-                    var args = [].concat(doc, database, table, databaseJNode, tableJNode, section, form);
+                success(doc) {
+                    const args = [].concat(doc, database, table, databaseJNode, tableJNode, section, form);
                     controller.trigger('database::success', args);
-                    controller.trigger('database::success::' + database, args);
-                    controller.trigger('database::success::' + database + '::' + table, args);
+                    controller.trigger(`database::success::${database}`, args);
+                    controller.trigger(`database::success::${database}::${table}`, args);
                 },
-                error: function (x, h, r) {
-                    var args = [].concat(x, h, r, database, table, databaseJNode, tableJNode, section, form);
+                error(x, h, r) {
+                    const args = [].concat(x, h, r, database, table, databaseJNode, tableJNode, section, form);
                     controller.trigger('database::error', args);
-                    controller.trigger('database::error::' + database, args);
-                    controller.trigger('database::error::' + database + '::' + table, args);
+                    controller.trigger(`database::error::${database}`, args);
+                    controller.trigger(`database::error::${database}::${table}`, args);
                 },
-                beforeSend: function () {
+                beforeSend() {
                     loader.css('display', 'inline-block');
                 },
-                complete: function () {
+                complete() {
                     loader.css('display', 'none');
                 }
             });
         };
     });
 
-    controller.registerTrigger('database::success', 'databaseSearch::success', function (args, callback) {
+    controller.registerTrigger('database::success', 'databaseSearch::success', (args, callback) => {
         callback();
 
-        var doc = args[0],
-            database = args[1],
-            table = args[2],
-            databaseJNode = args[3],
-            tableJNode = args[4],
-            section = args[5],
-            form = args[6];
+        const doc = args[0];
+        const database = args[1];
+        const table = args[2];
+        const databaseJNode = args[3];
+        const tableJNode = args[4];
+        const section = args[5];
+        const form = args[6];
 
-        var results = section.find('.results');
-        var htmlNode = controller.call('xmlDocument', doc);
+        const results = section.find('.results');
+        const htmlNode = controller.call('xmlDocument', doc);
         htmlNode.find('.xml2html').data('form', form.serializeArray());
 
         results.empty().append(htmlNode);

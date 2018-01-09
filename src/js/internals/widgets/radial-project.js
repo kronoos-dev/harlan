@@ -1,19 +1,19 @@
-var radialCeil = function (value) {
+const radialCeil = value => {
     if (!value) {
         return 0;
     }
     return (Math.round(value) * 100) / 100;
 };
 
-module.exports = function (parent, percent) {
+module.exports = (parent, percent) => {
     percent = radialCeil(percent);
-    var radialProject = $('<div />').addClass('radialProject'),
-        progress = $('<div />').addClass('progress'),
-        progressFill = $('<div />').addClass('progressFill'),
-        percents = $('<div />').addClass('percents'),
-        percentsWrapper = $('<div />').addClass('percentsWrapper'),
-        percentText = $('<span />').text('%'),
-        deg = 360 * percent / 100;
+    const radialProject = $('<div />').addClass('radialProject');
+    const progress = $('<div />').addClass('progress');
+    const progressFill = $('<div />').addClass('progressFill');
+    const percents = $('<div />').addClass('percents');
+    const percentsWrapper = $('<div />').addClass('percentsWrapper');
+    const percentText = $('<span />').text('%');
+    let deg = 360 * percent / 100;
 
     percents.append(percentsWrapper.append(percentText));
     progress.append(progressFill);
@@ -23,18 +23,18 @@ module.exports = function (parent, percent) {
         radialProject.addClass('gtHalf');
     }
 
-    progressFill.css('transform', 'rotate(' + deg + 'deg)');
-    percentText.text(percent.toString() + ' %');
+    progressFill.css('transform', `rotate(${deg}deg)`);
+    percentText.text(`${percent.toString()} %`);
 
     parent.append(radialProject);
     let ret = {
         element: radialProject,
-        change: function (percent) {
+        change(percent) {
             percent = radialCeil(percent);
             deg = 360 * percent / 100;
             radialProject[percent > 50 ? 'addClass' : 'removeClass']('gtHalf');
-            progressFill.css('transform', 'rotate(' + deg + 'deg)');
-            percentText.text(Math.floor(percent).toString() + ' %');
+            progressFill.css('transform', `rotate(${deg}deg)`);
+            percentText.text(`${Math.floor(percent).toString()} %`);
             if (ret.onChange) ret.onChange(percent);
         },
         onChange: null

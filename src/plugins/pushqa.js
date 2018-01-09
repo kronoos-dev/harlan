@@ -22,7 +22,7 @@ harlan.addPlugin(controller => {
      * @returns {array}
      */
     var reduceDataset = (dataArgument) => {
-        let data = jQuery.extend(true, {}, dataArgument);
+        let data = Object.assign( {}, dataArgument);
         var sum = _.reduce(data, (a, b) => {
             return {
                 value: a.value + b.value
@@ -152,7 +152,7 @@ harlan.addPlugin(controller => {
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({
                 'background-color': item.color,
-                'color': item.colorInstance.light() ? '#000' : '#fff',
+                color: item.colorInstance.light() ? '#000' : '#fff',
             });
         }
 
@@ -218,8 +218,8 @@ harlan.addPlugin(controller => {
         for (let item of dataset) {
             report.label(`${item.label}: ${item.value}`).css({
                 'background-color': item.color,
-                'cursor': 'pointer',
-                'color': item.colorInstance.light() ? '#000' : '#fff',
+                cursor: 'pointer',
+                color: item.colorInstance.light() ? '#000' : '#fff',
             }).click(e => {
                 e.preventDefault();
                 generateDatabaseReport(item.element, title, subtitle, paragraph);

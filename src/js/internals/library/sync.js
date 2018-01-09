@@ -16,7 +16,7 @@ export default class Sync {
     }
 
     register(interval = 300) {
-        var registerTask;
+        let registerTask;
         registerTask = () => {
             if (this.stop) return;
             setTimeout(() => this.sync(registerTask), interval);
@@ -67,7 +67,7 @@ export default class Sync {
         if (this.running) return;
         this.running = true;
 
-        var end = () => {
+        const end = () => {
             for (let cb of this.callbacks) cb();
             this.callbacks = [];
             this.taskCallbacks = [];
@@ -82,14 +82,14 @@ export default class Sync {
 
             this.controller.trigger('sync::start');
 
-            this.q = new queue((task, cb) => {
-                this.controller.call(task.call, err => {
+            this.q = new queue(({call, jobId, parameters}, cb) => {
+                this.controller.call(call, err => {
                     if (!err) {
-                        this.drop(task.jobId, () => cb());
+                        this.drop(jobId, () => cb());
                     } else {
                         cb(err);
                     }
-                }, ...task.parameters);
+                }, ...parameters);
             }, 1);
 
             this.q.drain = (...args) => {
@@ -101,9 +101,9 @@ export default class Sync {
                 if (err || !job) return;
                 let [call, parameters] = job;
                 this.q.push({
-                    jobId: jobId,
-                    call: call,
-                    parameters: parameters
+                    jobId,
+                    call,
+                    parameters
                 }, err => {
                     for (let cb of this.taskCallbacks) cb(err);
                 });

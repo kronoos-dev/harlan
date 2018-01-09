@@ -1,66 +1,62 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerBootstrap('site::buttons', function (callback) {
+    controller.registerBootstrap('site::buttons', callback => {
         callback();
         controller.call('site::buttons');
     });
 
-    controller.registerCall('site::buttons', function (callback) {
-        var window = function (window) {
-            return function (e) {
-                e.preventDefault();
-                controller.interface.helpers.activeWindow(window);
-            };
+    controller.registerCall('site::buttons', callback => {
+        const window = window => e => {
+            e.preventDefault();
+            controller.interface.helpers.activeWindow(window);
         };
 
-        var newWindow = function (href) {
-            return function (e) {
-                e.preventDefault();
-                document.location.href = href;
-            };
+        const newWindow = href => e => {
+            e.preventDefault();
+            document.location.href = href;
         };
 
-        $('.action-home').click(function (e) {
+        $('.action-home').click(e => {
             e.preventDefault();
             controller.call('default::page');
         });
         $('body > .site .action-login').click(window($('.login')));
         $('body > .site .action-sales').click(newWindow('http://www.bipbop.com.br/#contato'));
-        $('body > .site .action-buy').click(function () {
+        $('body > .site .action-buy').click(() => {
             controller.call('bipbop::createAccount');
         });
 
-        $('body > .site .action-evaluate').click(function (e) {
+        $('body > .site .action-evaluate').click(e => {
             e.preventDefault();
             controller.call('authentication::force', BIPBOP_FREE);
         });
     });
 
-    controller.registerBootstrap('site::carrousel', function (callback) {
+    controller.registerBootstrap('site::carrousel', callback => {
         callback();
 
-        for (var i = 0; i <= 5; i++) {
+        for (let i = 0; i <= 5; i++) {
             $('body > .site .carrousel').append($('<img />')
-                .attr('src', '/images/site/screenshoots/' + i.toString() + '.png'));
+                .attr('src', `/images/site/screenshoots/${i.toString()}.png`));
         }
 
         controller.call('site::carrousel');
     });
 
-    controller.registerCall('site::carrousel', function () {
-        var carrousel = $('body > .site .carrousel');
-        var list = carrousel.find('ul');
-        var images = carrousel.find('img');
+    controller.registerCall('site::carrousel', () => {
+        const carrousel = $('body > .site .carrousel');
+        const list = carrousel.find('ul');
+        const images = carrousel.find('img');
 
-        var first = true;
-        images.each(function (idx, image) {
-            var jimage = $(image);
-            var item = $('<li />');
+        let first = true;
+        images.each((idx, image) => {
+            const jimage = $(image);
+            const item = $('<li />');
             if (first) {
                 first = false;
                 item.addClass('selected');
             }
-            item.click(function (e) {
+            item.click(e => {
                 e.preventDefault();
                 list.find('li').removeClass('selected');
                 item.addClass('selected');

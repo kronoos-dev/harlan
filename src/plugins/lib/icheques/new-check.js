@@ -11,30 +11,28 @@ import StringMask from 'string-mask';
 import validCheck from './data/valid-check';
 import KeyCode from 'key-code';
 
-const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/,
-    MATCH_NON_DIGITS = /[^\d]/g,
-    CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
+const CMC7_BANK_ACCOUNT = /^(\d{3})(\d{4})\d{11}\d{4}(\d{7})\d$/;
+const MATCH_NON_DIGITS = /[^\d]/g;
+const CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
 
-module.exports = function(controller) {
+module.exports = controller => {
 
-    var newCheckWrapper = null;
+    let newCheckWrapper = null;
 
-    var setCMC7Document = function(cmc7, document) {
+    const setCMC7Document = (cmc7, document) => {
         localStorage[cmc7.replace(MATCH_NON_DIGITS, '')
             .replace(CMC7_BANK_ACCOUNT, 'check-$1-$2-$3')] = document;
     };
 
-    var checkAlreadyExists = function(check) {
-        return controller.database.exec(squel
-            .select()
-            .from('ICHEQUES_CHECKS')
-            .field('COUNT(1)')
-            .where('CMC = ?', check.cmc.replace(MATCH_NON_DIGITS, '')).toString())[0].values[0] > 0;
-    };
+    const checkAlreadyExists = ({cmc}) => controller.database.exec(squel
+        .select()
+        .from('ICHEQUES_CHECKS')
+        .field('COUNT(1)')
+        .where('CMC = ?', cmc.replace(MATCH_NON_DIGITS, '')).toString())[0].values[0] > 0;
 
     controller.registerCall('icheques::check::alreadyExists', checkAlreadyExists);
 
-    var getCMC7Storage = function(cmc7) {
+    const getCMC7Storage = cmc7 => {
         cmc7 = cmc7.replace(MATCH_NON_DIGITS, '');
         if (cmc7.length !== 30) {
             return null;
@@ -42,10 +40,10 @@ module.exports = function(controller) {
         return localStorage[cmc7.replace(CMC7_BANK_ACCOUNT, 'check-$1-$2-$3')];
     };
 
-    var newCheck = function(data, checkList, storage, modal) {
+    const newCheck = (data, checkList, storage, modal) => {
         data.cmc = data.cmc.replace(MATCH_NON_DIGITS, '');
 
-        if (checkAlreadyExists(data) || _.findIndex(storage, function(compare) {
+        if (checkAlreadyExists(data) || _.findIndex(storage, compare => {
             if (!compare || !compare.cmc) {
                 return false;
             }
@@ -55,11 +53,11 @@ module.exports = function(controller) {
             return;
         }
 
-        var item = checkList.item('fa-times-circle-o', [
+        const item = checkList.item('fa-times-circle-o', [
             CMC7_MASK.apply(data.cmc),
             data.expire.isValid() ? data.expire.format('DD/MM/YYYY') : '',
             data.observation || data.document,
-            data.ammount ? 'R$ ' + data.ammount : 'Valor não informado'
+            data.ammount ? `R$ ${data.ammount}` : 'Valor não informado'
         ]);
 
         data.ammount = Math.floor(numeral(data.ammount)._value * 100);
@@ -70,7 +68,7 @@ module.exports = function(controller) {
 
         storage.push(data);
 
-        item.click(function() {
+        item.click(() => {
             delete storage[storage.indexOf(data)];
             item.remove();
             if (storage.length <= 0)
@@ -78,28 +76,28 @@ module.exports = function(controller) {
         });
     };
 
-    var generateCustomer = function(data) {
-        var storage = [],
-            modal = controller.call('modal');
+    const generateCustomer = data => {
+        const storage = [];
+        const modal = controller.call('modal');
         modal.title('Adicionar Cheques');
         modal.subtitle('Acompanhamento de Cheques');
         modal.addParagraph('Fique no controle, acompanhe todos os cheques abaixo e seja avisado caso algum deles possua ocorrências por sustação, furto ou outras fraudes.');
 
-        var form = modal.createForm();
-        var checkList = form.createList();
+        const form = modal.createForm();
+        const checkList = form.createList();
 
         newCheck(data, checkList, storage);
 
-        newCheckWrapper = function(data) {
+        newCheckWrapper = data => {
             newCheck(data, checkList, storage);
         };
 
-        form.addSubmit('newcheck', 'Novo Cheque').click(function(e) {
+        form.addSubmit('newcheck', 'Novo Cheque').click(e => {
             e.preventDefault();
             controller.call('icheques::newcheck');
         });
 
-        form.addSubmit('checkout', 'Enviar para Monitoramento').click(function(e) {
+        form.addSubmit('checkout', 'Enviar para Monitoramento').click(e => {
             e.preventDefault();
             newCheckWrapper = null;
             controller.call('icheques::checkout', _.filter(storage, i => {
@@ -108,14 +106,14 @@ module.exports = function(controller) {
             modal.close();
         }).addClass('green-button');
 
-        modal.createActions().add('Cancelar Operação').click(function(e) {
+        modal.createActions().add('Cancelar Operação').click(e => {
             e.preventDefault();
             modal.close();
             newCheckWrapper = null;
         });
     };
 
-    var newCheckFormAction = null;
+    let newCheckFormAction = null;
 
     controller.registerCall('icheques::chequePicture::confirm', (imageData, callback) => {
         controller.confirm({
@@ -167,13 +165,13 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall('icheques::newcheck', function(callback, cmcValue, cpfValue) {
+    controller.registerCall('icheques::newcheck', (callback, cmcValue, cpfValue) => {
         controller.call('icheques::chequePicture', image =>
             controller.call('icheques::imagetocmc', image, cmcValue, cpfValue, (cmcValue, cpfValue) =>
                 controller.call('icheques::newcheck::form', callback, cmcValue, cpfValue, image)));
     });
 
-    controller.registerCall('icheques::newcheck::form', function(callback, cmcValue = null, cpfValue = null, image = null) {
+    controller.registerCall('icheques::newcheck::form', (callback, cmcValue = null, cpfValue = null, image = null) => {
         if (newCheckFormAction && !newCheckFormAction()) {
             return;
         }
@@ -181,10 +179,10 @@ module.exports = function(controller) {
         callback = callback || newCheckWrapper || generateCustomer;
         cpfValue = cpfValue || (cmcValue ? getCMC7Storage(cmcValue) : null);
 
-        var modal = controller.call('modal');
-        $(document).bind('keypress.newCheck', e => {
-            if (e.keyCode == KeyCode.ENTER) {
-                $('input:text').filter((i, e) => !e.value).first().focus();
+        const modal = controller.call('modal');
+        $(document).bind('keypress.newCheck', ({keyCode}) => {
+            if (keyCode == KeyCode.ENTER) {
+                $('input:text').filter((i, {value}) => !value).first().focus();
                 return false;
             }
             return true;
@@ -201,16 +199,16 @@ module.exports = function(controller) {
             showImage.show();
         }), true));
 
-        var form = modal.createForm();
+        const form = modal.createForm();
         var showImage = null;
-        var dataCMC7 = {};
-        var dataCPF = {};
-        var inputCMC7 = form.addInput('CMC7', 'text', controller.confs.isPhone ? 'Impresso na parte inferior.' :
+        const dataCMC7 = {};
+        const dataCPF = {};
+        const inputCMC7 = form.addInput('CMC7', 'text', controller.confs.isPhone ? 'Impresso na parte inferior.' :
             'A seqüência impressa na parte inferior do cheque em código de barra.', dataCMC7, 'CMC7 <a href="#">(Ajuda)</a>').val(cmcValue).mask('00000000 0000000000 000000000000');
-        var options = {
-            onKeyPress: function(input, e, field, options) {
-                var masks = ['000.000.000-009', '00.000.000/0000-00'],
-                    mask = (input.length > 14) ? masks[1] : masks[0];
+        const options = {
+            onKeyPress({length}, e, field, options) {
+                const masks = ['000.000.000-009', '00.000.000/0000-00'];
+                const mask = (length > 14) ? masks[1] : masks[0];
                 inputDocument.mask(mask, options);
             }
         };
@@ -219,36 +217,36 @@ module.exports = function(controller) {
         dataCMC7.label.addClass('help cmc7');
         dataCPF.label.addClass('help cmc7');
 
-        var obj = {
+        const obj = {
             append: form.multiField(),
             labelPosition: 'before'
         };
 
-        var inputValue = form.addInput('Valor', 'text', 'Valor', obj, 'R$').mask('000.000.000.000.000,00', {
+        const inputValue = form.addInput('Valor', 'text', 'Valor', obj, 'R$').mask('000.000.000.000.000,00', {
             reverse: true
         }).addClass('money');
         obj.label.addClass('money');
 
-        var inputExpire = form.addInput('Vencimento', 'text', 'Vencimento', obj, 'Vencimento').mask('00/00/0000');
+        const inputExpire = form.addInput('Vencimento', 'text', 'Vencimento', obj, 'Vencimento').mask('00/00/0000');
         inputExpire.pikaday();
-        var inputObservacao = form.addInput('Observação', 'text', 'Observação', {}, 'Observação');
+        const inputObservacao = form.addInput('Observação', 'text', 'Observação', {}, 'Observação');
 
-        inputCMC7.change(function() {
-            var document = getCMC7Storage(inputCMC7.val());
+        inputCMC7.change(() => {
+            const document = getCMC7Storage(inputCMC7.val());
             if (!document) {
                 return;
             }
             inputDocument.val(document);
         });
 
-        newCheckFormAction = function(e) {
+        newCheckFormAction = e => {
             if (e) {
                 e.preventDefault();
             }
-            var errors = [],
-                document = inputDocument.val(),
-                cmc7 = inputCMC7.val(),
-                expire = moment(inputExpire.val(), ['DD/MM/YYYY', 'DD/MM/YY']);
+            const errors = [];
+            const document = inputDocument.val();
+            const cmc7 = inputCMC7.val();
+            const expire = moment(inputExpire.val(), ['DD/MM/YYYY', 'DD/MM/YY']);
 
             if (inputExpire.val() && !expire.isValid()) {
                 errors.push('A data do cheque não parece conferir.');
@@ -273,7 +271,7 @@ module.exports = function(controller) {
             }
 
             if (errors.length) {
-                for (var i in errors) {
+                for (const i in errors) {
                     toastr.warning('Verifique o campo e tente novamente!', errors[i]);
                 }
                 return false;
@@ -282,12 +280,12 @@ module.exports = function(controller) {
             setCMC7Document(cmc7, document);
 
             let finish = () => callback({
-                document: document,
+                document,
                 ammount: inputValue.val(),
-                expire: expire,
+                expire,
                 cmc: cmc7Val,
                 observation: inputObservacao.val(),
-                image: image
+                image
             });
 
             if (!validCheck(cmc7Val)) {
@@ -310,15 +308,15 @@ module.exports = function(controller) {
 
         form.addSubmit('addcheck', 'Adicionar Cheque').addClass('strong green-button');
 
-        var actions = modal.createActions();
-        actions.add('Arquivo BAN ou REM').click(function(e) {
+        const actions = modal.createActions();
+        actions.add('Arquivo BAN ou REM').click(e => {
             e.preventDefault();
             newCheckFormAction = null;
             modal.close();
             controller.call('icheques::fidc');
         });
 
-        showImage = actions.add('Exibir Imagem').click(function(e) {
+        showImage = actions.add('Exibir Imagem').click(e => {
             e.preventDefault();
             controller.confirm({
                 title: 'Essa foto do seu cheque ficou realmente legal?',
@@ -341,28 +339,28 @@ module.exports = function(controller) {
             showImage.hide();
         }
 
-        actions.add('Fechar').click(function(e) {
+        actions.add('Fechar').click(e => {
             e.preventDefault();
             newCheckFormAction = null;
             modal.close();
         });
     });
 
-    controller.registerTrigger('icheques::newcheck', 'icheques::newcheck', function(cmc, callback) {
+    controller.registerTrigger('icheques::newcheck', 'icheques::newcheck', (cmc, callback) => {
         callback();
         controller.call('icheques::newcheck', null, cmc);
     });
 
-    controller.registerCall('icheques::help::cmc', function() {
-        var modal = controller.call('modal'),
-            form = modal.createForm();
+    controller.registerCall('icheques::help::cmc', () => {
+        const modal = controller.call('modal');
+        const form = modal.createForm();
 
         form.element().append($('<img />').attr({
             src: '/images/icheques/cheque.svg'
         }));
 
         form.addSubmit('understand', 'Entendi!');
-        form.element().submit(function(e) {
+        form.element().submit(e => {
             e.preventDefault();
             modal.close();
         });

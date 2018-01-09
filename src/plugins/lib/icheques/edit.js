@@ -2,7 +2,7 @@ import {
     CMC7Parser
 } from './cmc7-parser.js';
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.registerCall('icheques::item::add::time', check => {
         controller.call('confirm', {
@@ -24,11 +24,11 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('icheques::item::photo', check => {
+    controller.registerCall('icheques::item::photo', ({cmc}) => {
         controller.server.call('SELECT FROM \'ICHEQUES\'.\'PHOTO\'', {
             dataType: 'json',
             data: {
-                cmc: check.cmc
+                cmc
             },
             error: () => controller.alert({
                 title: 'Impossível localizar foto do cheque.',
@@ -46,7 +46,7 @@ module.exports = function(controller) {
                     controller.call('error::ajax', {
                         dataType: 'json',
                         data: {
-                            cmc: check.cmc
+                            cmc
                         },
                         success: () => toastr.success('Registro fotográfico removido com sucesso.', 'Não há mais registro fotográfico do cheque no banco de dados.')
                     })), (modal, form) => {
@@ -59,35 +59,37 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('icheques::item::edit', function(check, callback, optionalAmmount = true, edit = null, confirm = true) {
+    controller.registerCall('icheques::item::edit', (check, callback, optionalAmmount = true, edit = null, confirm = true) => {
+        let xhr;
+        const cmc7Data = new CMC7Parser(check.cmc);
 
-        var xhr, cmc7Data = new CMC7Parser(check.cmc),
-            form = controller.call('form', parameters => {
-                if (xhr) xhr.abort();
-                parameters.cmc = check.cmc;
-                parameters.ammount = Math.floor(parameters.ammount * 100);
-                let dispachEvent = () => {
-                    controller.serverCommunication.call('UPDATE \'ICHEQUES\'.\'CHECKDATA\'',
-                        controller.call('error::ajax', controller.call('loader::ajax', {
-                            data: parameters,
-                            error: function() {
-                                if (callback) callback('ajax failed', check);
-                            },
-                            success: () => {
-                                /* websocket updates =p */
-                                check.ammount = parameters.ammount;
-                                check.observation = parameters.observation;
-                                toastr.success('Os dados do cheque foram atualizados com sucesso.', 'Dados atualizados com sucesso.');
-                                if (callback) callback(null, check);
-                            }
-                        }, true)));
-                };
-                if (confirm) controller.confirm({}, dispachEvent, () => controller.call('icheques::item::edit', check, callback, optionalAmmount, edit));
-                else dispachEvent();
-            }, () => {
-                if (xhr) xhr.abort();
-                if (callback) callback('can\'t edit', check);
-            });
+        const form = controller.call('form', parameters => {
+            if (xhr) xhr.abort();
+            parameters.cmc = check.cmc;
+            parameters.ammount = Math.floor(parameters.ammount * 100);
+            let dispachEvent = () => {
+                controller.serverCommunication.call('UPDATE \'ICHEQUES\'.\'CHECKDATA\'',
+                    controller.call('error::ajax', controller.call('loader::ajax', {
+                        data: parameters,
+                        error() {
+                            if (callback) callback('ajax failed', check);
+                        },
+                        success: () => {
+                            /* websocket updates =p */
+                            check.ammount = parameters.ammount;
+                            check.observation = parameters.observation;
+                            toastr.success('Os dados do cheque foram atualizados com sucesso.', 'Dados atualizados com sucesso.');
+                            if (callback) callback(null, check);
+                        }
+                    }, true)));
+            };
+            if (confirm) controller.confirm({}, dispachEvent, () => controller.call('icheques::item::edit', check, callback, optionalAmmount, edit));
+            else dispachEvent();
+        }, () => {
+            if (xhr) xhr.abort();
+            if (callback) callback('can\'t edit', check);
+        });
+
         form.onClose = () => {
             if (xhr) xhr.abort();
         };
@@ -108,7 +110,7 @@ module.exports = function(controller) {
                                 controller.call('error::ajax', {
                                     dataType: 'json',
                                     data: {
-                                        image: image,
+                                        image,
                                         cmc: check.cmc
                                     },
                                     method: 'POST',
@@ -179,10 +181,9 @@ module.exports = function(controller) {
                 form.setValue('name', $('BPQL > body nome', ret).text());
             }
         });
-
     });
 
-    controller.registerCall('icheques::item::setAmmount', function(check, callback, edit = null) {
+    controller.registerCall('icheques::item::setAmmount', (check, callback, edit = null) => {
         controller.call('icheques::item::edit', check, callback, false, edit);
     });
 

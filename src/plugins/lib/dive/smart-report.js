@@ -1,41 +1,43 @@
 /* global module, require, numeral */
 
-var Harmonizer = require('color-harmony').Harmonizer,
-    Color = require('color'),
-    hashObject = require('hash-object'),
-    sprintf = require('sprintf'),
-    _ = require('underscore'),
-    ChartJS = require('chart.js'),
-    changeCase = require('change-case');
+import {Harmonizer} from 'color-harmony';
 
-var harmonizer = new Harmonizer();
-var colorMix = 'neutral',
-    colors = {
-        error: harmonizer.harmonize('#ff1a53', colorMix),
-        warning: harmonizer.harmonize('#ffe500', colorMix),
-        success: harmonizer.harmonize('#00ff6b', colorMix)
-    };
+import Color from 'color';
+import hashObject from 'hash-object';
+import sprintf from 'sprintf';
+import _ from 'underscore';
+import ChartJS from 'chart.js';
+import changeCase from 'change-case';
 
-var harmonyColors = harmonizer.harmonize('#27c891', 'sixToneCCW')
+const harmonizer = new Harmonizer();
+const colorMix = 'neutral';
+
+const colors = {
+    error: harmonizer.harmonize('#ff1a53', colorMix),
+    warning: harmonizer.harmonize('#ffe500', colorMix),
+    success: harmonizer.harmonize('#00ff6b', colorMix)
+};
+
+const harmonyColors = harmonizer.harmonize('#27c891', 'sixToneCCW')
     .concat(harmonizer.harmonize('#ff9400', 'sixToneCCW'))
     .concat(harmonizer.harmonize('#c48bc8', 'sixToneCCW'));
 
-var rfbStatus = {
-    'regular': 'success',
-    'ativa': 'success',
-    'pendente': 'warning',
-    'suspensa': 'warning',
-    'baixada': 'warning',
-    'cancelada': 'error',
-    'nula': 'error'
+const rfbStatus = {
+    regular: 'success',
+    ativa: 'success',
+    pendente: 'warning',
+    suspensa: 'warning',
+    baixada: 'warning',
+    cancelada: 'error',
+    nula: 'error'
 };
 
 module.exports = controller => {
 
-    var items = [];
+    const items = [];
 
-    var closeItems = () => {
-        var item;
+    const closeItems = () => {
+        let item;
         while ((item = items.shift())) {
             item.close();
         }
@@ -46,9 +48,9 @@ module.exports = controller => {
      * @param {array} data
      * @returns {array}
      */
-    var reduceDataset = data => {
+    const reduceDataset = data => {
 
-        var sum = _.reduce(data, (a, b) => {
+        let sum = _.reduce(data, (a, b) => {
             return {
                 value: a.value + b.value
             };
@@ -56,10 +58,10 @@ module.exports = controller => {
 
         sum = sum && sum.value ? sum.value : 0;
 
-        var idx = 1;
+        let idx = 1;
 
-        return _.map(_.values(_.groupBy(data, item => {
-            if (item.value < sum * 0.05) {
+        return _.map(_.values(_.groupBy(data, ({value}) => {
+            if (value < sum * 0.05) {
                 return 0;
             }
             return idx++;
@@ -76,7 +78,7 @@ module.exports = controller => {
         closeItems();
 
         controller.registerCall('dive::report::rfb', () => {
-            var rfbColors = {
+            const rfbColors = {
                 success: 0,
                 warning: 0,
                 error: 0
@@ -88,8 +90,8 @@ module.exports = controller => {
                 'Situação dos CPF/CNPJs na Receita Federal.',
                 require('../../markdown/dive/receita-federal.html'),
                 node => {
-                    var statusIdx = $('_id', node).text().split(' ')[0].toLowerCase();
-                    var color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
+                    const statusIdx = $('_id', node).text().split(' ')[0].toLowerCase();
+                    const color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
                     return new Color(color);
                 });
         });
@@ -194,24 +196,23 @@ module.exports = controller => {
     });
 
     controller.registerCall('dive::smartReport::polar', (title, subtitle, markdown, ret, inputs, labels) => {
-
         if (!$('BPQL > body > reduce > result', ret).children().length) {
             return;
         }
 
-        let report = controller.call('report', title, subtitle, null, false),
-            paragraph = report.paragraph().html(markdown),
-            canvas = report.canvas(330, 330);
+        let report = controller.call('report', title, subtitle, null, false);
+        let paragraph = report.paragraph().html(markdown);
+        let canvas = report.canvas(330, 330);
 
         $('.app-content').append(report.element());
 
-        let dataset = [],
-            i = 0;
+        let dataset = [];
+        let i = 0;
         for (let name in inputs) {
-            let element = $(name, ret),
-                status = changeCase.titleCase(inputs[name]),
-                total = parseFloat(element.text().replace(',', '.') || '0'),
-                colorInstance = new Color(harmonyColors[i++]);
+            let element = $(name, ret);
+            let status = changeCase.titleCase(inputs[name]);
+            let total = parseFloat(element.text().replace(',', '.') || '0');
+            let colorInstance = new Color(harmonyColors[i++]);
 
             dataset.push({
                 value: Math.round(total * 10000) / 100,
@@ -222,9 +223,8 @@ module.exports = controller => {
 
             report.label(sprintf('%s: %s', status, numeral(total || 0).format('0,0.000'))).css({
                 'background-color': colorInstance.hsl().string(),
-                'color': colorInstance.light() ? '#000' : '#fff'
+                color: colorInstance.light() ? '#000' : '#fff'
             }).insertAfter(paragraph);
-
         }
 
         for (let name in labels) {
@@ -233,14 +233,13 @@ module.exports = controller => {
             let cColorInstance = new Color(harmonyColors[i++]);
             report.label(sprintf('%s: %s', cStatus, numeral(cTotal).format('0,0.000'))).css({
                 'background-color': cColorInstance.hsl().string(),
-                'color': cColorInstance.light() ? '#000' : '#fff'
+                color: cColorInstance.light() ? '#000' : '#fff'
             }).insertAfter(paragraph);
 
         }
 
         report.gamification('lives');
         new ChartJS(canvas.getContext('2d')).PolarArea(dataset);
-
     });
 
     controller.registerCall('dive::smartReport::doughnut', (caller, title, subtitle, markdown, ret, nodeColor) => {
@@ -249,7 +248,7 @@ module.exports = controller => {
             return;
         }
 
-        var report = controller.call('report',
+        const report = controller.call('report',
             title,
             subtitle);
 
@@ -260,14 +259,14 @@ module.exports = controller => {
         }, 'Atualizar');
         report.newContent();
 
-        var canvas = report.canvas(250, 250);
+        const canvas = report.canvas(250, 250);
         $('.app-content').append(report.element());
 
-        var dataset = [];
+        const dataset = [];
         $('BPQL > body result > node', ret).each((idx, node) => {
-            var status = changeCase.titleCase($('_id', node).text()),
-                total = parseInt($('total', node).text()),
-                colorInstance = nodeColor(node);
+            const status = changeCase.titleCase($('_id', node).text());
+            const total = parseInt($('total', node).text());
+            const colorInstance = nodeColor(node);
 
             if (!status) return;
 
@@ -280,12 +279,12 @@ module.exports = controller => {
 
             report.label(sprintf('%s: %d', status, total)).css({
                 'background-color': colorInstance.hsl().string(),
-                'color': colorInstance.light() ? '#000' : '#fff',
-                'cursor': 'pointer'
+                color: colorInstance.light() ? '#000' : '#fff',
+                cursor: 'pointer'
             }).click(e => {
                 e.preventDefault();
 
-                var r = controller.call('report',
+                const r = controller.call('report',
                     'Acompanhamento Cadastral e Análise de Crédito',
                     'Monitore de perto, e em tempo real, as ações de pessoas físicas e jurídicas.',
                     'Com essa ferramenta, informe-se em tempo real de todas as atividades de pessoas físicas e jurídicas de seu interesse. Saiba de tudo o que acontece e tenha avaliações de crédito imediatas, de forma contínua e precisa.');

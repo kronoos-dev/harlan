@@ -1,13 +1,13 @@
 module.exports = controller => {
 
     controller.registerCall('tooltip', (actions, content) => {
-        var element = $('<li />'),
-            id = require('node-uuid').v4();
+        const element = $('<li />');
+        const id = require('node-uuid').v4();
 
         element.attr('id', id);
         actions.prepend(element);
 
-        var materialTip = $('<div />')
+        const materialTip = $('<div />')
             .addClass('mdl-tooltip')
             .attr('for', id)
             .text(content);

@@ -1,18 +1,18 @@
 /* global module */
 
-var loaderRegister = 0,
-    loaderUnregister = null;
+let loaderRegister = 0;
 
-module.exports = function(controller) {
+let loaderUnregister = null;
 
+module.exports = controller => {
     controller.unregisterTriggers('serverCommunication::websocket::sendMessage');
     controller.unregisterTrigger('authentication::authenticated', 'inbox');
 
     controller.confs.subaccount.icons = ['fa-key', 'fa-folder-open'];
 
-    var siteTemplate = require('../../templates/icheques-site.html.js'),
-        emailRegex = require('email-regex'),
-        installDatabase = require('../../sql/icheques.sql.js');
+    const siteTemplate = require('../../templates/icheques-site.html.js');
+    const emailRegex = require('email-regex');
+    const installDatabase = require('../../sql/icheques.sql.js');
 
     installDatabase(controller);
 
@@ -22,14 +22,14 @@ module.exports = function(controller) {
     /* Cadastrar no Login */
     $('.login .actions').append($('<li />').append($('<a />').text('Cadastrar').click(e => {
         e.preventDefault();
-        controller.call('icheques::createAccount', function(data) {
-            var modal = controller.call('modal');
+        controller.call('icheques::createAccount', data => {
+            const modal = controller.call('modal');
             modal.title('Você completou sou cadastro no iCheques');
             modal.subtitle('Parabéns! Sua conta foi criada com sucesso.');
             modal.addParagraph('A última etapa necessária é confirmar seu endereço de e-mail na sua caixa de entrada.');
             modal.addParagraph('Esperamos que tenha uma ótima experiência com nosso produto, a partir de agora nunca mais se preocupe se seus cheques estão seguros em sua carteira.');
-            var form = modal.createForm();
-            form.element().submit(function(e) {
+            const form = modal.createForm();
+            form.element().submit(e => {
                 e.preventDefault();
                 modal.close();
             });
@@ -51,7 +51,7 @@ module.exports = function(controller) {
             'Pesquise por um CPF/CNPJ ou número de cheque cadastrado.');
     $('.actions .container').prepend($('<div />').addClass('content support-phone').text('(11) 3661-4657 (Suporte)').prepend($('<i />').addClass('fa fa-phone')));
     $('body > .icheques-site .call-to-action').css({
-        'height': window.innerHeight
+        height: window.innerHeight
     });
 
     $('#action-show-modules').parent().hide();
@@ -60,20 +60,20 @@ module.exports = function(controller) {
         $('section.group-type,footer.load-more').remove();
     }).css('cursor', 'pointer');
 
-    $('body > .icheques-site .action-login').click(function() {
+    $('body > .icheques-site .action-login').click(() => {
         controller.interface.helpers.activeWindow('.login');
     });
 
-    controller.registerTrigger('authentication::authenticated', 'welcomeScreen::authenticated', function(args, cb) {
+    controller.registerTrigger('authentication::authenticated', 'welcomeScreen::authenticated', (args, cb) => {
         cb();
     });
 
-    controller.registerCall('default::page', function() {
+    controller.registerCall('default::page', () => {
         controller.interface.helpers.activeWindow('.login');
     });
 
-    var emailInput = $('body > .icheques-site .email');
-    $('body > .icheques-site .form-trial').submit(function(e) {
+    const emailInput = $('body > .icheques-site .email');
+    $('body > .icheques-site .form-trial').submit(e => {
         e.preventDefault();
         if (!emailRegex().test(emailInput.val())) {
             emailInput.addClass('error');
@@ -86,15 +86,15 @@ module.exports = function(controller) {
     $('.icheques-site .action-buy').click(function(e) {
         e.preventDefault();
 
-        var element = $(this);
+        const element = $(this);
 
-        controller.call('icheques::createAccount', function(data) {
-            var modal = controller.call('modal');
+        controller.call('icheques::createAccount', data => {
+            const modal = controller.call('modal');
             modal.title('Você completou sou cadastro no iCheques');
             modal.subtitle('Parabéns! Sua conta foi criada com sucesso.');
             modal.addParagraph('Esperamos que tenha uma ótima experiência com nosso produto, a partir de agora nunca mais se preocupe se seus cheques estão seguros em sua carteira.');
-            var form = modal.createForm();
-            form.element().submit(function(e) {
+            const form = modal.createForm();
+            form.element().submit(e => {
                 e.preventDefault();
                 modal.close();
             });
@@ -104,14 +104,14 @@ module.exports = function(controller) {
         });
     });
 
-    controller.registerCall('loader::register', function() {
+    controller.registerCall('loader::register', () => {
         if (!loaderUnregister && !loaderRegister) {
             loaderUnregister = $.bipbopLoader.register();
         }
         loaderRegister++;
     });
 
-    controller.registerCall('loader::unregister', function() {
+    controller.registerCall('loader::unregister', () => {
         if (loaderRegister - 1 > 0) {
             loaderRegister--;
             return;
@@ -124,39 +124,39 @@ module.exports = function(controller) {
         }
     });
 
-    $.getScript('https://code.createjs.com/createjs-2015.11.26.min.js', function() {
-        var lib = {};
+    $.getScript('https://code.createjs.com/createjs-2015.11.26.min.js', () => {
+        const lib = {};
         require('./animation.js')(lib, null, createjs, null);
 
         let canvas = $('<canvas />').attr({
-                width: 225,
-                height: 255
-            }).css({
-                'z-index': 11,
-                height: '250px',
-                left: '50%',
-                'margin-left': '-125px',
-                'margin-top': '-125px',
-                position: 'relative',
-                top: '50%',
-                width: '250px'
-            }),
+            width: 225,
+            height: 255
+        }).css({
+            'z-index': 11,
+            height: '250px',
+            left: '50%',
+            'margin-left': '-125px',
+            'margin-top': '-125px',
+            position: 'relative',
+            top: '50%',
+            width: '250px'
+        });
 
-            container = $('<div />').css({
-                'background-color': 'rgba(30,50,58,.8)',
-                'background-position': 'center center',
-                'background-repeat': 'no-repeat',
-                height: '100%',
-                left: '0',
-                'z-index': 99999999,
-                overflow: 'hidden',
-                position: 'fixed',
-                top: '0',
-                width: '100%',
-            }).append(canvas),
+        let container = $('<div />').css({
+            'background-color': 'rgba(30,50,58,.8)',
+            'background-position': 'center center',
+            'background-repeat': 'no-repeat',
+            height: '100%',
+            left: '0',
+            'z-index': 99999999,
+            overflow: 'hidden',
+            position: 'fixed',
+            top: '0',
+            width: '100%',
+        }).append(canvas);
 
-            exportRoot = new lib.ichequesanimacao(),
-            stage = new createjs.Stage(canvas.get(0));
+        let exportRoot = new lib.ichequesanimacao();
+        let stage = new createjs.Stage(canvas.get(0));
 
         stage.addChild(exportRoot);
         stage.update();

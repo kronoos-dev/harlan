@@ -1,4 +1,4 @@
-export default `Cadastro para Prospecção
+module.exports = `Cadastro para Prospecção
 ===========================
 
 Informações do cliente para respectivo conhecimento.

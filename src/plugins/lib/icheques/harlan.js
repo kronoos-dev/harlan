@@ -1,10 +1,11 @@
 /* global toastr, require, module, numeral, moment */
-var async = require('async'),
-    StringMask = require('string-mask'),
-    _ = require('underscore'),
-    squel = require('squel'),
-    changeCase = require('change-case'),
-    CNPJ = require('cpf_cnpj').CNPJ;
+import async from 'async';
+
+import StringMask from 'string-mask';
+import _ from 'underscore';
+import squel from 'squel';
+import changeCase from 'change-case';
+import {CNPJ} from 'cpf_cnpj';
 
 import {
     CMC7Parser
@@ -13,17 +14,17 @@ import truncate from 'truncate';
 import hash from 'hash.js';
 import url from 'url';
 
-var SEARCH_REGEX = /cheq?u?e?/i,
-    FIDC = /fid?c?/i,
-    LIMIT = 5,
-    CMC7_MASK = new StringMask('00000000 0000000000 000000000000'),
-    QUERY_LIMIT = 2000;
+const SEARCH_REGEX = /cheq?u?e?/i;
+const FIDC = /fid?c?/i;
+const LIMIT = 5;
+const CMC7_MASK = new StringMask('00000000 0000000000 000000000000');
+const QUERY_LIMIT = 2000;
 
-var dictMessage = {
-    'a0ff6ee5f68cdbb5132568fd4cec7eca519725a7186d24866a6c55d0a42b3ca6': 'Consulta realizada com sucesso sem ocorrência no cheque',
+const dictMessage = {
+    a0ff6ee5f68cdbb5132568fd4cec7eca519725a7186d24866a6c55d0a42b3ca6: 'Consulta realizada com sucesso sem ocorrência no cheque',
 };
 
-module.exports = function(controller) {
+module.exports = controller => {
 
     controller.call('link::register', /^.*/, href => {
         let query = url.parse(href, true).query;
@@ -58,25 +59,25 @@ module.exports = function(controller) {
         controller.call('icheques::cmc::show', controller.query.cmc);
     });
 
-    controller.registerCall('icheques::history', check => {
+    controller.registerCall('icheques::history', ({pushId}) => {
         const LIMIT = 5;
-        var modal = controller.call('modal'),
-            skipResults = 0;
+        const modal = controller.call('modal');
+        let skipResults = 0;
 
         modal.gamification();
         modal.title('Consultas e Protocolos');
         modal.subtitle('Últimas Consultas Realizadas e Protocolos');
         modal.paragraph('Através deste relatório você poderá visualizar as consultas realizadas e respectivos protocolos.');
 
-        let form = modal.createForm(),
-            list = form.createList();
+        let form = modal.createForm();
+        let list = form.createList();
 
         let actions = modal.createActions();
         actions.cancel();
 
-        var count = actions.observation(),
-            backButton = actions.add('Página Anterior').click(e => updateAjax(e, -1)),
-            nextButton = actions.add('Próxima Página').click(e => updateAjax(e));
+        const count = actions.observation();
+        const backButton = actions.add('Página Anterior').click(e => updateAjax(e, -1));
+        const nextButton = actions.add('Próxima Página').click(e => updateAjax(e));
 
         let error = () => {
             modal.close();
@@ -88,8 +89,8 @@ module.exports = function(controller) {
         };
 
         let update = data => {
-            let pages = Math.ceil(data.count / LIMIT),
-                currentPage = (skipResults ? skipResults / LIMIT : 0) + 1;
+            let pages = Math.ceil(data.count / LIMIT);
+            let currentPage = (skipResults ? skipResults / LIMIT : 0) + 1;
             count.text(`Página ${currentPage} de ${pages}`);
 
             backButton[currentPage == 1 ? 'hide' : 'show']();
@@ -98,15 +99,15 @@ module.exports = function(controller) {
             let values = _.values(data.data);
             list.empty();
             for (let row of values) {
-                let doc = $.parseXML(row.document.data),
-                    exception = $('exception', doc);
+                let doc = $.parseXML(row.document.data);
+                let exception = $('exception', doc);
                 if (exception.length) {
                     list.item('fa-close', [moment.unix(row.created).fromNow(), 'Ocorreu uma exceção na consulta',
                         'A consulta ao cheque fracassou, tentando novamente em alguns instantes.'
                     ]);
                 } else {
-                    let message = $('ocorrencias descricao', doc).text() || $('situacaoConsultaCheque exibicao', doc).text(),
-                        hashMessage = hash.sha256().update(message).digest('hex');
+                    let message = $('ocorrencias descricao', doc).text() || $('situacaoConsultaCheque exibicao', doc).text();
+                    let hashMessage = hash.sha256().update(message).digest('hex');
                     list.item('fa-check', [moment.unix(row.created).fromNow(), dictMessage[hashMessage] || message,
                         `Protocolo: ${$('numProtCons', doc).text()}`
                     ]);
@@ -121,7 +122,7 @@ module.exports = function(controller) {
             skipResults += LIMIT * direction;
             controller.server.call('SELECT FROM \'ICHEQUES\'.\'HISTORY\'', controller.call('loader::ajax', controller.call('error::ajax', {
                 data: {
-                    id: check.pushId,
+                    id: pushId,
                     skip: skipResults,
                     limit: LIMIT
                 },
@@ -135,7 +136,7 @@ module.exports = function(controller) {
     });
 
     controller.registerCall('icheques::debtCollector', check => {
-        var inputExpire;
+        let inputExpire;
         let dispachEvent = (formData) => {
             check.expire = moment(inputExpire.val(), 'DD/MM/YYYY').format('YYYYMMDD');
             controller.server.call('UPDATE \'ICHEQUES\'.\'DebtCollector\'', controller.call('error::ajax', {
@@ -158,27 +159,27 @@ module.exports = function(controller) {
         };
 
         let collectBill = () => controller.call('form', dispachEvent).configure({
-            'title': 'Envie o cheque para cobrança',
-            'subtitle': 'Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.',
-            'gamification': 'star',
-            'screens': [{
-                'fields': [{
-                    'name': 'alinea',
-                    'type': 'select',
-                    'labelText': 'Alínea de Retorno',
-                    'optional': false,
-                    'list': {
-                        '11': 'Alínea 11: Insuficiência de fundos – 1ª apresentação',
-                        '12': 'Alínea 12: Insuficiência de fundos – 2ª apresentação',
-                        '13': 'Alínea 13: Conta encerrada',
-                        '14': 'Alínea 14: Prática espúria',
-                        '20': 'Alínea 20: Folha de cheque cancelada por solicitação do correntista',
-                        '21': 'Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque',
-                        '22': 'Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)',
-                        '31': 'Alínea 31: Erro formal',
-                        '44': 'Alínea 44: Cheque prescrito',
-                        '48': 'Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido',
-                        '51': 'Alínea 51: Divergência no valor recebido'
+            title: 'Envie o cheque para cobrança',
+            subtitle: 'Para enviar o cheque ao nosso módulo de cobrança você deve informar a alínea carimbada no verso do cheque.',
+            gamification: 'star',
+            screens: [{
+                fields: [{
+                    name: 'alinea',
+                    type: 'select',
+                    labelText: 'Alínea de Retorno',
+                    optional: false,
+                    list: {
+                        11: 'Alínea 11: Insuficiência de fundos – 1ª apresentação',
+                        12: 'Alínea 12: Insuficiência de fundos – 2ª apresentação',
+                        13: 'Alínea 13: Conta encerrada',
+                        14: 'Alínea 14: Prática espúria',
+                        20: 'Alínea 20: Folha de cheque cancelada por solicitação do correntista',
+                        21: 'Alínea 21: Contra-ordem (ou revogação) ou oposição (ou sustação) do pagamento pelo emitente ou portador do cheque',
+                        22: 'Alínea 22: Divergência ou insuficiência de assinatura (só válida se houver saldo)',
+                        31: 'Alínea 31: Erro formal',
+                        44: 'Alínea 44: Cheque prescrito',
+                        48: 'Alínea 48: Cheque acima de R$ 100,00 sem a indicação do favorecido',
+                        51: 'Alínea 51: Divergência no valor recebido'
                     }
                 }]
             }]
@@ -188,7 +189,7 @@ module.exports = function(controller) {
         let createList = (modal, form) => {
             inputExpire = form.addInput('Vencimento', 'text', 'Vencimento do Cheque').mask('00/00/0000').val(moment(check.expire, 'YYYYMMDD').format('DD/MM/YYYY'));
             inputExpire.pikaday();
-            var list;
+            let list;
             let renderList = (inputMoment) => {
                 if (list) {
                     let newList = form.createList();
@@ -229,11 +230,11 @@ module.exports = function(controller) {
         else confirm();
     });
 
-    var registerSocket = () => {
-        controller.registerTrigger('serverCommunication::websocket::ichequeUpdate', 'icheques::pushUpdate', function(data, callback) {
+    const registerSocket = () => {
+        controller.registerTrigger('serverCommunication::websocket::ichequeUpdate', 'icheques::pushUpdate', (data, callback) => {
             callback();
 
-            var dbResponse = controller.database.exec(squel
+            const dbResponse = controller.database.exec(squel
                 .select()
                 .from('ICHEQUES_CHECKS')
                 .where('PUSH_ID = ?', data.pushId).toString());
@@ -260,12 +261,14 @@ module.exports = function(controller) {
             return;
         }
 
-        var unregister = null,
-            loaderTimeout = setTimeout(function() {
-                unregister = $.bipbopLoader.register();
-            }, 1000),
-            hasResult = false,
-            skip = 0;
+        let unregister = null;
+
+        const loaderTimeout = setTimeout(() => {
+            unregister = $.bipbopLoader.register();
+        }, 1000);
+
+        let hasResult = false;
+        let skip = 0;
 
         async.doUntil(cb => {
             controller.server.call('SELECT FROM \'ICHEQUES\'.\'CHECKS\'', controller.call('error::ajax', {
@@ -273,13 +276,13 @@ module.exports = function(controller) {
                 data: {
                     'q[0]': 'SELECT FROM \'ICHEQUES\'.\'CHECKS\'',
                     'q[1]': 'SELECT FROM \'ICHEQUESFIDC\'.\'OPERATION\'',
-                    'limit': QUERY_LIMIT,
-                    'skip': skip,
-                    'approved': 'true'
+                    limit: QUERY_LIMIT,
+                    skip: skip,
+                    approved: 'true'
                 },
                 error: () => cb(Array.from(arguments)),
-                success: function(ret) {
-                    var storage = [];
+                success(ret) {
+                    const storage = [];
                     skip += QUERY_LIMIT;
                     hasResult = false;
                     $(ret).find('check').each(function() {
@@ -301,12 +304,13 @@ module.exports = function(controller) {
         });
     });
 
-    var showCheck = function(check, result, section) {
-        var separatorData = {},
-            separator = result.addSeparator('Verificação de Cheque',
-                'Verificação de Dados do Cheque',
-                'Cheque CMC7 ' + CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, '')),
-                separatorData);
+    const showCheck = (check, result, section) => {
+        const separatorData = {};
+
+        const separator = result.addSeparator('Verificação de Cheque',
+            'Verificação de Dados do Cheque',
+            `Cheque CMC7 ${CMC7_MASK.apply(check.cmc.replace(/[^\d]/g, ''))}`,
+            separatorData);
 
         controller.call('tooltip', separatorData.menu, 'Editar Cheque').append($('<i />').addClass('fa fa-edit')).click(controller.click('icheques::item::edit', check));
         if (check.image) {
@@ -322,19 +326,21 @@ module.exports = function(controller) {
                         cmc: check.cmc
                     },
                     success: entity => {
-                        let skip = 0,
-                            modal = controller.call('modal');
+                        let skip = 0;
+                        let modal = controller.call('modal');
                         modal.gamification();
                         modal.title('Atualização da Cobrança');
                         modal.subtitle('Arquivo de Contato com o Sacado');
                         modal.paragraph('Este um histórico do que houve no contato com o sacado informado pela operadora de cobranças.');
-                        let list = modal.createForm().createList(),
-                            actions = modal.createActions();
+                        let list = modal.createForm().createList();
+                        let actions = modal.createActions();
+
                         // actions.add("Novo Contato").click(controller.click("dive::history::new", entity, () => more(null, 0)));
-                        let more,
-                            observation = actions.observation('Carregando'),
-                            backButton = actions.add('Voltar Página').click(e => more(e, -1)),
-                            nextButton = actions.add('Próxima Página').click(e => more(e));
+                        let more;
+
+                        let observation = actions.observation('Carregando');
+                        let backButton = actions.add('Voltar Página').click(e => more(e, -1));
+                        let nextButton = actions.add('Próxima Página').click(e => more(e));
 
                         more = (e, direction = 1, newEntity = null) => {
                             if (newEntity) entity = newEntity;
@@ -351,16 +357,16 @@ module.exports = function(controller) {
                                 return;
                             }
 
-                            let pages = Math.ceil(entity.history.length / LIMIT),
-                                page = (skip ? skip / LIMIT : 0) + 1;
+                            let pages = Math.ceil(entity.history.length / LIMIT);
+                            let page = (skip ? skip / LIMIT : 0) + 1;
 
                             nextButton[page == pages ? 'hide' : 'show']();
                             backButton[page == 1 ? 'hide' : 'show']();
                             observation.text(`Página ${page} de ${pages}`);
 
                             for (let contact of entity.history.slice(skip, skip + LIMIT)) {
-                                let when = moment.unix(contact.when),
-                                    next = moment.unix(contact.next);
+                                let when = moment.unix(contact.when);
+                                let next = moment.unix(contact.next);
 
                                 list.item('fa-archive', [
                                     truncate(contact.observation, 40),
@@ -450,7 +456,7 @@ module.exports = function(controller) {
         }
 
         separator.addClass('external-source loading');
-        var checkResult = controller.call('result');
+        const checkResult = controller.call('result');
         checkResult.element().insertAfter(separator);
         if (check.ammount) {
             checkResult.addItem('Valor', numeral(check.ammount / 100).format('$0,0.00'));
@@ -458,7 +464,7 @@ module.exports = function(controller) {
 
         checkResult.addItem('Número do Cheque', new CMC7Parser(check.cmc).number);
 
-        var expiration;
+        let expiration;
         if (check.expire) {
             expiration = checkResult.addItem('Expiração', moment(check.expire, 'YYYYMMDD').format('DD/MM/YYYY'));
         }
@@ -467,99 +473,102 @@ module.exports = function(controller) {
             checkResult.addItem('Observação', check.observation);
         }
 
-        var nodes = [];
-        var documentDelete = function() {
-                separator.remove();
-                checkResult.element().remove();
-            },
-            documentUpdate = function(check) {
-                section[0].removeClass('loadingCheck');
-                separator.data('item', check);
+        let nodes = [];
 
-                var rescan = function() {
-                    for (var i in nodes) {
-                        nodes[i].remove();
-                    } /* rescan */
-                    nodes = [];
-                    separator.removeClass('loading success error warning');
-                };
+        const documentDelete = () => {
+            separator.remove();
+            checkResult.element().remove();
+        };
 
-                if (check.exceptionMessage) {
-                    if (check.exceptionPushable) {
-                        rescan();
-                        separator.addClass('warning');
-                        nodes.push(checkResult.addItem('Erro', check.exceptionMessage));
-                    }
-                    return;
-                }
+        const documentUpdate = check => {
+            section[0].removeClass('loadingCheck');
+            separator.data('item', check);
 
-                if (check.expire && expiration) {
-                    expiration.find('.value').text(moment(check.expire, 'YYYYMMDD').format('DD/MM/YYYY'));
-                }
-
-                if (check.queryStatus && check.queryStatus !== 10) {
-                    rescan();
-
-                    if (check.debtCollector) {
-                        nodes.push(checkResult.addItem('Cobrança', 'Ativa'));
-                    }
-
-                    if (check.lastDebtCollectorMessage) {
-                        nodes.push(checkResult.addItem('Última Histórico do Sacado', check.lastDebtCollectorMessage));
-                    }
-
-                    section[0].removeClass('loading');
-
-                    var elementClass = 'success',
-                        situation = check.situation,
-                        display = check.display,
-                        ocurrence = check.ocurrence;
-
-                    if (check.queryStatus !== 1) {
-                        elementClass = 'error';
-                        section[0].addClass('warning');
-                        separator.find('h4').text(check.situation);
-                    }
-
-                    separator.addClass(elementClass);
-
-                    nodes.push(checkResult.addItem('Situação (' + check.queryStatus + ')', situation));
-                    nodes.push(checkResult.addItem('Exibição', display));
-                    if (check.lastUpdate) {
-                        let lastUpdate = moment.unix(check.lastUpdate);
-                        nodes.push(checkResult.addItem('Última Alteração (' + lastUpdate.fromNow() + ')', lastUpdate.format('DD/MM/YYYY')));
-                    }
-
-                    if (check.ocurrenceCode) {
-                        nodes.push(checkResult.addItem('Ocorrência (' + check.ocurrenceCode + ')', ocurrence));
-                    }
-
-                    separator.addClass(elementClass);
-                } else {
-                    section[0].addClass('loadingCheck');
-                }
+            const rescan = () => {
+                for (const i in nodes) {
+                    nodes[i].remove();
+                } /* rescan */
+                nodes = [];
+                separator.removeClass('loading success error warning');
             };
 
+            if (check.exceptionMessage) {
+                if (check.exceptionPushable) {
+                    rescan();
+                    separator.addClass('warning');
+                    nodes.push(checkResult.addItem('Erro', check.exceptionMessage));
+                }
+                return;
+            }
+
+            if (check.expire && expiration) {
+                expiration.find('.value').text(moment(check.expire, 'YYYYMMDD').format('DD/MM/YYYY'));
+            }
+
+            if (check.queryStatus && check.queryStatus !== 10) {
+                rescan();
+
+                if (check.debtCollector) {
+                    nodes.push(checkResult.addItem('Cobrança', 'Ativa'));
+                }
+
+                if (check.lastDebtCollectorMessage) {
+                    nodes.push(checkResult.addItem('Última Histórico do Sacado', check.lastDebtCollectorMessage));
+                }
+
+                section[0].removeClass('loading');
+
+                let elementClass = 'success';
+                const situation = check.situation;
+                const display = check.display;
+                const ocurrence = check.ocurrence;
+
+                if (check.queryStatus !== 1) {
+                    elementClass = 'error';
+                    section[0].addClass('warning');
+                    separator.find('h4').text(check.situation);
+                }
+
+                separator.addClass(elementClass);
+
+                nodes.push(checkResult.addItem(`Situação (${check.queryStatus})`, situation));
+                nodes.push(checkResult.addItem('Exibição', display));
+                if (check.lastUpdate) {
+                    let lastUpdate = moment.unix(check.lastUpdate);
+                    nodes.push(checkResult.addItem(`Última Alteração (${lastUpdate.fromNow()})`, lastUpdate.format('DD/MM/YYYY')));
+                }
+
+                if (check.ocurrenceCode) {
+                    nodes.push(checkResult.addItem(`Ocorrência (${check.ocurrenceCode})`, ocurrence));
+                }
+
+                separator.addClass(elementClass);
+            } else {
+                section[0].addClass('loadingCheck');
+            }
+        };
+
         documentUpdate(check);
-        separator.addClass('pushid-' + check.pushId);
-        separator.addClass('cmc-' + check.cmc);
+        separator.addClass(`pushid-${check.pushId}`);
+        separator.addClass(`cmc-${check.cmc}`);
         separator.data('upgrade', documentUpdate);
         separator.data('delete', documentDelete);
         return documentUpdate;
     };
 
-    var showChecks = function(checks, result, section) {
-        for (var i in checks) {
+    const showChecks = (checks, result, section) => {
+        for (const i in checks) {
             showCheck(checks[i], result, section);
         }
     };
 
-    var showDocument = function(task) {
-        var section = controller.call('section',
-                'iCheques',
-                'Monitoramento de cheques.',
-                'CPF/CNPJ ' + task[0], false, true),
-            result = controller.call('result');
+    const showDocument = task => {
+        const section = controller.call('section',
+            'iCheques',
+            'Monitoramento de cheques.',
+            `CPF/CNPJ ${task[0]}`, false, true);
+
+        const result = controller.call('result');
         section[1].append(result.element());
         section[0].addClass('icheque loading');
 
@@ -587,8 +596,8 @@ module.exports = function(controller) {
 
                     let qteOcorrencias = $(ret).find('BPQL > body > data > sumQteOcorrencias').text();
 
-                    let v1 = moment($('dataUltOcorrencia', ret).text(), 'DD/MM/YYYY'),
-                        v2 = moment($('ultimo', ret).text(), 'DD/MM/YYYY');
+                    let v1 = moment($('dataUltOcorrencia', ret).text(), 'DD/MM/YYYY');
+                    let v2 = moment($('ultimo', ret).text(), 'DD/MM/YYYY');
 
                     mensagem += ` Total de registros CCF: ${qteOcorrencias} com data da última ocorrência: ${(v1.isAfter(v2) ? v1 : v2).format('DD/MM/YYYY')}.`;
                     section[0].find('h3').text(mensagem);
@@ -597,9 +606,9 @@ module.exports = function(controller) {
                     $(ret).find('BPQL > body list > *').each((k, v) => {
 
                         for (let check of task[1]) {
-                            let cmc = new CMC7Parser(check.cmc),
-                                agency = $('agencia', v).text().replace(/^[0]+/, ''),
-                                bank = $('banco', v).text().replace(/^[0]+/, '');
+                            let cmc = new CMC7Parser(check.cmc);
+                            let agency = $('agencia', v).text().replace(/^[0]+/, '');
+                            let bank = $('banco', v).text().replace(/^[0]+/, '');
 
                             if (agency == cmc.agency.replace(/^[0]+/, '') &&
                                 bank == cmc.bank.replace(/^[0]+/, '')) {
@@ -666,9 +675,9 @@ module.exports = function(controller) {
                 return;
             }
 
-            let xmlDocument = null,
-                icon = $('<i />').addClass('fa fa-user-plus'),
-                showing = false;
+            let xmlDocument = null;
+            let icon = $('<i />').addClass('fa fa-user-plus');
+            let showing = false;
 
             section[2].prepend($('<li />').append(icon)
                 .attr('title', 'Informações do Sacado'));
@@ -702,7 +711,7 @@ module.exports = function(controller) {
         return section[0];
     };
 
-    controller.registerCall('icheques::resultDatabase', function(databaseResult) {
+    controller.registerCall('icheques::resultDatabase', databaseResult => {
         if (!databaseResult) {
             return [{
                 columns: [],
@@ -710,18 +719,18 @@ module.exports = function(controller) {
             }];
         }
 
-        _.each(databaseResult.columns, function(item, i, list) {
+        _.each(databaseResult.columns, (item, i, list) => {
             list[i] = changeCase.camelCase(item);
         });
 
-        _.each(databaseResult.values, function(item, i, list) {
+        _.each(databaseResult.values, (item, i, list) => {
             list[i] = _.object(databaseResult.columns, item);
         });
 
         return databaseResult;
     });
 
-    controller.registerCall('icheques::show::query', function(query, callback, element) {
+    controller.registerCall('icheques::show::query', (query, callback, element) => {
         if (!query) {
             return;
         }
@@ -729,12 +738,10 @@ module.exports = function(controller) {
         controller.call('icheques::show', query.values, callback, element);
     });
 
-    controller.registerCall('icheques::show', function(storage, callback, element, scrollTo = false) {
-        var documents = _.pairs(_.groupBy(storage, function(a) {
-            return a.cpf || a.cnpj;
-        }));
+    controller.registerCall('icheques::show', (storage, callback, element, scrollTo = false) => {
+        const documents = _.pairs(_.groupBy(storage, ({cpf, cnpj}) => cpf || cnpj));
 
-        var moreResults = controller.call('moreResults', 5);
+        const moreResults = controller.call('moreResults', 5);
 
         let scrollElement = null;
         let scrollInterval = null;
@@ -776,13 +783,13 @@ module.exports = function(controller) {
         }
     });
 
-    controller.registerCall('icheques::item::delete', function(cmc) {
-        var node = $('.cmc-' + cmc);
+    controller.registerCall('icheques::item::delete', cmc => {
+        const node = $(`.cmc-${cmc}`);
         if (!node.length) {
             return;
         }
 
-        var removeItem = node.data('delete');
+        const removeItem = node.data('delete');
         if (typeof removeItem !== 'function') {
             return;
         }
@@ -790,13 +797,13 @@ module.exports = function(controller) {
         removeItem();
     });
 
-    controller.registerCall('icheques::item::upgrade', function(item) {
-        var node = $('.pushid-' + item.pushId);
+    controller.registerCall('icheques::item::upgrade', item => {
+        const node = $(`.pushid-${item.pushId}`);
         if (!node.length) {
             return;
         }
 
-        var upgrade = node.data('upgrade');
+        const upgrade = node.data('upgrade');
         if (typeof upgrade !== 'function') {
             return;
         }
@@ -804,7 +811,7 @@ module.exports = function(controller) {
         upgrade(item);
     });
 
-    controller.registerTrigger('serverCommunication::websocket::ichequeUnset', 'icheques::pushDelete', function(data, callback) {
+    controller.registerTrigger('serverCommunication::websocket::ichequeUnset', 'icheques::pushDelete', (data, callback) => {
         callback();
 
         controller.database.exec(squel

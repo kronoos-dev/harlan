@@ -1,12 +1,10 @@
 /* global module, Notification, ServiceWorkerRegistration */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var keyPushEndpoint = function () {
-        return 'keyPushEndpoint-' + controller.serverCommunication.userHash();
-    };
+    const keyPushEndpoint = () => `keyPushEndpoint-${controller.serverCommunication.userHash()}`;
 
-    controller.registerTrigger('authentication::logout', 'pushNotification::authentication::logout', function (opts, cb) {
+    controller.registerTrigger('authentication::logout', 'pushNotification::authentication::logout', (opts, cb) => {
         if (!localStorage[keyPushEndpoint()]) {
             cb();
             return;
@@ -17,14 +15,14 @@ module.exports = function (controller) {
                 data: {
                     endpoint: localStorage[keyPushEndpoint()]
                 },
-                complete: function () {
+                complete() {
                     delete localStorage[keyPushEndpoint()];
                     cb();
                 }
             }));
     });
 
-    controller.registerTrigger('authentication::authenticated', 'pushNotification::authentication::authenticate', function (opts, cb) {
+    controller.registerTrigger('authentication::authenticated', 'pushNotification::authentication::authenticate', (opts, cb) => {
         cb();
 
         if (controller.server.freeKey()) {
@@ -51,20 +49,20 @@ module.exports = function (controller) {
             return;
         }
 
-        navigator.serviceWorker.ready.then(function (serviceWorkerRegistration) {
-            var report = controller.call('report');
+        navigator.serviceWorker.ready.then(({pushManager}) => {
+            const report = controller.call('report');
             report.title('Você gostaria de receber notificações?');
             report.subtitle('Nossa aplicação pode notificar no celular e navegador sobre eventos de seu interesse.');
             report.paragraph('Fique sabendo de qualquer atualização que surgir do seu celular ou navegador, para habilitar clique no botão abaixo.');
-            report.button('Ativar Notificações', function () {
-                serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true}).then(function (subscription) {
+            report.button('Ativar Notificações', () => {
+                pushManager.subscribe({userVisibleOnly: true}).then(({endpoint}) => {
                     controller.serverCommunication.call(
                         'INSERT INTO \'HARLANPUSH\'.\'ENDPOINT\'',
                         controller.call('error::ajax', {
                             data: {
-                                endpoint: subscription.endpoint
+                                endpoint
                             },
-                            success: function () {
+                            success() {
                                 controller.call('alert', {
                                     icon: 'pass',
                                     title: 'Notificações Ativadas',
@@ -73,11 +71,11 @@ module.exports = function (controller) {
                                 });
                                 if (navigator.serviceWorker && navigator.serviceWorker.controller)
                                     navigator.serviceWorker.controller.postMessage(controller.server.apiKey());
-                                localStorage[keyPushEndpoint()] = subscription.endpoint;
+                                localStorage[keyPushEndpoint()] = endpoint;
                                 report.close();
                             }
                         }));
-                }).catch(function (e) {
+                }).catch(e => {
                     console.error('Push Notification', e);
                     controller.call('alert', {
                         title: 'Não foi possível ativar as notificações!',

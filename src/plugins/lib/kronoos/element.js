@@ -1,14 +1,18 @@
-var KronoosElement = function(title, subtitle, sidenote) {
-
-    var container = $('<div />').addClass('container kronoos-element-container'),
-        content = $('<div />').addClass('content'),
-        element = $('<div />').addClass('kronoos-element'),
-        sideContent = $('<div />').addClass('kronoos-side-content full'),
-        titleElement = $('<h3 />').append(title).addClass('kronoos-element-title'),
-        subtitleElement = $('<h4 />').append(subtitle).addClass('kronoos-element-subtitle'),
-        sidenoteElement = $('<h5 />').append(sidenote).addClass('kronoos-element-sidenote'),
-        informationQA, informations, alertElement, aggregate, notation, behaviour,
-        negativeCertificates;
+const KronoosElement = function(title, subtitle, sidenote) {
+    const container = $('<div />').addClass('container kronoos-element-container');
+    const content = $('<div />').addClass('content');
+    const element = $('<div />').addClass('kronoos-element');
+    const sideContent = $('<div />').addClass('kronoos-side-content full');
+    const titleElement = $('<h3 />').append(title).addClass('kronoos-element-title');
+    const subtitleElement = $('<h4 />').append(subtitle).addClass('kronoos-element-subtitle');
+    const sidenoteElement = $('<h5 />').append(sidenote).addClass('kronoos-element-sidenote');
+    let informationQA;
+    let informations;
+    let alertElement;
+    let aggregate;
+    let notation;
+    let behaviour;
+    let negativeCertificates;
 
     sideContent.append(titleElement)
         .append(subtitleElement);
@@ -19,7 +23,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     container.append(content.append(element.append(sideContent)));
     container.data('instance', this);
 
-    var label = label => {
+    const label = label => {
         return $('<label />').append(label);
     };
 
@@ -28,7 +32,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
             negativeCertificates = {};
             this.list('Resultados Negativos', negativeCertificates);
             negativeCertificates.container.addClass('kronoos-stage');
-            
+
             negativeCertificates.container.insertAfter(sidenoteElement);
         }
         let item = {};
@@ -211,10 +215,10 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.elementCaptionTable = (appendTo, caption, ...header) => {
-        var table = $('<table />').addClass('multi-label'),
-            thead = $('<thead />'),
-            headRow = $('<tr />'),
-            tbody = $('<tbody />');
+        const table = $('<table />').addClass('multi-label');
+        const thead = $('<thead />');
+        const headRow = $('<tr />');
+        const tbody = $('<tbody />');
 
         if (caption) {
             table.append($('<caption />').append(caption));
@@ -271,7 +275,7 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.picture = url => {
-        var image = new Image();
+        const image = new Image();
         image.onload = () => {
             let picture = $('<div />')
                 .addClass('kronoos-picture')
@@ -283,9 +287,9 @@ var KronoosElement = function(title, subtitle, sidenote) {
     };
 
     this.list = (name, obj = {}, appendTo = null, moreClick = 0) => {
-        let container = $('<div />').addClass('kronoos-list'),
-            title = label(name),
-            list = $('<ul />');
+        let container = $('<div />').addClass('kronoos-list');
+        let title = label(name);
+        let list = $('<ul />');
 
         obj.container = container;
         obj.title = title;
@@ -367,7 +371,5 @@ var KronoosElement = function(title, subtitle, sidenote) {
 };
 
 module.exports = controller => {
-    controller.registerCall('kronoos::element', function() {
-        return new KronoosElement(...arguments);
-    });
+    controller.registerCall('kronoos::element', (...args) => new KronoosElement(...args));
 };

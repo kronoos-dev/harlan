@@ -1,10 +1,10 @@
 import urljoin from 'url-join';
 
-var tokenId;
+let tokenId;
 
 const logo = $('body > div.accuracy-app > div:nth-child(1) > div > div > span');
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     controller.registerCall('accuracy::server::auth', (authData) => {
         tokenId = authData[0].token;
@@ -36,7 +36,7 @@ module.exports = function (controller) {
                 if (dict.complete) dict.complete();
             };
 
-            var uploadOptions = new FileUploadOptions();
+            const uploadOptions = new FileUploadOptions();
             uploadOptions.fileKey = dict.fileKey;
             uploadOptions.fileName = dict.fileName;
             uploadOptions.mimeType = dict.mimeType;
@@ -55,7 +55,8 @@ module.exports = function (controller) {
                 return;
             }
 
-            let blockui, timeout;
+            let blockui;
+            let timeout;
             if (loader) {
                 blockui = controller.call('blockui', {
                     icon: 'fa-rocket',

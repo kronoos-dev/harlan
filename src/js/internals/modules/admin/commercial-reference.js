@@ -12,14 +12,16 @@ module.exports = controller => {
     controller.registerCall('admin::tagsViewer', (data = {}) => {
         controller.server.call('SELECT FROM \'BIPBOPCOMPANYSREPORT\'.\'TAGS\'', {
             dataType: 'json',
-            data: data,
+            data,
             success: dataset => {
                 if (!dataset.length) return;
-                var report = controller.call('report',
-                        'Cadastro de Tags em Usuários',
-                        'Lista das tags cadastradas nos usuários.', null, true),
-                    colors = harmonizer.harmonize('#cdfd9f', [...Array(dataset.length).keys()].map(i => i * 10)),
-                    colorsHightlight = harmonizer.harmonize('#c0fc86', [...Array(dataset.length).keys()].map(i => i * 10));
+
+                const report = controller.call('report',
+                    'Cadastro de Tags em Usuários',
+                    'Lista das tags cadastradas nos usuários.', null, true);
+
+                const colors = harmonizer.harmonize('#cdfd9f', [...Array(dataset.length).keys()].map(i => i * 10));
+                const colorsHightlight = harmonizer.harmonize('#c0fc86', [...Array(dataset.length).keys()].map(i => i * 10));
 
                 controller.trigger('admin::tagsViewer', report);
                 report.paragraph('Através do gráfico ao lado pode se ver as tags comerciais mais utilizadas em sua aplicação. O usuário ou o administador podem editar as tags através dos dados cadastrais.');
@@ -27,48 +29,48 @@ module.exports = controller => {
 
                 report.newContent();
 
-                var groupData = _.values(_.groupBy(dataset, function(obj) {
-                    return obj._id || null;
-                }));
+                const groupData = _.values(_.groupBy(dataset, ({_id}) => _id || null));
 
-                var reduceData = _.sortBy(_.map(groupData, group => {
-                    return _.reduce(group, (a, b) => {
+                const reduceData = _.sortBy(_.map(groupData, group => {
+                    return _.reduce(group, ({_id, total}, o) => {
                         return {
-                            _id: a._id,
-                            total: a.total + b.total,
+                            _id,
+                            total: total + o.total,
                         };
                     });
                 }), 'total');
 
-                var charData = _.map(reduceData, (opt, i) => {
+                const charData = _.map(reduceData, ({_id, total}, i) => {
                     return {
-                        tag: opt._id,
-                        label: opt._id || 'Não preenchido',
-                        value: opt.total,
+                        tag: _id,
+                        label: _id || 'Não preenchido',
+                        value: total,
                         color: colors[i],
                         highlight: colorsHightlight[i]
                     };
                 });
-                var reducedDataset = reduceDataset(charData),
-                    canvas = report.canvas(250, 250),
-                    interval = setInterval(() => {
-                        if (document.contains(canvas) && $(canvas).is(':visible')) {
-                            clearInterval(interval);
-                            new ChartJS(canvas.getContext('2d')).Doughnut(reducedDataset);
-                        }
-                    }, 1000);
-                charData.forEach((opt, i) => {
-                    if (!opt.tag) {
+                const reducedDataset = reduceDataset(charData);
+                const canvas = report.canvas(250, 250);
+
+                const interval = setInterval(() => {
+                    if (document.contains(canvas) && $(canvas).is(':visible')) {
+                        clearInterval(interval);
+                        new ChartJS(canvas.getContext('2d')).Doughnut(reducedDataset);
+                    }
+                }, 1000);
+
+                charData.forEach(({tag, label, value}, i) => {
+                    if (!tag) {
                         return;
                     }
-                    report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
+                    report.label(`${label} : ${numeral(value).format('0,0')}`).css({
                         'background-color': colors[i],
-                        'color': new Color(colors[i]).light() ? '#000' : '#fff',
-                        'cursor': 'pointer'
+                        color: new Color(colors[i]).light() ? '#000' : '#fff',
+                        cursor: 'pointer'
                     }).click(e => {
                         e.preventDefault();
                         controller.call('admin::openCompanys', report, {
-                            tag: opt.tag
+                            tag
                         });
                     });
                 });
@@ -79,13 +81,14 @@ module.exports = controller => {
     controller.registerCall('admin::commercialReference', (data = {}) => {
         controller.server.call(controller.endpoint.commercialReferenceOverview, {
             dataType: 'json',
-            data: data,
+            data,
             success: dataset => {
-                var report = controller.call('report',
-                        'Referências Comerciais',
-                        'Lista das referências comerciais.', null, true),
-                    colors = harmonizer.harmonize('#cdfd9f', [...Array(dataset.length).keys()].map(i => i * 10)),
-                    colorsHightlight = harmonizer.harmonize('#c0fc86', [...Array(dataset.length).keys()].map(i => i * 10));
+                const report = controller.call('report',
+                    'Referências Comerciais',
+                    'Lista das referências comerciais.', null, true);
+
+                const colors = harmonizer.harmonize('#cdfd9f', [...Array(dataset.length).keys()].map(i => i * 10));
+                const colorsHightlight = harmonizer.harmonize('#c0fc86', [...Array(dataset.length).keys()].map(i => i * 10));
 
                 controller.trigger('admin::commercialReference', report);
                 report.paragraph('Através do gráfico ao lado pode se ver quem são as maiores referências comerciais para sua aplicação. O usuário ou o administador podem editar a referência comercial através dos dados cadastrais.');
@@ -93,48 +96,48 @@ module.exports = controller => {
 
                 report.newContent();
 
-                var groupData = _.values(_.groupBy(dataset, function(obj) {
-                    return obj._id || null;
-                }));
+                const groupData = _.values(_.groupBy(dataset, ({_id}) => _id || null));
 
-                var reduceData = _.sortBy(_.map(groupData, group => {
-                    return _.reduce(group, (a, b) => {
+                const reduceData = _.sortBy(_.map(groupData, group => {
+                    return _.reduce(group, ({_id, total}, o) => {
                         return {
-                            _id: a._id,
-                            total: a.total + b.total,
+                            _id,
+                            total: total + o.total,
                         };
                     });
                 }), 'total');
 
-                var charData = _.map(reduceData, (opt, i) => {
+                const charData = _.map(reduceData, ({_id, total}, i) => {
                     return {
-                        commercialReference: opt._id,
-                        label: opt._id || 'Não preenchido',
-                        value: opt.total,
+                        commercialReference: _id,
+                        label: _id || 'Não preenchido',
+                        value: total,
                         color: colors[i],
                         highlight: colorsHightlight[i]
                     };
                 });
-                var reducedDataset = reduceDataset(charData),
-                    canvas = report.canvas(250, 250),
-                    interval = setInterval(() => {
-                        if (document.contains(canvas) && $(canvas).is(':visible')) {
-                            clearInterval(interval);
-                            new ChartJS(canvas.getContext('2d')).Doughnut(reducedDataset);
-                        }
-                    }, 1000);
-                charData.forEach((opt, i) => {
-                    if (!opt.commercialReference) {
+                const reducedDataset = reduceDataset(charData);
+                const canvas = report.canvas(250, 250);
+
+                const interval = setInterval(() => {
+                    if (document.contains(canvas) && $(canvas).is(':visible')) {
+                        clearInterval(interval);
+                        new ChartJS(canvas.getContext('2d')).Doughnut(reducedDataset);
+                    }
+                }, 1000);
+
+                charData.forEach(({commercialReference, label, value}, i) => {
+                    if (!commercialReference) {
                         return;
                     }
-                    report.label(`${opt.label} : ${numeral(opt.value).format('0,0')}`).css({
+                    report.label(`${label} : ${numeral(value).format('0,0')}`).css({
                         'background-color': colors[i],
-                        'color': new Color(colors[i]).light() ? '#000' : '#fff',
-                        'cursor': 'pointer'
+                        color: new Color(colors[i]).light() ? '#000' : '#fff',
+                        cursor: 'pointer'
                     }).click(e => {
                         e.preventDefault();
                         controller.call('admin::openCompanys', report, {
-                            commercialReference: opt.commercialReference
+                            commercialReference
                         });
                     });
                 });
@@ -149,18 +152,18 @@ module.exports = controller => {
      */
     var reduceDataset = (dataArgument) => {
         let data = jQuery.extend(true, {}, dataArgument);
-        var sum = _.reduce(data, (a, b) => {
+        let sum = _.reduce(data, ({value}, o) => {
             return {
-                value: a.value + b.value
+                value: value + o.value,
             };
         });
 
         sum = sum && sum.value ? sum.value : 0;
 
-        var idx = 1;
+        let idx = 1;
 
-        return _.map(_.values(_.groupBy(data, item => {
-            if (item.value < sum * 0.05) {
+        return _.map(_.values(_.groupBy(data, ({value}) => {
+            if (value < sum * 0.05) {
                 return 0;
             }
             return idx++;

@@ -1,14 +1,16 @@
-import { DistanceMeter } from './distance-meter';
+import {
+    DistanceMeter
+} from './distance-meter';
 import uuid from 'uuid';
 import basename from 'basename';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
     let cameraResume = null;
-    document.addEventListener('resume', event => {
-        if (event.pendingResult && event.pendingResult.pluginStatus === 'OK' &&
-            event.pendingResult.pluginServiceName === 'Camera') {
-            cameraResume = event.pendingResult.result;
+    document.addEventListener('resume', ({pendingResult}) => {
+        if (pendingResult && pendingResult.pluginStatus === 'OK' &&
+            pendingResult.pluginServiceName === 'Camera') {
+            cameraResume = pendingResult.result;
         }
     }, false);
 
@@ -54,7 +56,7 @@ module.exports = function (controller) {
             file: obj[0].uri,
             fileKey: 'file',
             fileName: `${obj[0].file}.jpg`,
-            mimeType : 'image/jpeg',
+            mimeType: 'image/jpeg',
             success: () => cb(),
             error: () => cb('O envio fracassou, verifique sua conexão com a internet e entre em contato com o suporte')
         });
@@ -72,7 +74,13 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerCall('accuracy::checkin::object', (campaign, store, callback, geolocationErrorCallback, type='checkIn') => {
+    controller.registerCall('accuracy::checkin::object', (
+        campaign,
+        {coordinates, id},
+        callback,
+        geolocationErrorCallback,
+        type = 'checkIn'
+    ) => {
         let blockui = controller.call('blockui', {
             icon: 'fa-location-arrow',
             message: 'Aguarde enquanto capturamos sua localização.'
@@ -83,26 +91,26 @@ module.exports = function (controller) {
         }, 6000);
 
         controller.call('accuracy::authentication::data', authData =>
-            navigator.geolocation.getCurrentPosition(position => {
+            navigator.geolocation.getCurrentPosition(({coords}) => {
                 clearTimeout(timeout);
                 blockui.mainContainer.remove();
-                let distance = DistanceMeter(store.coordinates, position.coords);
+                let distance = DistanceMeter(coordinates, coords);
                 callback([{
                     type: type,
                     time: moment().format('HH:mm'),
                     created_date: moment().format('DD/MM/YYYY'),
-                    store_id: store.id,
+                    store_id: id,
                     campaign_id: campaign.id,
                     employee_id: authData[0].id,
                     token: uuid.v4(),
                     file: uuid.v4(),
                     questions: [],
                     verifyCoordinates: {
-                        local: `${position.coords.latitude},${position.coords.longitude}`,
-                        store: store.coordinates
+                        local: `${coords.latitude},${coords.longitude}`,
+                        store: coordinates
                     },
-                    approved: store.coordinates ? (distance >
-                    controller.confs.accuracy.geofenceLimit ? 'N' : 'Y') : 'Y'
+                    approved: coordinates ? (distance >
+                        controller.confs.accuracy.geofenceLimit ? 'N' : 'Y') : 'Y'
                 }]);
             }, (...args) => {
                 clearTimeout(timeout);

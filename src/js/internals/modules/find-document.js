@@ -1,40 +1,38 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var xhr;
+    let xhr;
 
-    var onDocumentSuccess = function (sectionDocumentGroup, current_id, element) {
-        return function (ret) {
-            var append = controller.call('xmlDocument', ret);
-            append.data('on-remove', element);
-            append.data('save-id', current_id);
-            sectionDocumentGroup[1].append(append);
-        };
+    const onDocumentSuccess = (sectionDocumentGroup, current_id, element) => ret => {
+        const append = controller.call('xmlDocument', ret);
+        append.data('on-remove', element);
+        append.data('save-id', current_id);
+        sectionDocumentGroup[1].append(append);
     };
 
-    controller.registerTrigger('findDocument::show', 'findDocument::show', function (args, callback) {
+    controller.registerTrigger('findDocument::show', 'findDocument::show', (args, callback) => {
         callback();
 
-        var name = args[0],
-            description = args[1],
-            ids = args[2],
-            element = $(args[3]);
+        const name = args[0];
+        const description = args[1];
+        const ids = args[2];
+        const element = $(args[3]);
 
         controller.call('loader::register');
 
-        var running = ids.length;
-        var sectionDocumentGroup = controller.call('section', name, description,
+        let running = ids.length;
+        const sectionDocumentGroup = controller.call('section', name, description,
             (ids.length === 1 ?
                 'Um registro armazenado' :
-                ids.length.toString() + ' registros armazenados'));
-        var doneCallback = function () {
+                `${ids.length.toString()} registros armazenados`));
+        const doneCallback = () => {
             if (!--running) {
                 controller.call('loader::unregister');
                 $('.app-content').prepend(sectionDocumentGroup[0].addClass('saved'));
             }
         };
 
-        for (var i in ids) {
-            var current_id = ids[i];
+        for (const i in ids) {
+            const current_id = ids[i];
 
             controller.serverCommunication.call('SELECT FROM \'HARLAN\'.\'DOCUMENT\'', {
                 data: {
@@ -46,13 +44,13 @@ module.exports = function (controller) {
         }
     });
 
-    var items = [];
-    controller.registerTrigger('findDatabase::instantSearch', 'findDocument::instantSearch', function (args, callback) {
+    const items = [];
+    controller.registerTrigger('findDatabase::instantSearch', 'findDocument::instantSearch', (args, callback) => {
         if (xhr && xhr.readyState != 4) {
             xhr.abort();
         }
 
-        for (var i in items) {
+        for (const i in items) {
             items[i].remove();
         }
 
@@ -65,43 +63,41 @@ module.exports = function (controller) {
             data: {
                 data: args[0]
             },
-            success: function (ret) {
-                $(ret).find('result > node').each(function (idx, node) {
-                    var jnode = $(node);
+            success(ret) {
+                $(ret).find('result > node').each((idx, node) => {
+                    const jnode = $(node);
 
-                    var codes = jnode.find('code node');
-                    var length = codes.length;
-                    var description = (length === 1 ? 'Armazenado um (1) resultado' : 'Armazenados ' + length.toString() + ' resultado') + ' para este nome e descrição.';
+                    const codes = jnode.find('code node');
+                    const length = codes.length;
+                    const description = `${length === 1 ? 'Armazenado um (1) resultado' : `Armazenados ${length.toString()} resultado`} para este nome e descrição.`;
 
-                    var title = jnode.find('_id name').text();
-                    var subtitle = jnode.find('_id description').text();
+                    const title = jnode.find('_id name').text();
+                    const subtitle = jnode.find('_id description').text();
                     items.push(args[1].item(title,
                         subtitle,
                         description, null, null, true).addClass('saved').click(function () {
-                        controller.trigger('findDocument::show', [title, subtitle, $.map(codes, function (code) {
-                            return $(code).text();
-                        }), this]);
+                        controller.trigger('findDocument::show', [title, subtitle, $.map(codes, code => $(code).text()), this]);
                     }));
                 });
             },
-            complete: function () {
+            complete() {
                 callback();
             }
         });
     });
 
-    controller.registerCall('findDocument::autocomplete', function (args) {
-        var fieldName = args[0],
-            fieldDescription = args[1],
-            searchId,
-            searchLength,
-            xhr;
+    controller.registerCall('findDocument::autocomplete', args => {
+        const fieldName = args[0];
+        const fieldDescription = args[1];
+        let searchId;
+        let searchLength;
+        let xhr;
 
-        var autocomplete = controller.call('autocomplete', fieldName);
+        const autocomplete = controller.call('autocomplete', fieldName);
 
-        fieldName.keyup(function () {
-            var search = fieldName.val();
-            var newLength = search.length;
+        fieldName.keyup(() => {
+            const search = fieldName.val();
+            const newLength = search.length;
             if (newLength === searchLength)
                 return;
 
@@ -111,7 +107,7 @@ module.exports = function (controller) {
             if (searchId)
                 clearTimeout(searchId);
 
-            searchId = setTimeout(function () {
+            searchId = setTimeout(() => {
                 if (xhr) {
                     xhr.abort();
                 }
@@ -119,20 +115,20 @@ module.exports = function (controller) {
                     data: {
                         data: search
                     },
-                    success: function (ret) {
-                        $(ret).find('result > node').each(function (idx, node) {
-                            var jnode = $(node);
+                    success(ret) {
+                        $(ret).find('result > node').each((idx, node) => {
+                            const jnode = $(node);
 
-                            var codes = jnode.find('code node');
-                            var length = codes.length;
-                            var description = (length === 1 ? 'Armazenado um (1) resultado' : 'Armazenados ' + length.toString() + ' resultado') + ' para este nome e descrição.';
+                            const codes = jnode.find('code node');
+                            const length = codes.length;
+                            const description = `${length === 1 ? 'Armazenado um (1) resultado' : `Armazenados ${length.toString()} resultado`} para este nome e descrição.`;
 
-                            var title = jnode.find('_id name').text();
-                            var subtitle = jnode.find('_id description').text();
+                            const title = jnode.find('_id name').text();
+                            const subtitle = jnode.find('_id description').text();
 
                             items.push(autocomplete.item(title,
                                 subtitle,
-                                description, null, null, true).addClass('saved').click(function () {
+                                description, null, null, true).addClass('saved').click(() => {
                                 fieldName.val(title);
                                 fieldDescription.val(subtitle);
                             }));

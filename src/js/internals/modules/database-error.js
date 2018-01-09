@@ -1,11 +1,12 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var toastFatalError = function (message, type) {
+    const toastFatalError = (message, type) => {
         toastr[type || 'error'](message || 'Ocorreu um erro interno do servidor.', 'Não foi possível processar sua requisição!');
     };
 
-    controller.registerTrigger('database::error', 'databaseError::error', function (args, callback) {
-        var jqXHR = args[0], e = args[1];
+    controller.registerTrigger('database::error', 'databaseError::error', (args, callback) => {
+        const jqXHR = args[0];
+        const e = args[1];
 
         if (jqXHR && (jqXHR.status === 0 && e === 'abort')) {
             return;
@@ -14,9 +15,9 @@ module.exports = function (controller) {
         if (jqXHR.status === 500) {
 
             try {
-                var ret = $.parseXML(jqXHR.responseText);
+                const ret = $.parseXML(jqXHR.responseText);
 
-                if ($.bipbopAssert(ret, function (source, message) {
+                if ($.bipbopAssert(ret, (source, message) => {
                     if (source === 'ExceptionDatabase') {
                         toastFatalError(message, 'warning');
                     } else {

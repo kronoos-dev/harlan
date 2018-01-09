@@ -1,16 +1,16 @@
 module.exports = {
-    '1': [
+    1: [
         {
-            'STF': 'NumeroSTF'
+            STF: 'NumeroSTF'
         },
         {
-            'STF': 'NumeroUnico'
+            STF: 'NumeroUnico'
         },
         {
-            'STF': 'NumeroDeProtocolo'
+            STF: 'NumeroDeProtocolo'
         }
     ],
-    '2': [
+    2: [
         [
             'CNJ',
             null
@@ -18,13 +18,13 @@ module.exports = {
     ],
     '3.00': [
         {
-            'STJ': 'NumeroSTJ'
+            STJ: 'NumeroSTJ'
         },
         {
-            'STJ': 'NumeroUnico'
+            STJ: 'NumeroUnico'
         },
         {
-            'STJ': 'NumeroDeRegistro'
+            STJ: 'NumeroDeRegistro'
         }
     ],
     '4.90': [
@@ -33,1050 +33,1050 @@ module.exports = {
             null
         ]
     ],
-    '4.01': [
+    4.01: [
         {
-            'TRF01': 'ConsultaProcessual'
+            TRF01: 'ConsultaProcessual'
         },
         {
-            'TRF01': 'ConsultaPJePrimeiroGrau'
+            TRF01: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRF01': 'ConsultaPJeSegundoGrau'
+            TRF01: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '4.02': [
+    4.02: [
         {
-            'TRF02': 'NumeroTRF'
+            TRF02: 'NumeroTRF'
         },
         {
-            'TRF02': 'NumeroUnico'
+            TRF02: 'NumeroUnico'
         },
         {
-            'TRF02': 'ConsultaDeProcessos'
+            TRF02: 'ConsultaDeProcessos'
         }
     ],
-    '4.03': [
+    4.03: [
         {
-            'TRF03': 'ConsultaProcessual'
+            TRF03: 'ConsultaProcessual'
         },
         {
-            'TRF03': 'ConsultaPJe'
+            TRF03: 'ConsultaPJe'
         },
         {
-            'TRF03': 'ConsultaPJePrimeiroGrau'
+            TRF03: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRF03': 'ConsultaPJeSegundoGrau'
+            TRF03: 'ConsultaPJeSegundoGrau'
         },
         {
-            'JFSP': 'ConsultaProcessualJuizadoEspecialFederal'
+            JFSP: 'ConsultaProcessualJuizadoEspecialFederal'
         }
     ],
-    '4.04': [
+    4.04: [
         {
-            'TRF04': 'ConsultaProcessualUnificada'
+            TRF04: 'ConsultaProcessualUnificada'
         },
         {
-            'TRF04': 'ConsultaProcessualEProc'
+            TRF04: 'ConsultaProcessualEProc'
         },
         {
-            'JFPR': 'ConsultaProcessualUnificada'
+            JFPR: 'ConsultaProcessualUnificada'
         }
     ],
-    '4.05': [
+    4.05: [
         {
-            'TRF05': 'ConsultaDeProcessos'
+            TRF05: 'ConsultaDeProcessos'
         },
         {
-            'TRF05': 'ConsultaPJe'
+            TRF05: 'ConsultaPJe'
         }
     ],
     '5.00': [
         {
-            'TST': 'NumeracaoUnica'
+            TST: 'NumeracaoUnica'
         },
         {
-            'TST': 'NumeracaoAntigaTST'
+            TST: 'NumeracaoAntigaTST'
         }
     ],
-    '5.01': [
+    5.01: [
         {
-            'TRT01': 'CNJ'
+            TRT01: 'CNJ'
         },
         {
-            'TRT01': 'ConsultaPJePrimeiroGrau'
+            TRT01: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '5.02': [
+    5.02: [
         {
-            'TRT02': 'PrimeiraInstancia'
+            TRT02: 'PrimeiraInstancia'
         },
         {
-            'TRT02': 'PrimeiraInstanciaAntiga'
+            TRT02: 'PrimeiraInstanciaAntiga'
         },
         {
-            'TRT02': 'SegundaInstancia_sdi'
+            TRT02: 'SegundaInstancia_sdi'
         },
         {
-            'TRT02': 'SegundaInstancia_sdc'
+            TRT02: 'SegundaInstancia_sdc'
         },
         {
-            'TRT02': 'SegundaInstancia'
+            TRT02: 'SegundaInstancia'
         },
         {
-            'TRT02': 'ConsultaPJePrimeiroGrau'
+            TRT02: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT02': 'ConsultaPJeSegundoGrau'
+            TRT02: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.03': [
+    5.03: [
         {
-            'TRT03': 'ConsultaNumeroUnicoCNJ'
+            TRT03: 'ConsultaNumeroUnicoCNJ'
         },
         {
-            'TRT03': 'ConsultaNumeroUnicoCSJT'
+            TRT03: 'ConsultaNumeroUnicoCSJT'
         },
         {
-            'TRT03': 'ConsultaPJePrimeiroGrau'
+            TRT03: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '5.04': [
+    5.04: [
         {
-            'TRT04': 'ConsultaDeProcessosFisicos'
+            TRT04: 'ConsultaDeProcessosFisicos'
         },
         {
-            'TRT04': 'ConsultaPJePrimeiroGrau'
+            TRT04: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT04': 'ConsultaPJeSegundoGrau'
+            TRT04: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.05': [
+    5.05: [
         {
-            'TRT05': 'NumeracaoUnica'
+            TRT05: 'NumeracaoUnica'
         },
         {
-            'TRT05': 'NumeracaoAntiga'
+            TRT05: 'NumeracaoAntiga'
         },
         {
-            'TRT05': 'ConsultaPJePrimeiroGrau'
+            TRT05: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT05': 'ConsultaPJeSegundoGrau'
+            TRT05: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.06': [
+    5.06: [
         {
-            'TRT06': 'ConsultaProcessualPelaNumeracaoCompleta'
+            TRT06: 'ConsultaProcessualPelaNumeracaoCompleta'
         },
         {
-            'TRT06': 'ConsultaPJePrimeiroGrau'
+            TRT06: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT06': 'ConsultaPJeSegundoGrau'
+            TRT06: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.07': [
+    5.07: [
         {
-            'TRT07': 'ConsultaProcessualPorNumero'
+            TRT07: 'ConsultaProcessualPorNumero'
         },
         {
-            'TRT07': 'ConsultaPJePrimeiroGrau'
+            TRT07: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT07': 'ConsultaPJeSegundoGrau'
+            TRT07: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.08': [
+    5.08: [
         {
-            'TRT08': 'ConsultaDeProcesso'
+            TRT08: 'ConsultaDeProcesso'
         },
         {
-            'TRT08': 'ConsultaPJePrimeiroGrau'
+            TRT08: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT08': 'ConsultaPJeSegundoGrau'
+            TRT08: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.09': [
+    5.09: [
         {
-            'TRT09': 'PesquisaNumeroUnicoTST'
+            TRT09: 'PesquisaNumeroUnicoTST'
         },
         {
-            'TRT09': 'PesquisaNumeroUnicoCNJ'
+            TRT09: 'PesquisaNumeroUnicoCNJ'
         },
         {
-            'TRT09': 'ConsultaPJePrimeiroGrau'
+            TRT09: 'ConsultaPJePrimeiroGrau'
         }
     ],
     '5.10': [
         {
-            'TRT10': 'ConsultaNumeracaoUnica'
+            TRT10: 'ConsultaNumeracaoUnica'
         },
         {
-            'TRT10': 'ConsultaNumeracaoAntiga'
+            TRT10: 'ConsultaNumeracaoAntiga'
         },
         {
-            'TRT10': 'ConsultaPJePrimeiroGrau'
+            TRT10: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT10': 'ConsultaPJeSegundoGrau'
+            TRT10: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.11': [
+    5.11: [
         {
-            'TRT11': 'ConsultaProcessualUnificada'
+            TRT11: 'ConsultaProcessualUnificada'
         },
         {
-            'TRT11': 'ConsultaPJePrimeiroGrau'
+            TRT11: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '5.12': [
+    5.12: [
         {
-            'TRT12': 'ConsultaDeProcessosDePrimeiroGrauComNumeracaoUnica'
+            TRT12: 'ConsultaDeProcessosDePrimeiroGrauComNumeracaoUnica'
         },
         {
-            'TRT12': 'ConsultaDeProcessosDePrimeiroGrauComNumeracaoAntiga'
+            TRT12: 'ConsultaDeProcessosDePrimeiroGrauComNumeracaoAntiga'
         },
         {
-            'TRT12': 'ConsultaDeProcessosDePrimeiroGrauAutuadoAte2001'
+            TRT12: 'ConsultaDeProcessosDePrimeiroGrauAutuadoAte2001'
         },
         {
-            'TRT12': 'ConsultaDeProcessosDeSegundoGrauComNumeracaoUnica'
+            TRT12: 'ConsultaDeProcessosDeSegundoGrauComNumeracaoUnica'
         },
         {
-            'TRT12': 'ConsultaDeProcessosDeSegundoGrauComNumeracaoAntiga'
+            TRT12: 'ConsultaDeProcessosDeSegundoGrauComNumeracaoAntiga'
         },
         {
-            'TRT12': 'ConsultaDeProcessosDeSegundoGrauAutuadoAte2001'
+            TRT12: 'ConsultaDeProcessosDeSegundoGrauAutuadoAte2001'
         },
         {
-            'TRT12': 'ConsultaPJePrimeiroGrau'
+            TRT12: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT12': 'ConsultaPJeSegundoGrau'
+            TRT12: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.13': [
+    5.13: [
         {
-            'TRT13': 'ConsultaProcessual'
+            TRT13: 'ConsultaProcessual'
         },
         {
-            'TRT13': 'ConsultaPJePrimeiroGrau'
+            TRT13: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT13': 'ConsultaPJeSegundoGrau'
+            TRT13: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.14': [
+    5.14: [
         {
-            'TRT14': 'ConsultaProcessualPrimeiraInstancia'
+            TRT14: 'ConsultaProcessualPrimeiraInstancia'
         },
         {
-            'TRT14': 'ConsultaProcessualSegundaInstancia'
+            TRT14: 'ConsultaProcessualSegundaInstancia'
         },
         {
-            'TRT14': 'ConsultaPJePrimeiroGrau'
+            TRT14: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT14': 'ConsultaPJeSegundoGrau'
+            TRT14: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.15': [
+    5.15: [
         {
-            'TRT15': 'ConsultaDeProcessosComNumeracaoUnica'
+            TRT15: 'ConsultaDeProcessosComNumeracaoUnica'
         },
         {
-            'TRT15': 'ConsultaDeProcessosComNumeracaoAntiga'
+            TRT15: 'ConsultaDeProcessosComNumeracaoAntiga'
         },
         {
-            'TRT15': 'ConsultaPJePrimeiroGrau'
+            TRT15: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT15': 'ConsultaPJeSegundoGrau'
+            TRT15: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.16': [
+    5.16: [
         {
-            'TRT16': 'ConsultaProcessual'
+            TRT16: 'ConsultaProcessual'
         },
         {
-            'TRT16': 'ConsultaPJePrimeiroGrau'
+            TRT16: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '5.17': [
+    5.17: [
         {
-            'TRT17': 'ConsultaProcessual'
+            TRT17: 'ConsultaProcessual'
         },
         {
-            'TRT17': 'ConsultaPJePrimeiroGrau'
+            TRT17: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT17': 'ConsultaPJeSegundoGrau'
+            TRT17: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.18': [
+    5.18: [
         {
-            'TRT18': 'ConsultaProcessoPorNumeroUnico'
+            TRT18: 'ConsultaProcessoPorNumeroUnico'
         },
         {
-            'TRT18': 'ConsultaProcessoPorNumeroAntigo'
+            TRT18: 'ConsultaProcessoPorNumeroAntigo'
         },
         {
-            'TRT18': 'ConsultaPJe'
+            TRT18: 'ConsultaPJe'
         }
     ],
-    '5.19': [
+    5.19: [
         {
-            'TRT19': 'ConsultaPJePrimeiroGrau'
+            TRT19: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT19': 'ConsultaPJeSegundoGrau'
+            TRT19: 'ConsultaPJeSegundoGrau'
         },
         {
-            'TRT19': 'ConsultasAMovimentacaoProcessual'
+            TRT19: 'ConsultasAMovimentacaoProcessual'
         }
     ],
     '5.20': [
         {
-            'TRT20': 'ConsultaProcessualDePrimeiraInstancia'
+            TRT20: 'ConsultaProcessualDePrimeiraInstancia'
         },
         {
-            'TRT20': 'ConsultaProcessualDeSegundaInstancia'
+            TRT20: 'ConsultaProcessualDeSegundaInstancia'
         },
         {
-            'TRT20': 'ConsultaPJePrimeiroGrau'
+            TRT20: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '5.21': [
+    5.21: [
         {
-            'TRT21': 'ConsultaDeProcessoPorNumeroAntigo'
+            TRT21: 'ConsultaDeProcessoPorNumeroAntigo'
         },
         {
-            'TRT21': 'ConsultaDeProcessoPorNumeroNovo'
+            TRT21: 'ConsultaDeProcessoPorNumeroNovo'
         },
         {
-            'TRT21': 'ConsultaPJePrimeiroGrau'
+            TRT21: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT21': 'ConsultaPJeSegundoGrau'
+            TRT21: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.22': [
+    5.22: [
         {
-            'TRT22': 'ConsultaPJePrimeiroGrau'
+            TRT22: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT22': 'ConsultaPJeSegundoGrau'
+            TRT22: 'ConsultaPJeSegundoGrau'
         },
         {
-            'TRT22': 'ConsultaDeProcessosDasVarasPrimeiraInstancia'
+            TRT22: 'ConsultaDeProcessosDasVarasPrimeiraInstancia'
         },
         {
-            'TRT22': 'ConsultaDeProcessosDoTribunalSegundaInstancia'
+            TRT22: 'ConsultaDeProcessosDoTribunalSegundaInstancia'
         }
     ],
-    '5.23': [
+    5.23: [
         {
-            'TRT23': 'ConsultaDeProcessosAutosFisicos'
+            TRT23: 'ConsultaDeProcessosAutosFisicos'
         },
         {
-            'TRT23': 'ConsultaPJePrimeiroGrau'
+            TRT23: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TRT23': 'ConsultaPJeSegundoGrau'
+            TRT23: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '5.24': [
+    5.24: [
         {
-            'TRT24': 'ConsultaProcessual'
+            TRT24: 'ConsultaProcessual'
         },
         {
-            'TRT24': 'ConsultaPJePrimeiroGrau'
+            TRT24: 'ConsultaPJePrimeiroGrau'
         }
     ],
     '6.00': [
         {
-            'TSE': 'AcompanhamentoProcessualNumeroUnico'
+            TSE: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TSE': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TSE: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.01': [
+    6.01: [
         {
-            'TREAC': 'AcompanhamentoProcessualNumeroUnico'
+            TREAC: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREAC': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREAC: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.02': [
+    6.02: [
         {
-            'TREAL': 'AcompanhamentoProcessualNumeroUnico'
+            TREAL: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREAL': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREAL: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.03': [
+    6.03: [
         {
-            'TREAP': 'AcompanhamentoProcessualNumeroUnico'
+            TREAP: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREAP': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREAP: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.04': [
+    6.04: [
         {
-            'TREAM': 'AcompanhamentoProcessualNumeroUnico'
+            TREAM: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREAM': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREAM: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.05': [
+    6.05: [
         {
-            'TREBA': 'AcompanhamentoProcessualNumeroUnico'
+            TREBA: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREBA': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREBA: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.06': [
+    6.06: [
         {
-            'TRECE': 'AcompanhamentoProcessualNumeroUnico'
+            TRECE: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRECE': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRECE: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.07': [
+    6.07: [
         {
-            'TREDF': 'AcompanhamentoProcessualNumeroUnico'
+            TREDF: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREDF': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREDF: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.08': [
+    6.08: [
         {
-            'TREES': 'AcompanhamentoProcessualNumeroUnico'
+            TREES: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREES': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREES: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.09': [
+    6.09: [
         {
-            'TREGO': 'AcompanhamentoProcessualNumeroUnico'
+            TREGO: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREGO': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREGO: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
     '6.10': [
         {
-            'TREMA': 'AcompanhamentoProcessualNumeroUnico'
+            TREMA: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREMA': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREMA: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.11': [
+    6.11: [
         {
-            'TREMT': 'AcompanhamentoProcessualNumeroUnico'
+            TREMT: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREMT': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREMT: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.12': [
+    6.12: [
         {
-            'TREMS': 'AcompanhamentoProcessualNumeroUnico'
+            TREMS: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREMS': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREMS: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.13': [
+    6.13: [
         {
-            'TREMG': 'AcompanhamentoProcessualNumeroUnico'
+            TREMG: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREMG': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREMG: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.14': [
+    6.14: [
         {
-            'TREPA': 'AcompanhamentoProcessualNumeroUnico'
+            TREPA: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREPA': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREPA: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.15': [
+    6.15: [
         {
-            'TREPB': 'AcompanhamentoProcessualNumeroUnico'
+            TREPB: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREPB': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREPB: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.16': [
+    6.16: [
         {
-            'TREPR': 'AcompanhamentoProcessualNumeroUnico'
+            TREPR: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREPR': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREPR: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.17': [
+    6.17: [
         {
-            'TREPE': 'AcompanhamentoProcessualNumeroUnico'
+            TREPE: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREPE': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREPE: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.18': [
+    6.18: [
         {
-            'TREPI': 'AcompanhamentoProcessualNumeroUnico'
+            TREPI: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TREPI': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TREPI: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.19': [
+    6.19: [
         {
-            'TRERJ': 'AcompanhamentoProcessualNumeroUnico'
+            TRERJ: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRERJ': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRERJ: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
     '6.20': [
         {
-            'TRERN': 'AcompanhamentoProcessualNumeroUnico'
+            TRERN: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRERN': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRERN: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.21': [
+    6.21: [
         {
-            'TRERS': 'AcompanhamentoProcessualNumeroUnico'
+            TRERS: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRERS': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRERS: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.22': [
+    6.22: [
         {
-            'TRERO': 'AcompanhamentoProcessualNumeroUnico'
+            TRERO: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRERO': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRERO: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.23': [
+    6.23: [
         {
-            'TRERR': 'AcompanhamentoProcessualNumeroUnico'
+            TRERR: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRERR': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRERR: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.24': [
+    6.24: [
         {
-            'TRESC': 'AcompanhamentoProcessualNumeroUnico'
+            TRESC: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRESC': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRESC: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.25': [
+    6.25: [
         {
-            'TRESE': 'AcompanhamentoProcessualNumeroUnico'
+            TRESE: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRESE': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRESE: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.26': [
+    6.26: [
         {
-            'TRESP': 'AcompanhamentoProcessualNumeroUnico'
+            TRESP: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRESP': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRESP: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '6.27': [
+    6.27: [
         {
-            'TRETO': 'AcompanhamentoProcessualNumeroUnico'
+            TRETO: 'AcompanhamentoProcessualNumeroUnico'
         },
         {
-            'TRETO': 'AcompanhamentoProcessualNumeroDoProtocolo'
+            TRETO: 'AcompanhamentoProcessualNumeroDoProtocolo'
         }
     ],
-    '8.01': [
+    8.01: [
         {
-            'TJAC': 'ConsultaDeProcessosDePrimeiroGrau'
+            TJAC: 'ConsultaDeProcessosDePrimeiroGrau'
         },
         {
-            'TJAC': 'ConsultaDeProcessosDeSegundoGrau'
+            TJAC: 'ConsultaDeProcessosDeSegundoGrau'
         }
     ],
-    '8.02': [
+    8.02: [
         {
-            'TJAL': 'ConsultaDeProcessosDoPrimeiroGrau'
+            TJAL: 'ConsultaDeProcessosDoPrimeiroGrau'
         },
         {
-            'TJAL': 'ConsultaDeProcessosDoSegundoGrau'
+            TJAL: 'ConsultaDeProcessosDoSegundoGrau'
         },
         {
-            'TJAL': 'ConsultaDeProcessosProjudi'
+            TJAL: 'ConsultaDeProcessosProjudi'
         }
     ],
-    '8.03': [
+    8.03: [
         {
-            'TJAP': 'ConsultaDeProcessos'
+            TJAP: 'ConsultaDeProcessos'
         }
     ],
-    '8.04': [
+    8.04: [
         {
-            'TJAM': 'ConsultaProcessualDePrimeiroGrauCapitalESaj'
+            TJAM: 'ConsultaProcessualDePrimeiroGrauCapitalESaj'
         },
         {
-            'TJAM': 'ConsultaProcessualDePrimeiroGrauInteriorProjudi'
+            TJAM: 'ConsultaProcessualDePrimeiroGrauInteriorProjudi'
         },
         {
-            'TJAM': 'ConsultaProcessualDeSegundoGrauDigital'
+            TJAM: 'ConsultaProcessualDeSegundoGrauDigital'
         },
         {
-            'TJAM': 'ConsultaProcessualDeSegundoGrauFisico'
+            TJAM: 'ConsultaProcessualDeSegundoGrauFisico'
         }
     ],
-    '8.05': [
+    8.05: [
         {
-            'TJBA': 'ConsultaDeProcessosDoPrimeiroGrau'
+            TJBA: 'ConsultaDeProcessosDoPrimeiroGrau'
         },
         {
-            'TJBA': 'ConsultaDeProcessosDoSegundoGrau'
+            TJBA: 'ConsultaDeProcessosDoSegundoGrau'
         },
         {
-            'TJBA': 'ConsultaDeProcessosProjudi'
+            TJBA: 'ConsultaDeProcessosProjudi'
         },
         {
-            'TJBA': 'ConsultaDeProcessosDoPrimeiroGrauSaipro'
+            TJBA: 'ConsultaDeProcessosDoPrimeiroGrauSaipro'
         },
         {
-            'TJBA': 'ConsultaPJePrimeiroGrau'
+            TJBA: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '8.06': [
+    8.06: [
         {
-            'TJCE': 'ConsultaDeProcessosDePrimeiroGrau'
+            TJCE: 'ConsultaDeProcessosDePrimeiroGrau'
         },
         {
-            'TJCE': 'ConsultaDeProcessosDeSegundoGrau'
+            TJCE: 'ConsultaDeProcessosDeSegundoGrau'
         },
         {
-            'TJCE': 'ConsultaDeProcessosFisicosPorNumeroUnico'
+            TJCE: 'ConsultaDeProcessosFisicosPorNumeroUnico'
         },
         {
-            'TJCE': 'ConsultaDeProcessosFisicosPorNumeroSprocOuAntigo'
+            TJCE: 'ConsultaDeProcessosFisicosPorNumeroSprocOuAntigo'
         },
         {
-            'TJCE': 'ConsultaDeProcessosProjudi'
+            TJCE: 'ConsultaDeProcessosProjudi'
         },
         {
-            'TJCE': 'ConsultaPJePrimeiroGrau'
+            TJCE: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJCE': 'ConsultaPJeSegundoGrau'
+            TJCE: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '8.07': [
+    8.07: [
         {
-            'TJDFT': 'PrimeiraInstancia'
+            TJDFT: 'PrimeiraInstancia'
         },
         {
-            'TJDFT': 'SegundaInstancia'
+            TJDFT: 'SegundaInstancia'
         },
         {
-            'TJDFT': 'ConsultaPJePrimeiroGrau'
+            TJDFT: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJDFT': 'ConsultaPJeSegundoGrau'
+            TJDFT: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '8.08': [
+    8.08: [
         {
-            'TJES': 'ConsultaProcessualPrimeiraInstanciaJusticaComum'
+            TJES: 'ConsultaProcessualPrimeiraInstanciaJusticaComum'
         },
         {
-            'TJES': 'ConsultaProcessualPrimeiraInstanciaJuizadoEspecial'
+            TJES: 'ConsultaProcessualPrimeiraInstanciaJuizadoEspecial'
         },
         {
-            'TJES': 'ConsultaProcessualSegundaInstancia'
+            TJES: 'ConsultaProcessualSegundaInstancia'
         },
         {
-            'TJES': 'AcompanhamentoProcessualUnificado'
+            TJES: 'AcompanhamentoProcessualUnificado'
         },
         {
-            'TJES': 'ConsultaPJe'
+            TJES: 'ConsultaPJe'
         }
     ],
-    '8.09': [
+    8.09: [
         {
-            'TJGO': 'ProcessoFisicoJudicialPrimeiroGrau'
+            TJGO: 'ProcessoFisicoJudicialPrimeiroGrau'
         },
         {
-            'TJGO': 'ProjudiPrimeiroGrau'
+            TJGO: 'ProjudiPrimeiroGrau'
         },
         {
-            'TJGO': 'ProjudiSegundoGrau'
+            TJGO: 'ProjudiSegundoGrau'
         },
         {
-            'TJGO': 'ProjudiExecucaoPenal'
+            TJGO: 'ProjudiExecucaoPenal'
         },
         {
-            'TJGO': 'ProcessoFisicoJudicialSegundoGrau'
+            TJGO: 'ProcessoFisicoJudicialSegundoGrau'
         },
         {
-            'TJGO': 'ConsultaPJePrimeiroGrau'
+            TJGO: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJGO': 'ProcessosAdministrativos'
+            TJGO: 'ProcessosAdministrativos'
         }
     ],
     '8.10': [
         {
-            'TJMA': 'ConsultaProcessualPrimeiroGrau'
+            TJMA: 'ConsultaProcessualPrimeiroGrau'
         },
         {
-            'TJMA': 'ConsultaProcessualPrimeiroGrauNumeroAntigo'
+            TJMA: 'ConsultaProcessualPrimeiroGrauNumeroAntigo'
         },
         {
-            'TJMA': 'ConsultaProcessualJuizadosEspeciais'
+            TJMA: 'ConsultaProcessualJuizadosEspeciais'
         },
         {
-            'TJMA': 'ConsultaProcessualProjudi'
+            TJMA: 'ConsultaProcessualProjudi'
         },
         {
-            'TJMA': 'ConsultaProcessualSegundoGrau'
+            TJMA: 'ConsultaProcessualSegundoGrau'
         },
         {
-            'TJMA': 'ConsultaPJePrimeiroGrau'
+            TJMA: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJMA': 'ConsultaPJeSegundoGrau'
+            TJMA: 'ConsultaPJeSegundoGrau'
         },
         {
-            'TJMA': 'ConsultaProcessualTurmaRecursal'
+            TJMA: 'ConsultaProcessualTurmaRecursal'
         }
     ],
-    '8.11': [
+    8.11: [
         {
-            'TJMT': 'ConsultaProcessualNumeroUnicoPrimeiraInstancia'
+            TJMT: 'ConsultaProcessualNumeroUnicoPrimeiraInstancia'
         },
         {
-            'TJMT': 'ConsultaProcessualComarcas'
+            TJMT: 'ConsultaProcessualComarcas'
         },
         {
-            'TJMT': 'ProcessoAdministrativo'
+            TJMT: 'ProcessoAdministrativo'
         },
         {
-            'TJMT': 'ConsultaProcessualProjudi'
+            TJMT: 'ConsultaProcessualProjudi'
         },
         {
-            'TJMT': 'ConsultaPJePrimeiroGrau'
+            TJMT: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJMT': 'ConsultaProcessualCodigoDoProcessoPrimeiraInstancia'
+            TJMT: 'ConsultaProcessualCodigoDoProcessoPrimeiraInstancia'
         },
         {
-            'TJMT': 'ConsultaProcessualNumeroProtocoloSegundaInstancia'
+            TJMT: 'ConsultaProcessualNumeroProtocoloSegundaInstancia'
         },
         {
-            'TJMT': 'ConsultaProcessualNumeroProtocoloTurmaRecursal'
+            TJMT: 'ConsultaProcessualNumeroProtocoloTurmaRecursal'
         }
     ],
-    '8.12': [
+    8.12: [
         {
-            'TJMS': 'ConsultaDeProcessosDoSegundoGrau'
+            TJMS: 'ConsultaDeProcessosDoSegundoGrau'
         },
         {
-            'TJMS': 'ConsultaDeProcessosDoPrimeiroGrau'
+            TJMS: 'ConsultaDeProcessosDoPrimeiroGrau'
         },
         {
-            'TJMS': 'ConsultaDeProcessosDoPrimeiroGrauComIdentificacao'
+            TJMS: 'ConsultaDeProcessosDoPrimeiroGrauComIdentificacao'
         },
         {
-            'TJMS': 'ConsultaDeProcessosDaTurmaDeRecursos'
+            TJMS: 'ConsultaDeProcessosDaTurmaDeRecursos'
         }
     ],
-    '8.13': [
+    8.13: [
         {
-            'TJMG': 'ConsultaPJePrimeiroGrau'
+            TJMG: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJMG': 'SegundaInstancia'
+            TJMG: 'SegundaInstancia'
         },
         {
-            'TJMG': 'PrimeiraInstancia'
+            TJMG: 'PrimeiraInstancia'
         },
         {
-            'TJMG': 'Projudi'
+            TJMG: 'Projudi'
         }
     ],
-    '8.14': [
+    8.14: [
         {
-            'TJPA': 'ConsultaProcessualPrimeiroGrau'
+            TJPA: 'ConsultaProcessualPrimeiroGrau'
         },
         {
-            'TJPA': 'ConsultaProcessualProjudi'
+            TJPA: 'ConsultaProcessualProjudi'
         },
         {
-            'TJPA': 'ConsultaProcessualPrimeiroGrauNumeroAntigo'
+            TJPA: 'ConsultaProcessualPrimeiroGrauNumeroAntigo'
         },
         {
-            'TJPA': 'ConsultaProcessualJuizadosEspeciais'
+            TJPA: 'ConsultaProcessualJuizadosEspeciais'
         },
         {
-            'TJPA': 'ConsultaProcessualJuizadosEspeciaisNumeroAntigo'
+            TJPA: 'ConsultaProcessualJuizadosEspeciaisNumeroAntigo'
         },
         {
-            'TJPA': 'ConsultaProcessualSegundoGrau'
+            TJPA: 'ConsultaProcessualSegundoGrau'
         },
         {
-            'TJPA': 'ConsultaPJePrimeiroGrau'
+            TJPA: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '8.15': [
+    8.15: [
         {
-            'TJPB': 'ConsultaPJe'
+            TJPB: 'ConsultaPJe'
         },
         {
-            'TJPB': 'PrimeroGrauConsultaProcesso'
+            TJPB: 'PrimeroGrauConsultaProcesso'
         },
         {
-            'TJPB': 'SegundoGrauConsultaProcesso'
+            TJPB: 'SegundoGrauConsultaProcesso'
         },
         {
-            'TJPB': 'ProjudiConsultarProcessoPorNumero'
+            TJPB: 'ProjudiConsultarProcessoPorNumero'
         }
     ],
-    '8.16': [
+    8.16: [
         {
-            'TJPR': 'ConsultaProcessualPrimeiroGrauCivel'
+            TJPR: 'ConsultaProcessualPrimeiroGrauCivel'
         },
         {
-            'TJPR': 'ConsultaProcessualPrimeiroGrauCriminal'
+            TJPR: 'ConsultaProcessualPrimeiroGrauCriminal'
         },
         {
-            'TJPR': 'ConsultaProcessualPrimeiroGrauVEP'
+            TJPR: 'ConsultaProcessualPrimeiroGrauVEP'
         },
         {
-            'TJPR': 'ConsultaProcessualSegundoGrau'
+            TJPR: 'ConsultaProcessualSegundoGrau'
         },
         {
-            'TJPR': 'ConsultaProcessualJuizadoEspecialCivel'
+            TJPR: 'ConsultaProcessualJuizadoEspecialCivel'
         },
         {
-            'TJPR': 'ConsultaProcessualProjudi'
+            TJPR: 'ConsultaProcessualProjudi'
         },
         {
-            'TJPR': 'ConsultaProcessualPrimeiroGrauCivelVarasEstatizadas'
+            TJPR: 'ConsultaProcessualPrimeiroGrauCivelVarasEstatizadas'
         },
         {
-            'TJPR': 'ConsultaProcessualPrimeiroGrauCivelVarasEstatizadasNumeroAntigo'
+            TJPR: 'ConsultaProcessualPrimeiroGrauCivelVarasEstatizadasNumeroAntigo'
         },
         {
-            'TJPR': 'ConsultaProcessualForumDeLondrina'
+            TJPR: 'ConsultaProcessualForumDeLondrina'
         }
     ],
-    '8.17': [
+    8.17: [
         {
-            'TJPE': 'ConsultaDeProcessosDoPrimeiroGrau'
+            TJPE: 'ConsultaDeProcessosDoPrimeiroGrau'
         },
         {
-            'TJPE': 'ConsultaDeProcessosDoSegundoGrau'
+            TJPE: 'ConsultaDeProcessosDoSegundoGrau'
         },
         {
-            'TJPE': 'ConsultaDeProcessosProjudi'
+            TJPE: 'ConsultaDeProcessosProjudi'
         },
         {
-            'TJPE': 'ConsultaDeProcessosJuizadosCiveis'
+            TJPE: 'ConsultaDeProcessosJuizadosCiveis'
         },
         {
-            'TJPE': 'ConsultaDeProcessosJuizadosCiveisNumeroAntigo'
+            TJPE: 'ConsultaDeProcessosJuizadosCiveisNumeroAntigo'
         },
         {
-            'TJPE': 'ConsultaPJePrimeiroGrau'
+            TJPE: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJPE': 'ConsultaPJeSegundoGrau'
+            TJPE: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '8.18': [
+    8.18: [
         {
-            'TJPI': 'ConsultaDeProcessosDePrimeiraInstancia'
+            TJPI: 'ConsultaDeProcessosDePrimeiraInstancia'
         },
         {
-            'TJPI': 'ConsultaDeProcessosDeSegundaInstancia'
+            TJPI: 'ConsultaDeProcessosDeSegundaInstancia'
         }
     ],
-    '8.19': [
+    8.19: [
         {
-            'TJRJ': 'NumeroUnico'
+            TJRJ: 'NumeroUnico'
         },
         {
-            'TJRJ': 'PrimeiraInstanciaAntigo'
+            TJRJ: 'PrimeiraInstanciaAntigo'
         },
         {
-            'TJRJ': 'SegundaInstanciaAntigo'
+            TJRJ: 'SegundaInstanciaAntigo'
         },
         {
-            'TJRJ': 'AlcadaCivelAntigo'
+            TJRJ: 'AlcadaCivelAntigo'
         }
     ],
     '8.20': [
         {
-            'TJRN': 'ConsultaDeProcessosDoPrimeiroGrau'
+            TJRN: 'ConsultaDeProcessosDoPrimeiroGrau'
         },
         {
-            'TJRN': 'ConsultaDoJuizadoEspecialdeNatal'
+            TJRN: 'ConsultaDoJuizadoEspecialdeNatal'
         },
         {
-            'TJRN': 'ConsultaDeProcessosDoSegundoGrau'
+            TJRN: 'ConsultaDeProcessosDoSegundoGrau'
         },
         {
-            'TJRN': 'ConsultaDeProcessosProjudi'
+            TJRN: 'ConsultaDeProcessosProjudi'
         },
         {
-            'TJRN': 'ConsultaPJePrimeiroGrau'
+            TJRN: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJRN': 'ConsultaPJeSegundoGrau'
+            TJRN: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '8.21': [
+    8.21: [
         {
-            'TJRS': 'ConsultaNumeroCNJ'
+            TJRS: 'ConsultaNumeroCNJ'
         },
         {
-            'TJRS': 'ConsultaNumeroThemis'
+            TJRS: 'ConsultaNumeroThemis'
         },
         {
-            'TJRS': 'ConsultaPJePrimeiroGrau'
+            TJRS: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '8.22': [
+    8.22: [
         {
-            'TJRO': 'ConsultaProcessualDePrimeiraInstancia'
+            TJRO: 'ConsultaProcessualDePrimeiraInstancia'
         },
         {
-            'TJRO': 'ConsultaProcessualDeSegundaInstancia'
+            TJRO: 'ConsultaProcessualDeSegundaInstancia'
         },
         {
-            'TJRO': 'ConsultaProcessualProjudi'
+            TJRO: 'ConsultaProcessualProjudi'
         },
         {
-            'TJRO': 'ConsultaPJePrimeiroGrau'
+            TJRO: 'ConsultaPJePrimeiroGrau'
         },
         {
-            'TJRO': 'ConsultaPJeSegundoGrau'
+            TJRO: 'ConsultaPJeSegundoGrau'
         }
     ],
-    '8.23': [
+    8.23: [
         {
-            'TJRR': 'ConsultaProcessualProjudi'
+            TJRR: 'ConsultaProcessualProjudi'
         },
         {
-            'TJRR': 'ConsultaSiscomPrimeiraInstancia'
+            TJRR: 'ConsultaSiscomPrimeiraInstancia'
         },
         {
-            'TJRR': 'ConsultaSiscomSegundaInstancia'
+            TJRR: 'ConsultaSiscomSegundaInstancia'
         },
         {
-            'TJRR': 'ConsultaPJePrimeiroGrau'
+            TJRR: 'ConsultaPJePrimeiroGrau'
         }
     ],
-    '8.24': [
+    8.24: [
         {
-            'TJSC': 'ConsultaProcessualComarcas'
+            TJSC: 'ConsultaProcessualComarcas'
         },
         {
-            'TJSC': 'ConsultaDeProcessosDo2Grau'
+            TJSC: 'ConsultaDeProcessosDo2Grau'
         },
         {
-            'TJSC': 'ConsultaProcessualComarcasNumeroUnico'
+            TJSC: 'ConsultaProcessualComarcasNumeroUnico'
         },
         {
-            'TJSC': 'ConsultaProcessualTribunalDeJustica'
+            TJSC: 'ConsultaProcessualTribunalDeJustica'
         },
         {
-            'TJSC': 'ConsultaProcessualTurmasDeRecursos'
+            TJSC: 'ConsultaProcessualTurmasDeRecursos'
         },
         {
-            'TJSC': 'ConsultaDeProcessosTurmasRecursais'
+            TJSC: 'ConsultaDeProcessosTurmasRecursais'
         }
     ],
-    '8.25': [
+    8.25: [
         {
-            'TJSE': 'ConsultaProcessualNumeroUnico'
+            TJSE: 'ConsultaProcessualNumeroUnico'
         },
         {
-            'TJSE': 'ConsultaProcessualNumeroDoProcesso'
+            TJSE: 'ConsultaProcessualNumeroDoProcesso'
         }
     ],
-    '8.26': [
+    8.26: [
         {
-            'TJSP': 'PrimeiraInstancia'
+            TJSP: 'PrimeiraInstancia'
         },
         {
-            'TJSP': 'SegundaInstancia'
+            TJSP: 'SegundaInstancia'
         },
         {
-            'TJSP': 'ColegioRecursal'
+            TJSP: 'ColegioRecursal'
         },
         {
-            'TJSP': 'CartasPrecatorias'
+            TJSP: 'CartasPrecatorias'
         },
         {
-            'TJSP': 'ExecucoesFiscaisMunicipais'
+            TJSP: 'ExecucoesFiscaisMunicipais'
         },
         {
-            'TJSP': 'ExecucoesFiscaisEstaduais'
+            TJSP: 'ExecucoesFiscaisEstaduais'
         },
         {
-            'TJSP': 'ExecucoesFiscaisMunicipaisNumeroProcesso'
+            TJSP: 'ExecucoesFiscaisMunicipaisNumeroProcesso'
         },
         {
-            'TJSP': 'ExecucoesFiscaisEstaduaisNumeroProcesso'
+            TJSP: 'ExecucoesFiscaisEstaduaisNumeroProcesso'
         },
         {
-            'TJSP': 'CartasPrecatoriasNumeroProcesso'
+            TJSP: 'CartasPrecatoriasNumeroProcesso'
         }
     ],
-    '8.27': [
+    8.27: [
         {
-            'TJTO': 'ConsultaProcessualProjudi'
+            TJTO: 'ConsultaProcessualProjudi'
         },
         {
-            'TJTO': 'ConsultaDeProcessosFisicosDePrimeiraInstancia'
+            TJTO: 'ConsultaDeProcessosFisicosDePrimeiraInstancia'
         },
         {
-            'TJTO': 'ConsultaDeProcessosFisicosDeSegundaInstancia'
+            TJTO: 'ConsultaDeProcessosFisicosDeSegundaInstancia'
         },
         {
-            'TJTO': 'ConsultaProcessualEProcDePrimeiroGrau'
+            TJTO: 'ConsultaProcessualEProcDePrimeiroGrau'
         },
         {
-            'TJTO': 'ConsultaProcessualEProcDeSegundoGrau'
+            TJTO: 'ConsultaProcessualEProcDeSegundoGrau'
         }
     ]
 };

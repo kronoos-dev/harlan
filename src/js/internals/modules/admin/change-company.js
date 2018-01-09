@@ -1,12 +1,12 @@
-var _ = require('underscore'),
-    VALID_USERNAME = /^[a-z\@\.\_\-\s\d]{3,}$/i,
-    CPF = require('cpf_cnpj').CPF,
-    CNPJ = require('cpf_cnpj').CNPJ;
+import _ from 'underscore';
+const VALID_USERNAME = /^[a-z\@\.\_\-\s\d]{3,}$/i;
+import {CPF} from 'cpf_cnpj';
+import {CNPJ} from 'cpf_cnpj';
 
 module.exports = controller => {
 
     controller.registerCall('admin::changeCompany', (companyNode, username, section) => {
-        var form = controller.call('form', opts => {
+        const form = controller.call('form', opts => {
             opts.username = username;
             controller.serverCommunication.call('UPDATE \'BIPBOPCOMPANYS\'.\'COMPANY\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
@@ -18,94 +18,94 @@ module.exports = controller => {
                 })));
         });
         form.configure({
-            'title': 'Alteração de Conta',
-            'subtitle': 'Preencha os dados abaixo.',
-            'gamification': 'magicWand',
-            'paragraph': 'É muito importante que os dados estejam preenchidos de maneira correta para que seja mantido um cadastro saneado.',
-            'screens': [{
-                'magicLabel': true,
-                'fields': [
+            title: 'Alteração de Conta',
+            subtitle: 'Preencha os dados abaixo.',
+            gamification: 'magicWand',
+            paragraph: 'É muito importante que os dados estejam preenchidos de maneira correta para que seja mantido um cadastro saneado.',
+            screens: [{
+                magicLabel: true,
+                fields: [
                     [{
-                        'name': 'company',
-                        'type': 'text',
-                        'placeholder': 'Empresa',
-                        'optional': true,
-                        'labelText': 'Empresa',
-                        'value': $(companyNode).children('nome').text()
+                        name: 'company',
+                        type: 'text',
+                        placeholder: 'Empresa',
+                        optional: true,
+                        labelText: 'Empresa',
+                        value: $(companyNode).children('nome').text()
                     }, {
-                        'name': 'companyReference',
-                        'type': 'text',
-                        'placeholder': 'Referência Comercial',
-                        'labelText': 'Referência Comercial',
-                        'optional': true,
-                        'value': $(companyNode).children('commercialReference').text(),
+                        name: 'companyReference',
+                        type: 'text',
+                        placeholder: 'Referência Comercial',
+                        labelText: 'Referência Comercial',
+                        optional: true,
+                        value: $(companyNode).children('commercialReference').text(),
                     }],
                     [{
-                        'name': 'newUsername',
-                        'type': 'text',
-                        'placeholder': 'Usuário',
-                        'optional': true,
-                        'value': $(companyNode).children('username').text(),
-                        'labelText': 'Usuário',
-                        validate: function(item) {
-                            return VALID_USERNAME.test(item.element.val());
+                        name: 'newUsername',
+                        type: 'text',
+                        placeholder: 'Usuário',
+                        optional: true,
+                        value: $(companyNode).children('username').text(),
+                        labelText: 'Usuário',
+                        validate({element}) {
+                            return VALID_USERNAME.test(element.val());
                         },
-                        validateAsync: function(callback, item) {
-                            if (username == item.element.val()) {
+                        validateAsync(callback, {element}) {
+                            if (username == element.val()) {
                                 callback(true);
                                 return;
                             }
                             controller.serverCommunication.call('SELECT FROM \'HARLANAUTHENTICATION\'.\'USERNAMETAKEN\'',
                                 controller.call('error::ajax', controller.call('loader::ajax', {
                                     data: {
-                                        username: item.element.val()
+                                        username: element.val()
                                     },
-                                    success: function() {
+                                    success() {
                                         callback(true);
                                     },
-                                    error: function() {
+                                    error() {
                                         callback(false);
                                     }
                                 })));
                         }
                     }, {
-                        'name': 'name',
-                        'type': 'text',
-                        'placeholder': 'Nome do Responsável',
-                        'optional': true,
-                        'labelText': 'Nome',
-                        'value': $(companyNode).children('responsavel').text(),
+                        name: 'name',
+                        type: 'text',
+                        placeholder: 'Nome do Responsável',
+                        optional: true,
+                        labelText: 'Nome',
+                        value: $(companyNode).children('responsavel').text(),
                     }],
                     [{
-                        'name': 'cnpj',
-                        'type': 'text',
-                        'placeholder': 'CNPJ',
-                        'labelText': 'CNPJ',
-                        'mask': '00.000.000/0000-00',
-                        'value': $(companyNode).children('cnpj').text(),
-                        'optional': true,
-                        'maskOptions': {
-                            'reverse': true
+                        name: 'cnpj',
+                        type: 'text',
+                        placeholder: 'CNPJ',
+                        labelText: 'CNPJ',
+                        mask: '00.000.000/0000-00',
+                        value: $(companyNode).children('cnpj').text(),
+                        optional: true,
+                        maskOptions: {
+                            reverse: true
                         },
-                        validate: function(item) {
-                            if (item.element.val())
-                                return CNPJ.isValid(item.element.val());
+                        validate({element}) {
+                            if (element.val())
+                                return CNPJ.isValid(element.val());
                             return true;
                         }
                     }, {
-                        'name': 'cpf',
-                        'type': 'text',
-                        'placeholder': 'CPF',
-                        'labelText': 'CPF',
-                        'mask': '000.000.000-00',
-                        'value': $(companyNode).children('cpf').text(),
-                        'optional': true,
-                        'maskOptions': {
-                            'reverse': true
+                        name: 'cpf',
+                        type: 'text',
+                        placeholder: 'CPF',
+                        labelText: 'CPF',
+                        mask: '000.000.000-00',
+                        value: $(companyNode).children('cpf').text(),
+                        optional: true,
+                        maskOptions: {
+                            reverse: true
                         },
-                        validate: function(item) {
-                            if (item.element.val())
-                                return CPF.isValid(item.element.val());
+                        validate({element}) {
+                            if (element.val())
+                                return CPF.isValid(element.val());
                             return true;
                         },
                     }]
@@ -117,7 +117,7 @@ module.exports = controller => {
                             return;
                         }
 
-                        var values = formManager.readValues();
+                        const values = formManager.readValues();
 
                         if (values.cpf) {
                             if (!values.name) {

@@ -1,14 +1,11 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var databaseInteger = function (value) {
+    const databaseInteger = value => value && /^\d+$/.test(value) ? parseInt(value) : null;
 
-        return value && /^\d+$/.test(value) ? parseInt(value) : null;
-    };
+    controller.registerCall('icheques::parse::element', element => {
 
-    controller.registerCall('icheques::parse::element', function (element) {
-
-        var getElement = function (node) {
-            var nodeElement = $(node, element);
+        const getElement = node => {
+            const nodeElement = $(node, element);
             return nodeElement.length ? nodeElement.text() : null;
         };
 

@@ -1,26 +1,26 @@
 /**
  * Internationalized strings in the document
  */
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var i18nTag = function (domDocument, attribute) {
-        var i18nAttr = 'data-i18n';
+    const i18nTag = (domDocument, attribute) => {
+        let i18nAttr = 'data-i18n';
         if (attribute) {
-            i18nAttr += '-' + attribute;
+            i18nAttr += `-${attribute}`;
         }
 
-        console.log('I18n::' + i18nAttr);
-        $(domDocument).find('*[' + i18nAttr + ']').each(function (idx, node) {
-            var jnode = $(node);
-            var components = jnode.attr(i18nAttr).split('.');
+        console.log(`I18n::${i18nAttr}`);
+        $(domDocument).find(`*[${i18nAttr}]`).each((idx, node) => {
+            const jnode = $(node);
+            const components = jnode.attr(i18nAttr).split('.');
             
-            var file = components.shift();
+            const file = components.shift();
             if (!controller.i18n[file]) {
                 return;
             }
             
-            var key = components.join('.');
-            var fncptr = controller.i18n[file][key];
+            const key = components.join('.');
+            const fncptr = controller.i18n[file][key];
             if (!fncptr) {
                 return;
             }
@@ -33,7 +33,7 @@ module.exports = function (controller) {
         });
     };
 
-    controller.registerCall('i18n', function (domDocument) {
+    controller.registerCall('i18n', domDocument => {
         i18nTag(domDocument, null);
         i18nTag(domDocument, 'alt');
         i18nTag(domDocument, 'value');
@@ -42,7 +42,7 @@ module.exports = function (controller) {
         i18nTag(domDocument, 'content');
     });
 
-    controller.registerBootstrap('i18n', function (callback) {
+    controller.registerBootstrap('i18n', callback => {
         callback();
         controller.call('i18n', document);
     });

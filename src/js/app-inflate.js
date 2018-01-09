@@ -1,16 +1,16 @@
-(function () {
-    var pako = require('pako'),
-        inflate = new pako.Inflate();
+(() => {
+    const pako = require('pako');
+    const inflate = new pako.Inflate();
 
-    inflate.onData = function (chunk) {
+    inflate.onData = chunk => {
         postMessage(chunk);
     };
 
-    inflate.onEnd = function () {
+    inflate.onEnd = () => {
         postMessage(null);
     };
 
-    onmessage = function (message) {
-        inflate.push(message.data[0], message.data[1]);
+    onmessage = ({data}) => {
+        inflate.push(data[0], data[1]);
     };
 })();

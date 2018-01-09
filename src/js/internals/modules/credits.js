@@ -1,21 +1,22 @@
 /* global numeral */
 
-var sprintf = require('sprintf'),
-    escaper = require('true-html-escape');
+import sprintf from 'sprintf';
+
+import escaper from 'true-html-escape';
 
 module.exports = controller =>  {
 
-    var companyCredits = 0;
+    let companyCredits = 0;
 
     controller.registerCall('credits::get', () => {
         return companyCredits;
     });
 
-    var defaultChargeCallback = (ret, callback) =>  {
-        var modal = controller.call('modal');
+    const defaultChargeCallback = (ret, callback) =>  {
+        const modal = controller.call('modal');
         modal.title('Parabéns! Seus créditos foram carregados.');
         modal.subtitle('Um e-mail foi enviado para sua caixa de entrada com todos os detalhes.');
-        var form = modal.createForm();
+        const form = modal.createForm();
         form.element().submit(e =>  {
             e.preventDefault();
             if (callback)
@@ -25,7 +26,7 @@ module.exports = controller =>  {
         form.addSubmit('cancel', 'Sair');
     };
 
-    var changeCredits = credits =>  {
+    const changeCredits = credits =>  {
         companyCredits = credits;
         $('.credits span').text(numeral(Math.abs(credits) / 100).format('0,0.00'));
 
@@ -42,8 +43,10 @@ module.exports = controller =>  {
             return;
         }
         controller.call('authentication::need', () => {
-            var missing = companyCredits - needed,
-                modal, form, actions;
+            const missing = companyCredits - needed;
+            let modal;
+            let form;
+            let actions;
 
             if (missing < 0) {
                 modal = controller.call('modal');
@@ -63,7 +66,7 @@ module.exports = controller =>  {
                 actions.cancel();
             } else {
                 if (!askFor) return;
-                var credits = numeral(needed / 100.0).format('$0,0.00');
+                const credits = numeral(needed / 100.0).format('$0,0.00');
                 modal = controller.call('modal');
                 modal.gamification('moneyBag');
                 modal.title('Vamos debitar de seus créditos.');
@@ -91,10 +94,10 @@ module.exports = controller =>  {
     }
 
     controller.registerTrigger('authentication::authenticated', 'credits::authentication::authenticated', (ret, callback) =>  {
-        var credits = 0;
+        let credits = 0;
 
         if (ret) {
-            var node = $('BPQL > body credits', ret);
+            const node = $('BPQL > body credits', ret);
             if (node.length) {
                 credits = parseInt(node.text());
             }
@@ -115,10 +118,10 @@ module.exports = controller =>  {
     });
 
     controller.registerCall('credits::charge', (value, quantity, description, callback) =>  {
-        var modal = controller.call('modal');
+        const modal = controller.call('modal');
         modal.title('Método de Pagamento');
         modal.subtitle('Selecione o Método de Pagamento');
-        var form = modal.createForm();
+        const form = modal.createForm();
 
         form.element().submit(e =>  {
             e.preventDefault();
@@ -140,11 +143,11 @@ module.exports = controller =>  {
     });
 
     controller.registerCall('credits::charge::bankSlip', (value, quantity, description) =>  {
-        var unregister = $.bipbopLoader.register();
+        const unregister = $.bipbopLoader.register();
         controller.serverCommunication.call('SELECT FROM \'HarlanCredits\'.\'PurchaseBankSlip\'', controller.call('error::ajax', {
             data: {
                 description: description || 'Recarga de créditos',
-                value: value,
+                value,
                 quantity: quantity || 1
             },
             success: data =>  {
@@ -152,7 +155,7 @@ module.exports = controller =>  {
                     icon: 'pass',
                     title: 'Seu pagamento foi gerado com sucesso!',
                     subtitle: 'O pagamento com boleto bancário leva um dia útil para ser compensado.',
-                    paragraph: 'O link com o boleto foi encaminhado para seu e-mail. Se preferir você pode acessá-lo <a href=\'' + escaper.escape($('BPQL > body secure_url', data).text()) + '\' target=\'_blank\'>clicando aqui</a> ou usar o código de barras abaixo para pagar através de seu smartphone. <img src=\'' + escaper.escape($('BPQL > body barcode', data).text()) + '\' title=\'Código de Barras\' style=\'display: block; margin: auto; margin: 20px auto;\' />'
+                    paragraph: `O link com o boleto foi encaminhado para seu e-mail. Se preferir você pode acessá-lo <a href='${escaper.escape($('BPQL > body secure_url', data).text())}' target='_blank'>clicando aqui</a> ou usar o código de barras abaixo para pagar através de seu smartphone. <img src='${escaper.escape($('BPQL > body barcode', data).text())}' title='Código de Barras' style='display: block; margin: auto; margin: 20px auto;' />`
                 });
             },
             complete: () => {
@@ -166,14 +169,14 @@ module.exports = controller =>  {
             callback = callback || defaultChargeCallback;
             quantity = quantity || 1;
 
-            controller.call('iugu::requestPaymentToken', token =>  {
+            controller.call('iugu::requestPaymentToken', ({id}) => {
                 controller.serverCommunication.call('SELECT FROM \'HARLANCREDITS\'.\'PURCHASE\'',
                     controller.call('error::ajax', controller.call('loader::ajax', {
                         data: {
                             description: description || 'Recarga de créditos',
-                            value: value,
-                            token: token.id,
-                            quantity: quantity
+                            value,
+                            token: id,
+                            quantity
                         },
                         success: ret =>  {
                             callback(ret);
@@ -187,15 +190,15 @@ module.exports = controller =>  {
         controller.call('authentication::need', () => {
             controller.call('billingInformation::need', () => {
                 minValue = minValue || 0;
-                var modal = controller.call('modal');
+                const modal = controller.call('modal');
 
                 modal.title('Carregar a Conta de Créditos');
                 modal.subtitle('Selecione a opção de créditos desejada.');
                 modal.addParagraph('Para continuar desfrutando de todos os recursos da plataforma recarregue sua conta, veja qual opção abaixo se encaixa melhor dentro da sua necessidade.');
-                var form = modal.createForm(),
-                    list = form.createList();
+                const form = modal.createForm();
+                const list = form.createList();
 
-                var charge = value =>  {
+                const charge = value =>  {
                     return e =>  {
                         e.preventDefault();
                         modal.close();

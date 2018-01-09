@@ -1,36 +1,34 @@
-var _ = require('underscore');
+import _ from 'underscore';
 
-module.exports = function (controller) {
+export default function (controller) {
 
-    var registered = {};
+    const registered = {};
 
-    var generateKey = function (database, table) {
-        return (database || '').toUpperCase()  + '::' + (database || '').toUpperCase();
-    };
+    const generateKey = (database, table) => `${(database || '').toUpperCase()}::${(database || '').toUpperCase()}`;
 
     this.register = function (database, table, callback) {
         registered[generateKey(database, table)] = callback;
         return this;
     };
 
-    var parse = function (jdocument, document, database, table) {
+    const parse = (jdocument, document, database, table) => {
 
-        var key = generateKey(database, table);
+        const key = generateKey(database, table);
         if (registered[key])
             return registered[key](document);
 
-        var html = $('<div />').addClass('xml2html');
+        const html = $('<div />').addClass('xml2html');
         html.data('document', jdocument);
 
-        var irqlBody = jdocument.find('BPQL > body');
+        const irqlBody = jdocument.find('BPQL > body');
 
-        var readNode = function (jnode, htmlNode) {
+        const readNode = (jnode, htmlNode) => {
 
             htmlNode.data('xml', jnode);
 
-            var childrens = jnode.children();
+            const childrens = jnode.children();
 
-            var divElement = $('<div />').attr({
+            const divElement = $('<div />').attr({
                 'data-tagName': jnode.prop('tagName')
             }).addClass('field');
 
@@ -38,13 +36,13 @@ module.exports = function (controller) {
                 divElement.addClass(jnode.attr('harlan-class').join(' '));
             }
 
-            var nodeName = $('<div />').addClass('name');
+            const nodeName = $('<div />').addClass('name');
             nodeName.text(jnode.attr('harlan-name') || jnode.prop('tagName'));
 
-            var nodeValue = $('<div />').addClass('value');
+            let nodeValue = $('<div />').addClass('value');
 
             /** @TODO REMOVER ESSE POG */
-            var text = jnode.clone().children().remove().end().text();
+            const text = jnode.clone().children().remove().end().text();
 
             if (/^\s*$/.test(text)) {
                 if (jnode.attr('harlan-show-empty')) {
@@ -60,7 +58,7 @@ module.exports = function (controller) {
 
             if (childrens.length) {
                 divElement.addClass('arrayElement');
-                childrens.each(function (idx, node) {
+                childrens.each((idx, node) => {
                     readNode($(node), nodeValue);
                 });
             }
@@ -70,23 +68,23 @@ module.exports = function (controller) {
 
         readNode(irqlBody.length ? irqlBody : jdocument, html);
 
-        var content = $('<div />').addClass('content').append(html);
-        var container = $('<div />').addClass('container').append(content);
+        const content = $('<div />').addClass('content').append(html);
+        const container = $('<div />').addClass('container').append(content);
 
         return $('<section />').addClass('result').append(container);
     };
 
-    this.import = function (document, database, table) {
-        var jdocument = $(document);
+    this.import = (document, database, table) => {
+        const jdocument = $(document);
 
-        var query = jdocument.find('BPQL > header > query:last');
+        const query = jdocument.find('BPQL > header > query:last');
         database = database || query.attr('database');
         table = table || query.attr('table');
-        var ret = parse(jdocument, document, database, table);
+        const ret = parse(jdocument, document, database, table);
 
-        controller.trigger('importXMLDocument::generated::' + database, {
-            document: document,
-            table: table,
+        controller.trigger(`importXMLDocument::generated::${database}`, {
+            document,
+            table,
             parsedResult: ret
         });
 

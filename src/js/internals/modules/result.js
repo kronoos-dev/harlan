@@ -6,10 +6,10 @@ const IS_EMPTY = /^\s*$/;
 
 module.exports = controller =>  {
 
-    var Result = function (inputContainer, inputContent, inputResult)  {
-        var container = inputContainer || $('<div />').addClass('container');
-        var content = inputContent || $('<div />').addClass('content');
-        var result = inputResult || $('<div />').addClass('result');
+    const Result = function (inputContainer, inputContent, inputResult)  {
+        let container = inputContainer || $('<div />').addClass('container');
+        let content = inputContent || $('<div />').addClass('content');
+        const result = inputResult || $('<div />').addClass('result');
 
         if (!inputResult)
             result.append(container.append(content));
@@ -36,12 +36,12 @@ module.exports = controller =>  {
             items.headerContent.append(items.resultsDisplay);
 
             items.addItem = icon =>  {
-                var item = $('<li />').addClass('action-resize').extend($('<i />').addClass('fa fa-' + icon));
+                const item = $('<li />').addClass('action-resize').extend($('<i />').addClass(`fa fa-${icon}`));
                 items.menu.append(item);
                 return item;
             };
 
-            var header = $('<header />')
+            const header = $('<header />')
                 .addClass('separator')
                 .append(items.headerContainer);
 
@@ -55,21 +55,21 @@ module.exports = controller =>  {
         };
 
         this.block = () =>  {
-            var ret = $('<div />');
+            const ret = $('<div />');
             content.append(ret);
             return ret;
         };
 
-        var generateAlert = (radial, percent, context) =>  {
+        const generateAlert = (radial, percent, context) =>  {
             context = context || {
                 60: 'attention',
                 80: 'warning'
             };
-            var styleDefinition = null;
+            let styleDefinition = null;
 
             radial.element.removeClass(_.toArray(context).join(' '));
 
-            for (var minPerc in context) {
+            for (const minPerc in context) {
                 if (percent < parseInt(minPerc)) {
                     break;
                 }
@@ -84,14 +84,14 @@ module.exports = controller =>  {
         };
 
         this.generateRadial = (name, percent, context) =>  {
-            var item = this.addItem(name, '').addClass('center'),
-                itemValue = item.find('.value');
+            const item = this.addItem(name, '').addClass('center');
+            const itemValue = item.find('.value');
 
-            var widget = controller.interface.widgets.radialProject(itemValue, percent);
+            const widget = controller.interface.widgets.radialProject(itemValue, percent);
 
-            var radial =  generateAlert(widget, percent, context);
+            const radial =  generateAlert(widget, percent, context);
 
-            var change = radial.change;
+            const change = radial.change;
             radial.change = percent =>  {
                 change(percent);
                 generateAlert(radial, percent, context);
@@ -115,7 +115,7 @@ module.exports = controller =>  {
         };
 
         this.addIcon = (name, icon, action) => {
-            var node = $('<div />').addClass('field icon');
+            const node = $('<div />').addClass('field icon');
 
             node.append($('<div />').addClass('value')
                 .append($('<i />').addClass(`fa ${icon}`))).click(e => {
@@ -130,7 +130,7 @@ module.exports = controller =>  {
         };
 
         this.addItem = (name, value, tagname) =>  {
-            var node = $('<div />').addClass('field');
+            const node = $('<div />').addClass('field');
 
             if (typeof tagname !== typeof undefined) {
                 node.attr('data-tagname', tagname);
@@ -150,11 +150,13 @@ module.exports = controller =>  {
         };
 
         this.addNetwork = (nodesArray, edgesArray, options = {})=> {
-            let elem = $('<div />').addClass('result-network'),
-                network = new vis.Network(elem.get(0), {
-                    nodes: nodesArray,
-                    edges: edgesArray
-                }, options);
+            let elem = $('<div />').addClass('result-network');
+
+            let network = new vis.Network(elem.get(0), {
+                nodes: nodesArray,
+                edges: edgesArray
+            }, options);
+
             content.append(elem);
             return [network, elem];
         };
@@ -177,10 +179,10 @@ module.exports = controller =>  {
     controller.registerCall('result::import', result =>  {
         assert.ok(result.hasClass('result'));
 
-        var container = result.find('.container').first();
+        const container = result.find('.container').first();
         assert.ok(container.length > 0);
 
-        var content = container.find('.content');
+        const content = container.find('.content');
         assert.ok(content.length > 0);
 
         return new Result(container, content, result);

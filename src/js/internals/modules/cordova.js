@@ -1,6 +1,6 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerBootstrap('cordova', function (callback) {
+    controller.registerBootstrap('cordova', callback => {
         if (!controller.confs.isCordova) {
             callback();
         } else {
@@ -10,7 +10,7 @@ module.exports = function (controller) {
         }
     });
 
-    controller.registerTrigger('bootstrap::end', 'splashscreen', function (arg, callback) {
+    controller.registerTrigger('bootstrap::end', 'splashscreen', (arg, callback) => {
         if (controller.confs.isCordova && navigator.splashscreen)
             navigator.splashscreen.hide();
         callback();

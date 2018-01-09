@@ -1,14 +1,12 @@
 /* global module */
-var CreateList = require('./create-list');
+import CreateList from './create-list';
 
-module.exports = function(instance, controller) {
+module.exports = function(instance, {confs, i18n}) {
 
-    var form = $('<form />');
+    const form = $('<form />');
     instance.element().append(form);
 
-    var createLabel = function(input, obj, labelText, placeholder) {
-        obj = obj || {};
-
+    const createLabel = (input, obj = {}, labelText, placeholder) => {
         input.addClass('has-label').attr('id', (obj.id = require('node-uuid').v4()));
 
         if (obj.hoverHelp) {
@@ -18,8 +16,8 @@ module.exports = function(instance, controller) {
         obj.label = $('<label />')
             .addClass('input-label')
             .attr({
-                'for': obj.id,
-                'title': obj.hoverHelp
+                for: obj.id,
+                title: obj.hoverHelp
             })
             .html(labelText || placeholder);
 
@@ -28,17 +26,17 @@ module.exports = function(instance, controller) {
             input.addClass(obj.class);
         }
 
-        if (controller.confs.isPhone) {
+        if (confs.isPhone) {
             /* no multi field */
-            obj.labelPosition = controller.confs.phoneLabelPosition || 'after';
+            obj.labelPosition = confs.phoneLabelPosition || 'after';
         }
 
         input[obj.labelPosition || 'after'](obj.label);
         input.parent().trigger('new-label');
     };
 
-    this.multiField = function() {
-        if (controller.confs.isPhone) {
+    this.multiField = () => {
+        if (confs.isPhone) {
             return form;
         }
 
@@ -54,18 +52,15 @@ module.exports = function(instance, controller) {
         return div;
     };
 
-    this.addSelect = function(id, name, list, obj, labelText, value) {
-
-        obj = obj || {};
-
-        var select = $('<select />').attr({
-            id: id,
-            name: name,
+    this.addSelect = (id, name, list, obj = {}, labelText, value) => {
+        const select = $('<select />').attr({
+            id,
+            name,
             title: obj.hoverHelp
         });
 
         obj.options = {};
-        for (var i in list) {
+        for (const i in list) {
             obj.options[i] = select.append($('<option />').attr({
                 value: i
             }).text(list[i]));
@@ -81,16 +76,12 @@ module.exports = function(instance, controller) {
         return select;
     };
 
-    this.createList = function() {
-        return new CreateList(form);
-    };
+    this.createList = () => new CreateList(form);
 
-    this.addTextarea = function(name, placeholder, obj, labelText, value) {
-        obj = obj || {};
-
-        var input = $('<textarea />').attr({
-            name: name,
-            placeholder: placeholder,
+    this.addTextarea = (name, placeholder, obj = {}, labelText, value) => {
+        const input = $('<textarea />').attr({
+            name,
+            placeholder,
             autocomplete: false,
             autocapitalize: false,
             title: obj.hoverHelp
@@ -102,16 +93,14 @@ module.exports = function(instance, controller) {
         return input;
     };
 
-    this.addInput = function(name, type, placeholder, obj, labelText, value) {
-        obj = obj || {};
-
-        var input = $('<input />').attr({
-            name: name,
-            type: type,
-            placeholder: placeholder,
+    this.addInput = (name, type, placeholder, obj = {}, labelText, value) => {
+        const input = $('<input />').attr({
+            name,
+            type,
+            placeholder,
             autocomplete: false,
             autocapitalize: false,
-            value: value,
+            value,
             title: obj.hoverHelp
         });
 
@@ -124,7 +113,7 @@ module.exports = function(instance, controller) {
     };
 
     this.cancelButton = function(text, onCancel) {
-        return this.addSubmit('cancel', text || controller.i18n.system.cancel()).click(function(e) {
+        return this.addSubmit('cancel', text || i18n.system.cancel()).click(e => {
             e.preventDefault();
             if (onCancel) {
                 onCancel();
@@ -134,20 +123,20 @@ module.exports = function(instance, controller) {
         });
     };
 
-    this.addCheckbox = function(name, label, checked, value, item) {
-        var elementId = require('node-uuid').v4();
+    this.addCheckbox = (name, label, checked, value, item) => {
+        const elementId = require('node-uuid').v4();
         item = item || {};
 
-        var checkbox = $('<input />').attr({
+        const checkbox = $('<input />').attr({
             type: 'checkbox',
-            checked: checked,
+            checked,
             value: (typeof value === 'undefined' ? '1' : value),
             id: elementId,
             title: item.hoverHelp
         });
 
-        var lblItem;
-        var div = $('<div />')
+        let lblItem;
+        const div = $('<div />')
             .addClass('checkbox')
             .append(checkbox)
             .append(lblItem = $('<label/>').attr('for', elementId).html(label));
@@ -156,20 +145,18 @@ module.exports = function(instance, controller) {
         return [div, checkbox, lblItem];
     };
 
-    this.addSubmit = function(name, value) {
-        var submit = $('<input />').attr({
+    this.addSubmit = (name, value) => {
+        const submit = $('<input />').attr({
             type: 'submit',
-            value: value,
-            name: name
+            value,
+            name
         }).addClass('button');
 
         form.append(submit);
         return submit;
     };
 
-    this.element = function() {
-        return form;
-    };
+    this.element = () => form;
 
     return this;
 };

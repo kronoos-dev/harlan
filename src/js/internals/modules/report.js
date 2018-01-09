@@ -1,24 +1,25 @@
 /* global module */
-var gamificationIcons = require('./data/gamification-icons'),
-    Form = require('./lib/form');
+import gamificationIcons from './data/gamification-icons';
+
+import Form from './lib/form';
 
 module.exports = controller => {
 
-    var ReportModel = function(closeable) {
-        var universalContainer = $('<div />'),
-            elementNews = $('<div />').addClass('report'),
-            elementContainer = $('<div />').addClass('container'),
-            elementActions = $('<ul />').addClass('r-actions'),
-            elementContent = $('<div />').addClass('content'),
-            elementResults = $('<div />').addClass('results'),
-            elementOpen = null;
+    const ReportModel = function(closeable) {
+        const universalContainer = $('<div />');
+        const elementNews = $('<div />').addClass('report');
+        const elementContainer = $('<div />').addClass('container');
+        const elementActions = $('<ul />').addClass('r-actions');
+        let elementContent = $('<div />').addClass('content');
+        const elementResults = $('<div />').addClass('results');
+        let elementOpen = null;
 
         universalContainer.append(elementNews.append(elementContainer
             .append(elementActions)
             .append(elementContent))
             .append(elementResults));
 
-        var buttonElement = () => {
+        const buttonElement = () => {
             if (!elementOpen) {
                 elementOpen = $('<div />').addClass('open');
                 elementContent.append(elementOpen);
@@ -43,7 +44,7 @@ module.exports = controller => {
         };
 
         this.label = content => {
-            var span = $('<span />').addClass('label').text(content);
+            const span = $('<span />').addClass('label').text(content);
             elementContent.append(span);
             return span;
         };
@@ -51,9 +52,9 @@ module.exports = controller => {
         this.canvas = (width, height) => {
             width = width || 250;
             height = height || 250;
-            var canvas = $('<canvas />').attr({
-                width: width,
-                height: height
+            const canvas = $('<canvas />').attr({
+                width,
+                height
             }).addClass('chart');
             elementContent.append(canvas);
             return canvas.get(0);
@@ -73,7 +74,7 @@ module.exports = controller => {
 
         this.gamification = type => {
             this.newContent();
-            var icon = $('<i />')
+            const icon = $('<i />')
                 .addClass(gamificationIcons[type] || type)
                 .addClass('gamification');
             elementContent.append(icon).addClass('container-gamification');
@@ -81,13 +82,13 @@ module.exports = controller => {
         };
 
         this.paragraph = text => {
-            var p = $('<p />').html(text);
+            const p = $('<p />').html(text);
             elementContent.append(p);
             return p;
         };
 
         this.timeline = () => {
-            var timeline = controller.call('timeline');
+            const timeline = controller.call('timeline');
             elementContent.append(timeline.element());
             return timeline;
         };
@@ -100,7 +101,7 @@ module.exports = controller => {
         };
 
         this.button = (name, action) => {
-            var button = $('<button />').text(name).click(e => {
+            const button = $('<button />').text(name).click(e => {
                 e.preventDefault();
                 action();
             }).addClass('button');
@@ -117,10 +118,10 @@ module.exports = controller => {
         };
 
         this.newAction = (icon, action, title = null) => {
-            elementActions.prepend($('<li />').append($('<i />').addClass('fa ' + icon)).click(e => {
+            elementActions.prepend($('<li />').append($('<i />').addClass(`fa ${icon}`)).click(e => {
                 e.preventDefault();
                 action();
-            }).attr({title : title}));
+            }).attr({title}));
             return this;
         };
 
@@ -129,7 +130,7 @@ module.exports = controller => {
         };
 
         this.result = () => {
-            var result = controller.call('result');
+            const result = controller.call('result');
             elementResults.prepend(result.element());
             return result;
         };
@@ -154,7 +155,7 @@ module.exports = controller => {
     };
 
     controller.registerCall('report', (title, subtitle, paragraph, closeable) => {
-        var model = new ReportModel(closeable);
+        const model = new ReportModel(closeable);
         if (title) {
             model.title(title);
         }

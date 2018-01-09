@@ -5,19 +5,19 @@ import truncate from 'truncate';
 module.exports = controller => {
 
     controller.registerCall('dive::history', entity => {
-        let skip = 0,
-            modal = controller.call('modal');
+        let skip = 0;
+        let modal = controller.call('modal');
         modal.gamification();
         modal.title('Atualização da Cobrança');
         modal.subtitle('Arquivo de Contato com o Cliente');
         modal.paragraph('É importante manter um histórico do que houve no contato com o cliente, por favor, conte para nós.');
-        let list = modal.createForm().createList(),
-            actions = modal.createActions();
+        let list = modal.createForm().createList();
+        let actions = modal.createActions();
         actions.add('Novo Contato').click(controller.click('dive::history::new', entity, (e) => more(entity, 0, e)));
-        let more,
-            observation = actions.observation('Carregando'),
-            backButton = actions.add('Voltar Página').click(e => more(e, -1)),
-            nextButton = actions.add('Próxima Página').click(e => more(e));
+        let more;
+        let observation = actions.observation('Carregando');
+        let backButton = actions.add('Voltar Página').click(e => more(e, -1));
+        let nextButton = actions.add('Próxima Página').click(e => more(e));
 
         more = (e, direction = 1, newEntity = null) => {
             if (newEntity) entity = newEntity;
@@ -30,8 +30,8 @@ module.exports = controller => {
                 return;
             }
 
-            let pages = Math.ceil(entity.history.length / LIMIT),
-                page = (skip ? skip / LIMIT : 0) + 1;
+            let pages = Math.ceil(entity.history.length / LIMIT);
+            let page = (skip ? skip / LIMIT : 0) + 1;
 
             nextButton[page == pages ? 'hide' : 'show']();
             backButton[page == 1 ? 'hide' : 'show']();
@@ -46,8 +46,8 @@ module.exports = controller => {
             };
 
             for (let contact of entity.history.slice(skip, skip + LIMIT)) {
-                let when = moment.unix(contact.when),
-                    next = moment.unix(contact.next);
+                let when = moment.unix(contact.when);
+                let next = moment.unix(contact.next);
 
                 list.item('fa-archive', [
                     truncate(contact.observation, 40),
@@ -67,13 +67,13 @@ module.exports = controller => {
         modal.subtitle('Arquivo de Contato com o Cliente');
         modal.paragraph('É importante manter um histórico do que houve no contato com o cliente, por favor, conte para nós.');
         let form = modal.createForm();
-        let date = form.addInput('date', 'text', 'Data do Próximo Contato').mask('00/00/0000').pikaday(),
-            observation = form.addTextarea('observation', 'O que houve no contato?');
+        let date = form.addInput('date', 'text', 'Data do Próximo Contato').mask('00/00/0000').pikaday();
+        let observation = form.addTextarea('observation', 'O que houve no contato?');
         form.addSubmit('submit', 'Enviar');
         form.element().submit(e => {
             e.preventDefault();
-            let error = false,
-                when = moment(date.val(), 'DD/MM/YYYY');
+            let error = false;
+            let when = moment(date.val(), 'DD/MM/YYYY');
             if (!when.isValid() || moment().isAfter(when)) {
                 date.addClass('error');
                 error = true;

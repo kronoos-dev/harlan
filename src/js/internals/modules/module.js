@@ -1,12 +1,12 @@
-var FIND_MODULE = 'BPQL > body > module > node';
+const FIND_MODULE = 'BPQL > body > module > node';
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    var installedModules = null;
+    let installedModules = null;
 
-    var addScript = function (src, callback) {
+    const addScript = (src, callback) => {
         try {
-            var script = document.createElement('script');
+            const script = document.createElement('script');
             script.type = 'text/javascript';
             script.async = true;
             script.onload = callback;
@@ -18,31 +18,31 @@ module.exports = function (controller) {
         }
     };
 
-    controller.registerTrigger('authentication::authenticated', 'module::authenticated', function (args, callback) {
+    controller.registerTrigger('authentication::authenticated', 'module::authenticated', (args, callback) => {
         controller.serverCommunication.call('SELECT FROM \'HARLANMODULES\'.\'JS\'', {
-            error: function () {
+            error() {
                 callback(Array.from(arguments));
             },
-            success: function (ret) {
+            success(ret) {
 
                 installedModules = ret;
 
-                var modules = $(ret).find(FIND_MODULE);
-                var scripts = modules.length;
+                const modules = $(ret).find(FIND_MODULE);
+                let scripts = modules.length;
 
                 if (!scripts) {
                     callback();
                     return;
                 }
 
-                var onLoad = function () {
+                const onLoad = () => {
                     if (!--scripts) {
                         controller.trigger('plugin::authenticated', args);
                         callback();
                     }
                 };
 
-                modules.each(function (idx, node) {
+                modules.each((idx, node) => {
                     addScript($(node).text(), onLoad);
                 });
 
@@ -50,32 +50,32 @@ module.exports = function (controller) {
         });
     });
 
-    controller.registerBootstrap('module', function (callback) {
+    controller.registerBootstrap('module', callback => {
         callback();
-        $('#action-show-modules').click(function (e) {
+        $('#action-show-modules').click(e => {
             e.preventDefault();
             controller.call('module');
         });
     });
 
-    var removeModule = function (e) {
+    const removeModule = function (e) {
         e.preventDefault();
 
-        var jelement = $(this);
+        const jelement = $(this);
 
-        var modal = controller.call('modal');
+        const modal = controller.call('modal');
         modal.title('Administrador de Módulos');
         modal.subtitle('Deseja realmente remover esse módulo?');
         modal.addParagraph('Após remover será necessário você reiniciar a aplicação para que suas alterações tenham efeito.');
-        var form = modal.createForm();
-        form.element().submit(function (e) {
+        const form = modal.createForm();
+        form.element().submit(e => {
             e.preventDefault();
             controller.serverCommunication.call('DELETE FROM \'HARLANMODULES\'.\'JS\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
                     data: {
                         module: jelement.data('module')
                     },
-                    success: function (ret) {
+                    success(ret) {
                         installedModules = ret;
                         jelement.remove();
                         toastr.success('Módulo removido com sucesso.', 'Reinicie o sistema.');
@@ -89,35 +89,35 @@ module.exports = function (controller) {
 
     };
 
-    controller.registerCall('module', function () {
-        var modal = controller.call('modal');
+    controller.registerCall('module', () => {
+        const modal = controller.call('modal');
         modal.title('Administrador de Módulos');
         modal.subtitle('Enriqueça seu sistema com módulos.');
         modal.addParagraph('O sistema de módulos foi desenvolvido para que nós e terceiros possam adicionar novas funcionalidades ao sistema. Para agregar um módulo a sua interface é necessário que digite abaixo o ENDPOINT do JavaScript a ser requisitado.');
 
-        var form = modal.createForm();
+        const form = modal.createForm();
 
         if (installedModules) {
-            var list = form.createList();
-            $(installedModules).find(FIND_MODULE).each(function (idx, node) {
-                var module = $(node).text();
+            const list = form.createList();
+            $(installedModules).find(FIND_MODULE).each((idx, node) => {
+                const module = $(node).text();
                 list.item('fa-times', module).data('module', module).click(removeModule);
             });
             list.element().addClass('remove-modules');
         }
 
-        var module = form.addInput('module', 'text', 'Endereço do módulo.');
+        const module = form.addInput('module', 'text', 'Endereço do módulo.');
         form.addSubmit('continue', 'Adicionar Módulo');
         modal.createActions().cancel();
 
-        form.element().submit(function (e) {
+        form.element().submit(e => {
             e.preventDefault();
             controller.serverCommunication.call('INSERT INTO \'HARLANMODULES\'.\'JS\'',
                 controller.call('error::ajax', controller.call('loader::ajax', {
                     data: {
                         module: module.val()
                     },
-                    success: function (ret) {
+                    success(ret) {
                         installedModules = ret;
                         toastr.success('Módulo adicionado com sucesso.');
                         addScript(module.val());

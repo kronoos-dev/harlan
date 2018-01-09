@@ -16,17 +16,17 @@ slug.defaults.modes.pretty = {
 
 slug.defaults.mode ='pretty';
 
-const NON_NUMERIC = /[\D]/g,
-    NON_WORD = /[\W]/g,
-    ROW_SIZE = 502,
-    BAN_VERSION = '02.7',
-    MAX_THREADS = 2,
-    CRLF = '\r\n';
+const NON_NUMERIC = /[\D]/g;
+const NON_WORD = /[\W]/g;
+const ROW_SIZE = 502;
+const BAN_VERSION = '02.7';
+const MAX_THREADS = 2;
+const CRLF = '\r\n';
 
 export class BANFactory {
-    constructor(call, results, company) {
+    constructor(call, {values}, company) {
         this.call = call;
-        this.checks = results.values;
+        this.checks = values;
         this.company = company;
         this.size = this._fileLength();
         this.buffer = new jDataView(new ArrayBuffer(this.size));
@@ -45,28 +45,28 @@ export class BANFactory {
     }
 
     _getFirstCellPhone(doc) {
-        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone'),
-            ret = '';
+        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone');
+        let ret = '';
         $phoneNode.each((i, el) => {
-            let ddd = $(el).find('ddd').text(),
-                phoneNumber = $(el).find('numero').text();
+            let ddd = $(el).find('ddd').text();
+            let phoneNumber = $(el).find('numero').text();
             if (this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
         });
         return ret;
     }
 
     _getFirstEmail(doc) {
-        let $emailNode = $(doc).find('BPQL > body > xml > emails > email').first(),
-            email = $emailNode.find('email').text();
+        let $emailNode = $(doc).find('BPQL > body > xml > emails > email').first();
+        let email = $emailNode.find('email').text();
         return email;
     }
 
     _getFirstPhone(doc) {
-        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone'),
-            ret = '';
+        let $phoneNode = $(doc).find('BPQL > body > xml > telefones > telefone');
+        let ret = '';
         $phoneNode.each((i, el) => {
-            let ddd = $(el).find('ddd').text(),
-                phoneNumber = $(el).find('numero').text();
+            let ddd = $(el).find('ddd').text();
+            let phoneNumber = $(el).find('numero').text();
             if (!this._isCellPhone(phoneNumber)) ret = ddd + phoneNumber;
         });
         return ret;
@@ -112,81 +112,81 @@ export class BANFactory {
         this.generateChecks();
         this.generateFooter();
 
-        var tasks = async.queue((check, callback) => {
+        const tasks = async.queue(({cpf, cnpj, row}, callback) => {
             let name = '';
             async.parallel([callback => {
                 this.call('SELECT FROM \'BIPBOPJS\'.\'CPFCNPJ\'', {
-                    data : {documento : check.cpf || check.cnpj },
+                    data : {documento : cpf || cnpj },
                     success : ret => {
                         name = $('BPQL > body > nome', ret).text();
                         if (!name) {
                             name = 'NOME DO TITULAR NAO RASTREAVEL';
                         }
-                        this.buffer.setString(this._goToPosition(check.row, 32),
+                        this.buffer.setString(this._goToPosition(row, 32),
                             slug(name).substring(0, 40));
                     },
                     complete: () => { callback(); }
                 });
             }, callback => {
-                let doc = CPF.strip(check.cpf) || CNPJ.strip(check.cnpj),
-                    soma = 0;
+                let doc = CPF.strip(cpf) || CNPJ.strip(cnpj);
+                let soma = 0;
                 this.call('SELECT FROM \'CCF\'.\'CONSULTA\'', {
-                    data: {doc: doc},
+                    data: {doc},
                     success: ret => {
                         $(ret).find('BPQL > body > xml > ccfs > ccf').children().each((i, el) => {
-                            let $el = $(el),
-                                tag = $el.prop('tagName');
+                            let $el = $(el);
+                            let tag = $el.prop('tagName');
                             if (!tag.includes('aline')) return;
                             soma += parseInt($el.text(), 10);
                         });
                         // Contato. de 220 até 249. 30.
                         if (soma > 0) {
-                            this.buffer.setString(this._goToPosition(check.row, 219), `CCF(${soma.toString().substring(0, 30)})`);
+                            this.buffer.setString(this._goToPosition(row, 219), `CCF(${soma.toString().substring(0, 30)})`);
                         }
                     },
                     complete: () => callback()
                 });
             }, callback => {
                 this.call('USING \'CCBUSCA\' SELECT FROM \'FINDER\'.\'CONSULTA\'', {
-                    data : {documento : check.cpf || check.cnpj },
+                    data : {documento : cpf || cnpj },
                     success : ret => {
                         // telefone. de 128 até 139. 12.
-                        this.buffer.setString(this._goToPosition(check.row, 127), this._getFirstPhone(ret).trim().substring(0, 12));
+                        this.buffer.setString(this._goToPosition(row, 127), this._getFirstPhone(ret).trim().substring(0, 12));
                         // celular. de 486 até 497. 12.
-                        this.buffer.setString(this._goToPosition(check.row, 485), this._getFirstCellPhone(ret).trim().substring(0, 12));
+                        this.buffer.setString(this._goToPosition(row, 485), this._getFirstCellPhone(ret).trim().substring(0, 12));
                         // email. de 180 até 219. 40.
-                        this.buffer.setString(this._goToPosition(check.row, 179), this._getFirstEmail(ret).trim().substring(0, 40));
+                        this.buffer.setString(this._goToPosition(row, 179), this._getFirstEmail(ret).trim().substring(0, 40));
                         // partes do endereço
                         $('BPQL > body > xml > enderecos > endereco', ret).first().children().each((i, el) => {
-                            var val = $(el).text();
+                            const val = $(el).text();
                             switch (i) {
                             case 1:
                                 // endereco. de 391 até 430. 40.
-                                this.buffer.setString(this._goToPosition(check.row, 390), slug(val).trim().substring(0, 40));
+                                this.buffer.setString(this._goToPosition(row, 390), slug(val).trim().substring(0, 40));
                                 break;
                             case 2:
                                 // numero. de 431 até 435. 5.
-                                this.buffer.setString(this._goToPosition(check.row, 430), val.trim().replace(/^0+/, '').substring(0, 5));
+                                this.buffer.setString(this._goToPosition(row, 430), val.trim().replace(/^0+/, '').substring(0, 5));
                                 break;
                             case 3:
                                 // cep. de 172 até 179. 8.
-                                this.buffer.setString(this._goToPosition(check.row, 171), val.trim().substring(0, 8));
+                                this.buffer.setString(this._goToPosition(row, 171), val.trim().substring(0, 8));
                                 break;
                             case 4:
                                 // bairro. de 113 até 127. 15.
-                                this.buffer.setString(this._goToPosition(check.row, 112), slug(val).trim().substring(0, 15));
+                                this.buffer.setString(this._goToPosition(row, 112), slug(val).trim().substring(0, 15));
                                 break;
                             case 5:
                                 // cidade. de 152 até 169. 18.
-                                this.buffer.setString(this._goToPosition(check.row, 151), slug(val).trim().substring(0, 18));
+                                this.buffer.setString(this._goToPosition(row, 151), slug(val).trim().substring(0, 18));
                                 break;
                             case 6:
                                 // estado. de 170 até 171. 2.
-                                this.buffer.setString(this._goToPosition(check.row, 169), slug(val).trim().substring(0, 2));
+                                this.buffer.setString(this._goToPosition(row, 169), slug(val).trim().substring(0, 2));
                                 break;
                             case 7:
                                 // complemento. de 436 até 465. 30.
-                                this.buffer.setString(this._goToPosition(check.row, 435), slug(val).trim().substring(0, 30));
+                                this.buffer.setString(this._goToPosition(row, 435), slug(val).trim().substring(0, 30));
                             }
                         });
                     },
@@ -202,7 +202,7 @@ export class BANFactory {
             modal.close();
         };
 
-        var i = 0;
+        let i = 0;
         tasks.push(this.checks, () => {
             progressUpdate(++i / this.checks.length);
         });
@@ -273,9 +273,9 @@ export class BANFactory {
     generateChecks() {
         let currentRow = 1;
         for (let check of this.checks) {
-            let cmcParts = new CMC7Parser(check.cmc),
-                doc = check.cnpj || check.cpf,
-                ammount = check.ammount === null ? 0 : check.ammount;
+            let cmcParts = new CMC7Parser(check.cmc);
+            let doc = check.cnpj || check.cpf;
+            let ammount = check.ammount === null ? 0 : check.ammount;
 
             check.row = currentRow;
             /* DOCUMENTO */

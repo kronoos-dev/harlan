@@ -1,8 +1,8 @@
 /* global module */
 
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerCall('authentication::logout', function () {
+    controller.registerCall('authentication::logout', () => {
         delete sessionStorage.apiKey;
 
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {

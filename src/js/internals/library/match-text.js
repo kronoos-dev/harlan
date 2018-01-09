@@ -3,7 +3,7 @@ export default function matchText(node, regex, callback, validate = null, exclud
     let child = node.firstChild;
     while (child) {
         if (child.nodeType === 1) {
-            if (excludeElements.indexOf(child.tagName.toLowerCase()) > -1) {
+            if (excludeElements.includes(child.tagName.toLowerCase())) {
                 break;
             }
             matchText(child, regex, callback, validate, excludeElements);
@@ -15,8 +15,9 @@ export default function matchText(node, regex, callback, validate = null, exclud
                 if (validate && !validate(args[0])) {
                     return;
                 }
-                let offset = args[args.length - 2],
-                    newTextNode = child.splitText(offset+bk), tag;
+                let offset = args[args.length - 2];
+                let newTextNode = child.splitText(offset+bk);
+                let tag;
                 bk -= child.data.length + all[0].length;
 
                 newTextNode.data = newTextNode.data.substr(all[0].length);

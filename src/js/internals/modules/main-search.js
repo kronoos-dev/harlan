@@ -1,5 +1,5 @@
-module.exports = function (controller) {
-    controller.registerBootstrap('mainSearch', function (callback) {
+module.exports = controller => {
+    controller.registerBootstrap('mainSearch', callback => {
         callback();
         $('.main-search').each((i, v) => {
             $(v).submit(function (e) {

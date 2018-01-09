@@ -1,7 +1,7 @@
 module.exports = controller => {
 
-    var config = [{
-        'event': 'next',
+    const config = [{
+        event: 'next',
         selector: 'button:contains(\'Adicionar Cheque\')',
         description : 'Clique aqui para adicionar um cheque.<br />Fique seguro, monitore seus cheques conosco.',
         nextButton: {text: 'Próximo'},
@@ -9,7 +9,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: 'button:contains(\'Solicitar Antecipação\'), button:contains(\'Quero Antecipar Cheques!\')',
         description : 'Clique aqui para antecipá-los.<br />Envie hoje mesmo para um de nossos Parceiros Financeiros.',
         nextButton: {text: 'Próximo'},
@@ -17,7 +17,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: '.action-credits',
         description : 'Inserimos crédito de cortesia.<br />Quando acabar, clique aqui para adicionar mais.',
         nextButton: {text: 'Próximo'},
@@ -25,7 +25,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event': 'next',
+        event: 'next',
         selector: '.support-phone',
         description: 'Precisa de ajuda?<br />Ligue para nosso Suporte (9am - 5pm).',
         nextButton: {text: 'Próximo'},
@@ -33,7 +33,7 @@ module.exports = controller => {
         showNext: true,
         showSkip: false,
     }, {
-        'event':'next',
+        event:'next',
         selector: '#chat-application',
         description: 'Ou fale conosco no chat online.<br /> (Ao vivo, 24/7)',
         nextButton: {text: 'Próximo'},
@@ -51,7 +51,7 @@ module.exports = controller => {
                 if (!$(element.selector).length) return;
             }
             clearInterval(clockElements);
-            var ei = new EnjoyHint();
+            const ei = new EnjoyHint();
             ei.set(config);
             ei.run();
         }, 5000);

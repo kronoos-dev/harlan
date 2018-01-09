@@ -14,7 +14,8 @@ export class KronoosStats {
 
     create(name, document, click) {
         let container = $('<li />');
-        let formattedDocument, documentType;
+        let formattedDocument;
+        let documentType;
 
         if (CPF.isValid(document)) {
             formattedDocument = CPF.format(document);

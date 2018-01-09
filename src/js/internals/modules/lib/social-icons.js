@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     aboutme: 'external-link',
     amplify: 'external-link',
     aolchat: 'external-link',

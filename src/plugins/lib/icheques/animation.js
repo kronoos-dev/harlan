@@ -1,6 +1,6 @@
-module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
+export default (lib = {}, img = {}, cjs = {}, ss = {}) => {
 
-    var p; // shortcut to reference prototypes
+    let p; // shortcut to reference prototypes
     lib.webFontTxtFilters = {};
 
     // library properties:
@@ -13,10 +13,10 @@ module.exports = function(lib = {}, img = {}, cjs = {}, ss = {}) {
         manifest: []
     };
 
-    lib.webfontAvailable = function(family) {
+    lib.webfontAvailable = family => {
         lib.properties.webfonts[family] = true;
-        var txtFilters = lib.webFontTxtFilters && lib.webFontTxtFilters[family] || [];
-        for (var f = 0; f < txtFilters.length; ++f) {
+        const txtFilters = lib.webFontTxtFilters && lib.webFontTxtFilters[family] || [];
+        for (let f = 0; f < txtFilters.length; ++f) {
             txtFilters[f].updateCache();
         }
     };

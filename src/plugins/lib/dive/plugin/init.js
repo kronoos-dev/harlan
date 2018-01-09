@@ -1,4 +1,4 @@
-module.exports = function (controller) {
+module.exports = controller => {
     let pluginList = [];
 
     controller.registerCall('dive::plugin::register', (expr, callback) => {

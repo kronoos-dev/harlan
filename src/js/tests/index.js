@@ -4,7 +4,7 @@
 mocha.setup('bdd');
 window.harlan = require('../internals/controller')();
 
-require('domready')(function () {
+require('domready')(() => {
     require('./controller')();
     require('./config')();
 

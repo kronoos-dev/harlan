@@ -1,8 +1,8 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
     let modal;
 
-    controller.registerTrigger('findDatabase::instantSearch', 'icheques::daemon', function(args, callback) {
+    controller.registerTrigger('findDatabase::instantSearch', 'icheques::daemon', (args, callback) => {
 
         if (!/(wba|daemon)/i.test(args[0])) {
             callback();
@@ -18,24 +18,25 @@ module.exports = function (controller) {
 
     controller.registerTrigger('authentication::authenticated', 'icheques::daemon', (opts, cb) => {
         cb();
-        let isRunning = false,
-            interval = setInterval(() => {
-                if (modal || isRunning) return;
-                isRunning = true;
-                $.ajax('https://daemon.icheques.com.br:3001/configuration', {
-                    dataType: 'json',
-                    success: configuration => {
-                        clearInterval(interval);
-                        if (!configuration || configuration.ready) return;
-                        controller.confirm({
-                            title: 'Deseja prosseguir com a configuração da integração WBA?',
-                            subtitle: 'Detectamos uma integração WBA não configurada neste computador.',
-                            paragraph: 'Para que a integração funcione corretamente você precisa informar como o software se conectará ao banco de dados WBA.'
-                        }, () => controller.call('icheques::wba::configure', configuration.hash, configuration));
-                    },
-                    complete: () => { isRunning = false; }
-                });
-            }, 10000);
+        let isRunning = false;
+
+        let interval = setInterval(() => {
+            if (modal || isRunning) return;
+            isRunning = true;
+            $.ajax('https://daemon.icheques.com.br:3001/configuration', {
+                dataType: 'json',
+                success: configuration => {
+                    clearInterval(interval);
+                    if (!configuration || configuration.ready) return;
+                    controller.confirm({
+                        title: 'Deseja prosseguir com a configuração da integração WBA?',
+                        subtitle: 'Detectamos uma integração WBA não configurada neste computador.',
+                        paragraph: 'Para que a integração funcione corretamente você precisa informar como o software se conectará ao banco de dados WBA.'
+                    }, () => controller.call('icheques::wba::configure', configuration.hash, configuration));
+                },
+                complete: () => { isRunning = false; }
+            });
+        }, 10000);
     });
 
     controller.registerCall('icheques::wba', () => {
@@ -59,22 +60,22 @@ module.exports = function (controller) {
             insira as configurações de acesso da máquina onde o aplicativo está instalado para que possamos prosseguir. Lembre-se,
             as configurações podem levar alguns minutos para surtir efeito. Utilize o <i>Log da Aplicação</i> para verificar se a aplicação está
             configurada adequadamente.`);
-        let form = modal.createForm(),
-            l0 = {labelPosition: 'before', append: form.multiField()},
-            l1 = {labelPosition: 'before', append: form.multiField()},
-            l2 = {labelPosition: 'before', append: form.multiField()},
-            inputHash = form.addInput('hash', 'text', 'Hash', l0, 'Hash', hash).attr({readonly: true, disabled: true}).addClass('gold'),
-            minValInput = form.addInput('minVal', 'text', '100,00', l0, '(R$) Valor Mínimo do Cheque', numeral(configuration.database.minval / 100).format('0.0,00')).mask('000.000.000.000.000,00', {reverse: true}),
-            inputUser = form.addInput('user', 'text', 'sa', l1, 'Usuário do MSSQL WBA', configuration.database.user),
-            inputPassword = form.addInput('password', 'password', 'wba1234*', l1, 'Senha do MSSQL WBA', configuration.database.password),
-            inputServer = form.addInput('server', 'text', '10.0.57.14\\SQLEXPRESS', l2, 'Endereço do Servidor', configuration.database.server),
-            inputDatabase = form.addInput('database', 'text', 'Factoring', l2, 'Nome do Banco de Dados', configuration.database.database);
+        let form = modal.createForm();
+        let l0 = {labelPosition: 'before', append: form.multiField()};
+        let l1 = {labelPosition: 'before', append: form.multiField()};
+        let l2 = {labelPosition: 'before', append: form.multiField()};
+        let inputHash = form.addInput('hash', 'text', 'Hash', l0, 'Hash', hash).attr({readonly: true, disabled: true}).addClass('gold');
+        let minValInput = form.addInput('minVal', 'text', '100,00', l0, '(R$) Valor Mínimo do Cheque', numeral(configuration.database.minval / 100).format('0.0,00')).mask('000.000.000.000.000,00', {reverse: true});
+        let inputUser = form.addInput('user', 'text', 'sa', l1, 'Usuário do MSSQL WBA', configuration.database.user);
+        let inputPassword = form.addInput('password', 'password', 'wba1234*', l1, 'Senha do MSSQL WBA', configuration.database.password);
+        let inputServer = form.addInput('server', 'text', '10.0.57.14\\SQLEXPRESS', l2, 'Endereço do Servidor', configuration.database.server);
+        let inputDatabase = form.addInput('database', 'text', 'Factoring', l2, 'Nome do Banco de Dados', configuration.database.database);
 
         form.element().submit(e => {
             e.preventDefault();
 
             let sendData = {
-                hash: hash,
+                hash,
                 database : {
                     user: inputUser.val(),
                     password: inputPassword.val(),
@@ -134,15 +135,17 @@ module.exports = function (controller) {
             modal.gamification();
             modal.title('Log do Integrador iCheques WBA');
             modal.subtitle('Verifique as mensagens que o integrador WBA tem gerado.');
-            let form = modal.createForm(),
-                list = form.createList(),
-                update = () => $.ajax('https://daemon.icheques.com.br:3001/log', {
-                    dataType: 'json',
-                    success: log => {
-                        list.empty();
-                        for (let row of log) list.item('fa-warning', row);
-                    }
-                });
+            let form = modal.createForm();
+            let list = form.createList();
+
+            let update = () => $.ajax('https://daemon.icheques.com.br:3001/log', {
+                dataType: 'json',
+                success: log => {
+                    list.empty();
+                    for (let row of log) list.item('fa-warning', row);
+                }
+            });
+
             update();
             let updateInterval = setInterval(() => update(), 2000);
             modal.onClose = () => {

@@ -1,4 +1,4 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
     let links = [];
 

@@ -1,34 +1,34 @@
-module.exports = function (controller) {
+module.exports = controller => {
 
-    controller.registerBootstrap('oauth', function (callback) {
+    controller.registerBootstrap('oauth', callback => {
         OAuth.initialize(controller.confs.oauthKey);
         callback();
     });
 
-    controller.registerCall('oauth::call', function (args) {
+    controller.registerCall('oauth::call', args => {
 
         let [name, onSuccess, onError, onData] = args;
 
-        OAuth.popup(name).done(function (result) {
+        OAuth.popup(name).done(result => {
             controller.call('oauth::result', [result, onData, name]);
             if (onSuccess)
                 onSuccess(result, name);
-        }).fail(function (errorMessage) {
+        }).fail(errorMessage => {
             if (onError)
                 onError(errorMessage);
         });
     });
 
-    controller.registerCall('oauth::result', function (args) {
+    controller.registerCall('oauth::result', args => {
         let [result, onData, name] = args;
-        result.me().done(function (data) {
+        result.me().done(data => {
             if (onData)
                 onData(data, name);
             controller.call('oauth::data', [data, name]);
         });
     });
 
-    controller.registerCall('oauth::data', function (args) {
+    controller.registerCall('oauth::data', args => {
         let [data, name] = args;
 
         controller.trigger('oauth::data', [data, name]);
