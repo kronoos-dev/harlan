@@ -121,7 +121,7 @@ module.exports = controller => {
             .tap(form => form.configure(formDescription));
     });
 
-    controller.registerCall('price::list', controller.serverCommunication.call('INSERT INTO \'PRICETABLE\'.\'PRODUCT\'',
+    controller.registerCall('price::list', () => controller.serverCommunication.call('SELECT FROM \'PRICETABLE\'.\'PRODUCTS\'',
         controller.call('error::ajax', { dataType: 'json' })).then(data => {
         const modal = controller.call('modal');
         modal.title('Gestão de Preços');

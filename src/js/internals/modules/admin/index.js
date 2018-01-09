@@ -39,6 +39,7 @@ module.exports = controller => {
         require('./phone')(controller);
         require('./send-message')(controller);
         require('./report')(controller);
+        require('./price')(controller);
 
         controller.registerCall('admin::index', () => {
             const report = controller.call('report', 'Administrador da Conta', 'Administre os usuários cadastrados no sistema.',
