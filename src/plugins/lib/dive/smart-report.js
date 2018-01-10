@@ -88,7 +88,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'SpecialReportRFB\'',
                 'Situação dos Documentos',
                 'Situação dos CPF/CNPJs na Receita Federal.',
-                require('../../markdown/dive/receita-federal.html.js'),
+                require('../../markdown/dive/receita-federal.md.js'),
                 node => {
                     const statusIdx = $('_id', node).text().split(' ')[0].toLowerCase();
                     const color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
@@ -103,7 +103,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'RiscoReport\'',
                 'Risco de Crédito',
                 'Risco de crédito dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/riscocredito.html.js'),
+                require('../../markdown/dive/riscocredito.md.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
@@ -114,7 +114,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'PROTESTOS\'',
                 'Protestos em Cartório',
                 'Protestos em cartório dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/protestos.html.js'),
+                require('../../markdown/dive/protestos.md.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
@@ -125,7 +125,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'CCF\'',
                 'Cheque sem Fundo',
                 'Cheques sem fundo dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/ccf.html.js'),
+                require('../../markdown/dive/ccf.md.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
@@ -139,7 +139,7 @@ module.exports = controller => {
         //         "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX'",
         //         "Restituição do Imposto de Renda",
         //         "Exercício do Ano Corrente",
-        //         require("../../markdown/dive/restituicao.html"),
+        //         require("../../markdown/dive/restituicao.md"),
         //         () => new Color(harmonyColors[i++]));
         //
         //
@@ -149,14 +149,14 @@ module.exports = controller => {
         //         "SELECT FROM 'DIVE'.'SPECIALREPORTINCOMETAX' WHERE 'LASTYEAR' = 'TRUE'",
         //         "Restituição do Imposto de Renda",
         //         "Exercício do Ano Anterior",
-        //         require("../../markdown/dive/restituicao.html"),
+        //         require("../../markdown/dive/restituicao.md"),
         //         () => new Color(harmonyColors[i++]));
         //
         // controller.call("dive::smartReport::polar::show",
         //         "SELECT FROM 'DIVE'.'SpecialReportCBusca'",
         //         "Quantidade Média de Registros",
         //         "Situação dos CPF/CNPJs no bureau de crédito Dive.",
-        //         require("../../markdown/dive/bureau-dive.html"),
+        //         require("../../markdown/dive/bureau-dive.md"),
         //         {
         //             avgTotalAddress: "Endereços",
         //             avgTotalCar: "Carros",
