@@ -477,7 +477,7 @@ export class KronoosParse {
                     })));
 
                     execall(/\d{7}(\-)?\d{2}(\.)?\d{4}(\.)?\d(\.)?\d{2}(\.)?\d{4}/g, str).map(r => {
-                        let proc = r.match;
+                        let proc = r.match;kelement.beha
                         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'', this.loader('fa-balance-scale', `Verificando processo ${r.match} para documento ${this.cpf_cnpj}`, {
                             data: {
                                 data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${r.match}'`
@@ -569,7 +569,6 @@ export class KronoosParse {
                         kelement.table('Data da Consulta', 'Cidade Associado', 'UF Associado')(consultaRealizada.DataDaConsulta, consultaRealizada.CidadeAssociado, consultaRealizada.UfAssociado);
                     }
 
-                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 }
             }
@@ -1226,8 +1225,7 @@ export class KronoosParse {
                     kelement.table('Validade', 'Código de Controle')($('validade', data).text(), $('codigo_de_controle', data).text());
                     let text = $('descricao', data).text();
                     kelement.paragraph(htmlEncode(text));
-                    //kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
-                    kelement.behaviourAccurate(true);
+                    kelement.behaviourAccurate(!!/\:\s*constam/i.test(text));
                     this.append(kelement.element());
                 },
             }, true));
