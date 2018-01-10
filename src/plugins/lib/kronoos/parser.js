@@ -1602,7 +1602,6 @@ export class KronoosParse {
                     }
 
                     kelement.behaviourAccurate(!['REGULAR', 'ATIVA'].includes(x('situacao').split(' ')[0]));
-                    kelement.behaviourAccurate(true);
                     this.append(kelement.element());
                 },
             }, true));
