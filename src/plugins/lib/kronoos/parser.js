@@ -252,7 +252,7 @@ export class KronoosParse {
         let success = conf.success;
         let error = conf.bipbopError;
 
-        conf.timeout = conf.timeout || 180000; /* 1 minute */
+        conf.timeout = conf.timeout || humanInterval('1 minute'); /* 1 minute */
 
         let resourceUseAnalytics = (xml, hasError) => {
 
