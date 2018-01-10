@@ -25,11 +25,11 @@ var colors = {
 };
 
 var messages = {
-    overall: require('../../../markdown/icheques/default.report.html.js'),
-    noOcurrence: require('../../../markdown/icheques/no-ocurrence.report.html.js'),
-    ocurrence: require('../../../markdown/icheques/ocurrence.report.html.js'),
-    processing: require('../../../markdown/icheques/processing.report.html.js'),
-    canceled: require('../../../markdown/icheques/canceled.report.html.js'),
+    overall: require('../../../markdown/icheques/default.report.md.js'),
+    noOcurrence: require('../../../markdown/icheques/no-ocurrence.report.md.js'),
+    ocurrence: require('../../../markdown/icheques/ocurrence.report.md.js'),
+    processing: require('../../../markdown/icheques/processing.report.md.js'),
+    canceled: require('../../../markdown/icheques/canceled.report.md.js'),
 };
 
 var parseDate = (val, format) => {
