@@ -107,7 +107,7 @@ module.exports = function() {
         return this;
     };
 
-    this.triggerred = Promise.promisify(this.trigger);
+    this.triggered = Promise.promisify((...d) => this.trigger(...d));
 
     this.registerCall = (name, callback) => {
         console.log(':: register :: ', name);
@@ -147,7 +147,7 @@ module.exports = function() {
         return data;
     };
 
-    this.promise = Promise.promisify(this.call);
+    this.promise = Promise.promisify((...d) => this.call(...d));
 
     this.run = (cb) => {
         const calls = bootstrapCalls; /* prevent race cond */

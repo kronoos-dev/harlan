@@ -1,3 +1,4 @@
+import humanInterval from 'human-interval';
 import arrayToSentence from 'array-to-sentence';
 import execall from 'execall';
 import capitalize from 'capitalize';
@@ -18,6 +19,13 @@ import html2canvas from 'html2canvas';
 import metaphone from 'metaphone';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
+
+const NOT_FOUND_BEGIN_TEXT = {
+    juridic: 'Resultados do Poder Judiciário: ',
+    adm: 'Resultados em entidades administrativas: ',
+    credit: 'Resultados em bureaus de crédito: ',
+    others: 'Resultados de natureza fiscal e política: ',
+};
 
 const TJRJ_COMARCA = [
     '\'COMARCA\' = \'201\'', '\'COMARCA\' = \'204\'', '\'COMARCA\' = \'209\'', '\'COMARCA\' = \'205\'', '\'COMARCA\' = \'207\'', '\'COMARCA\' = \'203\'', '\'COMARCA\' = \'210\'', '\'COMARCA\' = \'202\'', '\'COMARCA\' = \'208\'', '\'COMARCA\' = \'211\'', '\'COMARCA\' = \'206\'', '\'COMARCA\' = \'401\'', '\'COMARCA\' = \'424\'', '\'COMARCA\' = \'341\'', '\'COMARCA\' = \'403\'', '\'COMARCA\' = \'402\'', '\'COMARCA\' = \'428\'', '\'COMARCA\' = \'302\'', '\'COMARCA\' = \'432\'',
@@ -125,6 +133,7 @@ export class KronoosParse {
                     data: {
                         nome: this.name
                     },
+                    timeout: humanInterval('10 seconds'),
                     success: ret => {
                         this.homonymous = ret.homonymous;
                     },
@@ -266,14 +275,22 @@ export class KronoosParse {
         };
 
         conf.bipbopError = (...args) => {
-            let [, , , , xml] = args;
-            resourceUseAnalytics(xml, true);
-            if (error) error(...args);
+            try {
+                let [, , , , xml] = args;
+                resourceUseAnalytics(xml, true);
+                if (error) error(...args);
+            } catch (e) {
+                toastr.error(e);
+            }
         };
 
         conf.success = (...args) => {
-            resourceUseAnalytics(args[0], false);
-            if (success) success(...args);
+            try {
+                resourceUseAnalytics(args[0], false);
+                if (success) success(...args);
+            } catch (e) {
+                toastr.error(e);
+            }
         };
 
         conf.complete = (...args) => {
@@ -289,6 +306,7 @@ export class KronoosParse {
             parser: this,
             call: [query, conf]
         }, priority || normalPriority);
+
     }
 
     loader(...args) {
@@ -319,7 +337,13 @@ export class KronoosParse {
         this._notFoundItems[group] = this._notFoundItems[group] || [];
         this._notFoundItems[group].push(element);
         let data = args[0] || {};
-        let ret = this._notFoundList(arrayToSentence(this._notFoundItems[group], {lastSeparator: ' e '}), data, ...args);
+
+        let message = arrayToSentence(this._notFoundItems[group], {lastSeparator: ' e '});
+        if (NOT_FOUND_BEGIN_TEXT[group]) {
+            message = `${NOT_FOUND_BEGIN_TEXT[group]} ${message}`;
+        }
+
+        let ret = this._notFoundList(message, data, ...args);
         this._notFoundRows[group] = data.element;
         ret.remove = () => {
             this._notFoundRows[group].remove();
@@ -335,7 +359,7 @@ export class KronoosParse {
     }
 
     notFoundCredito(e, ...args) {
-        return this.notFound(e, 'credito', ...args);
+        return this.notFound(e, 'credit', ...args);
     }
 
     notFoundJuridic(e, ...args) {
@@ -1170,7 +1194,7 @@ export class KronoosParse {
                 },
                 bipbopError: (type, message, code, push, xml) => !push && this.errorHappen('Indisponibilidade de conexão com a fonte de dados para a certidão - Certidão Negativa de Débitos Trabalhistas'),
                 success: data => {
-                    let kelement = this.kronoosElement('juridic', 'Certidão Negativa de Débitos Trabalhistas - TST',
+                    let kelement = this.kronoosElement(null, 'Certidão Negativa de Débitos Trabalhistas - TST',
                         'Geração de Certidão Negativa de Débitos Trabalhistas no Tribunal Superior do Trabalho',
                         'Certidão Negativa de Débitos Trabalhistas - CNDT, documento indispensável à participação em licitações públicas.');
                     kelement.element().find('.kronoos-side-content').append($('<a />').attr({
@@ -2336,53 +2360,60 @@ export class KronoosParse {
             });
             this.taskGraphParallel = async.parallel(elements, () => callback());
         }), () => {
-            this.generateRelations.track(data => {
-                async.each(data.nodes, (node, cb) => {
-                    let document = pad(14, CNPJ.strip(node.id), '0');
-                    if (!CNPJ.isValid(document)) return cb();
-                    this.serverCall('SELECT FROM \'RFBCNPJANDROID\'.\'CERTIDAO\'', this.loader('fa-archive', `Atualizando nome do CNPJ ${CNPJ.format(document)} - ${node.label}`, {
-                        data: {
-                            documento: document
-                        },
-                        success: data => {
-                            node.label = $('nome', data).first().text();
-                        },
-                        complete: () => cb()
-                    }));
-                }, () => {
-                    if (!data.nodes.length)
+            const error = (obj = {}) => this.alert(Object.assign({
+                title: 'Não foi possível pesquisar a pessoa solicitada.',
+                subtitle: 'A informação de conexão que possuimos não permite rastreamento posterior',
+                paragraph: 'É provável que não tenhamos metadados suficientes para realizar esta pesquisa.'
+            }, obj));
+
+            this.generateRelations.track(data => async.each(data.nodes, (node, cb) => {
+                let document = pad(14, CNPJ.strip(node.id), '0');
+                if (!CNPJ.isValid(document)) return cb();
+                this.serverCall('SELECT FROM \'RFBCNPJANDROID\'.\'CERTIDAO\'', this.loader('fa-archive', `Atualizando nome do CNPJ ${CNPJ.format(document)} - ${node.label}`, {
+                    data: {
+                        documento: document
+                    },
+                    success: data => {
+                        node.label = $('nome', data).first().text();
+                    },
+                    complete: () => cb()
+                }));
+            }, () => {
+                if (!data.nodes.length)
+                    return;
+                this.networkData = data;
+                this.writeNetworkTable();
+                let element = this.firstElement();
+                let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
+                    groups: data.groups
+                }));
+                network.on('click', params => {
+                    if (!params.nodes[0]) {
                         return;
-                    this.networkData = data;
-                    this.writeNetworkTable();
-                    let element = this.firstElement();
-                    let [network, node] = element.addNetwork(data.nodes, data.edges, Object.assign(element.networkOptions, {
-                        groups: data.groups
-                    }));
-                    network.on('click', params => {
-                        if (!params.nodes[0]) {
-                            return;
-                        }
+                    }
 
-                        let doc = pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0');
-                        if (!CPF.isValid(doc) && !CNPJ.isValid(doc)) {
-                            this.alert({
-                                title: 'Não foi possível pesquisar a pessoa solicitada.',
-                                subtitle: 'A informação de conexão que possuimos não permite rastreamento posterior',
-                                paragraph: 'É provável que não tenhamos metadados suficientes para realizar esta pesquisa.'
-                            });
-                            return;
-                        }
-                        let formatted_document = f(doc);
+                    let doc = pad(params.nodes[0].length > 11 ? 14 : 11, params.nodes[0], '0');
+                    if (!CPF.isValid(doc) && !CNPJ.isValid(doc)) {
+                        error();
+                        return;
+                    }
 
-                        this.call('kronoos::parse', node.label, formatted_document, null, 'minimized', {
-                            observation: `relacionado ao ${formatted_document ? 'CPF' : 'CNPJ'} ${doc} - ${this.name}.`
-                        });
+                    let formatted_document = f(params.nodes[0]);
+                    const name = this.networkData.nodes.find(node => node.id = params.nodes[0]).label;
 
-                        var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
-                        if (win) win.focus();
+                    if (!name) {
+                        error();
+                        return;
+                    }
+
+                    this.call('kronoos::parse', name, formatted_document, null, 'minimized', {
+                        observation: `relacionado ao ${formatted_document ? 'CPF' : 'CNPJ'} ${doc} - ${this.name}.`
                     });
+
+                    var win = window.open(`${document.location.origin}?k=${doc}`, '_blank');
+                    if (win) win.focus();
                 });
-            });
+            }));
         });
     }
 
@@ -2779,36 +2810,38 @@ export class KronoosParse {
             cnjInstance.behaviourHomonym(true);
         }
 
-        this.controller.trigger('kronoos::juristek', [numproc, proc, pieces, cnjInstance, partes], () => {
-            let validPieces = _.filter(pieces, t => {
-                if (!t[1]) return false;
-                return !/^\s*$/.test(t[1]);
-            });
-
-            let [keys, values] = _.unzip(validPieces);
-
-            if (!keys) {
-                cnjInstance.remove();
-                delete this.kelements[this.kelements.indexOf(cnjInstance)];
-                delete this.procElements[numproc];
-                return;
-            }
-
-            for (let i = 0; i < keys.length; i += 2) {
-                cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
-            }
-
-            let assunto = getNode('assunto');
-            if (assunto) cnjInstance.paragraph(assunto);
-
-            if (partes.length) {
-                let kparts = cnjInstance.list('Partes');
-                partes.each(idx => {
-                    let node = partes.eq(idx);
-                    kparts(`${node.attr('tipo')} - ${node.text()}`);
+        this.controller.triggered('kronoos::juristek', [numproc, proc, pieces, cnjInstance, partes])
+            .catch(e => console.error(e))
+            .finally(() => {
+                let validPieces = _.filter(pieces, t => {
+                    if (!t[1]) return false;
+                    return !/^\s*$/.test(t[1]);
                 });
-            }
-        });
+
+                let [keys, values] = _.unzip(validPieces);
+
+                if (!keys) {
+                    cnjInstance.remove();
+                    delete this.kelements[this.kelements.indexOf(cnjInstance)];
+                    delete this.procElements[numproc];
+                    return;
+                }
+
+                for (let i = 0; i < keys.length; i += 2) {
+                    cnjInstance.table(keys[i], keys[i + 1])(values[i], values[i + 1]);
+                }
+
+                let assunto = getNode('assunto');
+                if (assunto) cnjInstance.paragraph(assunto);
+
+                if (partes.length) {
+                    let kparts = cnjInstance.list('Partes');
+                    partes.each(idx => {
+                        let node = partes.eq(idx);
+                        kparts(`${node.attr('tipo')} - ${node.text()}`);
+                    });
+                }
+            });
     }
 
     cartesian() {

@@ -1,4 +1,5 @@
 import async from 'async';
+import Promise from 'bluebird';
 
 const notificationInterval = 1500;
 const searchBarContainer = $('.kronoos-application .search-bar .kronoos-floating');
@@ -11,20 +12,29 @@ module.exports = controller => {
 
     let ajaxQueue = async.priorityQueue((task, callback) => {
         let [target, conf, ...args] = task.call;
-        let jqXHR;
 
         if (conf.statusElement)
             searchBarContainer.append(conf.statusElement.addClass('processing'));
 
-        jqXHR = task.parser.controller.server.call(target, controller.call('error::ajax', conf, false), ...args).always(() => {
-            let idx = task.parser.xhr.indexOf(jqXHR);
-            if (idx !== -1)
-                delete task.parser.xhr[idx];
-            callback();
-            controller.trigger('kronoos::ajax::queue::change');
-        });
+        let jqXHR = Promise.resolve()
+            .then(() => task.parser.controller.server.call(target, controller.call('error::ajax', conf, false), ...args))
+            .catch(e => {
+                if (!(e instanceof Error)) return;
+                if (conf.complete) conf.complete();
+                if (task.parser && task.parser.errorHappenQuery) {
+                    task.parser.errorHappenQuery(target);
+                } else {
+                    toastr.error(e);
+                }})
+            .finally(() => {
+                if (!task.parser) return;
+                let idx = task.parser.xhr.indexOf(jqXHR);
+                if (idx !== -1) delete task.parser.xhr[idx];
+                controller.trigger('kronoos::ajax::queue::change');
+            })
+            .finally(() => callback && callback());
 
-        task.parser.xhr.push(jqXHR);
+        if (task.parser) task.parser.xhr.push(jqXHR);
     }, 5);
 
     controller.registerCall('kronoos::queue', () => {
