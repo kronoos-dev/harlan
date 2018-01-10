@@ -19,6 +19,7 @@ import metaphone from 'metaphone';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
 
+const DATABASE_REGEX = /FROM\s+\'([^\']+)\'/;
 const TJRJ_COMARCA = [
     '\'COMARCA\' = \'201\'', '\'COMARCA\' = \'204\'', '\'COMARCA\' = \'209\'', '\'COMARCA\' = \'205\'', '\'COMARCA\' = \'207\'', '\'COMARCA\' = \'203\'', '\'COMARCA\' = \'210\'', '\'COMARCA\' = \'202\'', '\'COMARCA\' = \'208\'', '\'COMARCA\' = \'211\'', '\'COMARCA\' = \'206\'', '\'COMARCA\' = \'401\'', '\'COMARCA\' = \'424\'', '\'COMARCA\' = \'341\'', '\'COMARCA\' = \'403\'', '\'COMARCA\' = \'402\'', '\'COMARCA\' = \'428\'', '\'COMARCA\' = \'302\'', '\'COMARCA\' = \'432\'',
     '\'COMARCA\' = \'348\'', '\'COMARCA\' = \'404\'', '\'COMARCA\' = \'304\'', '\'COMARCA\' = \'305\'', '\'COMARCA\' = \'220\'', '\'COMARCA\' = \'306\'', '\'COMARCA\' = \'355\'', '\'COMARCA\' = \'307\'', '\'COMARCA\' = \'308\'', '\'COMARCA\' = \'309\'', '\'COMARCA\' = \'310\'', '\'COMARCA\' = \'311\'', '\'COMARCA\' = \'221\'', '\'COMARCA\' = \'312\'', '\'COMARCA\' = \'471\'', '\'COMARCA\' = \'343\'', '\'COMARCA\' = \'407\'', '\'COMARCA\' = \'408\'', '\'COMARCA\' = \'349\'', '\'COMARCA\' = \'313\'',
@@ -295,15 +296,49 @@ export class KronoosParse {
         return this.call('kronoos::status::ajax', ...args);
     }
 
-    errorHappen(...args) {
+    errorHappen(group, groupMessage, errorMessage = null, errorLimit = 3) {
+        
+        if (!groupMessage) {
+            groupMessage = group;
+        }
+
+        if (!errorMessage) {
+            errorLimit = 1;
+            errorMessage = groupMessage;
+        }
+
         if (!this._errorHappendList) {
             this._errorHappendObject = {
                 paragraph: 'Os erros de captura podem ocorrer no caso de indisponibilidade do servidor e ou mudança na disposição dos dados. Para maiores informações contate nosso suporte técnico.',
             };
             this._errorHappendList = this.firstElement().list('<i class=\'fa fa-exclamation-triangle\' /> Ocorreram Erros na Captura', this._errorHappendObject, null, 10);
             this._errorHappendObject.container.addClass('kronoos-error-happen');
+
+            this._errorHappendGroupElement = {};
+            this._errorHappendErrorElements = {};
         }
-        return this._errorHappendList(...args);
+
+        const errorMessageObject = {};
+
+        if (this._errorHappendGroupElement[group] || 
+            this._errorHappendErrorElements[group] && 
+            this._errorHappendErrorElements[group].length > errorLimit) {
+
+            if (!this._errorHappendGroupElement[group]) {
+                this._errorHappendList(groupMessage, errorMessageObject);
+                this._errorHappendGroupElement[group] = errorMessageObject;
+            }
+        
+            if (!this._errorHappendErrorElements[group]) return;
+            this._errorHappendErrorElements[group].map(element => element.remove());
+            delete this._errorHappendErrorElements[group];
+            return;
+        }
+        
+        this._errorHappendList(errorMessage, errorMessageObject);
+        this._errorHappendErrorElements[group] = this._errorHappendErrorElements[group] || [];
+        this._errorHappendErrorElements[group].push(errorMessageObject.element);
+
     }
 
     notFound(element, group, ...args) {
@@ -392,7 +427,7 @@ export class KronoosParse {
                 },
                 bipbopError: (type, message, code, push) => {
                     if (!push) {
-                        this.errorHappen(`Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`);
+                        this.errorHappenQuery(query, `Indisponibilidade de conexão com a fonte de dados para a certidão - ${database}`, 'não foi possível emitir a certidão no momento');
                         return;
                     }
 
@@ -516,6 +551,18 @@ export class KronoosParse {
         }));
     }
 
+    static getDatabase(query) {
+        return DATABASE_REGEX.exec(query)[1];
+    }
+
+    errorHappenQuery(query, errorMessage, alternative = 'tente novamente mais tarde', groupMessage = null, limit = 4) {
+        const database = KronoosParse.getDatabase(query);
+        groupMessage = groupMessage || 'Indisponibilidade de conexão com a fonte de dados - [db], [alternative].'
+            .replace('[db]', database)
+            .replace('[alternative]', alternative);
+        return this.errorHappen(database, groupMessage, errorMessage, limit);
+    }
+
     tribunalSearch(n, callback) {
         let [query, uniq, description, notFound, name] = n;
         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'', this.loader('fa-balance-scale', description, {
@@ -528,7 +575,7 @@ export class KronoosParse {
                     return;
                 }
                 if (name) {
-                    this.errorHappen(`Indisponibilidade de conexão com a fonte de dados - ${name}, utilizando Diário Oficial como alternativa.`);
+                    this.errorHappenQuery(query, `Indisponibilidade de conexão com a fonte de dados - ${name}, utilizando Diário Oficial como alternativa.`, 'utilizando Diário Oficial como alternativa');
                 }
             },
             success: data => {
