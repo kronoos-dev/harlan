@@ -10,7 +10,7 @@ module.exports = controller => {
 
     controller.confs.subaccount.icons = ['fa-key', 'fa-folder-open'];
 
-    const siteTemplate = require('../../templates/icheques-site.md.js');
+    const siteTemplate = require('../../templates/icheques-site.html.js');
     const emailRegex = require('email-regex');
     const installDatabase = require('../../sql/icheques.sql.js');
 

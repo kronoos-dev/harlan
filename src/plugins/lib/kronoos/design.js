@@ -8,7 +8,7 @@ module.exports = controller => {
 
     /* HTML Templates */
     $(controller.confs.container)
-        .append(require('../../templates/kronoos/application.md.js'));
+        .append(require('../../templates/kronoos/application.html.js'));
 
     if (controller.confs.kronoos.isKronoos) {
         /* Document Title and Favicon */
@@ -16,7 +16,7 @@ module.exports = controller => {
         controller.interface.helpers.changeFavicon('/images/kronoos/favicon.png');
         controller.confs.loader.animations = ['animated bounceIn'];
         $(controller.confs.container)
-            .append(require('../../templates/kronoos/site.md.js'));
+            .append(require('../../templates/kronoos/site.html.js'));
 
         require('../../styles/kronoos/site.js');
     }

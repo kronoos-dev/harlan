@@ -1,5 +1,5 @@
 module.exports = controller => {
-    const siteTemplate = require('../../templates/dive-site.md.js');
+    const siteTemplate = require('../../templates/dive-site.html.js');
     const emailRegex = require('email-regex');
 
     require('../../styles/dive.js');
