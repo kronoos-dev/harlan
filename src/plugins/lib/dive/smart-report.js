@@ -88,7 +88,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'SpecialReportRFB\'',
                 'Situação dos Documentos',
                 'Situação dos CPF/CNPJs na Receita Federal.',
-                require('../../markdown/dive/receita-federal.html'),
+                require('../../markdown/dive/receita-federal.html.js'),
                 node => {
                     const statusIdx = $('_id', node).text().split(' ')[0].toLowerCase();
                     const color = colors[rfbStatus[statusIdx]][rfbColors[rfbStatus[statusIdx]]++];
@@ -103,7 +103,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'RiscoReport\'',
                 'Risco de Crédito',
                 'Risco de crédito dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/riscocredito.html'),
+                require('../../markdown/dive/riscocredito.html.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
@@ -114,7 +114,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'PROTESTOS\'',
                 'Protestos em Cartório',
                 'Protestos em cartório dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/protestos.html'),
+                require('../../markdown/dive/protestos.html.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
@@ -125,7 +125,7 @@ module.exports = controller => {
                 'SELECT FROM \'DIVE\'.\'CCF\'',
                 'Cheque sem Fundo',
                 'Cheques sem fundo dos CPF/CNPJs acompanhados.',
-                require('../../markdown/dive/ccf.html'),
+                require('../../markdown/dive/ccf.html.js'),
                 node => new Color(harmonyColors[i++]));
         });
 
