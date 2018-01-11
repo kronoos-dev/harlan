@@ -477,7 +477,7 @@ export class KronoosParse {
                     })));
 
                     execall(/\d{7}(\-)?\d{2}(\.)?\d{4}(\.)?\d(\.)?\d{2}(\.)?\d{4}/g, str).map(r => {
-                        let proc = r.match;kelement.beha
+                        let proc = r.match;
                         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'', this.loader('fa-balance-scale', `Verificando processo ${r.match} para documento ${this.cpf_cnpj}`, {
                             data: {
                                 data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${r.match}'`
@@ -1657,43 +1657,43 @@ export class KronoosParse {
         for (let notationType in informationQA) {
             let pieces = [];
             let notationMessage;
-            let icon = 'exclamation';
+            let icon = "exclamation";
             switch (notationType) {
-            case 'hasNotation':
-                notationMessage = ['possui apontamento', 'possuem apontamentos'];
+            case "hasNotation":
+                notationMessage = ["apresenta registro nos órgãos pesquisados", "apresentam registros nos órgãos pesquisados"];
                 break;
-            case 'hasntNotation':
-                notationMessage = ['não possui apontamento', 'não possuem apontamentos'];
+            case "hasntNotation":
+                notationMessage = ["não apresenta registro nos órgãos pesquisados", "não apresentam registros nos órgãos pesquisados"];
                 break;
             default:
-                notationMessage = ['de apontamento desconhecido e', 'de apontamentos desconhecidos e'];
+                notationMessage = ["de registro desconhecido e", "de registros desconhecidos e"];
             }
             for (let behaviourType in informationQA[notationType]) {
                 let behaviourMessage;
                 switch (behaviourType) {
-                case 'behaviourAccurate':
-                    if (notationType === 'hasntNotation') icon = 'check';
-                    else icon = 'times';
-                    behaviourMessage = [', sem possibilidade da presença de falsos positivos', ', sem possibilidade da presença de falsos positivos'];
+                case "behaviourAccurate":
+                    if (notationType === "hasntNotation") icon = "check";
+                    else icon = "times";
+                    behaviourMessage = ["", ""];
                     break;
-                case 'behaviourUnstructured':
-                    behaviourMessage = ['pendente de verificação por ser desestruturado', 'pendentes de verificação por serem desestruturados'];
+                case "behaviourUnstructured":
+                    behaviourMessage = [" e pode conter dados não estruturados, devendo ser verificado ", " e podem conter dados não estruturados, devendo ser verificados"];
                     break;
-                case 'behaviourUnstructuredHomonym':
-                    behaviourMessage = ['pendente de verificação por ser desestruturado e com presença de possíveis homônimos', 'pendentes de verificação por serem desestruturados e com presença de possíveis homônimos'];
+                case "behaviourUnstructuredHomonym":
+                    behaviourMessage = [" e pode conter homônimos e dados não estruturados, devendo ser verificado", " e podem conter homônimos e dados não estruturados, devendo ser verificados"];
                     break;
-                case 'behaviourHomonym':
-                    behaviourMessage = ['pendente de verificação por presença de possíveis homônimos', 'pendentes de verificação por presença de possíveis homônimos'];
+                case "behaviourHomonym":
+                    behaviourMessage = [" e pode conter homônimos, devendo ser verificado", " e podem conter homônimos, devendo ser verificados"];
                     break;
                 default:
-                    behaviourMessage = ['pendente de verificação', 'pendentes de verificação'];
+                    behaviourMessage = ["pendente de verificação", "pendentes de verificação"];
                 }
 
                 let searchMessage;
                 if (informationQA[notationType][behaviourType] > 1) {
-                    searchMessage = `${informationQA[notationType][behaviourType]} resultados ${notationMessage[1]} ${behaviourMessage[1]}.`;
-                } else {
-                    searchMessage = `1 resultado ${notationMessage[0]} ${behaviourMessage[0]}.`;
+                    searchMessage = `${informationQA[notationType][behaviourType]} resultados encontrados ${notationMessage[1]} ${behaviourMessage[1]}.`;
+                }   else {
+                    searchMessage = `1 resultado encontrado ${notationMessage[0]} ${behaviourMessage[0]}.`;
                 }
                 this.firstElement().stage(icon, searchMessage.replace(/\s+,/, ',')).addClass(`type-${notationType}-${behaviourType}`);
             }
