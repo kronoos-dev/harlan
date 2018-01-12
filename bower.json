@@ -41,7 +41,6 @@
     "chai": "~4.1.2",
     "react": "~16.1.0",
     "jquery-mask-plugin": "~1.14.12",
-    "sql.js": "*",
     "twin-bcrypt": "~2.2.0",
     "jquery.payment": "~3.0.0",
     "pikaday": "~1.6.1",
@@ -54,7 +53,8 @@
     "jquery-ajax-cache": "^2.0.1",
     "jquery-ui": "jquery.ui#^1.12.1",
     "outdated-browser": "^1.1.5",
-    "jszip": "^3.1.4"
+    "jszip": "^3.1.4",
+    "sql.js": "https://github.com/bipbop/sql.js.git"
   },
   "resolutions": {
     "jquery": "~3.2.1",
