@@ -16,11 +16,9 @@ import source from 'vinyl-source-stream';
 import basename from 'basename';
 import readJsonSync from 'read-json-sync';
 
-const appify = (f, opts = {}) => browserify(f, Object.assign(opts, {
-    basedir: '.',
-})).transform('babelify', Object.assign(readJsonSync('.babelrc'), {
-    global: true,
-    babelrc: false
+const appify = (s, browserifyArgs = {}, babelArgs = {}) => browserify(browserifyArgs).transform('babelify', Object.assign(babelArgs, readJsonSync('.babelrc'))).bundle().pipe(source(s)).pipe(buffer()).pipe($.babel({
+    babelrc: false,
+    presets: ['es2015', 'stage-0']
 }));
 
 const $ = gulpLoadPlugins();
@@ -61,19 +59,17 @@ const externalJsSources = [
 
 const ichequesKeystore = 'icheques.keystore';
 
-function i18n(locale) {
-    return gulp.src(`src/js/internals/i18n/${locale}/**/*.json`)
-        .pipe($.messageformat({
-            locale: locale,
-            module: 'commonJS'
-        }))
-        .pipe(gulp.dest('src/js/internals/i18n'))
-        .pipe($.size({title: `>>> i18n-${locale}`}));
-}
+const i18n = (locale) => gulp.src(`src/js/internals/i18n/${locale}/**/*.json`)
+    .pipe($.messageformat({
+        locale: locale,
+        module: 'commonJS'
+    }))
+    .pipe(gulp.dest('src/js/internals/i18n'))
+    .pipe($.size({title: `>>> i18n-${locale}`}));
 
 require('gulp-task-list')(gulp);
 
-gulp.task('assets', ['outdatedbrowser:copy-files'], () => gulp.src([
+gulp.task('assets', () => gulp.src([
     'src/assets/**/*'
 ])
     .pipe(gulp.dest(`${dist}/assets`))
@@ -190,13 +186,6 @@ gulp.task('build:extensions', [
     }));
 });
 
-// Copia os arquivos mobile para a iCheques
-gulp.task('outdatedbrowser:copy-files', [], () => gulp.src([
-    `${vendors}/outdated-browser/outdatedbrowser/lang/**/*.html`,
-])
-    .pipe(gulp.dest(`${dist}/outdatedbrowser/lang`))
-    .pipe($.size({title: '>>> outdatedbrowser:copy-files'})));
-
 gulp.task('build:plugins', [
     'build:plugins:template',
     'build:plugins:markdown',
@@ -207,15 +196,11 @@ gulp.task('build:plugins', [
 
     return merge(files.map((entry) => {
         entry = `./${entry}`;
-        return appify({ entries: entry })
-            .plugin(prepackify)
-            .bundle()
-            .pipe(source(path.basename(entry)))
-            .pipe(buffer())
-            .pipe($.debug({babel: 'unicorn:'}))
+        return appify(path.basename(entry), { entries: entry })
             .pipe($.if('kronoos.js', $.addSrc(`${vendors}/html-docx-js/dist/html-docx.js`)))
             .pipe($.uglify())
             .pipe(gulp.dest(`${dist}/js`))
+            .pipe($.stripDebug())
             .pipe($.size({title: '>>> build:plugins'}));
     }));
 });
@@ -225,10 +210,7 @@ gulp.task('deploy', () => gulp.src(`${dist}/**/*`)
     .pipe($.size({title: 'deploy'})));
 
 // Compila os testes da aplicação
-gulp.task('build:tests', () => appify({ entries: `${src}/js/tests/index.js` })
-    .bundle()
-    .pipe(source('index.js'))
-    .pipe(buffer())
+gulp.task('build:tests', () => appify('index.js', { entries: `${src}/js/tests/index.js` })
     .pipe($.addSrc(externalJsSources.concat([
         `${vendors}/chai/chai.js`,
         `${vendors}/mocha/mocha.js`
@@ -237,22 +219,14 @@ gulp.task('build:tests', () => appify({ entries: `${src}/js/tests/index.js` })
     .pipe(gulp.dest('test/spec')));
 
 // Monta o desempacotador da aplicação
-gulp.task('inflate', () => appify({ entries: `${src}/js/app-inflate.js` })
-    .plugin(prepackify)
-    .bundle()
-    .pipe(source('app-inflate.js'))
-    .pipe(buffer())
+gulp.task('inflate', () => appify('app-inflate.js', { entries: `${src}/js/app-inflate.js` })
     .pipe($.uglify())
     .pipe($.concat('app-inflate.js'))
     .pipe(gulp.dest(`${dist}/js`))
     .pipe($.size({title: '>>> inflate'})));
 
 // Monta o Worker-Service do Chrome
-gulp.task('service-worker', () => appify({ entries: `${src}/js/service-worker.js` })
-    .plugin(prepackify)
-    .bundle()
-    .pipe(source('service-worker.js'))
-    .pipe(buffer())
+gulp.task('service-worker', () => appify('service-worker.js', { entries: `${src}/js/service-worker.js` })
     .pipe($.uglify())
     .pipe($.concat('service-worker.js'))
     .pipe(gulp.dest(dist))
@@ -261,11 +235,7 @@ gulp.task('service-worker', () => appify({ entries: `${src}/js/service-worker.js
 gulp.task('build:installer', ['build:installer:client', 'build:installer:main']);
 
 // Cria o loader da aplicação Harlan
-gulp.task('build:installer:client', ['build:application'], () => appify({ entries: `${src}/js/app-client-installer.js` })
-    .plugin(prepackify)
-    .bundle()
-    .pipe(source('app-client-installer.js'))
-    .pipe(buffer())
+gulp.task('build:installer:client', ['build:application'], () => appify('app-client-installer.js', { entries: `${src}/js/app-client-installer.js` })
     .pipe($.uglify())
     .pipe($.concat('app-client-installer.js'))
     .pipe($.preprocess({context: {
@@ -277,11 +247,7 @@ gulp.task('build:installer:client', ['build:application'], () => appify({ entrie
     .pipe($.size({title: '>>> build:installer'})));
 
 // Cria o loader da aplicação Harlan
-gulp.task('build:installer:main', ['build:application'], () => appify({ entries: `${src}/js/app-installer.js` })
-    .plugin(prepackify)
-    .bundle()
-    .pipe(source('app-installer.js'))
-    .pipe(buffer())
+gulp.task('build:installer:main', ['build:application'], () => appify('app-installer.js', { entries: `${src}/js/app-installer.js` })
     .pipe($.uglify())
     .pipe($.concat('app-installer.js'))
     .pipe($.preprocess({context: {
@@ -297,37 +263,33 @@ gulp.task('build:cordova', ['build:app:icheques']);
 
 gulp.task('build:application:main:deps', [], () => gulp.src(externalJsSources)
     .pipe($.ignore.exclude(fs.existsSync(`${dist}/js/deps.js`)))
-    .pipe($.babel({
-        babelrc: false,
-        presets: ['es2015']
-    }))
-    // .pipe($.prepack())
+    // .pipe($.babel({
+    //     babelrc: false,
+    //     presets: ['es2015', 'stage-0']
+    // }))
+    .pipe(gulp.dest(`${dist}/js/deop`))
     .pipe($.uglify())
     .pipe($.addSrc([`${vendors}/sql.js/js/sql.js`]))
+    .pipe($.size({title: '>>> build:plugins'}))
     .pipe($.concat('deps.js'))
-    .pipe(gulp.dest(`${dist}/js`)));
+    .pipe(gulp.dest(`${dist}/js/deop`))
+    .pipe($.size({title: '>>> build:plugins:all'})))
 
 // Compila a aplicação Harlan
-gulp.task('build:application:main', ['i18n', 'build:application:main:deps'], () => appify({ entries: `${src}/js/app.js` })
-    .bundle()
-    .pipe(source('app.js'))
-    .pipe(buffer())
+gulp.task('build:application:main', ['i18n', 'build:application:main:deps'], () => appify('app.js', { entries: `${src}/js/app.js` })
     .pipe($.preprocess(PREPROCESSOR_CONTEXT))
     .pipe(gulp.dest(`${dist}/js/deop/`))
     .pipe($.uglify())
-    .pipe(gulp.dest(`${dist}/js`))
-    .pipe($.addSrc(`${dist}/js/deps.js`))
+    .pipe($.addSrc(`${dist}/js/deop/deps.js`))
     .pipe($.concat('app.js'))
+    .pipe(gulp.dest(`${dist}/js`))
+    .pipe($.stripDebug())
     .pipe($.pako.gzip())
     .pipe(gulp.dest(`${dist}/js`))
     .pipe($.size({title: '>>> build:application'})));
 
 // Compila a aplicação Harlan
-gulp.task('build:application:client', ['i18n'], () => appify({ entries: `${src}/js/app-client.js` })
-    // .plugin(prepackify)
-    .bundle()
-    .pipe(source('app-client.js'))
-    .pipe(buffer())
+gulp.task('build:application:client', ['i18n'], () => appify('app-client.js', { entries: `${src}/js/app-client.js` })
     .pipe($.preprocess(PREPROCESSOR_CONTEXT))
     .pipe($.uglify())
     .pipe($.concat('app-client.js'))
@@ -438,7 +400,7 @@ gulp.task('build', cb => {
     ];
 
     return runSequence('clean', 'build:images',
-        ['build:plugins', 'build:installer', 'build:tests'],
+        ['build:plugins', 'build:installer'],
         leaves,
         cb
     );
@@ -466,7 +428,6 @@ gulp.task('watch', () => {
     ], () => runSequence('build:installer', reload));
     gulp.watch('src/js/app-inflate.js', () => runSequence('inflate', reload));
     gulp.watch('src/js/app-installer.js', () => runSequence('build:installer', reload));
-    gulp.watch('src/js/tests/**/*.js', () => runSequence('build:tests', reload));
     gulp.watch(['src/**/*.html', 'src/**/*.tpl'], () => runSequence('html', 'templates', reload));
     gulp.watch([
         'src/plugins/styles/**/*.{css,scss}',
