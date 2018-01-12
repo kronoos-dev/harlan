@@ -16,7 +16,9 @@ module.exports = controller => {
         if (conf.statusElement)
             searchBarContainer.append(conf.statusElement.addClass('processing'));
 
-        let jqXHR = Promise.resolve()
+        let jqXHR = task.parser.controller.server.call(target, controller.call('error::ajax', conf, false), ...args);
+        Promise.resolve()
+            .then(() => jqXHR)
             .then(() => task.parser.controller.server.call(target, controller.call('error::ajax', conf, false), ...args))
             .catch(e => {
                 if (!(e instanceof Error)) return;
