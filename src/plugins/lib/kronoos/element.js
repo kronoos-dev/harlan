@@ -23,9 +23,7 @@ const KronoosElement = function(title, subtitle, sidenote) {
     container.append(content.append(element.append(sideContent)));
     container.data('instance', this);
 
-    const label = label => {
-        return $('<label />').append(label);
-    };
+    const label = label => $('<label />').append(label);
 
     this.negativeCertificateStatus = (icon, message) => {
         if (!negativeCertificates) {
@@ -202,17 +200,11 @@ const KronoosElement = function(title, subtitle, sidenote) {
         return this;
     };
 
-    this.table = (...header) => {
-        return this.captionTable(null, ...header);
-    };
+    this.table = (...header) => this.captionTable(null, ...header);
 
-    this.captionTable = (caption, ...header) => {
-        return this.elementCaptionTable(null, caption, ...header);
-    };
+    this.captionTable = (caption, ...header) => this.elementCaptionTable(null, caption, ...header);
 
-    this.elementTable = (appendTo, ...header) => {
-        return this.elementCaptionTable(appendTo, null, ...header);
-    };
+    this.elementTable = (appendTo, ...header) => this.elementCaptionTable(appendTo, null, ...header);
 
     this.elementCaptionTable = (appendTo, caption, ...header) => {
         const table = $('<table />').addClass('multi-label');
@@ -359,9 +351,7 @@ const KronoosElement = function(title, subtitle, sidenote) {
         return this;
     };
 
-    this.element = () => {
-        return container;
-    };
+    this.element = () => container;
 
     this.aggregate = callback => {
         aggregate = callback;

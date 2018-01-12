@@ -12,7 +12,6 @@ import pad from 'pad';
 import bankCodes from './bank-codes';
 import VMasker from 'vanilla-masker';
 import uniqid from 'uniqid';
-import htmlDocx from 'html-docx-js';
 import saveAs from 'save-as';
 import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
@@ -430,9 +429,7 @@ export class KronoosParse {
             ['trf3', 'SELECT FROM \'CERTIDOES\'.\'TRF03\'', 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ['trf3-ms', 'SELECT FROM \'CERTIDOES\'.\'TRF03\' WHERE \'ABRANGENCIA\' = \'3\'', 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
             ['trf3-sp', 'SELECT FROM \'CERTIDOES\'.\'TRF03\' WHERE \'ABRANGENCIA\' = \'2\'', 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
-            ['trt15', 'SELECT FROM \'CERTIDOES\'.\'TRT15\'', 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => {
-                return !/não\s+existe\s+ação/i.test(str);
-            }],
+            ['trt15', 'SELECT FROM \'CERTIDOES\'.\'TRT15\'', 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => !/não\s+existe\s+ação/i.test(str)],
             ['trt02', 'SELECT FROM \'CERTIDOES\'.\'TRT02\'', 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', str => !/NÃO CONSTA/i.test(str)]
         ];
 
@@ -477,7 +474,7 @@ export class KronoosParse {
                     })));
 
                     execall(/\d{7}(\-)?\d{2}(\.)?\d{4}(\.)?\d(\.)?\d{2}(\.)?\d{4}/g, str).map(r => {
-                        let proc = r.match;kelement.beha
+                        let proc = r.match;kelement.beha;
                         this.serverCall('SELECT FROM \'KRONOOSJURISTEK\'.\'DATA\'', this.loader('fa-balance-scale', `Verificando processo ${r.match} para documento ${this.cpf_cnpj}`, {
                             data: {
                                 data: `SELECT FROM 'CNJ'.'PROCESSO' WHERE 'PROCESSO' = '${r.match}'`

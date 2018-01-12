@@ -1,1 +1,0 @@
-O Serviço de Proteção ao Crédito ou Bureau de Crédito é um serviço de informações de crédito, que utiliza informações de adimplência e inadimplência de pessoas físicas ou jurídicas para fins de decisão sobre crédito.

@@ -54,9 +54,7 @@ module.exports = controller => {
                         skip: apiKeys.length
                     }, filter),
                     success: data => {
-                        apiKeys = apiKeys.concat($('apiKey', data).map((i, v) => {
-                            return $(v).text();
-                        }).toArray());
+                        apiKeys = apiKeys.concat($('apiKey', data).map((i, v) => $(v).text()).toArray());
                         total = parseInt($('body count', data).text());
                     },
                     complete: () => callback()

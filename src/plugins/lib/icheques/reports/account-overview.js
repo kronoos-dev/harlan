@@ -43,9 +43,7 @@ var parseDate = (val, format) => {
     return d.isValid() ? d.format(format) : null;
 };
 
-var parseValue = val => {
-    return /^\s*$/.test(val) ? null : numeral(val)._value;
-};
+var parseValue = val => /^\s*$/.test(val) ? null : numeral(val)._value;
 
 var AccountOverview = function(closeable) {
     var report = controller.call('report',
@@ -122,9 +120,7 @@ var AccountOverview = function(closeable) {
 
         var situations = _.pluck(generateDataset(squel.expr()), 'situation');
 
-        situations = _.filter(situations, situation => {
-            return !AVOID_FILTER.test(situation);
-        });
+        situations = _.filter(situations, situation => !AVOID_FILTER.test(situation));
 
         var keys = _.map(situations, obj => {
             if (/Cheque enviado/i.test(obj))
@@ -412,11 +408,9 @@ var AccountOverview = function(closeable) {
      */
     var reduceDataset = data => {
 
-        var sum = _.reduce(data, (a, b) => {
-            return {
-                value: a.value + b.value
-            };
-        });
+        var sum = _.reduce(data, (a, b) => ({
+            value: a.value + b.value
+        }));
 
         sum = sum && sum.value ? sum.value : 0;
 
@@ -427,16 +421,14 @@ var AccountOverview = function(closeable) {
                 return 0;
             }
             return idx++;
-        })), value => {
-            return _.reduce(value, (a, b) => {
-                a.value += b.value;
-                a.color = '#93A7D8';
-                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
-                a.ammount = (a.ammount || 0) + (b.ammount || 0);
-                a.label = 'Outros' + (a.ammount ? ' ' + numeral(a.ammount / 100.0).format('$0,0.00') : '');
-                return a;
-            });
-        });
+        })), value => _.reduce(value, (a, b) => {
+            a.value += b.value;
+            a.color = '#93A7D8';
+            a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+            a.ammount = (a.ammount || 0) + (b.ammount || 0);
+            a.label = 'Outros' + (a.ammount ? ' ' + numeral(a.ammount / 100.0).format('$0,0.00') : '');
+            return a;
+        }));
 
     };
 
@@ -604,9 +596,7 @@ var AccountOverview = function(closeable) {
         return false;
     };
 
-    this.element = () => {
-        return report.element();
-    };
+    this.element = () => report.element();
 
     var draw = () => {
         this.draw(false);

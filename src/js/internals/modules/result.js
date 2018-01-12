@@ -1,6 +1,5 @@
 import assert from 'assert';
 import _ from 'underscore';
-import vis from 'vis';
 
 const IS_EMPTY = /^\s*$/;
 
@@ -161,20 +160,14 @@ module.exports = controller =>  {
             return [network, elem];
         };
 
-        this.content = () =>  {
-            return content;
-        };
+        this.content = () =>  content;
 
-        this.element = () =>  {
-            return result;
-        };
+        this.element = () =>  result;
 
         return this;
     };
 
-    controller.registerCall('result', () =>  {
-        return new Result();
-    });
+    controller.registerCall('result', () =>  new Result());
 
     controller.registerCall('result::import', result =>  {
         assert.ok(result.hasClass('result'));

@@ -128,13 +128,11 @@ module.exports = controller => {
             return !booleanExpiration;
         });
 
-        checks = _.filter(checks, ({situation}) => {
-            return situation === 'Cheque sem ocorrências' ||
+        checks = _.filter(checks, ({situation}) => situation === 'Cheque sem ocorrências' ||
                 situation === 'Cheque com outras ocorrências' ||
                 situation === 'Instituição bancária não monitorada' ||
                 situation === 'O talão do cheque está bloqueado' ||
-                !situation;
-        });
+                !situation);
 
         if (expired.length) {
             toastr.warning('Alguns cheques da sua carteira estão vencidos.', 'Cheques vencidos não podem ser antecipados, caso queira extender o vencimento em 30 dias utilize os filtros de cheques.');
@@ -152,9 +150,7 @@ module.exports = controller => {
         checks = _.sortBy(checks, 'number');
 
         controller.call('billingInformation::need', () => {
-            const noAmmountChecks = _.filter(checks, ({ammount}) => {
-                return !ammount;
-            });
+            const noAmmountChecks = _.filter(checks, ({ammount}) => !ammount);
 
             if (noAmmountChecks.length) {
                 controller.call('confirm', {
@@ -176,16 +172,12 @@ module.exports = controller => {
                     q.push(noAmmountChecks, err => {
                         if (err == 'stop') {
                             q.kill();
-                            controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => {
-                                return ammount > 0;
-                            }));
+                            controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => ammount > 0));
                         }
                     });
 
                     q.drain = () => {
-                        controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => {
-                            return ammount > 0;
-                        }));
+                        controller.call('icheques::antecipate', _.filter(checks, ({ammount}) => ammount > 0));
                     };
 
                 });
@@ -222,9 +214,7 @@ module.exports = controller => {
             text = undefined;
         }
 
-        const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
-            return memo + num;
-        });
+        const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => memo + num);
         if (totalAmmount) {
             $(checksSum).text(numeral(totalAmmount / 100.0).format('$0,0.00'));
         } else {
@@ -278,22 +268,14 @@ module.exports = controller => {
         let blockedBead = [];
         let processingOnes = [];
 
-        otherOccurrences = _.filter(checks, ({situation}) => {
-            return situation === 'Cheque com outras ocorrências' ||
-                situation === 'Instituição bancária não monitorada';
-        });
+        otherOccurrences = _.filter(checks, ({situation}) => situation === 'Cheque com outras ocorrências' ||
+                situation === 'Instituição bancária não monitorada');
 
-        blockedBead = _.filter(checks, ({situation}) => {
-            return situation === 'O talão do cheque está bloqueado';
-        });
+        blockedBead = _.filter(checks, ({situation}) => situation === 'O talão do cheque está bloqueado');
 
-        processingOnes = _.filter(checks, ({situation}) => {
-            return !situation;
-        });
+        processingOnes = _.filter(checks, ({situation}) => !situation);
 
-        checks = goodChecks = _.filter(checks, ({situation}) => {
-            return situation === 'Cheque sem ocorrências';
-        });
+        checks = goodChecks = _.filter(checks, ({situation}) => situation === 'Cheque sem ocorrências');
 
         let list = form.createList();
         let fieldOtherOccurrences = form.addCheckbox('other-occurrences', 'Exibir cheques com outras ocorrências');
@@ -348,9 +330,7 @@ module.exports = controller => {
         form.element().submit(e => {
             e.preventDefault();
 
-            const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => {
-                return memo + num;
-            });
+            const totalAmmount = _.reduce(_.pluck(checks, 'ammount'), (memo, num) => memo + num);
 
             if (checks.length || totalAmmount <= 0) {
                 controller.call('icheques::antecipate::show', data, checks, profile);
@@ -448,16 +428,13 @@ module.exports = controller => {
                 return;
             }
 
-            banks = _.sortBy(_.filter(banks.toArray(), element => {
-
-                return calculateDistance({
-                    lat: geoposition.coords.latitude,
-                    lon: geoposition.coords.longitude
-                }, {
-                    lat: parseLocation(element, 'geocode > geometry > location > lat'),
-                    lon: parseLocation(element, 'geocode > geometry > location > lng')
-                }) <= 200000;
-            }), element => calculateDistance({
+            banks = _.sortBy(_.filter(banks.toArray(), element => calculateDistance({
+                lat: geoposition.coords.latitude,
+                lon: geoposition.coords.longitude
+            }, {
+                lat: parseLocation(element, 'geocode > geometry > location > lat'),
+                lon: parseLocation(element, 'geocode > geometry > location > lng')
+            }) <= 200000), element => calculateDistance({
                 lat: geoposition.coords.latitude,
                 lon: geoposition.coords.longitude
             }, {
@@ -533,9 +510,7 @@ module.exports = controller => {
     const companyData = (paragraph, element) => {
         const phones = $('<ul />').addClass('phones');
         $('company > telefone > node', element).each((idx, node) => {
-            const get = idx => {
-                return $(`node:eq(${idx.toString()})`, node).text();
-            };
+            const get = idx => $(`node:eq(${idx.toString()})`, node).text();
 
             const phoneNumber = `Telefone: (${get(0)}) ${get(1)}${get(2).length ? `#${get(2)}` : ''} - ${titleCase(get(4))}`;
             phones.append($('<li />').text(phoneNumber));
@@ -547,9 +522,7 @@ module.exports = controller => {
             emails.append($('<li />').text(emailAddress));
         });
 
-        const get = idx => {
-            return $(`endereco node:eq(${idx.toString()})`, element).text();
-        };
+        const get = idx => $(`endereco node:eq(${idx.toString()})`, element).text();
 
         const address = `${get(0)} ${get(1)} ${get(2)} ${get(3)} - ${get(5)} ${get(4)} ${get(6)} `;
 

@@ -49,11 +49,9 @@ module.exports = controller => {
         callback();
     });
 
-    controller.registerCall('icheques::resultClick', result => {
-        return e => {
-            e.preventDefault();
-            controller.call('icheques::show', [result], null, null, true);
-        };
+    controller.registerCall('icheques::resultClick', result => e => {
+        e.preventDefault();
+        controller.call('icheques::show', [result], null, null, true);
     });
 
     controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::cmc7', (args, callback) => {

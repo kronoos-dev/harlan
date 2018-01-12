@@ -217,12 +217,10 @@ module.exports = controller => {
         };
 
         this.readValues = callback => {
-            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => {
-                return [
-                    camelCase(input.name),
-                    getValue(input, configuration)
-                ];
-            }));
+            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => [
+                camelCase(input.name),
+                getValue(input, configuration)
+            ]));
 
             if (callback) {
                 async.each(results, (v, cb) => {

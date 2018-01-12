@@ -114,27 +114,21 @@ module.exports = controller => {
                         optional: true,
                         type: 'text',
                         placeholder: 'E-mail',
-                        validate: ({element}) => {
-                            return emailRegex().test(element.val());
-                        }
+                        validate: ({element}) => emailRegex().test(element.val())
                     } ,{
                         name: 'phone',
                         optional: true,
                         type: 'text',
                         mask: '(00) 0000-00009',
                         placeholder: 'Telefone de Contato',
-                        validate: ({element}) => {
-                            return PHONE_REGEX.test(element.val());
-                        }
+                        validate: ({element}) => PHONE_REGEX.test(element.val())
                     },{
                         name: 'cellphone',
                         optional: true,
                         type: 'text',
                         mask: '(00) 0000-00009',
                         placeholder: 'Celular de Contato',
-                        validate: ({element}) => {
-                            return PHONE_REGEX.test(element.val());
-                        }
+                        validate: ({element}) => PHONE_REGEX.test(element.val())
                     },
                     {
                         name: 'region',

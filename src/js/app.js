@@ -1,7 +1,4 @@
 import 'extend-error';
-import 'babel-polyfill';
-import 'es6-shim';
-import 'dom4';
 import './internals/library/safari-hacks';
 
 import Interface from './internals/library/interface';

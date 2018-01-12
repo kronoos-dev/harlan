@@ -101,21 +101,15 @@ module.exports = controller =>  {
             return wizard;
         };
 
-        this.createForm = () =>  {
-            return new Form(this, controller);
-        };
+        this.createForm = () =>  new Form(this, controller);
 
         this.fullscreen = () => {
             modalContainer.addClass('fullscreen');
         };
 
-        this.element = () =>  {
-            return modal;
-        };
+        this.element = () =>  modal;
 
-        this.modal = () =>  {
-            return modalContainer;
-        };
+        this.modal = () =>  modalContainer;
 
         this.onClose = null;
 
@@ -156,8 +150,6 @@ module.exports = controller =>  {
         return this;
     };
 
-    controller.registerCall('modal', controller.modal = () =>  {
-        return new Modal();
-    });
+    controller.registerCall('modal', controller.modal = () =>  new Modal());
 
 };

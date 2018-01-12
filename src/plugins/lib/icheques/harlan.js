@@ -1,6 +1,6 @@
 /* global toastr, require, module, numeral, moment */
 import async from 'async';
-
+import humanInterval from 'human-interval';
 import StringMask from 'string-mask';
 import _ from 'underscore';
 import squel from 'squel';
@@ -645,6 +645,7 @@ module.exports = controller => {
 
         let queryTry = (callback, query, data = {}) => controller.server.call(query, {
             cache: true,
+            timeout: humanInterval('15 seconds'),
             data: Object.assign({
                 documento: task[0]
             }, data),

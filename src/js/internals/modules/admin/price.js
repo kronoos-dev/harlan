@@ -24,7 +24,7 @@ function drawList(list, d, skip, {next, back}, text, pagination, observation) {
 
     list.empty();
     for (const item of b) {
-        list.add('fa-item', [item.name, numeral(item.price/100.).format('$ 0,0.00'), item.key]).click(controller.call("price::update"));
+        list.add('fa-item', [item.name, numeral(item.price/100.).format('$ 0,0.00'), item.key]).click(controller.call('price::update'));
     }
 
     back[skip <= 0 ? 'hide' :  'show']();

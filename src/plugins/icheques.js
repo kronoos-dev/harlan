@@ -26,13 +26,11 @@ harlan.addPlugin(controller => {
         moreMonths: 30
     });
 
-    controller.registerCall('admin::contactTypes', () => {
-        return {
-            financeiro: 'Ambos',
-            comercial: 'Operações',
-            tecnico: 'Ocorrências'
-        };
-    });
+    controller.registerCall('admin::contactTypes', () => ({
+        financeiro: 'Ambos',
+        comercial: 'Operações',
+        tecnico: 'Ocorrências'
+    }));
 
     require('./lib/icheques/reference')(controller);
     require('./lib/icheques/welcome')(controller);

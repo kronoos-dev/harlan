@@ -22,9 +22,7 @@ module.exports = function() {
      * List all possible calls
      * @returns {Array}
      */
-    this.listCalls = () => {
-        return Object.keys(calls);
-    };
+    this.listCalls = () => Object.keys(calls);
 
     this.query = url.parse(window.location.href, true).query;
 

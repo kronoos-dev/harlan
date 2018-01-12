@@ -84,15 +84,11 @@ const MoreResults = function (maxItems) {
         return this;
     };
 
-    this.element = () =>  {
-        return footer;
-    };
+    this.element = () =>  footer;
 
     return this;
 };
 
 module.exports = controller => {
-    controller.registerCall('moreResults', (maxItems) =>  {
-        return new MoreResults(maxItems);
-    });
+    controller.registerCall('moreResults', (maxItems) =>  new MoreResults(maxItems));
 };

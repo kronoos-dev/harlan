@@ -82,18 +82,16 @@ module.exports = controller => {
     });
 
     controller.registerCall('admin::report::download', (ajaxQuery, labels) => {
-        let download = report => {
-            return e => {
-                e.preventDefault();
-                window.location.assign(buildURL(bipbop.webserviceAddress, {
-                    queryParams: Object.assign({}, ajaxQuery, {
-                        q: controller.endpoint.adminReport,
-                        download: 'true',
-                        apiKey: controller.server.apiKey(),
-                        report
-                    })
-                }));
-            };
+        let download = report => e => {
+            e.preventDefault();
+            window.location.assign(buildURL(bipbop.webserviceAddress, {
+                queryParams: Object.assign({}, ajaxQuery, {
+                    q: controller.endpoint.adminReport,
+                    download: 'true',
+                    apiKey: controller.server.apiKey(),
+                    report
+                })
+            }));
         };
 
         let modal = controller.call('modal');

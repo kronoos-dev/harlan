@@ -8,9 +8,7 @@ module.exports = controller =>  {
 
     let companyCredits = 0;
 
-    controller.registerCall('credits::get', () => {
-        return companyCredits;
-    });
+    controller.registerCall('credits::get', () => companyCredits);
 
     const defaultChargeCallback = (ret, callback) =>  {
         const modal = controller.call('modal');
@@ -198,12 +196,10 @@ module.exports = controller =>  {
                 const form = modal.createForm();
                 const list = form.createList();
 
-                const charge = value =>  {
-                    return e =>  {
-                        e.preventDefault();
-                        modal.close();
-                        controller.call('credits::charge', value, null, null, callback);
-                    };
+                const charge = value =>  e =>  {
+                    e.preventDefault();
+                    modal.close();
+                    controller.call('credits::charge', value, null, null, callback);
                 };
 
                 if (minValue < 2500) {
