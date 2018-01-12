@@ -24,12 +24,6 @@ module.exports = {
             'jane.bipbop.com.br'
         ]
     },
-    dive: {
-        hosts: [
-            'dive',
-            'dive.harlan.com.br'
-        ]
-    },
     icheques: {
         hosts: [
             'icheques',
