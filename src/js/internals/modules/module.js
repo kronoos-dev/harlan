@@ -14,7 +14,7 @@ module.exports = controller => {
             document.getElementsByTagName('head')[0].appendChild(script);
             return script;
         } catch (e) {
-            console.error(e);
+            /* pass */
         }
     };
 
