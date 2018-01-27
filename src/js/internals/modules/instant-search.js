@@ -1,5 +1,3 @@
-/* global module */
-
 module.exports = controller => {
 
     controller.registerCall('instantSearch', (input, callback, autocomplete = controller.call('autocomplete', input)) => {
