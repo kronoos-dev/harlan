@@ -9,7 +9,6 @@ module.exports = controller => {
             i18nAttr += `-${attribute}`;
         }
 
-        console.log(`I18n::${i18nAttr}`);
         $(domDocument).find(`*[${i18nAttr}]`).each((idx, node) => {
             const jnode = $(node);
             const components = jnode.attr(i18nAttr).split('.');
