@@ -11,6 +11,9 @@
       'flowtype'
     ],
     'globals': {
+        'Iugu': true,
+        'TwinBcrypt': true,
+        'htmlDocx': true,
         'jDataView': true,
          'moment': true,
          '$': true,
@@ -46,7 +49,6 @@
         'arrow-body-style': [2, 'as-needed'],
         'quote-props': [2, 'as-needed'],
         'no-multiple-empty-lines': [2, {"max": 1, "maxBOF": 0}],
-        'no-console': 0,
         'no-useless-escape': 0,
         'no-unused-vars': 0,
         'indent': [
