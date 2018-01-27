@@ -1,5 +1,3 @@
-/* global module */
-
 import _ from 'underscore';
 import sprintf from 'sprintf';
 import {
@@ -10,99 +8,99 @@ import Promise from 'bluebird';
 
 const LIMIT_RESULTS = 10;
 
-function drawList(list, d, skip, {next, back}, text, pagination, observation) {
-    let data = d;
-
-    if (text) {
-        data = data.filter(x => (x.name, text) > 0.85);
-    }
-
-    observation.text(`Foram localizados ${numeral(data.length).format('000.000.000.000.000,00')} resultados.`);
-    pagination.text(`Página ${(skip / LIMIT_RESULTS) + 1} de  ${(data.length / LIMIT_RESULTS) + 1}.`);
-
-    const b = data.slice(skip, skip + LIMIT_RESULTS).click();
-
-    list.empty();
-    for (const item of b) {
-        list.add('fa-item', [item.name, numeral(item.price/100.).format('$ 0,0.00'), item.key]).click(controller.call('price::update'));
-    }
-
-    back[skip <= 0 ? 'hide' :  'show']();
-    next[skip + LIMIT_RESULTS >= data.length ? 'hide' :  'show']();
-
-    return data;
-}
-
-const formDescription = {
-    title: 'Configuração de Preços',
-    subtitle: 'Preencha os campos abaixo para configurar um preço no sistema.',
-    paragraph: 'Os preços configurados entram em operação imediatamente.',
-    gamification: 'star',
-    screens: [{
-        magicLabel: true,
-
-        fields: [
-            [{
-                name: 'name',
-                type: 'text',
-                placeholder: 'Nome da Bilhetagem',
-                labelText: 'Nome da Bilhetagem',
-                optional: false
-            }, {
-                name: 'key',
-                type: 'text',
-                placeholder: 'chave.de.bilhetagem',
-                labelText: 'Chave de Bilhetagem',
-                optional: false
-            }],
-            {
-                name: 'description',
-                type: 'textarea',
-                placeholder: 'Descrição da Consulta (Markdown)',
-                optional: false,
-                labelText: 'Descrição'
-            },
-            [{
-                name: 'persist',
-                optional: false,
-                type: 'select',
-                placeholder: 'Estado',
-                list: {
-                    '': 'Sem intervalo',
-                    d: 'Diária',
-                    m: 'Semanal',
-                    w: 'Mensal',
-                    y: 'Anual',
-                }
-            }, {
-                name: 'price',
-                type: 'text',
-                placeholder: 'Valor (R$)',
-                labelText: 'Valor (R$)',
-                mask: '000.000.000.000.000,00',
-                maskOptions: {
-                    reverse: true
-                },
-                numeral: true
-            }],
-            [{
-                name: 'username',
-                type: 'text',
-                placeholder: 'Usuário (opcional)',
-                optional: true,
-                labelText: 'Usuário'
-            }, {
-                name: 'priceTable',
-                type: 'text',
-                placeholder: 'Grupo de Preço (opcional)',
-                labelText: 'Grupo de Preço (opcional)',
-                optional: true
-            }],
-        ]
-    }]
-};
-
 module.exports = controller => {
+
+    function drawList(list, d, skip, {next, back}, text, pagination, observation) {
+        let data = d;
+
+        if (text) {
+            data = data.filter(x => (x.name, text) > 0.85);
+        }
+
+        observation.text(`Foram localizados ${numeral(data.length).format('000.000.000.000.000,00')} resultados.`);
+        pagination.text(`Página ${(skip / LIMIT_RESULTS) + 1} de  ${(data.length / LIMIT_RESULTS) + 1}.`);
+
+        const b = data.slice(skip, skip + LIMIT_RESULTS).click();
+
+        list.empty();
+        for (const item of b) {
+            list.add('fa-item', [item.name, numeral(item.price/100.).format('$ 0,0.00'), item.key]).click(controller.call('price::update'));
+        }
+
+        back[skip <= 0 ? 'hide' :  'show']();
+        next[skip + LIMIT_RESULTS >= data.length ? 'hide' :  'show']();
+
+        return data;
+    }
+
+    const formDescription = {
+        title: 'Configuração de Preços',
+        subtitle: 'Preencha os campos abaixo para configurar um preço no sistema.',
+        paragraph: 'Os preços configurados entram em operação imediatamente.',
+        gamification: 'star',
+        screens: [{
+            magicLabel: true,
+
+            fields: [
+                [{
+                    name: 'name',
+                    type: 'text',
+                    placeholder: 'Nome da Bilhetagem',
+                    labelText: 'Nome da Bilhetagem',
+                    optional: false
+                }, {
+                    name: 'key',
+                    type: 'text',
+                    placeholder: 'chave.de.bilhetagem',
+                    labelText: 'Chave de Bilhetagem',
+                    optional: false
+                }],
+                {
+                    name: 'description',
+                    type: 'textarea',
+                    placeholder: 'Descrição da Consulta (Markdown)',
+                    optional: false,
+                    labelText: 'Descrição'
+                },
+                [{
+                    name: 'persist',
+                    optional: false,
+                    type: 'select',
+                    placeholder: 'Estado',
+                    list: {
+                        '': 'Sem intervalo',
+                        d: 'Diária',
+                        m: 'Semanal',
+                        w: 'Mensal',
+                        y: 'Anual',
+                    }
+                }, {
+                    name: 'price',
+                    type: 'text',
+                    placeholder: 'Valor (R$)',
+                    labelText: 'Valor (R$)',
+                    mask: '000.000.000.000.000,00',
+                    maskOptions: {
+                        reverse: true
+                    },
+                    numeral: true
+                }],
+                [{
+                    name: 'username',
+                    type: 'text',
+                    placeholder: 'Usuário (opcional)',
+                    optional: true,
+                    labelText: 'Usuário'
+                }, {
+                    name: 'priceTable',
+                    type: 'text',
+                    placeholder: 'Grupo de Preço (opcional)',
+                    labelText: 'Grupo de Preço (opcional)',
+                    optional: true
+                }],
+            ]
+        }]
+    };
 
     const register = data => controller.server.call('INSERT INTO \'PRICETABLE\'.\'PRODUCT\'', controller.call('error::ajax', {
         dataType: 'json',
