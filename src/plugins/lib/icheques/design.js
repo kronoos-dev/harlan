@@ -1,5 +1,3 @@
-/* global module */
-
 import animate from './animation.js';
 
 let loaderRegister = 0;
