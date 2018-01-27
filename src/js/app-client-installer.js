@@ -14,7 +14,6 @@ import ClientLoader from './internals/library/client-loader';
     let decompressedSize = 0;
 
     let updateInterfaceProgress = () => {
-        console.log(`${Math.floor(((downloadedSize + decompressedSize) / totalSize) * 100).toString()}% Downloaded`);
     };
 
     domReady(() => {
