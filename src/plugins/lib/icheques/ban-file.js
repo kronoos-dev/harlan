@@ -1,4 +1,3 @@
-/* global toastr, moment, ammount */
 import fileReaderStream from 'filereader-stream';
 
 import {CPF} from 'cpf_cnpj';
