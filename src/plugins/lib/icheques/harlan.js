@@ -291,7 +291,7 @@ module.exports = controller => {
                     Promise.resolve()
                         .then(() => promiseWorker.postMessage(ret))
                         .tap(storage => {
-                            continueLoop = storage.length < QUERY_LIMIT;
+                            continueLoop = storage.length >= QUERY_LIMIT;
                         })
                         .then(storage => controller.call('icheques::insertDatabase', storage))
                         .then(() => cb())
