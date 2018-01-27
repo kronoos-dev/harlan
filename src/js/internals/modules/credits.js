@@ -1,5 +1,3 @@
-/* global numeral */
-
 import sprintf from 'sprintf';
 
 import escaper from 'true-html-escape';
