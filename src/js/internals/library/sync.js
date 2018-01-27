@@ -52,7 +52,6 @@ export default class Sync {
     queueLength(cb) {
         localForage.getItem('syncTasks', (err, syncTasks) => {
         /* Captura o tamanho da fila */
-            if (err) console.error(err);
             let len;
             if (err || !syncTasks) len = 0;
             else len = (syncTasks.match(LENGTH_REGEX) || []).length;
