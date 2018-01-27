@@ -1,5 +1,3 @@
-/* global module */
-
 import sprintf from 'sprintf';
 
 module.exports = controller => {
