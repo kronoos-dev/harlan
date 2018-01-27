@@ -1,5 +1,4 @@
 /*jshint -W083 */
-/* global module */
 
 const MoreResults = function (maxItems) {
     const footer = $('<footer />').addClass('load-more');
