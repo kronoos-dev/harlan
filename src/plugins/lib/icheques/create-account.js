@@ -1,5 +1,3 @@
-/* global module, toastr, require */
-
 const SAFE_PASSWORD = /^.{6,}$/;
 
 const PHONE_REGEX = /^\((\d{2})\)\s*(\d{4})\-(\d{4,5})$/i;
