@@ -1,5 +1,3 @@
-/* global module */
-
 import Form from './lib/form';
 
 const GAMIFICATION_IMAGE = '/images/gamification.png';
