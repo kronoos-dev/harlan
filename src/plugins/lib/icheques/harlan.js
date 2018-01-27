@@ -1,18 +1,20 @@
-/* global toastr, require, module, numeral, moment */
 import async from 'async';
+import Promise from 'bluebird';
 import humanInterval from 'human-interval';
 import StringMask from 'string-mask';
 import _ from 'underscore';
 import squel from 'squel';
 import changeCase from 'change-case';
 import {CNPJ} from 'cpf_cnpj';
-
-import {
-    CMC7Parser
-} from './cmc7-parser.js';
+import PromiseWorker from 'promise-worker';
 import truncate from 'truncate';
 import hash from 'hash.js';
 import url from 'url';
+
+import { CMC7Parser } from './cmc7-parser.js';
+
+var worker = new Worker('/js/icheques-parser.js');
+var promiseWorker = new PromiseWorker(worker);
 
 const SEARCH_REGEX = /cheq?u?e?/i;
 const FIDC = /fid?c?/i;
@@ -267,11 +269,12 @@ module.exports = controller => {
             unregister = $.bipbopLoader.register();
         }, 1000);
 
-        let hasResult = false;
+        let continueLoop = false;
         let skip = 0;
 
         async.doUntil(cb => {
             controller.server.call('SELECT FROM \'ICHEQUES\'.\'CHECKS\'', controller.call('error::ajax', {
+                dataType: 'text',
                 method: 'GET',
                 data: {
                     'q[0]': 'SELECT FROM \'ICHEQUES\'.\'CHECKS\'',
@@ -282,19 +285,20 @@ module.exports = controller => {
                 },
                 error: () => cb(Array.from(arguments)),
                 success(ret) {
-                    const storage = [];
                     skip += QUERY_LIMIT;
-                    hasResult = false;
-                    $(ret).find('check').each(function() {
-                        hasResult = true;
-                        storage.push(controller.call('icheques::parse::element', this));
-                    });
+                    continueLoop = false;
 
-                    controller.call('icheques::insertDatabase', storage);
-                    cb();
+                    Promise.resolve()
+                        .then(() => promiseWorker.postMessage(ret))
+                        .tap(storage => {
+                            continueLoop = storage.length < QUERY_LIMIT;
+                        })
+                        .then(storage => controller.call('icheques::insertDatabase', storage))
+                        .then(() => cb())
+                        .catch(error => cb(error));
                 },
             }));
-        }, () => !hasResult, () => {
+        }, () => !continueLoop, () => {
             registerSocket();
             clearTimeout(loaderTimeout);
             if (unregister)
