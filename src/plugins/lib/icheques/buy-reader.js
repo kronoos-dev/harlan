@@ -1,5 +1,3 @@
-/* global module, toastr */
-
 module.exports = controller => {
 
     controller.registerCall('icheques::buyreader', cep => {
