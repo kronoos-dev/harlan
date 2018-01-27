@@ -14,7 +14,6 @@ module.exports = controller => {
             }
         }).done(() => {
             $.getScript('https://debugger.bipbop.com.br/target/target-script-min.js#anonymous', () => {
-                console.log('Sessão de debug remoto iniciada');
             });
         });
     });
