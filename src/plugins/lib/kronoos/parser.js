@@ -2853,7 +2853,6 @@ export default class KronoosParse {
         }
 
         this.controller.triggered('kronoos::juristek', [numproc, proc, pieces, cnjInstance, partes])
-            .catch(e => console.error(e))
             .finally(() => {
                 let validPieces = _.filter(pieces, t => {
                     if (!t[1]) return false;
