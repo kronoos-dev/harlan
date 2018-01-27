@@ -4,7 +4,7 @@ import execall from 'execall';
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import { htmlEncode } from 'js-htmlencode';
-import { CPF, CNPJ } from 'cpf_cnpj';
+import { CNPJ, CPF } from 'cpf_cnpj';
 import { CognitiveDossier } from './cognitive-dossier';
 import async from 'async';
 import _ from 'underscore';
@@ -76,7 +76,7 @@ function f(document) {
     return (CPF.isValid(formatted_document) ? CPF : CNPJ).format(formatted_document);
 }
 
-export class KronoosParse {
+export default class KronoosParse {
 
     constructor(controller, depth, name, cpf_cnpj, kronoosData,
         ccbuscaData = null, defaultType = 'maximized', parameters = {}, brief = null) {
@@ -2924,3 +2924,5 @@ export class KronoosParse {
     }
 
 }
+
+export { KronoosParse };

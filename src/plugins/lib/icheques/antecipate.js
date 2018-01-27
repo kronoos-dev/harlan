@@ -1,19 +1,9 @@
 import _ from 'underscore';
-import {
-    CMC7Parser
-} from './cmc7-parser';
-import {
-    queue
-} from 'async';
-import {
-    titleCase
-} from 'change-case';
-import {
-    CPF
-} from 'cpf_cnpj';
-import {
-    CNPJ
-} from 'cpf_cnpj';
+import { CPF } from 'cpf_cnpj';
+import { CNPJ } from 'cpf_cnpj';
+import { CMC7Parser } from './cmc7-parser';
+import { queue } from 'async';
+import { titleCase } from 'change-case';
 
 const PAGINATE_FILTER = 5;
 

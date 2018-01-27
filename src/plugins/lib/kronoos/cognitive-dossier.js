@@ -1,6 +1,6 @@
 const RISK = ['BAIXISSIMO RISCO', 'BAIXO', 'MEDIO', 'ALTO', 'ALTISSIMO'];
 
-export class CognitiveDossier {
+export default class CognitiveDossier {
 
     /*
      * O Parser é o primeiro filtro de dados, ele captura todas as requisições do dossiê,
@@ -32,5 +32,7 @@ export class CognitiveDossier {
     }
 
 }
+
+export { CognitiveDossier };
 
 /* https://www.letras.mus.br/the-naked-and-famous/1701151/traducao.html */

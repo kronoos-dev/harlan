@@ -11,6 +11,7 @@
       'flowtype'
     ],
     'globals': {
+        'jDataView': true,
          'moment': true,
          '$': true,
          'toastr': true,

@@ -1,7 +1,7 @@
 const CMC7_REGEX = /^(\d{3})(\d{4})\d(\d{3})(\d{6})\d{13}$/;
 const NON_NUMBERS = /[^\d]/g;
 
-export class CMC7Parser {
+export default class CMC7Parser {
     constructor(code) {
         let execution = CMC7_REGEX.exec(code.replace(NON_NUMBERS, ''));
         if (!execution) {
@@ -19,3 +19,5 @@ export class CMC7Parser {
     }
 
 }
+
+export { CMC7Parser };

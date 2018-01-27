@@ -1,6 +1,6 @@
-import {CPF, CNPJ} from 'cpf_cnpj';
+import {CNPJ, CPF} from 'cpf_cnpj';
 
-export class KronoosStats {
+export default class KronoosStats {
 
     constructor() {
         this.elements = {};
@@ -52,3 +52,5 @@ export class KronoosStats {
     }
 
 }
+
+export { KronoosStats };
