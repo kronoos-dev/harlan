@@ -57,7 +57,6 @@ module.exports = function() {
             }
             return;
         }
-        console.log(':: register trigger ::', name);
         if (!(name in events)) {
             events[name] = {};
         }
@@ -72,7 +71,6 @@ module.exports = function() {
             }
         };
 
-        console.log(':: trigger ::', name, args);
         if (!(name in events)) {
             run();
             return this;
@@ -86,19 +84,15 @@ module.exports = function() {
 
         const runsAtEnd = () => {
             if (!--submits) {
-                console.log(':: trigger :: end ::', name);
                 run();
             }
         };
-
-        console.log(':: trigger :: init ::', name);
 
         for (let triggerName in events[name]) {
             if (!events[name][triggerName]) {
                 submits--;
                 continue;
             }
-            console.log(`${name} executing ${triggerName}`);
             events[name][triggerName](args, runsAtEnd);
         }
 
@@ -108,7 +102,6 @@ module.exports = function() {
     this.triggered = Promise.promisify((...d) => this.trigger(...d));
 
     this.registerCall = (name, callback) => {
-        console.log(':: register :: ', name);
         this.trigger(`call::register::${name}`);
         calls[name] = callback;
         return this;
@@ -118,7 +111,6 @@ module.exports = function() {
         regex = regex || /.*/;
         for (let key in calls) {
             if (regex.test(key)) {
-                console.log(`harlan.call('${key}')`, calls[key]);
             }
         }
     };
@@ -134,9 +126,7 @@ module.exports = function() {
     this.preventDefault = this.click;
 
     this.call = (name, ...parameters) => {
-        console.log(':: call ::', name, parameters);
         if (!(name in calls)) {
-            console.error(`Failed! ${name} not found.`);
             return null;
         }
 
@@ -152,7 +142,6 @@ module.exports = function() {
         bootstrapCalls = {};
 
         async.auto(calls, (err, results) => {
-            console.log(':: bootstrap ::', err, results);
             this.trigger('bootstrap::end');
             if (cb) cb();
         });
