@@ -1,4 +1,3 @@
-/* global toastr */
 harlan.addPlugin(controller => {
 
     controller.registerCall('admin::roleTypes', () => ({
