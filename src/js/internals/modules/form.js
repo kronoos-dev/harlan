@@ -1,5 +1,3 @@
-/* global module, numeral */
-
 const EMPTY_REGEX = /^\s*$/;
 
 import assert from 'assert';
