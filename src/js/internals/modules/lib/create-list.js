@@ -1,4 +1,3 @@
-/* global module */
 import _ from 'underscore';
 
 export default function(element) {
