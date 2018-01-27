@@ -11,7 +11,6 @@ module.exports = controller => {
 
     controller.registerCall('download', (blob, filename = 'harlan.dat') => {
         if (!link) {
-            console.error(`Could not capture link element for ${filename}`);
             return;
         }
 
