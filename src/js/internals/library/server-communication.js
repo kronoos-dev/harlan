@@ -1,5 +1,3 @@
-/* global bipbop, module */
-
 /**
  * Módulo de Comunicação com a BIPBOP
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
