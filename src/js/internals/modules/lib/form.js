@@ -1,4 +1,3 @@
-/* global module */
 import CreateList from './create-list';
 
 module.exports = function(instance, {confs, i18n}) {
