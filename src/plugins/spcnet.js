@@ -1,5 +1,3 @@
-/* global numeral */
-
 var APP_TITLE = 'Consulta de Protestos',
     SCPC_PATH = 'BPQL > body > scpc',
     _ = require('underscore');
