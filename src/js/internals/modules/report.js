@@ -1,4 +1,3 @@
-/* global module */
 import gamificationIcons from './data/gamification-icons';
 
 import Form from './lib/form';
