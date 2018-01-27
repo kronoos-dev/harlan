@@ -1,4 +1,3 @@
-/* global controller. numeral */
 import _ from 'underscore';
 
 harlan.addPlugin(controller => {
