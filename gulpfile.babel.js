@@ -273,7 +273,7 @@ gulp.task('build:application:main:deps', [], () => gulp.src(externalJsSources)
     .pipe($.size({title: '>>> build:plugins'}))
     .pipe($.concat('deps.js'))
     .pipe(gulp.dest(`${dist}/js/deop`))
-    .pipe($.size({title: '>>> build:plugins:all'})))
+    .pipe($.size({title: '>>> build:plugins:all'})));
 
 // Compila a aplicação Harlan
 gulp.task('build:application:main', ['i18n', 'build:application:main:deps'], () => appify('app.js', { entries: `${src}/js/app.js` })
@@ -283,7 +283,7 @@ gulp.task('build:application:main', ['i18n', 'build:application:main:deps'], () 
     .pipe($.addSrc(`${dist}/js/deop/deps.js`))
     .pipe($.concat('app.js'))
     .pipe(gulp.dest(`${dist}/js`))
-    .pipe($.stripDebug())
+    // .pipe($.stripDebug())
     .pipe($.pako.gzip())
     .pipe(gulp.dest(`${dist}/js`))
     .pipe($.size({title: '>>> build:application'})));

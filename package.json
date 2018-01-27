@@ -65,8 +65,10 @@
     "email-regex": "^2.0.0",
     "es6-shim": "^0.35.3",
     "escape-string-regexp": "^1.0.5",
+    "eslint": "^4.15.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-flowtype": "^2.41.0",
+    "eslint-plugin-import": "^2.8.0",
     "execall": "^1.0.0",
     "extend-error": "0.0.2",
     "filereader-stream": "^1.0.0",
@@ -76,6 +78,7 @@
     "geolib": "^2.0.24",
     "glob": "^7.1.2",
     "google-maps": "^3.2.1",
+    "greenlet": "^0.1.0",
     "gulp": "^3.9.1",
     "gulp-add-src": "^0.2.0",
     "gulp-autoprefixer": "^4.1.0",
@@ -191,7 +194,5 @@
     "xlsx-populate": "^1.11.0",
     "xml-query": "^1.4.0",
     "xml-reader": "^2.4.3"
-    "eslint": "^4.15.0",
-    "eslint-plugin-import": "^2.8.0"
   }
 }

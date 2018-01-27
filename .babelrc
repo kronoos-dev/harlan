@@ -1,4 +1,4 @@
 {
-    "presets": ["es2015", "flow", "stage-0"],
-    "plugins": ["flow-prepack"]
+    "presets": ["es2015", "stage-0"],
+    "plugins": []
 }

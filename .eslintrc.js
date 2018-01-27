@@ -1,4 +1,4 @@
-module.exports = {
+  module.exports = {
     'env': {
         'browser': true,
         'es6': true
@@ -9,7 +9,7 @@ module.exports = {
     },
     'plugins': [
       'flowtype'
-    ],  
+    ],
     'globals': {
          'moment': true,
          '$': true,
