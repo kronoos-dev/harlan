@@ -1,4 +1,3 @@
-/* global Iugu, TwinBcrypt, toastr, module */
 import AES from 'crypto-js/aes';
 
 import CryptoJS from 'crypto-js';
@@ -258,7 +257,6 @@ module.exports = controller => {
 
         const timeout = setTimeout(() => {
             alreadyLoaded = true;
-            console.error('Iugu can\'t load');
             callback();
         }, 5000);
 
