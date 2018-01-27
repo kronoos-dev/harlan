@@ -23,7 +23,6 @@ function calculateDistance(a, b) {
     return R * c;
 }
 
-/* global module, numeral */
 module.exports = controller => {
     let commercialReference = null;
     let hasOtherOccurrences = false;
