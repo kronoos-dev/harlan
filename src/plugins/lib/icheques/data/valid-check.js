@@ -1,5 +1,3 @@
-/* global module */
-
 const validChecks = [
     /^218/,
     /^237/,
