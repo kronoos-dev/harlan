@@ -50,6 +50,7 @@
     "cheerio": "^1.0.0-rc.2",
     "coffeeify": "^3.0.1",
     "coffeescript": "^2.1.1",
+    "collar.js": "^1.0.0",
     "color": "^2.0.1",
     "color-harmony": "^0.3.0",
     "concat-stream": "^1.6.0",
