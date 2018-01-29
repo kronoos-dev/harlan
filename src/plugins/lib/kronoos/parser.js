@@ -1287,7 +1287,6 @@ export class KronoosParse {
                         kelement.behaviourAccurate(!/\NADA CONSTA/i.test($('body > text', data).text()));
                     }
                     this.append(kelement.element());
-                    kelement.behaviourAccurate(true);
                 }
             }, true));
     }
@@ -1657,36 +1656,36 @@ export class KronoosParse {
         for (let notationType in informationQA) {
             let pieces = [];
             let notationMessage;
-            let icon = "exclamation";
+            let icon = 'exclamation';
             switch (notationType) {
-            case "hasNotation":
-                notationMessage = ["apresenta registro nos órgãos pesquisados", "apresentam registros nos órgãos pesquisados"];
+            case 'hasNotation':
+                notationMessage = ['apresenta registro nos órgãos pesquisados', 'apresentam registros nos órgãos pesquisados'];
                 break;
-            case "hasntNotation":
-                notationMessage = ["não apresenta registro nos órgãos pesquisados", "não apresentam registros nos órgãos pesquisados"];
+            case 'hasntNotation':
+                notationMessage = ['não apresenta registro nos órgãos pesquisados', 'não apresentam registros nos órgãos pesquisados'];
                 break;
             default:
-                notationMessage = ["de registro desconhecido e", "de registros desconhecidos e"];
+                notationMessage = ['de registro desconhecido e', 'de registros desconhecidos e'];
             }
             for (let behaviourType in informationQA[notationType]) {
                 let behaviourMessage;
                 switch (behaviourType) {
-                case "behaviourAccurate":
-                    if (notationType === "hasntNotation") icon = "check";
-                    else icon = "times";
-                    behaviourMessage = ["", ""];
+                case 'behaviourAccurate':
+                    if (notationType === 'hasntNotation') icon = 'check';
+                    else icon = 'times';
+                    behaviourMessage = ['', ''];
                     break;
-                case "behaviourUnstructured":
-                    behaviourMessage = [" e pode conter dados não estruturados, devendo ser verificado ", " e podem conter dados não estruturados, devendo ser verificados"];
+                case 'behaviourUnstructured':
+                    behaviourMessage = [' e pode conter dados não estruturados, devendo ser verificado ', ' e podem conter dados não estruturados, devendo ser verificados'];
                     break;
-                case "behaviourUnstructuredHomonym":
-                    behaviourMessage = [" e pode conter homônimos e dados não estruturados, devendo ser verificado", " e podem conter homônimos e dados não estruturados, devendo ser verificados"];
+                case 'behaviourUnstructuredHomonym':
+                    behaviourMessage = [' e pode conter homônimos e dados não estruturados, devendo ser verificado', ' e podem conter homônimos e dados não estruturados, devendo ser verificados'];
                     break;
-                case "behaviourHomonym":
-                    behaviourMessage = [" e pode conter homônimos, devendo ser verificado", " e podem conter homônimos, devendo ser verificados"];
+                case 'behaviourHomonym':
+                    behaviourMessage = [' e pode conter homônimos, devendo ser verificado', ' e podem conter homônimos, devendo ser verificados'];
                     break;
                 default:
-                    behaviourMessage = ["pendente de verificação", "pendentes de verificação"];
+                    behaviourMessage = ['pendente de verificação', 'pendentes de verificação'];
                 }
 
                 let searchMessage;
