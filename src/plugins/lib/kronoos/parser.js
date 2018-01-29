@@ -1284,7 +1284,6 @@ export default class KronoosParse {
                         kelement.behaviourAccurate(!/\NADA CONSTA/i.test($('body > text', data).text()));
                     }
                     this.append(kelement.element());
-                    kelement.behaviourAccurate(true);
                 }
             }, true));
     }
