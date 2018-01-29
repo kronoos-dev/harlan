@@ -6,6 +6,9 @@ module.exports = function(instance, {confs, i18n}) {
     instance.element().append(form);
 
     const createLabel = (input, obj = {}, labelText, placeholder) => {
+        if (!(obj instanceof Object)) {
+            obj = {}; /**/
+        }
         input.addClass('has-label').attr('id', (obj.id = require('node-uuid').v4()));
 
         if (obj.hoverHelp) {
@@ -52,6 +55,10 @@ module.exports = function(instance, {confs, i18n}) {
     };
 
     this.addSelect = (id, name, list, obj = {}, labelText, value) => {
+        if (!(obj instanceof Object)) {
+            obj = {}; /**/
+        }
+
         const select = $('<select />').attr({
             id,
             name,
@@ -78,6 +85,9 @@ module.exports = function(instance, {confs, i18n}) {
     this.createList = () => new CreateList(form);
 
     this.addTextarea = (name, placeholder, obj = {}, labelText, value) => {
+        if (!(obj instanceof Object)) {
+            obj = {}; /**/
+        }
         const input = $('<textarea />').attr({
             name,
             placeholder,
@@ -93,6 +103,10 @@ module.exports = function(instance, {confs, i18n}) {
     };
 
     this.addInput = (name, type, placeholder, obj = {}, labelText, value) => {
+        if (!(obj instanceof Object)) {
+            obj = {}; /**/
+        }
+
         const input = $('<input />').attr({
             name,
             type,
