@@ -19,6 +19,7 @@ import html2canvas from 'html2canvas';
 import metaphone from 'metaphone';
 import cnjCourtsMap from './cnj-map';
 import trf1List from './trf1-list';
+import tjmgList from './tjmg-list';
 
 const NOT_FOUND_BEGIN_TEXT = {
     juridic: 'Resultados do Poder Judiciário: ',
@@ -627,6 +628,7 @@ export class KronoosParse {
 
     searchTribunais() {
         let trf1Search = _.pairs(trf1List).map(x => [`SELECT FROM 'TRF01'.'DOCUMENTO' WHERE 'SECAO' = '${x[0]}' AND 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 1º Região - ${x[1]}`, `Tribunal Federal 1º Região - ${x[1]}`]);
+        let tjmgSearch = _.pairs(tjmgList).map(([name, value]) => [`SELECT FROM 'TJMG'.'PRIMEIRAINSTANCIA' WHERE 'NOME_PARTE' = '${this.name.replace(/\s[0-9]+/, '')}' AND 'COMARCA'='${value}'`, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça de Minas Gerais, comarca ${name}`, true, `Tribunal de Justiça de Minas Gerais, comarca de ${name}`]);
 
         this.tribunaisSync = async.eachLimit([
             [`SELECT FROM 'TJRJ'.'NOME' WHERE 'NOME_PARTE' = '${this.name}' AND 'ORIGEM' = '1'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio de Janeiro, em todas as comarcas`, null, 'Tribunal de Justiça do Rio de Janeiro, todas as comarcas'],
@@ -636,7 +638,7 @@ export class KronoosParse {
             [`SELECT FROM 'TRF04'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj.replace(/[^\d]/g, '')}'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, `Não foram localizados processos associados ao documento ${this.cpf_cnpj} no Tribunal Federal 4º Região`, 'Tribunal Federal 4º Região'],
             [`SELECT FROM 'TJRS'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Tribunal de Justiça do Rio Grande do Sul`, `Não foram localizados processo pelo nome ${this.name} no Tribunal do Rio Grande do Sul`, 'Tribunal do Rio Grande do Sul'],
             [`SELECT FROM 'STJ'.'PARTE' WHERE 'NOME_PARTE' = '${this.name}'`, false, `Pesquisando pelo nome ${this.name} no Superior Tribunal de Justiça`, `Não foram localizados processo pelo nome ${this.name} no Superior Tribunal de Justiça`, 'Superior Tribunal de Justiça'],
-        ].concat(trf1Search), 10, (...args) => this.tribunalSearch(...args), err => {
+        ].concat(trf1Search, tjmgSearch), 10, (...args) => this.tribunalSearch(...args), err => {
             let tjrjSearch = TJRJ_COMARCA.map(x => [`SELECT FROM 'TJRJ'.'DOCUMENTO' WHERE 'DOCUMENTO' = '${this.cpf_cnpj}' AND ${x} AND 'ORIGEM' = '1'`, true, `Pesquisando pelo documento ${this.cpf_cnpj} no Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`, null, `Tribunal de Justiça do Rio de Janeiro, comarca ${x.replace(/[^0-9]/g, '')}`]);
             if (_.findIndex(_.keys(this.procElements), v => /\.8\.19.\d{4}$/.test(v)) !== -1)
                 this.tribunaisSync = async.eachLimit(tjrjSearch, 10, (...args) => this.tribunalSearch(...args), err => {});
@@ -2677,7 +2679,7 @@ export class KronoosParse {
     }
 
     normalizeName(name) {
-        return removeDiacritics(name).toUpperCase().replace(/\s+/g, ' ').replace(/[^A-Z0-9\s]/g, '').replace(/(\s|^)(SA|LTDA|ME|eireli)(\s|$)/ig, '');
+        return removeDiacritics(name).toUpperCase().replace(/[^A-Z\s]/g, '').replace(/\s+/g, ' ').replace(/(\s|^)(SA|LTDA|ME|eireli)(\s|$)/ig, '');
     }
 
     juristekInfo(callback) {
