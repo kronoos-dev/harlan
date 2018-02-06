@@ -85,12 +85,12 @@ module.exports = controller => {
         let download = report => e => {
             e.preventDefault();
             window.location.assign(buildURL(bipbop.webserviceAddress, {
-                queryParams: Object.assign({}, ajaxQuery, {
+                queryParams: _.pick(Object.assign({}, ajaxQuery, {
                     q: controller.endpoint.adminReport,
                     download: 'true',
                     apiKey: controller.server.apiKey(),
                     report
-                })
+                }), x => !!x)
             }));
         };
 
