@@ -31,7 +31,7 @@ export default class BANFactory {
         this.checks = values;
         this.company = company;
         this.size = this._fileLength();
-        this.buffer = new jDataView(toArrayBuffer(new Buffer(this.size)));
+        this.buffer = new jDataView(new ArrayBuffer(this.size));
     }
 
     _fillBuffer() {
