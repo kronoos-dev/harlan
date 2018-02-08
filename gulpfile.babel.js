@@ -59,6 +59,8 @@ const externalJsSources = [
     `${vendors}/vis/dist/vis.js`,
     `${vendors}/pikaday/plugins/pikaday.jquery.js`,
     `${vendors}/jszip/dist/jszip.min.js`,
+    `${vendors}/html-docx-js/dist/html-docx.js`,
+    `${vendors}/jdataview/dist/browser/jdataview.js`
 ];
 
 const ichequesKeystore = 'icheques.keystore';
@@ -201,9 +203,6 @@ gulp.task('build:plugins', [
     return merge(files.map((entry) => {
         entry = `./${entry}`;
         return appify(path.basename(entry), { entries: entry })
-            .pipe($.if('icheques.js', $.addSrc(`${vendors}/jdataview/dist/browser/jdataview.js`)))
-            .pipe($.if('kronoos.js', $.addSrc(`${vendors}/html-docx-js/dist/html-docx.js`)))
-            // .pipe($.stripDebug())
             .pipe($.uglify())
             .pipe(gulp.dest(`${dist}/js`))
             .pipe($.size({title: '>>> build:plugins'}));
