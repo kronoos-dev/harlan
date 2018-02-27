@@ -590,6 +590,7 @@ module.exports = controller => {
                 data: {
                     documento: task[0]
                 },
+                timeout: humanInterval('20 seconds'),
                 success: ret => {
                     let totalRegistro = parseInt($(ret).find('BPQL > body > data > resposta > totalRegistro').text());
 
@@ -632,6 +633,7 @@ module.exports = controller => {
             data: {
                 documento: task[0]
             },
+            timeout: humanInterval('20 seconds'),
             success: ret => {
                 if ($(ret).find('BPQL > body > consulta > situacao').text() != 'CONSTA') {
                     section[0].find('h3').text(mensagem += ' Não há protestos.');
