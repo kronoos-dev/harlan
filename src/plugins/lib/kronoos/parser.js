@@ -121,7 +121,7 @@ export class KronoosParse {
         $('.kronoos-result').append(this.appendElement);
 
         let execute = () => {
-            if (kronoosData) this.parseKronoos(kronoosData);
+            if (kronoosData && kronoosData === undefined) this.parseKronoos(kronoosData);
             this.emptyChecker();
             let m = moment();
             this.firstElement().header(this.cpf_cnpj, name, m.format('DD/MM/YYYY'), m.format('H:mm:ss'));

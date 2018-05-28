@@ -47,7 +47,7 @@
     "pikaday": "~1.6.1",
     "material-design-icons": "~3.0.1",
     "vis": "~4.20.1",
-    "enjoyhint": "https://github.com/bipbop/enjoyhint.git#master",
+    "enjoyhint": "https://github.com/xbsoftware/enjoyhint.git",
     "jquery.scrollTo": "~2.1.2",
     "konva": "kinetic#^1.5.0",
     "csshake": "^1.5.2",
