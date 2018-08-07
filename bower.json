@@ -46,7 +46,6 @@
     "pikaday": "~1.6.1",
     "material-design-icons": "~3.0.1",
     "vis": "~4.21.0",
-    "enjoyhint": "https://github.com/bipbop/enjoyhint.git#master",
     "jquery.scrollTo": "~2.1.2",
     "konva": "kinetic#^1.5.0",
     "csshake": "^1.5.2",
@@ -54,7 +53,6 @@
     "jquery-ui": "jquery.ui#^1.12.1",
     "outdated-browser": "^1.1.5",
     "jszip": "^3.1.4",
-    "sql.js": "https://github.com/bipbop/sql.js.git",
     "jdataview": "^2.5.0"
   },
   "resolutions": {
