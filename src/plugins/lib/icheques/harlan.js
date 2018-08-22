@@ -590,7 +590,7 @@ module.exports = controller => {
                 data: {
                     documento: task[0]
                 },
-                timeout: humanInterval('20 seconds'),
+                // timeout: humanInterval('20 seconds'),
                 success: ret => {
                     let totalRegistro = parseInt($(ret).find('BPQL > body > data > resposta > totalRegistro').text());
 
@@ -633,7 +633,7 @@ module.exports = controller => {
             data: {
                 documento: task[0]
             },
-            timeout: humanInterval('20 seconds'),
+            // timeout: humanInterval('20 seconds'),
             success: ret => {
                 if ($(ret).find('BPQL > body > consulta > situacao').text() != 'CONSTA') {
                     section[0].find('h3').text(mensagem += ' Não há protestos.');
@@ -651,7 +651,7 @@ module.exports = controller => {
 
         let queryTry = (callback, query, data = {}) => controller.server.call(query, {
             cache: true,
-            timeout: humanInterval('15 seconds'),
+            // timeout: humanInterval('15 seconds'),
             data: Object.assign({
                 documento: task[0]
             }, data),
