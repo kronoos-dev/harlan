@@ -443,6 +443,49 @@ module.exports = controller => {
             }
         }
 
+
+        if (!_.filter(banks, element => $(element).children('approvedCustomer').text() === 'true').length) {
+            const modal = controller.call('modal');
+            modal.gamification('accuracy');
+            modal.title('Aprovação dos Fundos');
+            modal.subtitle('O cadastro deve ser aprovado em até 7 dias.');
+            modal.addParagraph('Você receberá um e-mail em sua caixa de entrada indicando a decisão do fundo.');
+
+            const form = modal.createForm();
+            const list = form.createList();
+    
+            _.each(banks, element => {
+
+                const listItem = list.add('fa-spinner fa-spin', [
+                    $('company > nome', element).text() || $('company > responsavel', element).text() || $('company > username', element).text(),
+                    $(element).children('bio').text(),
+                ]);
+
+                controller.server.call('INSERT INTO \'ICHEQUES\'.\'FIDC\'', controller.call('error::ajax', {
+                    data: {
+                        username: $('company > username', element).text()
+                    },
+                    error: () => listItem
+                        .find('.fa-spinner.fa-spin')
+                        .removeClass('fa-spin')
+                        .removeClass('fa-spinner')
+                        .addClass('fa-ban'),
+                    success: () => listItem
+                        .find('.fa-spinner.fa-spin')
+                        .removeClass('fa-spin')
+                        .removeClass('fa-spinner')
+                        .addClass('fa-check'),
+                }));
+            });
+
+            const actions = modal.createActions();
+            actions.cancel(null, 'Sair');
+
+            return;
+        }
+
+        /* fim */
+
         const modal = controller.call('modal');
         modal.title('Factorings iCheques');
         modal.subtitle('Relação de Factorings iCheques');
