@@ -105,7 +105,7 @@ module.exports = controller => {
                 let exception = $('exception', doc);
                 if (exception.length) {
                     list.item('fa-close', [moment.unix(row.created).fromNow(), 'Ocorreu uma exceção na consulta',
-                        'A consulta ao cheque fracassou, tentando novamente em alguns instantes.'
+                        exception.text()
                     ]);
                 } else {
                     let message = $('ocorrencias descricao', doc).text() || $('situacaoConsultaCheque exibicao', doc).text();
