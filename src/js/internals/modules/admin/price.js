@@ -24,7 +24,7 @@ module.exports = controller => {
 
         list.empty();
         for (const item of b) {
-            list.add('fa-item', [item.name, numeral(item.price/100.).format('$ 0,0.00'), item.key]).click(controller.call('price::update'));
+            list.add('fa-item', [item.name, numeral(item.price/1000.).format('$ 0,0.000'), item.key]).click(controller.call('price::update'));
         }
 
         back[skip <= 0 ? 'hide' :  'show']();
@@ -79,7 +79,7 @@ module.exports = controller => {
                     type: 'text',
                     placeholder: 'Valor (R$)',
                     labelText: 'Valor (R$)',
-                    mask: '000.000.000.000.000,00',
+                    mask: '000.000.000.000.000,000',
                     maskOptions: {
                         reverse: true
                     },

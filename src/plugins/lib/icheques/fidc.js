@@ -96,7 +96,7 @@ module.exports = controller => {
             report.subtitle('Infelizmente você não poderá receber novas operações.');
             report.paragraph('Renove seu cadastro de antecipador clicando no botão abaixo, é um custo de R$ 900 (novecentos reais) para mais um mês de operações.');
             report.button('Renovar Cadastro', () => {
-                controller.call('credits::has', 90000, () => {
+                controller.call('credits::has', 900000, () => {
                     controller.server.call('UPDATE \'ICHEQUESFIDC\'.\'RENEW\'',
                         controller.call('error::ajax', controller.call('loader::ajax', {
                             success: () => {

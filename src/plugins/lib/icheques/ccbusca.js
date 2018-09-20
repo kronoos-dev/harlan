@@ -13,7 +13,7 @@ module.exports = controller => {
             dataType: 'json',
             success: data => {
                 if (data) {
-                    controller.call('credits::has', 150, () => {
+                    controller.call('credits::has', 1500, () => {
                         controller.call('ccbusca', val);
                     });
                 } else {

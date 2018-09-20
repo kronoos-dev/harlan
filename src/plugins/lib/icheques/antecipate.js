@@ -423,7 +423,7 @@ module.exports = controller => {
             }, {
                 lat: parseLocation(element, 'geocode > geometry > location > lat'),
                 lon: parseLocation(element, 'geocode > geometry > location > lng')
-            }) <= 200000), element => calculateDistance({
+            }) <= 10000), element => calculateDistance({
                 lat: geoposition.coords.latitude,
                 lon: geoposition.coords.longitude
             }, {
