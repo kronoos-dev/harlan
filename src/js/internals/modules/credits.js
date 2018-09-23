@@ -24,7 +24,7 @@ module.exports = controller =>  {
 
     const changeCredits = credits =>  {
         companyCredits = credits;
-        $('.credits span').text(numeral(Math.abs(credits) / 1000.).format('0,0.000'));
+        $('.credits span').text(numeral(Math.abs(credits) / 1000.).format('0,0.00'));
 
         if (credits < 0) {
             $('.credits').addClass('invertBalance');
