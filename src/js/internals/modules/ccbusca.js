@@ -10,7 +10,7 @@ module.exports = controller => {
             if (!CNPJ.isValid(val) && !CPF.isValid(val)) {
                 return;
             }
-            controller.call('credits::has', 150, () => {
+            controller.call('credits::has', 1500, () => {
                 controller.call('ccbusca', val);
             });
         });
