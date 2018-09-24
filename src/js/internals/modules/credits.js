@@ -62,7 +62,7 @@ module.exports = controller =>  {
                 actions.cancel();
             } else {
                 if (!askFor) return;
-                const credits = numeral(needed / 1000.0).format('$0,0.000');
+                const credits = numeral(needed / 1000.0).format('$0,0.00');
                 modal = controller.call('modal');
                 modal.gamification('moneyBag');
                 modal.title('Vamos debitar de seus créditos.');
