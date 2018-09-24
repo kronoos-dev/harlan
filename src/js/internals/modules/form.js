@@ -344,10 +344,16 @@ module.exports = controller => {
         };
 
         this.close = (defaultAction = true) => {
-            if (onCancel && defaultAction) onCancel();
-            if (this.onClose) this.onClose();
-            if (modal) {
-                modal.close();
+            try {
+                if (onCancel && defaultAction) onCancel();
+            } finally {
+                try {
+                    if (this.onClose) this.onClose();
+                } finally {
+                    if (modal) {
+                        modal.close();
+                    }
+                }
             }
         };
 
@@ -397,8 +403,9 @@ module.exports = controller => {
 
     controller.registerCall('form', (...parameters) => new GenerateForm(...parameters));
 
-    controller.registerCall('form::callback', (parameters, callback) => new GenerateForm(callback, () => {
-        throw new FormCancel();
-    }).configure(parameters));
+    controller.registerCall('form::callback', (parameters, callback, content = {}) => 
+        new GenerateForm(callback, () => callback(null, new FormCancel()))
+            .configure(parameters)
+            .setValues(content));
 
 };

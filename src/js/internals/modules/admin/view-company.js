@@ -154,7 +154,7 @@ module.exports = controller => {
         if (cpf) result.addItem('CPF', CPF.format(cpf));
         const postPaidInput = result.addItem('Pós-pago', postPaid ? 'Sim' : 'Não');
         let creditsInput = null;
-        if (credits) creditsInput = result.addItem('Créditos Sistema', numeral(credits / 100.0).format('$0,0.00'));
+        if (credits) creditsInput = result.addItem('Créditos Sistema', numeral(credits / 1000.0).format('$0,0.00'));
         if (commercialReference) result.addItem('Referência Comercial', commercialReference);
 
         let apiKey;
@@ -411,7 +411,7 @@ module.exports = controller => {
                     });
 
                 if (credits) {
-                    input.val(numeral(Math.abs(credits) / 1000.00).format('0,0.000'));
+                    input.val(numeral(Math.abs(credits / 1000)).format('0,0.000'));
                 }
 
                 const invertCredits = form.addCheckbox('invert', 'Saldo Devedor', credits < 0);

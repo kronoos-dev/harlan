@@ -18,12 +18,6 @@ module.exports = function() {
     this.endpoint = {};
     this.sync = new Sync(this);
 
-    /**
-     * List all possible calls
-     * @returns {Array}
-     */
-    this.listCalls = () => Object.keys(calls);
-
     this.query = url.parse(window.location.href, true).query;
 
     this.registerBootstrap = (name, callback) => {
@@ -107,14 +101,6 @@ module.exports = function() {
         return this;
     };
 
-    this.listCalls = regex => {
-        regex = regex || /.*/;
-        for (let key in calls) {
-            if (regex.test(key)) {
-            }
-        }
-    };
-
     this.reference = name => (...parameters) => this.call(name, ...parameters);
 
     this.click = (name, ...parameters) => e => {
@@ -135,7 +121,13 @@ module.exports = function() {
         return data;
     };
 
-    this.promise = Promise.promisify((...d) => this.call(...d));
+    this.promise = (...d) => new Promise((resolve, reject) => {
+        try {
+            resolve(this.call(...d));
+        } catch (e) {
+            reject(e);
+        }
+    });
 
     this.run = (cb) => {
         const calls = bootstrapCalls; /* prevent race cond */
