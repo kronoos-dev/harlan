@@ -48,7 +48,7 @@ module.exports = controller =>  {
                 modal = controller.call('modal');
                 modal.title('Você precisa de créditos!');
                 modal.subtitle('Para continuar essa operação você precisa adquirir créditos.');
-                modal.addParagraph(sprintf('Estão faltando %s para você poder continuar, adquira créditos.', numeral(Math.abs(missing) / 1000.0).format('$0,0.000')));
+                modal.addParagraph(sprintf('Estão faltando %s para você poder continuar, adquira créditos.', numeral(Math.abs(missing) / 1000.0).format('$0,0.00')));
                 form = modal.createForm();
                 form.element().submit(e =>  {
                     e.preventDefault();
@@ -67,7 +67,7 @@ module.exports = controller =>  {
                 modal.gamification('moneyBag');
                 modal.title('Vamos debitar de seus créditos.');
                 modal.subtitle(sprintf('O valor para esta operação ficou em %s.', credits));
-                modal.addParagraph(sprintf('Serão debitados %s de sua conta, para aceitar clique em prosseguir.', numeral(needed / 1000.0).format('$0,0.000')));
+                modal.addParagraph(sprintf('Serão debitados %s de sua conta, para aceitar clique em prosseguir.', numeral(needed / 1000.0).format('$0,0.00')));
                 form = modal.createForm();
                 form.element().submit(e =>  {
                     e.preventDefault();
