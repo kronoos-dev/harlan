@@ -12,6 +12,11 @@ const FormCancel = Error.extend('FormError', 500);
 
 module.exports = controller => {
 
+    controller.exceptions.form = {
+        FormError,
+        FormCancel,
+    };
+
     let GenerateForm = function(callback, onCancel) {
 
         let currentScreen = 0;
@@ -403,9 +408,7 @@ module.exports = controller => {
 
     controller.registerCall('form', (...parameters) => new GenerateForm(...parameters));
 
-    controller.registerCall('form::callback', (parameters, callback, content = {}) => 
-        new GenerateForm(callback, () => callback(null, new FormCancel()))
-            .configure(parameters)
-            .setValues(content));
-
+    controller.registerCall('form::callback', (parameters, content, callback) => new GenerateForm(callback, () => callback(null, new FormCancel()))
+        .configure(parameters)
+        .setValues(content));
 };

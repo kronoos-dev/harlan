@@ -9,7 +9,7 @@ import Sync from './library/sync';
 module.exports = function() {
 
     this.confs = require('./config');
-
+    this.exceptions = {};
     let bootstrapCalls = {};
     const calls = {};
     const events = {};
@@ -122,11 +122,10 @@ module.exports = function() {
     };
 
     this.promise = (...d) => new Promise((resolve, reject) => {
-        try {
-            resolve(this.call(...d));
-        } catch (e) {
-            reject(e);
-        }
+        this.call(...d, (data, err) => {
+            if (err) reject(err);
+            else resolve(data);
+        });
     });
 
     this.run = (cb) => {

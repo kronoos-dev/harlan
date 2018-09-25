@@ -11,20 +11,6 @@ module.exports = controller => {
         }
     });
 
-    controller.registerTrigger('findDatabase::instantSearch', 'admin::price', (args, callback) => {
-        callback();
-        const [argument, autocomplete] = args;
-        if (!PRICE_TABLE.test(argument)) {
-            return;
-        }
-
-        autocomplete.item('Administrar Preços',
-            'Gestão de Preços do Sistema',
-            'Adicionar, remover ou alterar preços cadastrados no sistema.')
-            .addClass('admin-company admin-new-company')
-            .click(controller.click('price::list'));
-    });
-
     controller.registerTrigger('findDatabase::instantSearch', 'admin::index', (args, callback) => {
         callback();
         const [argument, autocomplete] = args;
