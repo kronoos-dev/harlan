@@ -151,7 +151,7 @@ module.exports = controller =>  {
                     icon: 'pass',
                     title: 'Seu pagamento foi gerado com sucesso!',
                     subtitle: 'O pagamento com boleto bancário leva um dia útil para ser compensado.',
-                    paragraph: `O link com o boleto foi encaminhado para seu e-mail. Se preferir você pode acessá-lo <a href='${escaper.escape($('BPQL > body secure_url', data).text())}' target='_blank'>clicando aqui</a> ou usar o código de barras abaixo para pagar através de seu smartphone. <img src='${escaper.escape($('BPQL > body barcode', data).text())}' title='Código de Barras' style='display: block; margin: auto; margin: 20px auto;' />`
+                    paragraph: `O link com o boleto foi encaminhado para seu e-mail. Se preferir você pode acessá-lo <a href='${escaper.escape($('BPQL > body secure_url', data).text())}' target='_blank'>clicando aqui</a>.`
                 });
             },
             complete: () => {
