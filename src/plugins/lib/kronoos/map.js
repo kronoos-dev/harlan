@@ -34,7 +34,7 @@ function loadGoogleClasses(callback) {
 const worldDimension = { height: 256, width: 256 };
 const zoomMax = 21;
 
-export class KronoosMap {
+export default class KronoosMap {
     generateMap(mapElement, positions, callback, options = {}) {
         loadGoogleClasses(g => {
             let loadOptions = Object.assign({
@@ -53,3 +53,5 @@ export class KronoosMap {
         });
     }
 }
+
+export { KronoosMap };

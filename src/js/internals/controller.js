@@ -9,7 +9,7 @@ import Sync from './library/sync';
 module.exports = function() {
 
     this.confs = require('./config');
-
+    this.exceptions = {};
     let bootstrapCalls = {};
     const calls = {};
     const events = {};
@@ -17,14 +17,6 @@ module.exports = function() {
 
     this.endpoint = {};
     this.sync = new Sync(this);
-
-    /**
-     * List all possible calls
-     * @returns {Array}
-     */
-    this.listCalls = () => {
-        return Object.keys(calls);
-    };
 
     this.query = url.parse(window.location.href, true).query;
 
@@ -59,7 +51,6 @@ module.exports = function() {
             }
             return;
         }
-        console.log(':: register trigger ::', name);
         if (!(name in events)) {
             events[name] = {};
         }
@@ -74,7 +65,6 @@ module.exports = function() {
             }
         };
 
-        console.log(':: trigger ::', name, args);
         if (!(name in events)) {
             run();
             return this;
@@ -88,19 +78,15 @@ module.exports = function() {
 
         const runsAtEnd = () => {
             if (!--submits) {
-                console.log(':: trigger :: end ::', name);
                 run();
             }
         };
-
-        console.log(':: trigger :: init ::', name);
 
         for (let triggerName in events[name]) {
             if (!events[name][triggerName]) {
                 submits--;
                 continue;
             }
-            console.log(`${name} executing ${triggerName}`);
             events[name][triggerName](args, runsAtEnd);
         }
 
@@ -110,19 +96,9 @@ module.exports = function() {
     this.triggered = Promise.promisify((...d) => this.trigger(...d));
 
     this.registerCall = (name, callback) => {
-        console.log(':: register :: ', name);
         this.trigger(`call::register::${name}`);
         calls[name] = callback;
         return this;
-    };
-
-    this.listCalls = regex => {
-        regex = regex || /.*/;
-        for (let key in calls) {
-            if (regex.test(key)) {
-                console.log(`harlan.call('${key}')`, calls[key]);
-            }
-        }
     };
 
     this.reference = name => (...parameters) => this.call(name, ...parameters);
@@ -136,9 +112,7 @@ module.exports = function() {
     this.preventDefault = this.click;
 
     this.call = (name, ...parameters) => {
-        console.log(':: call ::', name, parameters);
         if (!(name in calls)) {
-            console.error(`Failed! ${name} not found.`);
             return null;
         }
 
@@ -147,14 +121,18 @@ module.exports = function() {
         return data;
     };
 
-    this.promise = Promise.promisify((...d) => this.call(...d));
+    this.promise = (...d) => new Promise((resolve, reject) => {
+        this.call(...d, (data, err) => {
+            if (err) reject(err);
+            else resolve(data);
+        });
+    });
 
     this.run = (cb) => {
         const calls = bootstrapCalls; /* prevent race cond */
         bootstrapCalls = {};
 
         async.auto(calls, (err, results) => {
-            console.log(':: bootstrap ::', err, results);
             this.trigger('bootstrap::end');
             if (cb) cb();
         });

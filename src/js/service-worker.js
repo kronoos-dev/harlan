@@ -1,12 +1,10 @@
 import localForage from 'localforage';
 
-const genericMessage = (resolve, reject, event, error = null, opts = {}) => {
-    return self.registration.showNotification(opts.title || 'Temos uma mensagem para você!', Object.assign({
-        body: 'Você recebeu uma mensagem, para acessar clique aqui e abra sua conta.',
-        icon: '/images/android/drawable-xxxhdpi/ic_launcher.png',
-        tag: 'harlan-new-message'
-    }, opts)).then(resolve).catch(reject);
-};
+const genericMessage = (resolve, reject, event, error = null, opts = {}) => self.registration.showNotification(opts.title || 'Temos uma mensagem para você!', Object.assign({
+    body: 'Você recebeu uma mensagem, para acessar clique aqui e abra sua conta.',
+    icon: '/images/android/drawable-xxxhdpi/ic_launcher.png',
+    tag: 'harlan-new-message'
+}, opts)).then(resolve).catch(reject);
 
 self.addEventListener('push', event =>
     event.waitUntil(new Promise((resolve, reject) =>
@@ -52,9 +50,7 @@ self.addEventListener('push', event =>
 
 self.addEventListener('notificationclick', event => {
     event.notification.close();
-    event.waitUntil(clients.matchAll({type: 'window'}).then(clist => {
-        return clients.openWindow(`/?apiKey=${event.notification.data.apiKey}&message=${event.notification.data.id}`);
-    }));
+    event.waitUntil(clients.matchAll({type: 'window'}).then(clist => clients.openWindow(`/?apiKey=${event.notification.data.apiKey}&message=${event.notification.data.id}`)));
 });
 
 self.addEventListener('message', ({data}) => {

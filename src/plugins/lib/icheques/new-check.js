@@ -100,9 +100,7 @@ module.exports = controller => {
         form.addSubmit('checkout', 'Enviar para Monitoramento').click(e => {
             e.preventDefault();
             newCheckWrapper = null;
-            controller.call('icheques::checkout', _.filter(storage, i => {
-                return i;
-            }));
+            controller.call('icheques::checkout', _.filter(storage, i => i));
             modal.close();
         }).addClass('green-button');
 

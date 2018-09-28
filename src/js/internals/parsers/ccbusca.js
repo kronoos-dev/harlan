@@ -308,6 +308,7 @@ module.exports = controller => {
         };
 
         const init = 'BPQL > body ';
+        let doc;
         for (const idx in nodes) {
             let data = jdocument.find(init + nodes[idx]).first().text();
             if (/^\**$/.test(data))
@@ -316,8 +317,14 @@ module.exports = controller => {
                 data = data.replace(/^0+/, '');
                 data = pad(14, data, '0');
                 data = CNPJ.isValid(data) ? data : data.substr(3);
-                if (CPF.isValid(data)) result.addItem('CPF', CPF.format(data), nodes[idx]);
-                else result.addItem('CNPJ', CNPJ.format(data), nodes[idx]);
+                if (CPF.isValid(data)) {
+                    result.addItem('CPF', CPF.format(data), nodes[idx]);
+                    doc = CPF.format(data);
+                }
+                else {
+                    result.addItem('CNPJ', CNPJ.format(data), nodes[idx]);
+                    doc = CNPJ.format(data);
+                }
                 continue;
             }
             result.addItem(idx, data, nodes[idx]);
@@ -328,13 +335,16 @@ module.exports = controller => {
             result.addItem('Capital Social', numeral(capitalSocial.text().replace('.', ',')).format('$0,0.00'), 'capitalSocial');
         }
 
+        if (doc) {
+            controller.trigger('ccbusca::parser', { result, doc });
+        }
         setAddress(result, jdocument);
         setContact(result, jdocument);
         setSociety(result, jdocument);
         setQSA(result, jdocument);
         setSocio(result, jdocument);
         setEmpregador(result, jdocument);
-
+        
         return result.element();
     };
 

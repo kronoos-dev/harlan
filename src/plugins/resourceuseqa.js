@@ -24,11 +24,9 @@ harlan.addPlugin(controller => {
      */
     var reduceDataset = (dataArgument, reduceDatasetPerc = 0.5, method = 'average') => {
         let data = Object.assign( {}, dataArgument);
-        var sum = _.reduce(data, (a, b) => {
-            return {
-                value: a.value + b.value
-            };
-        });
+        var sum = _.reduce(data, (a, b) => ({
+            value: a.value + b.value
+        }));
 
         sum = sum && sum.value ? sum.value : 0;
 
@@ -41,19 +39,17 @@ harlan.addPlugin(controller => {
                 return 0;
             }
             return idx++;
-        })), value => {
-            return _.reduce(value, (a, b) => {
-                if (method == 'sum') {
-                    a.value += b.value;
-                } else {
-                    a.value += (b.value / qtd);
-                }
-                a.color = '#93A7D8';
-                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
-                a.label = 'Outros';
-                return a;
-            });
-        });
+        })), value => _.reduce(value, (a, b) => {
+            if (method == 'sum') {
+                a.value += b.value;
+            } else {
+                a.value += (b.value / qtd);
+            }
+            a.color = '#93A7D8';
+            a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+            a.label = 'Outros';
+            return a;
+        }));
 
     };
 

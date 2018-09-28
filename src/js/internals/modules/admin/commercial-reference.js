@@ -31,24 +31,18 @@ module.exports = controller => {
 
                 const groupData = _.values(_.groupBy(dataset, ({_id}) => _id || null));
 
-                const reduceData = _.sortBy(_.map(groupData, group => {
-                    return _.reduce(group, ({_id, total}, o) => {
-                        return {
-                            _id,
-                            total: total + o.total,
-                        };
-                    });
-                }), 'total');
+                const reduceData = _.sortBy(_.map(groupData, group => _.reduce(group, ({_id, total}, o) => ({
+                    _id,
+                    total: total + o.total,
+                }))), 'total');
 
-                const charData = _.map(reduceData, ({_id, total}, i) => {
-                    return {
-                        tag: _id,
-                        label: _id || 'Não preenchido',
-                        value: total,
-                        color: colors[i],
-                        highlight: colorsHightlight[i]
-                    };
-                });
+                const charData = _.map(reduceData, ({_id, total}, i) => ({
+                    tag: _id,
+                    label: _id || 'Não preenchido',
+                    value: total,
+                    color: colors[i],
+                    highlight: colorsHightlight[i]
+                }));
                 const reducedDataset = reduceDataset(charData);
                 const canvas = report.canvas(250, 250);
 
@@ -98,24 +92,18 @@ module.exports = controller => {
 
                 const groupData = _.values(_.groupBy(dataset, ({_id}) => _id || null));
 
-                const reduceData = _.sortBy(_.map(groupData, group => {
-                    return _.reduce(group, ({_id, total}, o) => {
-                        return {
-                            _id,
-                            total: total + o.total,
-                        };
-                    });
-                }), 'total');
+                const reduceData = _.sortBy(_.map(groupData, group => _.reduce(group, ({_id, total}, o) => ({
+                    _id,
+                    total: total + o.total,
+                }))), 'total');
 
-                const charData = _.map(reduceData, ({_id, total}, i) => {
-                    return {
-                        commercialReference: _id,
-                        label: _id || 'Não preenchido',
-                        value: total,
-                        color: colors[i],
-                        highlight: colorsHightlight[i]
-                    };
-                });
+                const charData = _.map(reduceData, ({_id, total}, i) => ({
+                    commercialReference: _id,
+                    label: _id || 'Não preenchido',
+                    value: total,
+                    color: colors[i],
+                    highlight: colorsHightlight[i]
+                }));
                 const reducedDataset = reduceDataset(charData);
                 const canvas = report.canvas(250, 250);
 
@@ -152,11 +140,9 @@ module.exports = controller => {
      */
     var reduceDataset = (dataArgument) => {
         let data = jQuery.extend(true, {}, dataArgument);
-        let sum = _.reduce(data, ({value}, o) => {
-            return {
-                value: value + o.value,
-            };
-        });
+        let sum = _.reduce(data, ({value}, o) => ({
+            value: value + o.value,
+        }));
 
         sum = sum && sum.value ? sum.value : 0;
 
@@ -167,15 +153,13 @@ module.exports = controller => {
                 return 0;
             }
             return idx++;
-        })), value => {
-            return _.reduce(value, (a, b) => {
-                a.value += b.value;
-                a.color = '#93A7D8';
-                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
-                a.label = 'Outros';
-                return a;
-            });
-        });
+        })), value => _.reduce(value, (a, b) => {
+            a.value += b.value;
+            a.color = '#93A7D8';
+            a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+            a.label = 'Outros';
+            return a;
+        }));
 
     };
 };

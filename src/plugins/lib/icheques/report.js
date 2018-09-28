@@ -1,5 +1,4 @@
 /*jshint -W083 */
-/* global module */
 
 module.exports = controller => {
 

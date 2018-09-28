@@ -1,7 +1,6 @@
-/* global module */
+import animate from './animation.js';
 
 let loaderRegister = 0;
-
 let loaderUnregister = null;
 
 module.exports = controller => {
@@ -126,7 +125,7 @@ module.exports = controller => {
 
     $.getScript('https://code.createjs.com/createjs-2015.11.26.min.js', () => {
         const lib = {};
-        require('./animation.js')(lib, null, createjs, null);
+        animate(lib, null, createjs, null);
 
         let canvas = $('<canvas />').attr({
             width: 225,

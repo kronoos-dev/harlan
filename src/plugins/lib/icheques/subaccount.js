@@ -1,5 +1,3 @@
-/* global module */
-
 module.exports = controller => {
 
     controller.endpoint.subaccountCreate = 'INSERT INTO \'IChequesProfile\'.\'SUBACCOUNT\'';

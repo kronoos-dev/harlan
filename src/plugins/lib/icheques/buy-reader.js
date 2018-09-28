@@ -1,9 +1,7 @@
-/* global module, toastr */
-
 module.exports = controller => {
 
     controller.registerCall('icheques::buyreader', cep => {
-        controller.call('credits::has', 88400, () => {
+        controller.call('credits::has', 884000, () => {
             controller.call('icheques::buyreader::go', cep);
         });
     });

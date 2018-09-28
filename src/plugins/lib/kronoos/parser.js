@@ -4,7 +4,7 @@ import execall from 'execall';
 import capitalize from 'capitalize';
 import XlsxPopulate from 'xlsx-populate';
 import { htmlEncode } from 'js-htmlencode';
-import { CPF, CNPJ } from 'cpf_cnpj';
+import { CNPJ, CPF } from 'cpf_cnpj';
 import { CognitiveDossier } from './cognitive-dossier';
 import async from 'async';
 import _ from 'underscore';
@@ -12,7 +12,6 @@ import pad from 'pad';
 import bankCodes from './bank-codes';
 import VMasker from 'vanilla-masker';
 import uniqid from 'uniqid';
-import htmlDocx from 'html-docx-js';
 import saveAs from 'save-as';
 import toMarkdown from 'to-markdown';
 import html2canvas from 'html2canvas';
@@ -77,7 +76,7 @@ function f(document) {
     return (CPF.isValid(formatted_document) ? CPF : CNPJ).format(formatted_document);
 }
 
-export class KronoosParse {
+export default class KronoosParse {
 
     constructor(controller, depth, name, cpf_cnpj, kronoosData,
         ccbuscaData = null, defaultType = 'maximized', parameters = {}, brief = null) {
@@ -430,9 +429,7 @@ export class KronoosParse {
             ['trf3', 'SELECT FROM \'CERTIDOES\'.\'TRF03\'', 'TRF03', 'Tribunal Regional Federal 3º Região', null],
             ['trf3-ms', 'SELECT FROM \'CERTIDOES\'.\'TRF03\' WHERE \'ABRANGENCIA\' = \'3\'', 'TRF03', 'Justiça Federal de Primeiro Grau em Mato Grosso do Sul', null],
             ['trf3-sp', 'SELECT FROM \'CERTIDOES\'.\'TRF03\' WHERE \'ABRANGENCIA\' = \'2\'', 'TRF03', 'Justiça Federal de Primeiro Grau em São Paulo ', null],
-            ['trt15', 'SELECT FROM \'CERTIDOES\'.\'TRT15\'', 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => {
-                return !/não\s+existe\s+ação/i.test(str);
-            }],
+            ['trt15', 'SELECT FROM \'CERTIDOES\'.\'TRT15\'', 'TRT15', 'Tribunal Regional do Trabalho da 15º Região ', str => !/não\s+existe\s+ação/i.test(str)],
             ['trt02', 'SELECT FROM \'CERTIDOES\'.\'TRT02\'', 'TRT02', 'Tribunal Regional do Trabalho da 2º Região', str => !/NÃO CONSTA/i.test(str)]
         ];
 
@@ -2855,7 +2852,6 @@ export class KronoosParse {
         }
 
         this.controller.triggered('kronoos::juristek', [numproc, proc, pieces, cnjInstance, partes])
-            .catch(e => console.error(e))
             .finally(() => {
                 let validPieces = _.filter(pieces, t => {
                     if (!t[1]) return false;
@@ -2926,3 +2922,5 @@ export class KronoosParse {
     }
 
 }
+
+export { KronoosParse };

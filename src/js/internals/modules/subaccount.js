@@ -1,5 +1,3 @@
-/* global module */
-
 import _ from 'underscore';
 import sprintf from 'sprintf';
 import {

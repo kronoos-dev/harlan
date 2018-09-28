@@ -1,4 +1,3 @@
-/* global toastr, BIPBOP_FREE, module */
 import localForage from 'localforage';
 
 module.exports = controller => {

@@ -3,7 +3,7 @@ import checkdigit from 'checkdigit';
 const CMC7_GROUPS = /(\d{7})(\d{1})(\d{10})(\d{1})(\d{10})(\d{1})/;
 const NON_NUMBERS = /[^\d]/g;
 
-export class CMC7Validator {
+export default class CMC7Validator {
 
     constructor(code) {
         let execution = CMC7_GROUPS.exec(code.replace(NON_NUMBERS, ''));
@@ -32,3 +32,5 @@ export class CMC7Validator {
     }
 
 }
+
+export { CMC7Validator };

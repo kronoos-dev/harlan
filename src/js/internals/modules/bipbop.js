@@ -1,5 +1,3 @@
-/* global numeral, module, harlan, moment */
-
 import documentValidator from 'cpf_cnpj';
 
 import async from 'async';

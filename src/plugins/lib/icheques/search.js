@@ -1,5 +1,3 @@
-/* global module */
-
 var squel = require('squel');
 
 var sprintf = require('sprintf');
@@ -34,7 +32,7 @@ module.exports = controller => {
         var query = squel.select().from('ICHEQUES_CHECKS').where(expr).toString();
         var databaseResult = controller.call('icheques::resultDatabase', controller.database.exec(query)[0]);
 
-        if (!databaseResult.values.length) {
+        if (!databaseResult.values || databaseResult.values.length) {
             callback();
             return;
         }
@@ -49,11 +47,9 @@ module.exports = controller => {
         callback();
     });
 
-    controller.registerCall('icheques::resultClick', result => {
-        return e => {
-            e.preventDefault();
-            controller.call('icheques::show', [result], null, null, true);
-        };
+    controller.registerCall('icheques::resultClick', result => e => {
+        e.preventDefault();
+        controller.call('icheques::show', [result], null, null, true);
     });
 
     controller.registerTrigger('findDatabase::instantSearch', 'icheques::search::cmc7', (args, callback) => {

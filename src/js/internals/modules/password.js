@@ -1,4 +1,3 @@
-/* global module */
 import owasp from 'owasp-password-strength-test';
 
 const PASSWORD_TIPS = [

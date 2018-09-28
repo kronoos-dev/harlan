@@ -1,7 +1,4 @@
 import 'extend-error';
-import 'babel-polyfill';
-import 'es6-shim';
-import 'dom4';
 import './internals/library/safari-hacks';
 
 import Interface from './internals/library/interface';
@@ -86,7 +83,6 @@ import browserUpdate from 'browser-update';
     require('./internals/modules/instant-search')(harlan);
     require('./internals/modules/tooltip')(harlan);
     require('./internals/modules/icheques')(harlan);
-    require('./internals/modules/dive')(harlan);
     require('./internals/modules/socialprofile')(harlan);
     require('./internals/modules/kronoos')(harlan);
     require('./internals/modules/billing-information')(harlan);

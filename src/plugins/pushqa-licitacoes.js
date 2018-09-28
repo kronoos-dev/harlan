@@ -23,11 +23,9 @@ harlan.addPlugin(controller => {
      */
     var reduceDataset = (dataArgument) => {
         let data = Object.assign( {}, dataArgument);
-        var sum = _.reduce(data, (a, b) => {
-            return {
-                value: a.value + b.value
-            };
-        });
+        var sum = _.reduce(data, (a, b) => ({
+            value: a.value + b.value
+        }));
 
         sum = sum && sum.value ? sum.value : 0;
 
@@ -38,24 +36,20 @@ harlan.addPlugin(controller => {
                 return 0;
             }
             return idx++;
-        })), value => {
-            return _.reduce(value, (a, b) => {
-                a.value += b.value;
-                a.color = '#93A7D8';
-                a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
-                a.label = 'Outros';
-                return a;
-            });
-        });
+        })), value => _.reduce(value, (a, b) => {
+            a.value += b.value;
+            a.color = '#93A7D8';
+            a.highlight = new Color('#93A7D8').lighten(0.1).hsl().string();
+            a.label = 'Outros';
+            return a;
+        }));
 
     };
 
     controller.serverCommunication.call('SELECT FROM \'PUSHLICITACOES\'.\'QA\'', {
         dataType: 'json',
         success: data => {
-            var filter = (hasSuccessMemory) => {
-                return _.filter(data, element => element._id.hasSuccessMemory === hasSuccessMemory);
-            };
+            var filter = (hasSuccessMemory) => _.filter(data, element => element._id.hasSuccessMemory === hasSuccessMemory);
 
             generateReport(filter(true), 'Relatório de Push', 'Consultas Realizadas com Sucesso',
                 'O relatório de Push fornece uma estatística de qualidade e detalhada para que as ' +

@@ -1,5 +1,3 @@
-/* global module, Notification, ServiceWorkerRegistration */
-
 module.exports = controller => {
 
     const keyPushEndpoint = () => `keyPushEndpoint-${controller.serverCommunication.userHash()}`;
@@ -35,12 +33,10 @@ module.exports = controller => {
         }
 
         if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-            console.warn('Notifications aren\'t supported.');
             return;
         }
 
         if (!('PushManager' in window)) {
-            console.warn('Push messaging isn\'t supported.');
             return;
         }
 
@@ -76,7 +72,6 @@ module.exports = controller => {
                             }
                         }));
                 }).catch(e => {
-                    console.error('Push Notification', e);
                     controller.call('alert', {
                         title: 'Não foi possível ativar as notificações!',
                         subtitle: 'Provávelmente seu browser não suporta ou não há permissões requeridas.'

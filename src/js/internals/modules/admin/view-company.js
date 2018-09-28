@@ -154,7 +154,7 @@ module.exports = controller => {
         if (cpf) result.addItem('CPF', CPF.format(cpf));
         const postPaidInput = result.addItem('Pós-pago', postPaid ? 'Sim' : 'Não');
         let creditsInput = null;
-        if (credits) creditsInput = result.addItem('Créditos Sistema', numeral(credits / 100.0).format('$0,0.00'));
+        if (credits) creditsInput = result.addItem('Créditos Sistema', numeral(credits / 1000.0).format('$0,0.00'));
         if (commercialReference) result.addItem('Referência Comercial', commercialReference);
 
         let apiKey;
@@ -406,12 +406,12 @@ module.exports = controller => {
 
                 let form = modal.createForm();
                 const input = form.addInput('Créditos', 'text', 'Créditos (R$)')
-                    .mask('#.##0,00', {
+                    .mask('#.##0,000', {
                         reverse: true
                     });
 
                 if (credits) {
-                    input.val(numeral(Math.abs(credits) / 100.0).format('0,0.00'));
+                    input.val(numeral(Math.abs(credits / 1000)).format('0,0.000'));
                 }
 
                 const invertCredits = form.addCheckbox('invert', 'Saldo Devedor', credits < 0);
@@ -419,7 +419,7 @@ module.exports = controller => {
                 form.addSubmit('change-credits', 'Alterar Créditos');
                 form.element().submit(e => {
                     e.preventDefault();
-                    const ammount = Math.ceil(numeral(input.val()).value() * 100) * (invertCredits[1].is(':checked') ? -1 : 1);
+                    const ammount = Math.ceil(numeral(input.val()).value() * 1000) * (invertCredits[1].is(':checked') ? -1 : 1);
                     controller.server.call('UPDATE \'BIPBOPCOMPANYS\'.\'CREDITS\'',
                         controller.call('loader::ajax', controller.call('error::ajax', {
                             data: {
@@ -428,9 +428,9 @@ module.exports = controller => {
                             },
                             success: () => {
                                 if (creditsInput) {
-                                    creditsInput.find('.value').text(numeral(ammount / 100.0).format('$0,0.00'));
+                                    creditsInput.find('.value').text(numeral(ammount / 1000.0).format('$0,0.000'));
                                 } else {
-                                    creditsInput = result.addItem('Créditos Sistema', numeral(ammount / 100.0).format('$0,0.00')).insertAfter(inputApiKey);
+                                    creditsInput = result.addItem('Créditos Sistema', numeral(ammount / 1000.0).format('$0,0.000')).insertAfter(inputApiKey);
                                 }
                                 modal.close();
                             }

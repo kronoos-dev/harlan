@@ -1,5 +1,3 @@
-/* global bipbop, module */
-
 /**
  * Módulo de Comunicação com a BIPBOP
  * @author Lucas Fernando Amorim <lf.amorim@bipbop.com.br>
@@ -47,13 +45,9 @@ export default function (controller) {
         controller.trigger('serverCommunication::websocket::open', ws);
     });
 
-    this.freeKey = () => {
-        return bipbopApiKey === BIPBOP_FREE;
-    };
+    this.freeKey = () => bipbopApiKey === BIPBOP_FREE;
 
-    this.userHash = () => {
-        return SHA256(bipbopApiKey);
-    };
+    this.userHash = () => SHA256(bipbopApiKey);
 
     /* BIPBOP API Key */
     this.apiKey = (apiKey) => {
@@ -70,9 +64,7 @@ export default function (controller) {
     this.call = (query, configuration) => {
         let conf = Object.assign({method: 'POST'}, configuration);
         controller.trigger('serverCommunication::call', [query, conf]);
-        return $.bipbop(query, bipbopApiKey, conf).always((...args) => {
-            controller.trigger('serverCommunication::responseComplete', [query, configuration, args]);
-        });
+        return $.bipbop(query, bipbopApiKey, conf).always((...args) => controller.trigger('serverCommunication::responseComplete', [query, configuration, args]));
     };
 
     /* ALIAS */

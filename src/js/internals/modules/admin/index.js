@@ -39,7 +39,6 @@ module.exports = controller => {
         require('./phone')(controller);
         require('./send-message')(controller);
         require('./report')(controller);
-        require('./price')(controller);
 
         controller.registerCall('admin::index', () => {
             const report = controller.call('report', 'Administrador da Conta', 'Administre os usuários cadastrados no sistema.',
@@ -54,9 +53,7 @@ module.exports = controller => {
                         skip: apiKeys.length
                     }, filter),
                     success: data => {
-                        apiKeys = apiKeys.concat($('apiKey', data).map((i, v) => {
-                            return $(v).text();
-                        }).toArray());
+                        apiKeys = apiKeys.concat($('apiKey', data).map((i, v) => $(v).text()).toArray());
                         total = parseInt($('body count', data).text());
                     },
                     complete: () => callback()

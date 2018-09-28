@@ -1,5 +1,3 @@
-/* global toastr */
-
 module.exports = controller => {
 
     controller.registerCall('icheques::contact', () => {

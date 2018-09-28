@@ -59,9 +59,7 @@ module.exports = controller => {
         const document = $('BPQL > body > company > cnpj', response).text() ||
         $('BPQL > body > company > cpf', response).text();
 
-        let telefoneNode = $('BPQL > body > company > telefone > telefone', response).filter((idx, element) => {
-            return $(element).children('telefone:eq(4)').text() == 'financeiro';
-        }).first();
+        let telefoneNode = $('BPQL > body > company > telefone > telefone', response).filter((idx, element) => $(element).children('telefone:eq(4)').text() == 'financeiro').first();
 
         let telefone;
 
@@ -99,9 +97,7 @@ module.exports = controller => {
                         optional: false,
                         disabled: CNPJ.isValid(document),
                         value: document.replace(/[^0-9]/g, ''),
-                        validate: ({element}) => {
-                            return CNPJ.isValid(element.val()) || CPF.isValid(element.val());
-                        },
+                        validate: ({element}) => CNPJ.isValid(element.val()) || CPF.isValid(element.val()),
                         validateAsync(callback, {element}, screen, configuration) {
                             callback(true);
                             controller.serverCommunication.call('SELECT FROM \'BIPBOPJS\'.\'CPFCNPJ\'', {
@@ -192,13 +188,9 @@ module.exports = controller => {
                         name: 'email',
                         optional: false,
                         type: 'text',
-                        value: $('BPQL > body > company email', response).filter((idx, element) => {
-                            return $(element).children('email:eq(1)').text() == 'financeiro';
-                        }).children('email:eq(0)').text(),
+                        value: $('BPQL > body > company email', response).filter((idx, element) => $(element).children('email:eq(1)').text() == 'financeiro').children('email:eq(0)').text(),
                         placeholder: 'E-mail do Financeiro',
-                        validate: ({element}) => {
-                            return emailRegex().test(element.val());
-                        }
+                        validate: ({element}) => emailRegex().test(element.val())
                     }, {
                         name: 'phone',
                         optional: false,
@@ -206,9 +198,7 @@ module.exports = controller => {
                         value: telefone,
                         mask: '(00) 0000-00009',
                         placeholder: 'Telefone de Contato',
-                        validate: ({element}) => {
-                            return PHONE_REGEX.test(element.val());
-                        }
+                        validate: ({element}) => PHONE_REGEX.test(element.val())
                     }]
                 ]
             }]

@@ -1,4 +1,3 @@
-/* global controller, numeral, Infinity, NaN, moment */
 harlan.addPlugin(controller => {
 
     const MAX_RESULTS = 10;

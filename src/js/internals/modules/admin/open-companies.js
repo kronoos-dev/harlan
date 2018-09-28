@@ -12,9 +12,7 @@ module.exports = controller => {
                         skip
                     }, data),
                     success: response => {
-                        callback(_.map($('BPQL > body > company', response), company => {
-                            return controller.call('admin::viewCompany', company, false, null, true);
-                        }));
+                        callback(_.map($('BPQL > body > company', response), company => controller.call('admin::viewCompany', company, false, null, true)));
                     }
                 })));
             skip += MAX_RESULTS;

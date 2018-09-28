@@ -1,5 +1,3 @@
-/* global moment, module, toastr */
-
 const DATABASE_KEYS = [
     'id',
     'creation',
@@ -70,7 +68,6 @@ module.exports = controller => {
         try {
             controller.database.exec(squel.insert().into('ICHEQUES_CHECKS').setFields(databaseObject(check)).toString());
         } catch (e) {
-            console.error(e);
         }
     };
 

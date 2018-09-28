@@ -96,7 +96,7 @@ module.exports = controller => {
             report.subtitle('Infelizmente você não poderá receber novas operações.');
             report.paragraph('Renove seu cadastro de antecipador clicando no botão abaixo, é um custo de R$ 900 (novecentos reais) para mais um mês de operações.');
             report.button('Renovar Cadastro', () => {
-                controller.call('credits::has', 90000, () => {
+                controller.call('credits::has', 900000, () => {
                     controller.server.call('UPDATE \'ICHEQUESFIDC\'.\'RENEW\'',
                         controller.call('error::ajax', controller.call('loader::ajax', {
                             success: () => {
@@ -129,9 +129,7 @@ module.exports = controller => {
                     return;
                 }
 
-                const emails = _.filter(value.company.email, element => {
-                    return element[1] == 'financeiro';
-                });
+                const emails = _.filter(value.company.email, element => element[1] == 'financeiro');
                 let companyElement = Object.assign({
                     document: value.company.cnpj || value.company.cpf,
                     endereco: value.company.endereco[0],
@@ -733,29 +731,27 @@ module.exports = controller => {
             });
         };
 
-        let accept = accept => {
-            return () => {
-                if (accept) {
-                    askReceipt(args, obj => {
-                        sendAccept(true, obj);
-                    });
-                    return;
-                }
-                let modal = controller.call('modal');
-                modal.title('Qual o motivo da recusa?');
-                modal.subtitle('Você precisa informar o motivo da recusa para continuar.');
-                modal.paragraph('Ao informar seu cliente o motivo da recusa você evita discussões posteriores no telefone ou email.');
-                let form = modal.createForm();
-                let reason = form.addTextarea('textarea', 'Qual motivo da recusa?');
-                form.addSubmit('continue', 'Recusar');
-                form.element().submit(e => {
-                    e.preventDefault();
-                    modal.close();
-                    sendAccept(false, {
-                        reason: reason.val()
-                    });
+        let accept = accept => () => {
+            if (accept) {
+                askReceipt(args, obj => {
+                    sendAccept(true, obj);
                 });
-            };
+                return;
+            }
+            let modal = controller.call('modal');
+            modal.title('Qual o motivo da recusa?');
+            modal.subtitle('Você precisa informar o motivo da recusa para continuar.');
+            modal.paragraph('Ao informar seu cliente o motivo da recusa você evita discussões posteriores no telefone ou email.');
+            let form = modal.createForm();
+            let reason = form.addTextarea('textarea', 'Qual motivo da recusa?');
+            form.addSubmit('continue', 'Recusar');
+            form.element().submit(e => {
+                e.preventDefault();
+                modal.close();
+                sendAccept(false, {
+                    reason: reason.val()
+                });
+            });
         };
 
         report.newAction('fa-user', () => {

@@ -24,7 +24,6 @@ export class ApplicationState {
 
     set applicationState(appState) {
         localForage.setItem(this.namespace, appState, err => {
-            if (err) console.error(err);
         });
         this.state = appState;
     }

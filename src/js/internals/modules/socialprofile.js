@@ -64,9 +64,7 @@ module.exports = controller => {
             args.report.content().append(socialProfilesContainer);
         }
 
-        let photos = data.find('photos > url').map((idx, item) => {
-            return $(item).text();
-        });
+        let photos = data.find('photos > url').map((idx, item) => $(item).text());
 
         if (photos.length) {
             let gamification = args.report.element().find('.gamification');
@@ -116,9 +114,7 @@ module.exports = controller => {
             args.report.label($(node).text());
         });
 
-        const organization = data.find('organizations > organizations').filter((idx, node) => {
-            return $(node).find('isPrimary').text() == 'true';
-        }).first();
+        const organization = data.find('organizations > organizations').filter((idx, node) => $(node).find('isPrimary').text() == 'true').first();
         if (organization.length) {
             $('<h4 />')
                 .text([organization.find('name').text(), organization.find('title').text()].join(' na '))
@@ -238,25 +234,21 @@ module.exports = controller => {
         modal.createActions().cancel();
     };
 
-    const openEmail = (report, email, document) => {
-        return e => {
-            e.preventDefault();
-            window.open(`mailto:${email}`, '_blank');
-        };
+    const openEmail = (report, email, document) => e => {
+        e.preventDefault();
+        window.open(`mailto:${email}`, '_blank');
     };
 
-    const openPhone = (report, ddd, numero, document) => {
-        return e => {
-            e.preventDefault();
-            const modal = controller.confirm({
-                icon: 'phone-icon-7',
-                title: 'Você deseja realmente estabeler uma ligação?',
-                subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, '9999-99999')}.`,
-                paragraph: 'Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente.'
-            }, () => {
-                controller.call('softphone::call', `55${ddd}${numero}`);
-            });
-        };
+    const openPhone = (report, ddd, numero, document) => e => {
+        e.preventDefault();
+        const modal = controller.confirm({
+            icon: 'phone-icon-7',
+            title: 'Você deseja realmente estabeler uma ligação?',
+            subtitle: `Será realizada uma ligação para o número (${ddd}) ${VMasker.toPattern(numero, '9999-99999')}.`,
+            paragraph: 'Essa chamada poderá ser tarifada pela sua operadora VoIP, verifique os encargos vigentes antes de prosseguir. Para uma boa ligação se certifique de que haja banda de internet suficiente.'
+        }, () => {
+            controller.call('softphone::call', `55${ddd}${numero}`);
+        });
     };
 
     const openGraph = (report, ccbusca, document) => {

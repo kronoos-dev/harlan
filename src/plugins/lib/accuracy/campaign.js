@@ -6,11 +6,7 @@ module.exports = controller => {
         controller.call('accuracy::campaigns::get', data => cb(controller.call('accuracy::campaigns::parse', data)), onError);
     });
 
-    controller.registerCall('accuracy::campaigns::parse', data => {
-        return _.filter(data[0], ({period_end}) => {
-            return moment(period_end, 'YYYY-MM-DD').isAfter();
-        });
-    });
+    controller.registerCall('accuracy::campaigns::parse', data => _.filter(data[0], ({period_end}) => moment(period_end, 'YYYY-MM-DD').isAfter()));
 
     controller.registerCall('accuracy::campaigns::get', (callback, errorCallback) => {
         controller.call('accuracy::authentication::data', (authData) =>

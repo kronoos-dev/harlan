@@ -8,21 +8,15 @@ const applicationElement = $('.accuracy-app');
 
 module.exports = controller => {
 
-    let cameraErrorCallback = message => {
-        return fatalError('Não foi possível abrir a câmera do dispositivo.', message);
-    };
+    let cameraErrorCallback = message => fatalError('Não foi possível abrir a câmera do dispositivo.', message);
 
-    let geolocationErrorCallback = ({code, message}) => {
-        return fatalError('Não foi possível capturar a sua localização.', `${code} - ${message}`);
-    };
+    let geolocationErrorCallback = ({code, message}) => fatalError('Não foi possível capturar a sua localização.', `${code} - ${message}`);
 
-    let fatalError = (title, message) => {
-        return controller.alert({
-            title,
-            subtitle: message,
-            paragraph: 'Ocorreu um erro fatal e o programa será finalizado, tente novamente mais tarde.'
-        }, () => navigator.app.exitApp());
-    };
+    let fatalError = (title, message) => controller.alert({
+        title,
+        subtitle: message,
+        paragraph: 'Ocorreu um erro fatal e o programa será finalizado, tente novamente mais tarde.'
+    }, () => navigator.app.exitApp());
 
     let objectConfirm = (obj, callback) => {
         controller.confirm({}, () => {
@@ -59,10 +53,8 @@ module.exports = controller => {
         }, geolocationErrorCallback, 'checkout');
     };
 
-    let distantMessage = obj => {
-        return obj[0].approved === 'Y' ? '' :
-            '<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>';
-    };
+    let distantMessage = obj => obj[0].approved === 'Y' ? '' :
+        '<strong>Você está distante da loja, esta ação dependerá da aprovação de um administrador.</strong>';
 
     let checkin = () => {
         controller.call('accuracy::checkin::object', as.applicationState.campaign, as.applicationState.store, obj => {
@@ -72,9 +64,7 @@ module.exports = controller => {
                 paragraph: `Será lhe apresentado um questionário para prosseguir com o check-in. ${distantMessage(obj)}`
             }, () => {
                 controller.call('accuracy::checkin::picture', obj, () => {
-                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, ({is_checkin}) => {
-                        return is_checkin == 'Y';
-                    }), response => {
+                    controller.call('accuracy::question', _.filter(as.applicationState.campaign.question, ({is_checkin}) => is_checkin == 'Y'), response => {
                         obj[0].questions = response;
                         objectConfirm(obj, () => {
                             render({

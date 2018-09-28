@@ -293,7 +293,6 @@ module.exports = controller => {
     }));
 
     controller.registerCall('admin::createCompany', description => {
-        /* global module */
         const form = controller.call('form', opts => {
             controller.serverCommunication.call(controller.endpoint.createCompany,
                 controller.call('error::ajax', controller.call('loader::ajax', {

@@ -87,18 +87,12 @@ const Timeline = function() {
         return obj.item;
     };
 
-    this.length = () => {
-        return timeline.find('li').length;
-    };
+    this.length = () => timeline.find('li').length;
 
-    this.element = () => {
-        return timeline;
-    };
+    this.element = () => timeline;
 
 };
 
 module.exports = controller => {
-    controller.registerCall('timeline', () => {
-        return new Timeline();
-    });
+    controller.registerCall('timeline', () => new Timeline());
 };

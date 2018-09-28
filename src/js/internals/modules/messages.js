@@ -1,5 +1,3 @@
-/* global toastr */
-
 const MarkdownIt = require('markdown-it')({
     break: true,
     xhtmlOut: true,

@@ -11,7 +11,6 @@ module.exports = controller => {
                 id: controller.query.banId
             },
             success: ret => {
-                console.log(ret);
                 let storage = [];
                 let companyObj = controller.call('data::company', $(ret).find('body > company'));
 

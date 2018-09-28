@@ -1,5 +1,3 @@
-/* global module */
-
 module.exports = controller => {
 
     controller.registerCall('confirm', controller.confirm = (

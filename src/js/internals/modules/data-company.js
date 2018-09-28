@@ -1,8 +1,6 @@
 module.exports = controller => {
-    controller.registerCall('data::company', ($company) => {
-        // console.log("\n>>> data::company\n\n");
-        // console.log($company.find("nome").text());
-        return {
+    controller.registerCall('data::company', ($company) => 
+        ({
             cpf: $company.find('cpf').text(),
             cnpj: $company.find('cnpj').text(),
             nome: $company.find('nome').text(),
@@ -17,6 +15,6 @@ module.exports = controller => {
                 $company.find('endereco > endereco:eq(5)').text(),
                 $company.find('endereco > endereco:eq(6)').text(),
             ],
-        };
-    });
+        })
+    );
 };

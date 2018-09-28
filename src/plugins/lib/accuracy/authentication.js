@@ -19,7 +19,6 @@ module.exports = controller => {
     controller.registerCall('accuracy::authentication::data', cb => {
         if (_authData) cb(_authData);
         else localForage.getItem('accuracyAuth', (err, value) => {
-            if (err) console.error(err);
             cb(value);
         });
     });
@@ -27,7 +26,6 @@ module.exports = controller => {
     /* Sai da conta do usuário */
     controller.registerCall('accuracy::logout', callback => {
         localForage.removeItem('accuracyAuth', err => {
-            console.error(err);
         });
         _authData = null;
         controller.call('accuracy::server::reset');
@@ -43,7 +41,6 @@ module.exports = controller => {
                     return;
                 }
                 localForage.setItem('accuracyAuth', authData, err => {
-                    if (err) console.log(err);
                 });
                 _authData = authData;
                 controller.call('accuracy::server::auth', authData);

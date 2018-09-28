@@ -1,4 +1,3 @@
-/* global module */
 import _ from 'underscore';
 
 export default function(element) {
@@ -7,13 +6,9 @@ export default function(element) {
     const container = $('<div />').addClass('list-container').append(list);
     element.append(container);
 
-    const elementCellCounter = element => {
-        return $(element).children().length;
-    };
+    const elementCellCounter = element => $(element).children().length;
 
-    const cellCounter = () => {
-        return _.max(_.map(list.children('li'), elementCellCounter));
-    };
+    const cellCounter = () => _.max(_.map(list.children('li'), elementCellCounter));
 
     const tableAjustment = () => {
         const numChilds = cellCounter();

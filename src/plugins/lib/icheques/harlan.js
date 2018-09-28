@@ -1,18 +1,20 @@
-/* global toastr, require, module, numeral, moment */
 import async from 'async';
-
+import Promise from 'bluebird';
+import humanInterval from 'human-interval';
 import StringMask from 'string-mask';
 import _ from 'underscore';
 import squel from 'squel';
 import changeCase from 'change-case';
 import {CNPJ} from 'cpf_cnpj';
-
-import {
-    CMC7Parser
-} from './cmc7-parser.js';
+import PromiseWorker from 'promise-worker';
 import truncate from 'truncate';
 import hash from 'hash.js';
 import url from 'url';
+
+import { CMC7Parser } from './cmc7-parser.js';
+
+var worker = new Worker('/js/icheques-parser.js');
+var promiseWorker = new PromiseWorker(worker);
 
 const SEARCH_REGEX = /cheq?u?e?/i;
 const FIDC = /fid?c?/i;
@@ -103,7 +105,7 @@ module.exports = controller => {
                 let exception = $('exception', doc);
                 if (exception.length) {
                     list.item('fa-close', [moment.unix(row.created).fromNow(), 'Ocorreu uma exceção na consulta',
-                        'A consulta ao cheque fracassou, tentando novamente em alguns instantes.'
+                        exception.text()
                     ]);
                 } else {
                     let message = $('ocorrencias descricao', doc).text() || $('situacaoConsultaCheque exibicao', doc).text();
@@ -267,11 +269,12 @@ module.exports = controller => {
             unregister = $.bipbopLoader.register();
         }, 1000);
 
-        let hasResult = false;
+        let continueLoop = false;
         let skip = 0;
 
         async.doUntil(cb => {
             controller.server.call('SELECT FROM \'ICHEQUES\'.\'CHECKS\'', controller.call('error::ajax', {
+                dataType: 'text',
                 method: 'GET',
                 data: {
                     'q[0]': 'SELECT FROM \'ICHEQUES\'.\'CHECKS\'',
@@ -282,19 +285,20 @@ module.exports = controller => {
                 },
                 error: () => cb(Array.from(arguments)),
                 success(ret) {
-                    const storage = [];
                     skip += QUERY_LIMIT;
-                    hasResult = false;
-                    $(ret).find('check').each(function() {
-                        hasResult = true;
-                        storage.push(controller.call('icheques::parse::element', this));
-                    });
+                    continueLoop = false;
 
-                    controller.call('icheques::insertDatabase', storage);
-                    cb();
+                    Promise.resolve()
+                        .then(() => promiseWorker.postMessage(ret))
+                        .tap(storage => {
+                            continueLoop = storage.length;
+                        })
+                        .then(storage => controller.call('icheques::insertDatabase', storage))
+                        .then(() => cb())
+                        .catch(error => cb(error));
                 },
             }));
-        }, () => !hasResult, () => {
+        }, () => !continueLoop, () => {
             registerSocket();
             clearTimeout(loaderTimeout);
             if (unregister)
@@ -586,6 +590,7 @@ module.exports = controller => {
                 data: {
                     documento: task[0]
                 },
+                // timeout: humanInterval('20 seconds'),
                 success: ret => {
                     let totalRegistro = parseInt($(ret).find('BPQL > body > data > resposta > totalRegistro').text());
 
@@ -628,6 +633,7 @@ module.exports = controller => {
             data: {
                 documento: task[0]
             },
+            // timeout: humanInterval('20 seconds'),
             success: ret => {
                 if ($(ret).find('BPQL > body > consulta > situacao').text() != 'CONSTA') {
                     section[0].find('h3').text(mensagem += ' Não há protestos.');
@@ -645,6 +651,7 @@ module.exports = controller => {
 
         let queryTry = (callback, query, data = {}) => controller.server.call(query, {
             cache: true,
+            // timeout: humanInterval('15 seconds'),
             data: Object.assign({
                 documento: task[0]
             }, data),

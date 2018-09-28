@@ -1,5 +1,3 @@
-/* global module, numeral */
-
 const EMPTY_REGEX = /^\s*$/;
 
 import assert from 'assert';
@@ -13,6 +11,11 @@ const FormError = Error.extend('Error', 500);
 const FormCancel = Error.extend('FormError', 500);
 
 module.exports = controller => {
+
+    controller.exceptions.form = {
+        FormError,
+        FormCancel,
+    };
 
     let GenerateForm = function(callback, onCancel) {
 
@@ -217,12 +220,10 @@ module.exports = controller => {
         };
 
         this.readValues = callback => {
-            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => {
-                return [
-                    camelCase(input.name),
-                    getValue(input, configuration)
-                ];
-            }));
+            let results = _.object(_.map(_.flatten(_.pluck(configuration.screens, 'fields')), input => [
+                camelCase(input.name),
+                getValue(input, configuration)
+            ]));
 
             if (callback) {
                 async.each(results, (v, cb) => {
@@ -348,10 +349,16 @@ module.exports = controller => {
         };
 
         this.close = (defaultAction = true) => {
-            if (onCancel && defaultAction) onCancel();
-            if (this.onClose) this.onClose();
-            if (modal) {
-                modal.close();
+            try {
+                if (onCancel && defaultAction) onCancel();
+            } finally {
+                try {
+                    if (this.onClose) this.onClose();
+                } finally {
+                    if (modal) {
+                        modal.close();
+                    }
+                }
             }
         };
 
@@ -401,8 +408,7 @@ module.exports = controller => {
 
     controller.registerCall('form', (...parameters) => new GenerateForm(...parameters));
 
-    controller.registerCall('form::callback', (parameters, callback) => new GenerateForm(callback, () => {
-        throw new FormCancel();
-    }).configure(parameters));
-
+    controller.registerCall('form::callback', (parameters, content, callback) => new GenerateForm(callback, () => callback(null, new FormCancel()))
+        .configure(parameters)
+        .setValues(content));
 };

@@ -1,10 +1,12 @@
-import jDataView from 'jdataview';
-import { sprintf } from 'sprintf';
-import { CMC7Parser } from './cmc7-parser';
+import slug from 'slug';
 import async from 'async';
+import { sprintf } from 'sprintf';
 import { CPF } from 'cpf_cnpj';
 import { CNPJ } from 'cpf_cnpj';
-import slug from 'slug';
+import Buffer from 'buffer';
+import toArrayBuffer from 'to-arraybuffer';
+
+import { CMC7Parser } from './cmc7-parser';
 
 slug.defaults.modes.pretty = {
     replacement: ' ',      // replace spaces with replacement
@@ -23,7 +25,7 @@ const BAN_VERSION = '02.7';
 const MAX_THREADS = 2;
 const CRLF = '\r\n';
 
-export class BANFactory {
+export default class BANFactory {
     constructor(call, {values}, company) {
         this.call = call;
         this.checks = values;
@@ -332,3 +334,5 @@ export class BANFactory {
         this.buffer.setString(this._goToPosition(-1, 7), sprintf('%012d', this._totalValue()).substring(0, 12));
     }
 }
+
+export { BANFactory };

@@ -1,5 +1,3 @@
-/* global numeral */
-
 import sprintf from 'sprintf';
 
 import escaper from 'true-html-escape';
@@ -8,9 +6,7 @@ module.exports = controller =>  {
 
     let companyCredits = 0;
 
-    controller.registerCall('credits::get', () => {
-        return companyCredits;
-    });
+    controller.registerCall('credits::get', () => companyCredits);
 
     const defaultChargeCallback = (ret, callback) =>  {
         const modal = controller.call('modal');
@@ -28,7 +24,7 @@ module.exports = controller =>  {
 
     const changeCredits = credits =>  {
         companyCredits = credits;
-        $('.credits span').text(numeral(Math.abs(credits) / 100).format('0,0.00'));
+        $('.credits span').text(numeral(Math.abs(credits) / 1000.).format('0,0.00'));
 
         if (credits < 0) {
             $('.credits').addClass('invertBalance');
@@ -52,7 +48,7 @@ module.exports = controller =>  {
                 modal = controller.call('modal');
                 modal.title('Você precisa de créditos!');
                 modal.subtitle('Para continuar essa operação você precisa adquirir créditos.');
-                modal.addParagraph(sprintf('Estão faltando %s para você poder continuar, adquira créditos.', numeral(Math.abs(missing) / 100).format('$0,0.00')));
+                modal.addParagraph(sprintf('Estão faltando %s para você poder continuar, adquira créditos.', numeral(Math.abs(missing) / 1000.0).format('$0,0.00')));
                 form = modal.createForm();
                 form.element().submit(e =>  {
                     e.preventDefault();
@@ -66,12 +62,12 @@ module.exports = controller =>  {
                 actions.cancel();
             } else {
                 if (!askFor) return;
-                const credits = numeral(needed / 100.0).format('$0,0.00');
+                const credits = numeral(needed / 1000.0).format('$0,0.00');
                 modal = controller.call('modal');
                 modal.gamification('moneyBag');
                 modal.title('Vamos debitar de seus créditos.');
                 modal.subtitle(sprintf('O valor para esta operação ficou em %s.', credits));
-                modal.addParagraph(sprintf('Serão debitados %s de sua conta, para aceitar clique em prosseguir.', numeral(needed / 100.0).format('$0,0.00')));
+                modal.addParagraph(sprintf('Serão debitados %s de sua conta, para aceitar clique em prosseguir.', numeral(needed / 1000.0).format('$0,0.00')));
                 form = modal.createForm();
                 form.element().submit(e =>  {
                     e.preventDefault();
@@ -198,40 +194,38 @@ module.exports = controller =>  {
                 const form = modal.createForm();
                 const list = form.createList();
 
-                const charge = value =>  {
-                    return e =>  {
-                        e.preventDefault();
-                        modal.close();
-                        controller.call('credits::charge', value, null, null, callback);
-                    };
+                const charge = value =>  e =>  {
+                    e.preventDefault();
+                    modal.close();
+                    controller.call('credits::charge', value, null, null, callback);
                 };
 
-                if (minValue < 2500) {
-                    list.add('fa-dollar', 'Recarregar R$ 25,00.').click(charge(2500));
-                }
-
-                if (minValue < 5000) {
-                    list.add('fa-dollar', 'Recarregar R$ 50,00.').click(charge(5000));
-                }
-
-                if (minValue < 1000) {
-                    list.add('fa-dollar', 'Recarregar R$ 100,00.').click(charge(10000));
+                if (minValue < 25000) {
+                    list.add('fa-dollar', 'Recarregar R$ 25,00.').click(charge(25000));
                 }
 
                 if (minValue < 50000) {
-                    list.add('fa-dollar', 'Recarregar R$ 500,00.').click(charge(50000));
+                    list.add('fa-dollar', 'Recarregar R$ 50,00.').click(charge(50000));
                 }
 
-                if (minValue < 100000) {
-                    list.add('fa-dollar', 'Recarregar R$ 1.000,00.').click(charge(100000));
-                }
-
-                if (minValue < 250000) {
-                    list.add('fa-dollar', 'Recarregar R$ 2.500,00.').click(charge(250000));
+                if (minValue < 10000) {
+                    list.add('fa-dollar', 'Recarregar R$ 100,00.').click(charge(100000));
                 }
 
                 if (minValue < 500000) {
-                    list.add('fa-dollar', 'Recarregar R$ 5.000,00.').click(charge(500000));
+                    list.add('fa-dollar', 'Recarregar R$ 500,00.').click(charge(500000));
+                }
+
+                if (minValue < 1000000) {
+                    list.add('fa-dollar', 'Recarregar R$ 1.000,00.').click(charge(1000000));
+                }
+
+                if (minValue < 2500000) {
+                    list.add('fa-dollar', 'Recarregar R$ 2.500,00.').click(charge(2500000));
+                }
+
+                if (minValue < 5000000) {
+                    list.add('fa-dollar', 'Recarregar R$ 5.000,00.').click(charge(5000000));
                 }
 
                 modal.createActions().cancel();

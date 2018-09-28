@@ -84,18 +84,16 @@ harlan.addPlugin(controller => {
     });
 
     controller.registerCall('myIChequesAccountOverview::download', (ajaxQuery, labels) => {
-        let download = report => {
-            return e => {
-                e.preventDefault();
-                window.location.assign(buildURL(bipbop.webserviceAddress, {
-                    queryParams: Object.assign({}, ajaxQuery, {
-                        q: controller.endpoint.myIChequesAccountOverview,
-                        download: 'true',
-                        apiKey: controller.server.apiKey(),
-                        report
-                    })
-                }));
-            };
+        let download = report => e => {
+            e.preventDefault();
+            window.location.assign(buildURL(bipbop.webserviceAddress, {
+                queryParams: _.pick(Object.assign({}, ajaxQuery, {
+                    q: controller.endpoint.myIChequesAccountOverview,
+                    download: 'true',
+                    apiKey: controller.server.apiKey(),
+                    report
+                }), x => !!x)
+            }));
         };
 
         let modal = controller.call('modal');

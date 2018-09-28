@@ -1,4 +1,3 @@
-/* global module */
 import gamificationIcons from './data/gamification-icons';
 
 import Form from './lib/form';
@@ -93,12 +92,10 @@ module.exports = controller => {
             return timeline;
         };
 
-        this.form = controller => {
-            return new Form({
-                element: this.content,
-                close: this.close
-            }, controller);
-        };
+        this.form = controller => new Form({
+            element: this.content,
+            close: this.close
+        }, controller);
 
         this.button = (name, action) => {
             const button = $('<button />').text(name).click(e => {
@@ -109,13 +106,9 @@ module.exports = controller => {
             return button;
         };
 
-        this.content = () => {
-            return elementContent;
-        };
+        this.content = () => elementContent;
 
-        this.element = () => {
-            return universalContainer;
-        };
+        this.element = () => universalContainer;
 
         this.newAction = (icon, action, title = null) => {
             elementActions.prepend($('<li />').append($('<i />').addClass(`fa ${icon}`)).click(e => {
@@ -125,9 +118,7 @@ module.exports = controller => {
             return this;
         };
 
-        this.results = () => {
-            return elementResults;
-        };
+        this.results = () => elementResults;
 
         this.result = () => {
             const result = controller.call('result');
