@@ -121,11 +121,12 @@ module.exports = function() {
         return data;
     };
 
-    this.promise = (...d) => new Promise((resolve, reject) => {
-        this.call(...d, (data, err) => {
+    this.promise = (name, cb = null, ...d) => new Promise((resolve, reject) => {
+        const ret = this.call(name, ...d, (data, err) => {
             if (err) reject(err);
             else resolve(data);
         });
+        if (cb) cb(ret);
     });
 
     this.run = (cb) => {
