@@ -56,7 +56,7 @@ import browserUpdate from 'browser-update';
     require('./internals/modules/report')(harlan);
     require('./internals/modules/module')(harlan);
     require('./internals/modules/selected-results')(harlan);
-    require('./internals/modules/find-document')(harlan);
+    // require('./internals/modules/find-document')(harlan);
     require('./internals/modules/xml-document')(harlan);
     require('./internals/modules/section')(harlan);
     require('./internals/modules/iugu')(harlan);
