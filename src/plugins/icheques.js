@@ -20,9 +20,9 @@ harlan.addPlugin(controller => {
     controller.endpoint.commercialReferenceOverview = 'SELECT FROM \'IChequesReport\'.\'COMMERCIALREFERENCE\' WHERE \'CACHE\' = \'DISABLED\'';
 
     Object.assign(controller.confs.icheques, {
-        price: 150,
+        price: 1500,
         monthsIncluded: 5,
-        moreMonths: 30
+        moreMonths: 300
     });
 
     controller.registerCall('admin::contactTypes', () => ({
