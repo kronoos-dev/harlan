@@ -193,7 +193,7 @@ module.exports = controller => {
                     type: 'text',
                     placeholder: 'Contrato (R$)',
                     labelText: 'Valor do Contrato (R$)',
-                    mask: '000.000.000.000.000,00',
+                    mask: '000.000.000.000.000,000',
                     optional: false,
                     maskOptions: {
                         reverse: true
@@ -204,7 +204,7 @@ module.exports = controller => {
                     type: 'text',
                     placeholder: 'Consulta Excedente (R$)',
                     labelText: 'Consulta Excedente (R$)',
-                    mask: '000.000.000.000.000,00',
+                    mask: '000.000.000.000.000,000',
                     optional: false,
                     maskOptions: {
                         reverse: true

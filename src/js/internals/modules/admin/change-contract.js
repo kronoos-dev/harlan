@@ -25,9 +25,9 @@ module.exports = controller => {
                         type: 'text',
                         placeholder: 'Contrato (R$)',
                         labelText: 'Valor do Contrato (R$)',
-                        mask: '000.000.000.000.000,00',
+                        mask: '000.000.000.000.000,000',
                         optional: false,
-                        value : numeral(contrato.find('contrato:eq(1)').text() || '0.0').format('0,0.00'),
+                        value : numeral(contrato.find('contrato:eq(1)').text() || '0.0').format('0,0.000'),
                         maskOptions: {
                             reverse: true
                         },
@@ -37,9 +37,9 @@ module.exports = controller => {
                         type: 'text',
                         placeholder: 'Consulta Excedente (R$)',
                         labelText: 'Consulta Excedente (R$)',
-                        mask: '000.000.000.000.000,00',
+                        mask: '000.000.000.000.000,000',
                         optional: false,
-                        value : numeral(contrato.find('contrato:eq(3)').text() || '0.0').format('0,0.00'),
+                        value : numeral(contrato.find('contrato:eq(3)').text() || '0.0').format('0,0.000'),
                         maskOptions: {
                             reverse: true
                         },
