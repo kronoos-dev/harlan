@@ -325,7 +325,7 @@ module.exports = controller => {
                     let [name, action] = i;
                     actions.add(name).click(e => {
                         e.preventDefault();
-                        action(modal);
+                        action(modal, this);
                     });
                 });
             }
